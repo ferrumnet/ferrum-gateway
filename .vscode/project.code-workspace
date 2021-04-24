@@ -1,0 +1,58 @@
+{
+  "folders": [
+    {
+      "name": "Ferrum Gateway",
+      "path": "../"
+    },
+    {
+      "name": "gateway-frontend",
+      "path": "../gateway-frontend"
+    },
+    {
+      "name": "commons",
+      "path": "../commons"
+    },
+    {
+      "name": "component-library",
+      "path": "../component-library"
+    },
+    {
+      "name": "common-containers",
+      "path": "../common-containers"
+    },
+    {
+      "name": "gateway-backend",
+      "path": "../gateway-backend"
+    },
+    {
+      "name": "bridge-frontend",
+      "path": "../bridge-frontend"
+    },
+    {
+      "name": "bridge-backend",
+      "path": "../bridge-backend"
+    },
+    {
+      "name": "staking-frontend",
+      "path": "../staking-frontend"
+    },
+    {
+      "name": "staking-backend",
+      "path": "../staking-backend"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "node_modules/": true,
+      "staking-frontend/": true,
+      "staking-backend/": true,
+      "bridge-frontend/": true,
+      "bridge-backend/": true,
+      "gateway-frontend/": true,
+      "gateway-backend/": true,
+      "common-containers/": true,
+      "commons/": true,
+      "component-library/": true
+    },
+  }
+}

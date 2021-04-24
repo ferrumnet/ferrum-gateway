@@ -1,0 +1,50 @@
+/* add css module styles here (optional) */
+
+.test {
+  background-color: hotpink;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+.full-row {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+
+.col-left .col-right {
+  display: flex;
+  flex-direction: column;
+  flex: .2;
+}
+
+.col-mid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.top-container {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  align-items: center;
+  background-color: #94969a;
+}
+
+.top-left {
+  flex: 1;
+}
+
+.top-right {
+  width: 300px;
+  justify-content: flex-end;
+  display: flex;
+}

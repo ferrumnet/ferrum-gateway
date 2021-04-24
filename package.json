@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "ferrum-gateway",
+  "workspaces": [
+    "ferrumm-gateway-frontend",
+    "component-library",
+    "common-containers",
+    "staking-frontend",
+    "staking-backend",
+    "bridge-frontend",
+    "bridge-backend",
+    "gateway-frontend",
+    "gateway-backend",
+    "commons/*"
+  ],
+  "scripts": {}
+}

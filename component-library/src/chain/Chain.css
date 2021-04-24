@@ -1,0 +1,12 @@
+
+.connect-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.connect-button-container span {
+    margin-left: 4px;
+    margin-right: 4px;
+}

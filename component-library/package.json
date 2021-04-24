@@ -1,0 +1,22 @@
+{
+  "name": "component-library",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "files": [
+    "src"
+  ],
+  "devDependencies": {
+    "jest": "^26.6.0",
+    "react": "@17.0.2"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js"
+    ],
+    "testRegex": "/src/.*\\.test\\.js$"
+  },
+  "dependencies": {
+    "@fluentui/react": "^8.11.2"
+  }
+}
