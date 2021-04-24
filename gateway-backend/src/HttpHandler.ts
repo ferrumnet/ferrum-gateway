@@ -1,5 +1,4 @@
 import {LambdaHttpRequest, LambdaHttpResponse, UnifyreBackendProxyService} from "aws-lambda-helper";
-import { Web3ProviderConfig } from "aws-lambda-helper/dist/blockchain";
 import {LambdaHttpHandler} from "aws-lambda-helper/dist/HandlerFactory";
 import {
     JsonRpcRequest,
@@ -56,6 +55,16 @@ export class HttpHandler implements LambdaHttpHandler {
                 case 'getHttpProviders':
                     body = {}; //this.networkConfig;
                     break;
+                case 'getUserProjects':
+                    ValidationUtils.isTrue(!!userId, 'User must be signed in');
+                    body = await this.getUserProfile(req, userId);
+                    break;
+                case 'getProjects':
+                    body = await this.getProjects(req);
+                    break;
+                case 'getProjectById':
+                    body = await this.getProjectById(req, userId);
+                    break;
                 default:
                     return {
                         body: JSON.stringify({error: 'bad request'}),
@@ -92,6 +101,18 @@ export class HttpHandler implements LambdaHttpHandler {
                 statusCode: 501 as any,
             } as LambdaHttpResponse;
         }
+    }
+
+    async getProjectById(req: JsonRpcRequest, userId: string): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+
+    async getUserProfile(req: JsonRpcRequest, userId: string): Promise<any> {
+        throw new Error("Method not implemented.");
+    }
+
+    async getProjects(req: JsonRpcRequest): Promise<any> {
+        throw new Error("Method not implemented.");
     }
 
     signInAdmin(secret?: string): undefined | string {
