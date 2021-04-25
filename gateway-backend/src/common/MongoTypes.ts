@@ -1,5 +1,7 @@
 import { Connection, Document, Schema } from "mongoose";
-import { CurrencyInfo, GatewayPool, GatewayPoolAllocation, GatewayPoolStat, GatewayProject, GatewayPublicRound, ProjectSocial } from 'types';
+import { CurrencyInfo, GatewayPool, GatewayPoolAllocation,
+    GatewayPoolStat, GatewayProject, GatewayPublicRound,
+    ProjectSocial, UserProjectAllocation, UserProjects } from 'types';
 
 export const projectSocialSchema = new Schema<Document<ProjectSocial>>({
     website: String,
@@ -64,7 +66,24 @@ export const gatewayProjectSchema = new Schema<Document<GatewayProject>>({
     contributionCurrencies: [currencyInfoSchema],
     pools: [gatewayPoolSchema],
     publicRounds: [gatewayPublicRoundSchema],
+    raiseAccess: String,
 });
 
-export const GatewayProjectModels = (c: Connection) => c.model<GatewayProject&Document>(
+export const userProjectAllocationSchema = new Schema<Document<UserProjectAllocation>>({
+    userId: String,
+    projectId: String,
+    allocation: String,
+    claimed: String,
+});
+
+export const userProjectsSchema = new Schema<Document<UserProjects>>({
+    userId: String,
+    favoriteProjectIds: [String],
+    allocations: [userProjectAllocationSchema],
+});
+
+export const GatewayProjectsModel = (c: Connection) => c.model<GatewayProject&Document>(
     'gatewayProjects', gatewayProjectSchema);
+
+export const UserProjectsModel = (c: Connection) => c.model<UserProjects&Document>(
+    'userProjects', userProjectsSchema);

@@ -1,6 +1,8 @@
 
 export type ProjectStatus = 'draft' | 'pending' | 'open' | 'closed';
 
+export type ProjectRaiseAccess = 'private' | 'public';
+
 export interface ProjectSocial {
     website?: string;
     twitter?: string;
@@ -64,4 +66,18 @@ export interface GatewayProject {
     contributionCurrencies: CurrencyInfo[];
     pools: GatewayPool[];
     publicRounds: GatewayPublicRound[];
+    raiseAccess: ProjectRaiseAccess;
+}
+
+export interface UserProjectAllocation {
+    userId: string;
+    projectId: string;
+    allocation: string;
+    claimed: string;
+}
+
+export interface UserProjects {
+    userId: string;
+    favoriteProjectIds: string[];
+    allocations: UserProjectAllocation[];
 }
