@@ -67,6 +67,7 @@ export interface GatewayProject {
     pools: GatewayPool[];
     publicRounds: GatewayPublicRound[];
     raiseAccess: ProjectRaiseAccess;
+    priority: number;
 }
 
 export interface UserProjectAllocation {

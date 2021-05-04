@@ -1,22 +1,24 @@
 import React from 'react';
 // @ts-ignore
 import {NavBar} from 'component-library';
+import { useHistory } from 'react-router';
 
 export interface LeftNavProps {
 }
 
 export function LeftNav(props: LeftNavProps) {
+    const history = useHistory();
     const navItems: {name: string, links: {key: string, name: string}[]}[] = [
         {
             name: 'Projects',
             links: [
                 {
-                    key: 'upcoming',
-                    name: 'Upcoming',
+                    key: '/projects/public',
+                    name: 'Public Sale',
                 },
                 {
-                    key: 'past',
-                    name: 'Past',
+                    key: '/projects/private',
+                    name: 'Private Sale',
                 },
             ],
         },
@@ -24,7 +26,7 @@ export function LeftNav(props: LeftNavProps) {
     return (
         <NavBar
             items={navItems}
-            onLinkClick={(k: string) => alert(k)}
+            onLinkClick={(k: string) => { history.push(k); }}
          />
     )
 }

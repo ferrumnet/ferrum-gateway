@@ -4,7 +4,7 @@ import { Page, PageLayout } from 'component-library';
 import { ConnectBar } from '../connect/ConnectBar';
 import { LeftNav } from './LeftNav';
 import { DashboardContent } from './DashboardContent';
-import { GatewayAppState } from '../common/AppState';
+import { GatewayAppState } from '../common/GatewayAppState';
 import { useSelector } from 'react-redux';
 
 export interface DashboardProps {

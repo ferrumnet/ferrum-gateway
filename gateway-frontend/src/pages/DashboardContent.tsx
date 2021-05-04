@@ -1,6 +1,6 @@
 import React from 'react';
-// @ts-ignore
-import {Page} from 'component-library';
+import { Route, Switch } from 'react-router-dom';
+import { ProjectList } from './projectList/ProjectList';
 
 export interface DashboardContentProps {
 }
@@ -8,8 +8,13 @@ export interface DashboardContentProps {
 export function DashboardContent(props: DashboardContentProps) {
     // show pending init...
     return (
-        <Page>
-            <h3>Contents</h3>
-        </Page>
+        <Switch>
+            <Route path="/projects/public">
+                <ProjectList type="public" />
+            </Route>
+            <Route path="/projects/private">
+                <ProjectList type="private" />
+            </Route>
+        </Switch>
     );
 }

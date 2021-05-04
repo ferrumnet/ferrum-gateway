@@ -1,8 +1,8 @@
-import { Injectable, JsonRpcRequest, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plumbing";
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError } from "types";
+import { logError, ChainEventBase } from "types";
 
 export class ApiClient implements Injectable {
     private jwtToken: string = '';
@@ -16,7 +16,6 @@ export class ApiClient implements Injectable {
         ValidationUtils.isTrue(!!userProfile, '"userProfile" must be provided');
         const address = addressForUser(userProfile);
         ValidationUtils.isTrue(!!address, 'User must have a valid "address"');
-        console.log('GETTING USER PROF')
         const userAddress = address!.address;
         const network = address!.network;
         const res = await this.api({
@@ -31,8 +30,16 @@ export class ApiClient implements Injectable {
         return res;
     }
 
+
     getNetwork() { return this.network; }
     getAddress() { return this.address; }
+
+    async updateChainEvent(eventType: string, events: {network: Network, id: string}[]): Promise<ChainEventBase> {
+        ValidationUtils.isTrue(!!this.getAddress(), 'must be signed in');
+        const res = await this.api({
+            command: 'updateChainEvents', data: {eventType, events}, params: [] } as JsonRpcRequest);
+        return res;
+    }
 
     async loadHttpProviders(): Promise<any> {
         let providers = (await this.api({

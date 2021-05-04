@@ -4,8 +4,7 @@ import {
     JsonRpcRequest,
     ValidationUtils
 } from "ferrum-plumbing";
-import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
-import Web3 from "web3";
+import { ChainEventBase } from 'types';
 
 function handlePreflight(request: any) {
     if (request.method === 'OPTIONS' || request.httpMethod === 'OPTIONS') {
@@ -51,6 +50,10 @@ export class HttpHandler implements LambdaHttpHandler {
                     let {secret} = req.data;
                     const resp = await this.signInAdmin(secret);
                     body = {session: resp}
+                    break;
+                case 'updateChainEvents':
+                    ValidationUtils.isTrue(!!userId, '"userId" os requried');
+                    body = await this.updateChainEvents(userId, req);
                     break;
                 case 'getHttpProviders':
                     body = {}; //this.networkConfig;
@@ -120,5 +123,23 @@ export class HttpHandler implements LambdaHttpHandler {
         //     return this.uniBack.newSession(this.adminHash);
         // }
         return
+    }
+
+    /**
+     * This command is to monitor user events, for example, stake, unstake, etc.
+     * General transactions such as approvals, can also be monitored and stored for the users
+     * future reference. 
+     */
+    async updateChainEvents(userId: string, req: JsonRpcRequest): Promise<ChainEventBase> {
+        const { eventType, events } = req.data;
+        ValidationUtils.allRequired(['eventType', 'events'], req.data);
+        switch(eventType) {
+            case 'transaction':
+                // TODO: Code to update a specific transaction, and save it back to database
+            case 'stakeEvent':
+                // TODO: Update the specific stake event...
+            default:
+                throw new Error('Unsupported event type ' + eventType);
+        }
     }
 }

@@ -5,7 +5,7 @@ import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3
 import { AnyAction, createSlice } from '@reduxjs/toolkit';
 import { addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
-import { inject, inject3, inject4, inject5, } from 'types';
+import { inject, inject3, inject5, } from 'types';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { ApiClient } from '../clients/ApiClient';
 import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract/Web3ModalProvider';
