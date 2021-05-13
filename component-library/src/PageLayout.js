@@ -1,6 +1,12 @@
 import React from 'react';
 import {Page} from './Page';
 
+export function Row({children}) {
+    return (
+            <div className="full-row">{children}</div>
+    )
+}
+
 export function PageLayout({top, left, middle, right, bottom}) {
     return (
         <Page>

@@ -1,4 +1,4 @@
-import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
+import { AddressDetails, AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import { ChainEventBase } from 'types';
 
 export const dummyAppUserProfile = {
@@ -11,6 +11,11 @@ export const dummyAppUserProfile = {
 export function addressForUser(user?: AppUserProfile) {
     if (!user) { return undefined; }
     return (user.accountGroups || [])[0].addresses[0] || {};
+}
+
+export function addressesForUser(user?: AppUserProfile): AddressDetails[] {
+    if (!user) { return []; }
+    return (user.accountGroups || [])[0].addresses || [];
 }
 
 export interface AppAccountState {

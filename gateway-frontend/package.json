@@ -14,6 +14,7 @@
     "@walletconnect/web3-provider": "^1.4.1",
     "common-containers": "1.0.0",
     "component-library": "1.0.0",
+    "office-ui-fabric-react": "^7.170.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.3",

@@ -17,6 +17,8 @@
     "testRegex": "/src/.*\\.test\\.js$"
   },
   "dependencies": {
-    "@fluentui/react": "^8.11.2"
+    "@fluentui/react": "^8.11.2",
+    "office-ui-fabric-react": "^7.170.0",
+    "types": "1.0.0"
   }
 }
