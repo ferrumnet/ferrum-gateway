@@ -49,8 +49,7 @@ const refreshPendingThunk = createAsyncThunk('data/refreshPending', async (paylo
     const rv: ChainEventBase[] = [];
     for (const k of Object.keys(byEvTtpe)) {
         const res = await api.updateChainEvent(k, byEvTtpe[k]);
-        if (!!res) { res.forEach((event: any) =>
-            thunk.dispatch(chainEventsSlice.actions.eventUpdated(event))); }
+        if (!!res) { thunk.dispatch(chainEventsSlice.actions.eventUpdated(res)); }
     }
     return rv;
 });

@@ -1,44 +1,29 @@
 import {LambdaHttpRequest, LambdaHttpResponse, UnifyreBackendProxyService} from "aws-lambda-helper";
-import {LambdaHttpHandler} from "aws-lambda-helper/dist/HandlerFactory";
+import {LambdaHttpHandler, LambdaHttpHandlerHelper } from "aws-lambda-helper/dist/HandlerFactory";
 import {
     JsonRpcRequest,
     ValidationUtils
 } from "ferrum-plumbing";
 import { ChainEventBase } from 'types';
-
-function handlePreflight(request: any) {
-    if (request.method === 'OPTIONS' || request.httpMethod === 'OPTIONS') {
-        return {
-            body: '',
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': '*',
-            },
-            isBase64Encoded: false,
-            statusCode: 200 as any,
-        };
-    }
-}
+// import { BridgeRequestProcessor } from "bridge-backend/dist/BridgeRequestProcessor";
 
 export class HttpHandler implements LambdaHttpHandler {
-    private adminHash: string;
+    // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
+            private bridgeProcessor: any,// BridgeRequestProcessor,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
     }
 
     async handle(request: LambdaHttpRequest, context: any): Promise<LambdaHttpResponse> {
         let body: any = undefined;
-        const preFlight = handlePreflight(request);
-        if (preFlight) {
-            return preFlight;
+        const req = JSON.parse(request.body || '{}') as JsonRpcRequest;
+        const pre = LambdaHttpHandlerHelper.preProcess(request);
+        if (pre.preFlight) {
+            return pre.preFlight;
         }
-        const req = JSON.parse(request.body) as JsonRpcRequest;
-        const headers = request.headers as any;
-        const jwtToken = (headers.authorization || headers.Authorization  || '').split(' ')[1];
+        const jwtToken = pre.authToken;
         const userId = jwtToken ? (await this.uniBack.signInUsingToken(jwtToken)) : undefined;
-        request.path = request.path || (request as any).url;
         try {
             switch (req.command) {
                 case 'signInUsingAddress':
@@ -69,15 +54,20 @@ export class HttpHandler implements LambdaHttpHandler {
                     body = await this.getProjectById(req, userId);
                     break;
                 default:
-                    return {
-                        body: JSON.stringify({error: 'bad request'}),
-                        headers: {
-                            'Access-Control-Allow-Origin': '*',
-                            'Content-Type': 'application/json',
-                        },
-                        isBase64Encoded: false,
-                        statusCode: 401 as any,
-                    } as LambdaHttpResponse;
+                    let processor = null;//this.bridgeProcessor.for(req.command);
+                    if (!!processor) {
+                        body = await processor({...req, userId});
+                    } else {
+                        return {
+                            body: JSON.stringify({error: 'bad request'}),
+                            headers: {
+                                'Access-Control-Allow-Origin': '*',
+                                'Content-Type': 'application/json',
+                            },
+                            isBase64Encoded: false,
+                            statusCode: 401 as any,
+                        } as LambdaHttpResponse;
+                    }
             }
             return {
                 body: JSON.stringify(body),

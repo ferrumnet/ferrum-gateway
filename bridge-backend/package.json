@@ -1,7 +1,7 @@
 {
-  "name": "gateway-backend",
+  "name": "bridge-backend",
   "version": "1.0.0",
-  "description": "Ferrum Gateway Backend",
+  "description": "Ferrum Gateway Bridge Backend",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -47,8 +47,7 @@
     "mongoose": "^5.7.7",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
-    "web3": "^1.2.9",
-    "bridge-backend": "1.0.0"
+    "web3": "^1.2.9"
   },
   "resolutions": {
     "got": "^11.3.0"
