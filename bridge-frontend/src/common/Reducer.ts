@@ -35,15 +35,18 @@ export function dataReducer(state: AppGlobalState = {
         waiting: false, 
         allProjects: [], 
         allStakings: [],
-        groupInfo: {} as any
+        groupInfo: {} as any,
+        error: ''
     }, action: AnyAction) {
     switch (action.type) {
         case CommonActions.WAITING:
-            return { ...state,waiting: true };
+            return { ...state,waiting: true,error: '' };
         case CommonActions.WAITING_DONE:
             return { ...state,waiting: false };
         case CommonActions.GROUP_INFO_LOADED:
             return {...state,groupInfo: action.payload}
+        case CommonActions.ERROR_OCCURED:
+            return {...state,error: action.payload.message}
         default:
             return state;
     }

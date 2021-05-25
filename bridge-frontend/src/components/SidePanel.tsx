@@ -21,7 +21,10 @@ import { BridgeAppState } from '../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
 import { createSlice } from '@reduxjs/toolkit';
 import { Connect } from 'unifyre-extension-web3-retrofit';
-
+import { CheckCircleTwoTone,PlusOutlined } from '@ant-design/icons';
+import {
+    SyncOutlined,
+  } from '@ant-design/icons';
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
@@ -178,22 +181,29 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => stateToProps(state,userAccounts));
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
+    const connected = useSelector<BridgeAppState, any>(appS => !!appS.connection.account.user.userId);
+    const groupId = useSelector<BridgeAppState, any>(appS => !!appS.data.state.groupInfo.groupId);
 
     useEffect(() => {
-        const interval = setInterval(async () => {
-            await updatePendingWithrawItems(dispatch);
-        }, 
-        20000 );
-        return () => clearInterval(interval);
+        if(pageProps.txExecuted){
+            const interval = setInterval(async () => {
+                await updatePendingWithrawItems(dispatch);
+            }, 
+            20000 );
+            return () => clearInterval(interval);
+        }
+     
     }, [])
     
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
-
     }
+    
     useEffect(() => {
-        if(appInitialized && !pageProps.dataLoaded){
-            handleSync()
+        if(connected && groupId){
+            if(appInitialized && !pageProps.dataLoaded){
+               handleSync()
+            }
         }
       });
 
@@ -222,10 +232,14 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                     <AccordionItemButton>
                                         <div style={styles.tokenInfo}>
                                             <div style={styles.tokenSymbol}>
-                                                <img 
+                                                {/* <img 
                                                 style={{"width":'30px'}} src={stakeImg}
                                                 alt="token"
-                                                />
+                                                /> */}
+                                                {e.used === 'completed' && <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: '20px'}} />}
+                                                {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === '' && <PlusOutlined style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+
                                             </div>
                                             <div style={styles.textStyles}>
                                                 Swap {e.receiveAmount} to {Utils.shorten(e.receiveCurrency)}
@@ -337,7 +351,7 @@ const themedStyles = (theme) => ({
         flex: 1,
         color: 'black',
         alignItems: 'center',
-        marginBottom: '14px ',
+        marginBottom: '24px ',
         cursor: 'pointer'
     },
     tokenSymbol: {

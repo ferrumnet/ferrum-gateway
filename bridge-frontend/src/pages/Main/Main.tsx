@@ -17,6 +17,7 @@ import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
 import {PairAddressSignatureVerifyre} from './../../pairUtils/PairAddressSignatureVerifyer';
 import { Connect, CurrencyList } from 'unifyre-extension-web3-retrofit';
+import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 
 export interface MainPageProps {
     baseConnected: boolean,
@@ -265,6 +266,20 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): M
 }
 
 
+export function ConnectBtn(props: IConnectViewProps) {
+    const theme = useContext(ThemeContext);   
+    const styles = themedStyles(theme);
+    return (
+        <OutlinedBtn
+            text={'Connect'}
+            {...props}
+            propStyle={
+                styles.btn
+            }
+        />
+    )
+}
+
 export function MainPage() {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
@@ -279,21 +294,19 @@ export function MainPage() {
             reconnect(dispatch)
         }
     })
-    console.log(userAccounts,pageProps,'=====345');
 
-    const NotConnected = () => (
+    const NotConnected = () => {
+        const ConBot = <ConnectButtonWapper View={ConnectBtn} />
+
+        return (
         <div style={styles.btnContainer}>
             <div style={styles.text}>Connect your Wallet.</div>
             <div>
-                <OutlinedBtn
-                    text={'Connect'}
-                    propStyle={
-                        styles.btn
-                    }
-                />
+                {ConBot}
             </div>
         </div>
-    )
+        )
+    }
 
     const Connected  = () => (
         <div>

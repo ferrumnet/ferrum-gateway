@@ -1,7 +1,7 @@
 import React,{useEffect} from 'react';
 // @ts-ignore
 import { Page } from 'component-library';
-import { DashboardContent } from './DashboardContent';
+import { Route, Switch } from 'react-router-dom';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
 import './../../app.scss'
@@ -17,7 +17,10 @@ import { loadThemeForGroup } from './../../common/themeLoader';
 import { WebPageWrapper } from '../../components/WebPageWrapper';
 import { WaitingComponent } from '../../components/WebWaiting';
 import { CommonActions,addAction } from './../../common/Actions';
-
+import { MainPage } from './../Main/Main';
+import { SwapPage } from './../Swap';
+import { LiquidityPage } from './../Liquidity'
+import { Connect } from 'unifyre-extension-web3-retrofit';
 interface DashboardState {
     initialized: boolean,
     isHome: boolean,
@@ -84,35 +87,6 @@ export interface DashboardContentProps {
     dataLoaded: boolean
 }
 
-export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
-    try {
-        dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
-        const client = inject<BridgeClient>(BridgeClient);
-        dispatch(Actions.initializing({}));
-        const groupId = Utils.getGroupIdFromHref();
-        if (!groupId) {
-            dispatch(Actions.initializeError({initError: 'No group ID'}));
-            return;
-        }
-        const groupInfo = await client.loadGroupInfo(dispatch, groupId!);
-        if (!groupInfo) {
-            dispatch(Actions.initializeError({initError: 'Invalid group Info'}));
-            return;
-        }else{
-            const data = await client.signInToServer(dispatch)
-            loadThemeForGroup(groupInfo.themeVariables);
-            dispatch(Actions.dataFetched({}));
-            return;
-        }
-    } catch (error) {
-        console.log(error)
-        return;
-
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-    }
-}
-
 export const DashboardSlice = createSlice({
     name: 'dashboard',
     initialState: {
@@ -140,12 +114,49 @@ export const DashboardSlice = createSlice({
         dataFetched: (state,action) => {
             state.dataLoaded = true
         },
+        
     },
     extraReducers: {
     },
 });
 
-export const Actions = DashboardSlice.actions;
+const Actions = DashboardSlice.actions;
+
+export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
+    try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+        dispatch(Actions.dataFetched({}));
+        const client = inject<BridgeClient>(BridgeClient);
+        const groupId = Utils.getGroupIdFromHref();
+        if (!groupId) {
+            dispatch(Actions.initializeError({initError: 'No group ID'}));
+            return;
+        }
+        const groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+        if (!groupInfo) {
+            dispatch(Actions.initializeError({initError: 'Invalid group Info'}));
+            return;
+        }else{
+            await client.signInToServer(dispatch)
+            loadThemeForGroup(groupInfo.themeVariables);
+            return;
+        }
+    } catch (error) {
+        dispatch(Actions.initializeError({initError: 'Network Error'}));
+        return;
+    }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+    }
+}
+
+const intializing = (dispatch: Dispatch<AnyAction>) => {
+    try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+    } catch (error) {
+        
+    }
+}
+
 
 function stateToProps(appState: BridgeAppState): DashboardContentProps {
     const state = (appState.ui.dashboard || {}) as DashboardState;
@@ -183,7 +194,10 @@ export function Dashboard() {
 
     }
     useEffect(() => {
-        if(appInitialized && !stateData.dataLoaded && connected){
+        if(!appInitialized && !stateData.dataLoaded){
+            intializing(dispatch)
+        }
+        if(appInitialized && connected && !stateData.dataLoaded){
             handleCon()
         }
     })
@@ -204,7 +218,20 @@ export function Dashboard() {
                   authError={stateData.initializeError}
                 >
                     <Page>
-                        <DashboardContent/>
+                        <Switch>
+                            <Route path='/:gid/liquidity'>
+                                <LiquidityPage/>
+                            </Route>
+                            <Route path='/:gid/swap'>
+                                <SwapPage/>
+                            </Route>
+                            <Route path='/:gid/'>
+                                <MainPage/>
+                            </Route>
+                            <Route path='/'>
+                                <MainPage/>
+                            </Route>
+                        </Switch>
                     </Page>
                     <WaitingComponent/>
                 </WebPageWrapper>

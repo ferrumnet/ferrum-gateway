@@ -36,7 +36,8 @@ export interface AppUserState {
 export interface AppGlobalState extends AppInitializingState {
     allProjects: GatewayProject[],
     allStakings: GatewayStakings,
-    groupInfo: GroupInfo
+    groupInfo: GroupInfo,
+    error: ''
 }
 
 

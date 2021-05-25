@@ -161,6 +161,7 @@ const onConnect = async (
     dispatch: Dispatch<AnyAction>,
     pair:SignedPairAddress,network1:string,currency:string) => {
     try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
         const sc = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
@@ -177,7 +178,7 @@ const onConnect = async (
     } catch(e) {
         throw e;
     }finally {
-        console.log('donee');
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
 

@@ -41,16 +41,16 @@ export class BridgeClient implements Injectable {
 
     async signInToServer(dispatch: Dispatch<AnyAction>): Promise<any|undefined> {
         try {
-            dispatch(addAction(CommonActions.WAITING, { source: 'getAvailableLiquidity' }));
-            this.userAddress = await this.api.getAddress();
-             const res = await this.api.api({
-                command: 'signInUsingAddress', data: {userAddress: this.userAddress}, params: [] } as JsonRpcRequest);
-            this.network = await this.api.getNetwork() as Network;
-            await this.loadDataAfterSignIn(dispatch);
+            dispatch(addAction(CommonActions.WAITING, { source: 'signInUsingAddress' }));
+            const userProfile = await this.client.getUserProfile();
+            this.network = userProfile.accountGroups[0].addresses[0]?.network;
+            this.userAddress = userProfile.accountGroups[0].addresses[0]?.address;
+            await this.api.signInToServer(userProfile);
+            this.loadDataAfterSignIn(dispatch);
             return {};
         } catch (e) {
             console.error('signInToServer', e)
-           
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
 
@@ -120,10 +120,9 @@ export class BridgeClient implements Injectable {
             if(res){
                 const { liquidity } = res;
                 dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
-
             }
+//                ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
 
-            //ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
             //dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
         } catch(e) {
             //dispatch(addAction(Actions.BRIDGE_LOAD_FAILED, {message: e.message || '' }));
@@ -145,8 +144,6 @@ export class BridgeClient implements Injectable {
                 const { liquidity } = res;
                 dispatch(addAction(Actions.USER_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
             }
-
-            //ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
             //dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
         } catch(e) {
             //dispatch(addAction(Actions.AUTHENTICATION_FAILED, {message: e.message || '' }));
@@ -162,6 +159,7 @@ export class BridgeClient implements Injectable {
             currency: string) {
         dispatch(addAction(CommonActions.WAITING, { source: 'loadUserBridgeLiquidity' }));
         try {
+            dispatch(addAction(CommonActions.WAITING, { source: 'getAvailableLiquidity' }));
             // Get the liquidity from web3...
             const res = await this.api.api({
                 command: 'getLiquidity', data: {userAddress: this.userAddress!, currency}, params: [] } as JsonRpcRequest);
@@ -183,7 +181,7 @@ export class BridgeClient implements Injectable {
             command: 'getUserWithdrawItems', data: {network: this.network, userAddress: this.userAddress}, params: [] } as JsonRpcRequest);
         const { withdrawableBalanceItems } = res;
         ValidationUtils.isTrue(!!withdrawableBalanceItems, 'Invalid balances received');
-        //dispatch(addAction(Actions.BRIDGE_BALANCE_LOADED, {withdrawableBalanceItems}))
+        dispatch(addAction(Actions.BRIDGE_BALANCE_LOADED, {withdrawableBalanceItems}))
         console.log('GOT ITEMS', {withdrawableBalanceItems})
         return withdrawableBalanceItems || [];
     }
@@ -259,15 +257,13 @@ export class BridgeClient implements Injectable {
 
     async getUserWithdrawItems(dispatch: Dispatch<AnyAction>, network: string) {
         try {
-            console.log('polopl');
             const res = await this.api.api({command: 'getUserWithdrawItems', data: { network }, params: [] } as JsonRpcRequest);
-            console.log(res,'pololo');    
             return res;
         } catch(e) {
             // dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
             //     message: e.message || '' }));
         } finally {
-          //  dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+          dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
     }
 
@@ -334,6 +330,7 @@ export class BridgeClient implements Injectable {
         targetCurrency: string,
         ) {
         try {
+            dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
             const res = await this.api.api({
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
@@ -371,7 +368,6 @@ export class BridgeClient implements Injectable {
         } catch(e) {
             console.log(e.message);
         } finally {
-            //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
     }
 
