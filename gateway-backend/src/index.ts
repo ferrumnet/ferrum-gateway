@@ -12,9 +12,10 @@ import { KMS } from 'aws-sdk';
 import { EthereumSmartContractHelper, Web3ProviderConfig } from 'aws-lambda-helper/dist/blockchain';
 import { BasicHandlerFunction } from 'aws-lambda-helper/dist/http/BasicHandlerFunction';
 import { GatewayConfig } from './common/Types';
-// import { BridgeRequestProcessor } from "bridge-backend/dist/BridgeRequestProcessor";
-// import { BridgeModule } from "bridge-backend/dist/BridgeModule";
-
+import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { BridgeModule } from "bridge-backend/src/BridgeModule";
+import { TokenBridgeService } from "bridge-backend/src/TokenBridgeService";
+import { BridgeConfigStorage } from "bridge-backend/src/BridgeConfigStorage";
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
         const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
@@ -26,6 +27,7 @@ export class GatewayModule implements Module {
             stakingAppConfig = {
             } as GatewayConfig;
         }
+        
         // makeInjectable('CloudWatch', CloudWatch);
         // container.register('MetricsUploader', c =>
         //     new CloudWatchClient(c.get('CloudWatch'), 'WalletAddressManager', [
@@ -53,8 +55,8 @@ export class GatewayModule implements Module {
         container.register('JsonStorage', () => new Object());
         container.registerSingleton('LambdaHttpHandler',
                 c => new HttpHandler(
-                    c.get(UnifyreBackendProxyService), {} as any,
-                    // c.get(BridgeRequestProcessor),
+                    c.get(UnifyreBackendProxyService),
+                    c.get(BridgeRequestProcessor),
                     // stakingAppConfig.authRandomKey,
                     // networkProviders,
                     ));
@@ -62,9 +64,10 @@ export class GatewayModule implements Module {
             () => new Object());
         container.register(LoggerFactory,
             () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
+        container.register(BridgeRequestProcessor, () => new BridgeRequestProcessor());
 
         // Registering other modules at the end, in case they had to initialize database...
-        // await container.registerModule(new BridgeModule());
+        //await container.registerModule(new BridgeModule());
 
         // Initialize databases here...
     }

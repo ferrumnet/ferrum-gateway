@@ -1,0 +1,70 @@
+{
+  "name": "bridge-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fluentui/react-northstar": "^0.56.0",
+    "@fluentui/react-theme-provider": "^0.18.5",
+    "@reduxjs/toolkit": "^1.5.1",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@walletconnect/web3-provider": "^1.4.1",
+    "antd": "^4.15.6",
+    "common-containers": "1.0.0",
+    "component-library": "1.0.0",
+    "desktop-components-library": "git+https://github.com/ferrumnet/desktop-components-library.git",
+    "eth-sig-util": "^3.0.1",
+    "node-sass": "4.14.1",
+    "office-ui-fabric-react": "^7.170.0",
+    "react": "^17.0.2",
+    "react-accessible-accordion": "^3.3.4",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.2.3",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "4.0.3",
+    "react-spinners-css": "^2.0.1",
+    "react-toast-notifications": "^2.4.4",
+    "types": "1.0.0",
+    "typescript": "^4.1.2",
+    "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git",
+    "web-vitals": "^1.0.1"
+  },
+  "scripts": {
+    "start": "react-app-rewired  start",
+    "build": "react-app-rewired  build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react-router": "^5.1.13",
+    "@types/react-router-dom": "^5.1.7",
+    "babel-loader": "8.1.0",
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.1.8",
+    "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git"
+  }
+}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React,{useContext} from 'react';
+import {ThemeContext, Theme} from 'unifyre-react-helper';
 import {Page} from './Page';
 
 export function Row({children}) {
@@ -20,3 +21,37 @@ export function PageLayout({top, left, middle, right, bottom}) {
         </Page>
     );
 }
+
+export function GeneralPageLayout({top, middle, bottom}) {
+    const theme = useContext(ThemeContext);
+    const styles = themedStyles(theme);
+    return (
+        <Page
+            style={{...styles.fullScreen}}        
+        >
+            <div>
+                <div className="full-row">{top}</div>
+                <div className="full-row" style={{...styles.fullScreen}}>
+                    <div className="col-mid">{middle}</div>
+                </div>
+                <div className="full-row">{bottom}</div>
+            </div>
+        </Page>
+    );
+}
+
+const themedStyles = theme => ({
+    footer: {
+        position: 'relative',
+        backgroundColor: 'white',
+        bottom: '0',
+        width: '100%'
+    },
+    fullScreen: {
+        minHeight: window.innerHeight,
+        backgroundColor: theme.get(Theme.Colors.bkgShade0),
+        color: theme.get(Theme.Colors.textColor)
+    },
+    smallGap: {
+    }
+});
