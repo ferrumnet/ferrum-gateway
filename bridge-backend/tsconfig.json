@@ -3,7 +3,7 @@
     "compilerOptions": {
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      "lib": [ "es5", "dom" ],
+      "lib": [ "es6", "dom" ],
       "module": "commonjs",
       "moduleResolution": "node",
       "noEmitOnError": true,
@@ -12,7 +12,8 @@
       "removeComments": false,
       "sourceMap": true,
        "resolveJsonModule": true,
-    },
+       "target": "ES6",
+      },
     "exclude": [
       "node_modules/*"
     ]

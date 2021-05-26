@@ -14,12 +14,15 @@ export interface BridgeTokenConfig {
 export interface NetworkRelatedConfig {
     [network: string]: string;
 }
-
+export interface TokenBridgeConfig {
+    contractClient: {[k: string]: string};
+}
 export interface BridgeProcessorConfig {
     database: MongooseConfig;
     payer: NetworkRelatedConfig;
     addressManagerEndpoint: string;
     addressManagerSecret: string;
+    bridgeConfig: TokenBridgeConfig;
 }
 
 export function getEnv(env: string) {

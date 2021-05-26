@@ -54,9 +54,9 @@ export class HttpHandler implements LambdaHttpHandler {
                     body = await this.getProjectById(req, userId);
                     break;
                 default:
-                    let processor = this.bridgeProcessor.withdrawSignedGetTransaction;
-                    console.log(processor,'processor')
+                    let processor = this.bridgeProcessor.for(req.command);
                     if (!!processor) {
+                        ValidationUtils.isTrue(!!userId, 'user must be signed in');
                         body = await processor(req);
                     } else {
                         return {

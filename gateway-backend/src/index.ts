@@ -64,10 +64,8 @@ export class GatewayModule implements Module {
             () => new Object());
         container.register(LoggerFactory,
             () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
-        container.register(BridgeRequestProcessor, () => new BridgeRequestProcessor());
-
         // Registering other modules at the end, in case they had to initialize database...
-        //await container.registerModule(new BridgeModule());
+        await container.registerModule(new BridgeModule());
 
         // Initialize databases here...
     }

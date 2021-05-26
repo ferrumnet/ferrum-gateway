@@ -39,19 +39,6 @@ export interface PayBySignatureData {
     hash: string;
 }
 
-export interface GroupInfo {
-    _id?: string;
-    groupId: string;
-    network: string;
-    themeVariables: any;
-    defaultCurrency: string;
-    homepage: string;
-    noMainPage: boolean; // Main page should redirect to home page
-    headerHtml?: string;
-    footerHtml?: string;
-    mainLogo?: string
-}
-
 // Every transaction sent by user using a paired address to the bridge contract,
 // will produced a Withdrawable Balance Item
 export interface UserBridgeWithdrawableBalanceItem {

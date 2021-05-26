@@ -1,10 +1,10 @@
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
-import {abi as bridgeAbi} from './resources/BridgePool.json';
-//@ts-ignore
 import abiDecoder from 'abi-decoder';
 import { HexString, Injectable, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
+var bridgeAbi = require('./resources/BridgePool.json');
+
 const Helper = EthereumSmartContractHelper;
 
 export class TokenBridgeContractClinet implements Injectable {

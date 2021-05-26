@@ -5,11 +5,14 @@ import { Injectable, Network, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Document, Model} from "mongoose";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel } from "types";
+import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
+    GroupInfo,GroupInfoModel
+} from "types";
 import { Big } from 'big.js';
 
 export class TokenBridgeService extends MongooseConnection implements Injectable {
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
+    private groupInfoModel: Model<GroupInfo & Document, {}> | undefined;
     private balanceItem?: Model<UserBridgeWithdrawableBalanceItem&Document>;
     private con: Connection|undefined;
     constructor(
@@ -22,6 +25,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
 
     initModels(con: Connection): void {
         this.signedPairAddressModel = SignedPairAddressSchemaModel(con);
+        this.groupInfoModel = GroupInfoModel(con);
         this.balanceItem = UserBridgeWithdrawableBalanceItemModel(con);
         this.con = con;
     }
@@ -191,7 +195,19 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         return res
 
     }
-    
+
+    async getGroupInfo(groupId: string): Promise<GroupInfo|undefined> {
+        this.verifyInit();
+        console.log('hello');
+        ValidationUtils.isTrue(!!groupId, '"groupId" must be provided');
+        const r = await this.groupInfoModel!.findOne({groupId}).exec();
+        console.log(r);
+        if (r) {
+            return r.toJSON();
+        }
+        return;
+    }
+
     async updateUserPairedAddress(pair: SignedPairAddress) {
         this.verifyInit();
         ValidationUtils.isTrue(!!pair.pair, 'Invalid pair (empty)');
