@@ -1,12 +1,21 @@
 import { Connection, Document, Schema } from "mongoose";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import {ValidationUtils} from "ferrum-plumbing";
-import {DomainSeparator, Eip712TypeDefinition} from 'unifyre-extension-web3-retrofit/dist/client/Eip712';
+import {DomainSeparator,Eip712TypeDefinition} from 'unifyre-extension-web3-retrofit/dist/client/Eip712';
 
 export interface RequestMayNeedApprove {
     isApprove: boolean;
     requests: CustomTransactionCallRequest[];
 }
+
+export const PairedAddressType: Eip712TypeDefinition =  {
+    Pair: [
+        { name: 'network1', type: 'string' },
+        { name: 'address1', type: 'address' },
+        { name: 'network2', type: 'string' },
+        { name: 'address2', type: 'address' },
+    ],
+};
 
 export interface PairedAddress {
     network1: string;
@@ -139,19 +148,49 @@ export function domainSeparator(network: string): DomainSeparator {
     });
 };
 
-
-export const PairedAddressType: Eip712TypeDefinition =  {
-    Pair: [
-        { name: 'network1', type: 'string' },
-        { name: 'address1', type: 'address' },
-        { name: 'network2', type: 'string' },
-        { name: 'address2', type: 'address' },
-    ],
-};
-
 const BRIDGE_CONTRACT = {
     'ETHEREUM': '0x0000000000000000000000000000000000000000',
     'RINKEBY': '0x0000000000000000000000000000000000000000',
     'BSC': '0x0000000000000000000000000000000000000000',
     'BSC_TESTNET': '0x0000000000000000000000000000000000000000',
 } as any;
+
+export interface PairedAddress {
+    network1: string;
+    address1: string;
+    network2: string;
+    address2: string;
+}
+
+// Balance related types
+
+// Every transaction sent by user using a paired address to the bridge contract,
+// will produced a Withdrawable Balance Item
+export interface UserBridgeWithdrawableBalanceItem {
+    id: string; // same as signedWithdrawHash
+    timestamp: number;
+    receiveNetwork: string;
+    receiveCurrency: string;
+    receiveAddress: string;
+    receiveAmount: string;
+    salt: string;
+    signedWithdrawHash: string;
+    signedWithdrawSignature: string;
+
+    sendNetwork: string;
+    sendAddress: string;
+    sendTimestamp: number;
+    sendTransactionId: string;
+    sendCurrency: string;
+    sendAmount: string;
+
+    used: ''|'pending'|'failed'|'completed';
+    useTransactionIds: string[];
+}
+
+export interface UserBridgeLiquidityItem {
+    network: string;
+    address: string;
+    currency: string;
+    liquidity: string;
+}

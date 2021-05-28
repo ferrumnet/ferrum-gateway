@@ -12,7 +12,7 @@ import { Theme, ThemeConstantProvider, WebdefaultDarkThemeConstantsBuilder } fro
 import { inject,IocModule } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { Dispatch } from "redux";
-import { Utils } from './../../common/Utils';
+import { getGroupIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
 import { WebPageWrapper } from '../../components/WebPageWrapper';
 import { WaitingComponent } from '../../components/WebWaiting';
@@ -127,7 +127,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         dispatch(Actions.dataFetched({}));
         const client = inject<BridgeClient>(BridgeClient);
-        const groupId = Utils.getGroupIdFromHref();
+        const groupId = getGroupIdFromHref();
         if (!groupId) {
             dispatch(Actions.initializeError({initError: 'No group ID'}));
             return;
@@ -150,11 +150,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
 }
 
 const intializing = (dispatch: Dispatch<AnyAction>) => {
-    try {
-        dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
-    } catch (error) {
-        
-    }
+    dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
 }
 
 

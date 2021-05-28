@@ -11,7 +11,7 @@ import { Steps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import { Utils } from '../common/Utils';
+import { Utils } from 'types';
 import { AnyAction, Dispatch } from "redux";
 import { useDispatch } from 'react-redux';
 
@@ -56,7 +56,6 @@ export function SwapModal (props: {
         if(modalStatus === 2){
           setTimeout(
             async ()=>{
-              console.log('calling')
               const status = await props.itemCallback(dispatch,props.itemId)
               console.log('called',status)
               if(status && status === 'created'){

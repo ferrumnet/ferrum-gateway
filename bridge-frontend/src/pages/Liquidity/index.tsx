@@ -18,7 +18,7 @@ import {
     // @ts-ignore
 } from 'desktop-components-library';
 import { ValidationUtils } from "ferrum-plumbing";
-import { Utils } from './../../common/Utils';
+import { Utils } from 'types';
 import { message, Result } from 'antd';
 import { formatter } from './../../common/Utils';
 import { ReloadOutlined } from '@ant-design/icons';
@@ -238,9 +238,7 @@ export const liquidityPageSlice = createSlice({
             //@ts-ignore
             state.pairedAddress = action.payload.pairedAddress;
         });
-        builder.addCase('USER_AVAILABLE_LIQUIDITY_FOR_TOKEN', (state, action) => {
-            console.log(action,'oiyyiiy');
-            
+        builder.addCase('USER_AVAILABLE_LIQUIDITY_FOR_TOKEN', (state, action) => {            
             //@ts-ignore
             state.availableLiquidity= action.payload.liquidity;
         });

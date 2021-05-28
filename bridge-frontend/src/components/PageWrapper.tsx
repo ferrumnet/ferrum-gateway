@@ -3,14 +3,12 @@ import {
     // @ts-ignore
 } from 'component-library';
 import { ReponsivePageWrapperDispatch, ReponsivePageWrapperProps } from './PageWrapperTypes';
-import React, {useContext} from 'react';
+import {useContext} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { useSelector } from 'react-redux';
 import { BridgeAppState } from '../common/BridgeAppState';
 import { MessageBar, MessageBarType } from '@fluentui/react';
-import { ConnectBar } from './../connect/ConnectBar';
 import './nav.scss';
-import { useHistory } from 'react-router';
 
 function ErrorBar(props: {error: string}) {
     return (
@@ -74,31 +72,6 @@ export function Navbar (props: ReponsivePageWrapperProps&ReponsivePageWrapperDis
             {error}
         </>
     )
-}
-
-function DesktopPageWrapper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
-    const history = useHistory();
-    return (
-        <>
-        <GeneralPageLayout
-            top={
-                <ConnectBar
-                    additionalOptions={
-                        <>
-                            {props.navBarContent}
-                        </>
-                    }
-                />
-            }
-            middle={props.children}
-        >
-        </GeneralPageLayout>
-        </>
-    );
-}
-
-export function MainPageWrapper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
-    return <DesktopPageWrapper {...props}>{props.children}</DesktopPageWrapper>
 }
 
 //@ts-ignore

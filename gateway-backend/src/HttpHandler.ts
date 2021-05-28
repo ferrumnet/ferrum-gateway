@@ -57,7 +57,7 @@ export class HttpHandler implements LambdaHttpHandler {
                     let processor = this.bridgeProcessor.for(req.command);
                     if (!!processor) {
                         ValidationUtils.isTrue(!!userId, 'user must be signed in');
-                        body = await processor(req);
+                        body = await processor(req,userId);
                     } else {
                         return {
                             body: JSON.stringify({error: 'bad request'}),

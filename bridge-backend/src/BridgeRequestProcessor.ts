@@ -12,25 +12,25 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         super()
 
         this.registerProcessor('withdrawSignedGetTransaction',
-            req => this.withdrawSignedGetTransaction(req,req.userId));
+            (req,userId) => this.withdrawSignedGetTransaction(req,userId!));
 
         this.registerProcessor('addLiquidityGetTransaction',
-            req => this.addLiquidityGetTransaction(req,req.userId!));
+            (req,userId) => this.addLiquidityGetTransaction(req,userId!));
         
         this.registerProcessor('removeLiquidityIfPossibleGetTransaction',
-            req => this.removeLiquidityIfPossibleGetTransaction(req,req.userId!));
+            (req,userId) => this.removeLiquidityIfPossibleGetTransaction(req,userId!));
         
         this.registerProcessor('getUserPairedAddress',
-            req => this.getUserPairedAddress(req,req.userId!));
+            (req,userId) => this.getUserPairedAddress(req,userId!));
         
         this.registerProcessor('getAvaialableLiquidity',
-            req => this.getAvailableLiquidity(req));
+            (req) => this.getAvailableLiquidity(req));
         
         this.registerProcessor('getTokenAllowance',
             req => this.getLiquidity(req));
         
-        this.registerProcessor('getTokenAllowance',
-            req => this.getUserWithdrawItems(req,req.userId!));
+        this.registerProcessor('getUserWithdrawItems',
+            (req,userId) => this.getUserWithdrawItems(req,userId!));
         
         this.registerProcessor('updateWithdrawItemAddTransaction',
             req => this.updateWithdrawItemAddTransaction(req));
@@ -42,13 +42,19 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
             req => this.unpairUserPairedAddress(req));
         
         this.registerProcessor('swapGetTransaction',
-            req => this.swapGetTransaction(req,req.userId));
+            (req,userId) => this.swapGetTransaction(req,userId!));
         
         this.registerProcessor('getSourceCurrencies',
             req => this.bgs.getSourceCurrencies(req.data.network));
         
         this.registerProcessor('getGroupInfo',
             req => this.getGroupInfo(req.data.groupId));
+        
+        this.registerProcessor('GetSwapTransactionStatus',
+            req => this.getSwapTransactionStatus(req));
+        
+        this.registerProcessor('getLiquidity',
+            req => this.getLiquidity(req));
 
     }
 
@@ -74,7 +80,6 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
     }
 
     async getGroupInfo(groupId:string) {
-        console.log(this.svc);
         return this.svc.getGroupInfo(groupId);
     }
 
@@ -159,7 +164,6 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
     }
 
     async withdrawSignedGetTransaction(req: HttpRequestData, userId: string) {
-        console.log(req)
         const {
             id
         } = req.data;

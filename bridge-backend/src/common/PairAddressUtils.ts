@@ -1,5 +1,5 @@
 import { eip712Json, eipTransactionRequest } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
-import { domainSeparator, PairedAddress, PairedAddressType, SignedPairAddress } from "./TokenBridgeTypes";
+import { domainSeparator, PairedAddress, PairedAddressType, SignedPairAddress } from "types";
 import { recoverTypedSignature_v4 } from 'eth-sig-util';
 import { Network, ValidationUtils } from "ferrum-plumbing";
 

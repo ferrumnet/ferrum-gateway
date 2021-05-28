@@ -1,29 +1,34 @@
-/**
- * This is a generic wrapper used by all unifyre apps.
- * This page wrapper reacts to application mode (web3 or unifyre)
- * and shows the correct details. It also supports Fluent-UI theming if provided.
- * 
- * Another role of this page it to manage connect/disconnect events.
- * It expects to UnifyreAppClientBase ber registed with container and implemented.
- */
- import React from 'react';
+import React from 'react';
+ import {
+    GeneralPageLayout,Row
+    // @ts-ignore
+} from 'component-library';
+
 import { Provider as FluentProvider, teamsTheme } from '@fluentui/react-northstar';
 import { ThemeContext } from 'unifyre-react-helper';
-import { MainPageWrapper } from './PageWrapper';
+import { ConnectBar } from './../connect/ConnectBar';
 import { ReponsivePageWrapperDispatch, ReponsivePageWrapperProps } from './PageWrapperTypes';
 
 export function ResponsivePageWrapper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
-    if (props.mode === 'web3') {
-        return (
-            <>
-            <ThemeContext.Provider value={props.theme}>
-                <FluentProvider theme={teamsTheme}>
-                    <MainPageWrapper {...props} />
-                </FluentProvider>
-            </ThemeContext.Provider>
-            </>
-        );
-    }else{
-        return <></>
-    }
+    return (
+        <>
+        <ThemeContext.Provider value={props.theme}>
+            <FluentProvider theme={teamsTheme}>
+            <GeneralPageLayout
+                    top={
+                        <ConnectBar
+                            additionalOptions={
+                                <>
+                                    {props.navBarContent}
+                                </>
+                            }
+                        />
+                    }
+                    middle={props.children}
+                >
+            </GeneralPageLayout>
+            </FluentProvider>
+        </ThemeContext.Provider>
+        </>
+    );
 }

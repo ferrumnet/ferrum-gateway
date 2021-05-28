@@ -66,7 +66,11 @@ export class BridgeModule implements Module {
                 } as Web3ProviderConfig;
         const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
             await decryptPrivateKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
-
+        container.registerSingleton(TokenBridgeContractClinet,
+            c => new TokenBridgeContractClinet(
+                c.get(EthereumSmartContractHelper),
+                conf.bridgeConfig.contractClient,
+            ));
         container.registerSingleton(BridgeProcessor, c => new BridgeProcessor(
             conf, c.get(ChainClientFactory), c.get(TokenBridgeService),
             c.get(BridgeConfigStorage), c.get(PairAddressSignatureVerifyre),
@@ -74,32 +78,26 @@ export class BridgeModule implements Module {
             privateKey,
             c.get(LoggerFactory)));
         container.register('JsonStorage', () => new Object());
-        container.registerSingleton(TokenBridgeContractClinet,
-            c => new TokenBridgeContractClinet(
-                c.get(EthereumSmartContractHelper),
-                {'BSC': chainConf.web3ProviderBsc},
-            ));
         container.registerSingleton(EthereumSmartContractHelper, () => new EthereumSmartContractHelper(
-            networkProviders));
-        container.registerSingleton(TokenBridgeService,
-            c => new TokenBridgeService(
-                c.get(EthereumSmartContractHelper),
-                c.get(TokenBridgeContractClinet),
-                c.get(PairAddressSignatureVerifyre)
-                ));
+             networkProviders));
+     
        
         container.register(PairAddressSignatureVerifyre, () => new PairAddressSignatureVerifyre());
         container.registerSingleton(BridgeConfigStorage, () => new BridgeConfigStorage())
         container.registerSingleton(BridgeRequestProcessor, c => new BridgeRequestProcessor(
             c.get(TokenBridgeService),c.get(BridgeConfigStorage)
         ));
+        container.registerSingleton(
+            TokenBridgeService, c => new TokenBridgeService(
+                c.get(EthereumSmartContractHelper),
+                c.get(TokenBridgeContractClinet),
+                c.get(PairAddressSignatureVerifyre)
+            )
+        );
 
         container.register(LoggerFactory,
             () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
 
-        container.registerSingleton(TokenBridgeContractClinet, c => new TokenBridgeContractClinet(
-            c.get(EthereumSmartContractHelper), conf.bridgeConfig?.contractClient,
-        ));
         await container.get<TokenBridgeService>(TokenBridgeService).init(conf.database);
         await container.get<BridgeConfigStorage>(BridgeConfigStorage).init(conf.database);
     }

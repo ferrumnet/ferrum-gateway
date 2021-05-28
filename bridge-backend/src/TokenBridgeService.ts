@@ -198,10 +198,8 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
 
     async getGroupInfo(groupId: string): Promise<GroupInfo|undefined> {
         this.verifyInit();
-        console.log('hello');
         ValidationUtils.isTrue(!!groupId, '"groupId" must be provided');
         const r = await this.groupInfoModel!.findOne({groupId}).exec();
-        console.log(r);
         if (r) {
             return r.toJSON();
         }

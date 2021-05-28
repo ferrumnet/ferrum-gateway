@@ -11,8 +11,10 @@
       "outDir": "./dist/",
       "removeComments": false,
       "sourceMap": true,
-       "resolveJsonModule": true,
-       "target": "ES6",
+      "resolveJsonModule": true,
+      "target": "es6",
+      "esModuleInterop": true,
+      "skipLibCheck": true
       },
     "exclude": [
       "node_modules/*"

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import { connect,useDispatch, useSelector } from 'react-redux';
-import { Utils } from '../common/Utils';
+import { Utils } from 'types';
 import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import {
     Accordion,
@@ -9,13 +9,12 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
-import stakeImg from "../images/next.png"
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import ButtonLoader from './btnWithLoader';
 import { AnyAction, Dispatch } from "redux";
 import { addAction, CommonActions } from "../common/Actions";
 import { BridgeClient } from './../clients/BridgeClient';
-import { inject,UserBridgeWithdrawableBalanceItem } from "types";
+import { inject,inject2,UserBridgeWithdrawableBalanceItem } from "types";
 import { useToasts } from 'react-toast-notifications';
 import { BridgeAppState } from '../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
@@ -61,7 +60,6 @@ export const SidePanelSlice = createSlice({
             state.reconnecting = true;
         });
         builder.addCase('mainPage/loadedUserPairs', (state, action) => {
-            console.log('pairdedpaired')
             //@ts-ignore
             state.pairedAddress = action.payload.pairedAddress;
         });
@@ -92,9 +90,8 @@ export interface swapDisptach {
 
 const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
     try {
-        const connect = inject<Connect>(Connect);
+        const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
-        const sc = inject<BridgeClient>(BridgeClient);
         const res = await sc.getUserWithdrawItems(dispatch,network); 
         if(res.withdrawableBalanceItems.length > 0){
             dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
@@ -113,11 +110,10 @@ const executeWithrawItem = async (
     ) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
-        dis();
-        const sc = inject<BridgeClient>(BridgeClient);
-        const connect = inject<Connect>(Connect);
+        const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
-        const res = await sc.withdraw(dispatch,item)
+        const res = await sc.withdraw(dispatch,item,network)
+        dis();
         if(!!res){
             success('Withdrawal was Successful and is processing...') 
             const items = await sc.getUserWithdrawItems(dispatch,network);
@@ -130,7 +126,6 @@ const executeWithrawItem = async (
         error('Withdrawal failed');
     }catch(e) {
         if(!!e.message){
-            console.log('hellow',e.message);
             //dispatch(addAction(TokenBridgeActions.AUTHENTICATION_FAILED, {message: e.message }));
         }
     }finally {
@@ -140,8 +135,7 @@ const executeWithrawItem = async (
 
 const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
     try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const connect = inject<Connect>(Connect);
+        const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items.withdrawableBalanceItems.length > 0){
@@ -180,9 +174,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const dispatch = useDispatch();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => stateToProps(state,userAccounts));
-    const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
-    const connected = useSelector<BridgeAppState, any>(appS => !!appS.connection.account.user.userId);
-    const groupId = useSelector<BridgeAppState, any>(appS => !!appS.data.state.groupInfo.groupId);
+    const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
+    const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
+    const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
 
     useEffect(() => {
         if(pageProps.txExecuted){

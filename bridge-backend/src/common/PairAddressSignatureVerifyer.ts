@@ -1,6 +1,6 @@
 import { Network } from "ferrum-plumbing";
 import { PairAddressUtils } from "./PairAddressUtils";
-import { SignedPairAddress } from "./TokenBridgeTypes";
+import { SignedPairAddress } from "types";
 
 export class PairAddressSignatureVerifyre {
     constructor() {

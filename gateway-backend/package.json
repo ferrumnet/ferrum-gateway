@@ -34,10 +34,11 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "abi-decoder": "^2.3.0",
+    "abi-decoder": "^2.4.0",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
     "aws-sdk": "^2.572.0",
     "big.js": "^5.2.2",
+    "bridge-backend": "1.0.0",
     "cross-fetch": "^3.0.4",
     "dotenv": "^8.2.0",
     "eth-sig-util": "^3.0.1",
@@ -47,8 +48,7 @@
     "mongoose": "^5.7.7",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
-    "web3": "^1.2.9",
-    "bridge-backend": "1.0.0"
+    "web3": "^1.2.9"
   },
   "resolutions": {
     "got": "^11.3.0"

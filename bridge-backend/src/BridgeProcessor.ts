@@ -11,7 +11,7 @@ import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { fixSig, produceSignatureWithdrawHash, randomSalt } from "./BridgeUtils";
 import { toRpcSig } from 'ethereumjs-util';
-import { SignedPairAddress } from "./common/TokenBridgeTypes";
+import { SignedPairAddress } from "types";
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;

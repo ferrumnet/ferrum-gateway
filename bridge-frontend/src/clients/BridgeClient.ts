@@ -65,7 +65,7 @@ export class BridgeClient implements Injectable {
 
     private async loadUserPairedAddress(dispatch: Dispatch<AnyAction>) {
         const res = await this.api.api({
-            command: 'getUserPairedAddress', data: {network: this.network}, params: [] } as JsonRpcRequest);
+            command: 'getUserPairedAddress', data: {network: this.network,address: this.userAddress}, params: [] } as JsonRpcRequest);
         const { pairedAddress } = res;
         dispatch(PairPageActions.loadedUserPairs({pairedAddress: pairedAddress || {}}));
     }
@@ -121,8 +121,7 @@ export class BridgeClient implements Injectable {
                 const { liquidity } = res;
                 dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
             }
-//                ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
-
+            //ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
             //dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
         } catch(e) {
             //dispatch(addAction(Actions.BRIDGE_LOAD_FAILED, {message: e.message || '' }));
@@ -189,15 +188,16 @@ export class BridgeClient implements Injectable {
     public async withdraw(
         dispatch: Dispatch<AnyAction>,
         w: UserBridgeWithdrawableBalanceItem,
+        network:Network
         ) {
         dispatch(addAction(CommonActions.WAITING, { source: 'withdraw' }));
         try {
-            ValidationUtils.isTrue(this.network === w.sendNetwork, 
-                `Connected to ${this.network} but the balance item can be claimed on ${w.sendNetwork}`);
+            ValidationUtils.isTrue(network === w.sendNetwork, 
+                `Connected to ${network} but the balance item can be claimed on ${w.sendNetwork}`);
             const res = await this.api.api({
                 command: 'withdrawSignedGetTransaction', data: {id: w.receiveTransactionId}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
-            const requestId = await this.client.sendTransactionAsync(this.network!, [res],
+            const requestId = await this.client.sendTransactionAsync(network!, [res],
                 {});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
             const response = await this.client.getSendTransactionResponse(requestId);
@@ -213,6 +213,7 @@ export class BridgeClient implements Injectable {
                 message: e.message || '' }));
             dispatch(addAction(Actions.BRIDGE_SWAP_FAILED, {
                 message: e.message || '' }));
+                console.log(e.message);
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
