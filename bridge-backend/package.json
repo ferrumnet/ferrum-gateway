@@ -2,10 +2,10 @@
   "name": "bridge-backend",
   "version": "1.0.0",
   "description": "Ferrum Gateway Bridge Backend",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "webpack",
+    "build": "tsc",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
     "deploy-prod": "TODO: Deploy to prod",
     "deploy": "./bin/deploy.sh"

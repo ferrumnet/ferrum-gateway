@@ -5,12 +5,12 @@ import {
     ValidationUtils
 } from "ferrum-plumbing";
 import { ChainEventBase } from 'types';
-// import { BridgeRequestProcessor } from "bridge-backend/dist/BridgeRequestProcessor";
+import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
-            private bridgeProcessor: any,// BridgeRequestProcessor,
+            private bridgeProcessor: BridgeRequestProcessor,// BridgeRequestProcessor,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
     }
@@ -54,9 +54,9 @@ export class HttpHandler implements LambdaHttpHandler {
                     body = await this.getProjectById(req, userId);
                     break;
                 default:
-                    let processor = null;//this.bridgeProcessor.for(req.command);
+                    let processor = this.bridgeProcessor.for(req.command);
                     if (!!processor) {
-                        body = await processor({...req, userId});
+                        body = await processor(req,userId);
                     } else {
                         return {
                             body: JSON.stringify({error: 'bad request'}),

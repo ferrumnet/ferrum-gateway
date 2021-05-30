@@ -3,8 +3,8 @@ var path = require ('path');
 
 module.exports = {
     webpack: function override(config) {
-        var addr1 = path.resolve(__dirname, '..', (process.platform === 'win32' ? '\\component-library\\src' : 'component-library/src'));
-        // console.log('ADDR IS ', addr); throw new Error('ASD')
+        var addr1 = path.resolve(__dirname, (process.platform === 'win32' ? '\\3rd\\ferrum-gateway\\component-library\\src' : 'component-library/src'));
+        console.log('ADDR IS ', addr1);
         config.module.rules.push({
             test: /\.(js|jsx)$/,
             include: [

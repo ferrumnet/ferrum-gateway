@@ -5,7 +5,7 @@ export interface HttpRequestData {
     userId?: string;
 }
 
-export type RequestProcessorFunction = (req: HttpRequestData) => Promise<any>
+export type RequestProcessorFunction = (req: HttpRequestData, userId?:string) => Promise<any>
 export type RequestProcessorMap = { [k: string]: RequestProcessorFunction };
 
 export abstract class HttpRequestProcessor {

@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	  mode: 'production',
-	  entry: './src/index.ts',
+	  entry: './src/BridgeModule.ts',
 	  target: 'node',
 	  devtool: 'inline-source-map',
 	  module: {
@@ -15,7 +15,7 @@ module.exports = {
 			          ]
 		    },
 	  resolve: {
-		      extensions: [ '.tsx', '.ts', '.js' ]
+		      extensions: [ '.tsx', '.ts', '.js','.json']
 		    },
 	  output: {
 		      filename: 'index.js',
