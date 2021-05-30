@@ -18,6 +18,7 @@ import { PairAddressService } from './../../pairUtils/PairAddressService';
 import {PairAddressSignatureVerifyre} from './../../pairUtils/PairAddressSignatureVerifyer';
 import { Connect, CurrencyList } from 'unifyre-extension-web3-retrofit';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
+import { CommonActions,addAction } from './../../common/Actions';
 
 export interface MainPageProps {
     baseConnected: boolean,
@@ -40,7 +41,8 @@ export interface MainPageProps {
     signedPairedAddress?: SignedPairAddress,
     pairedAddresses?: SignedPairAddress,
     groupId: string,
-    reconnecting?: boolean
+    reconnecting?: boolean,
+    dataLoaded: boolean
 }
 
 const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: SignedPairAddress) => {
@@ -57,16 +59,18 @@ const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: SignedPairAdd
                 dispatch(Actions.bridgeInitSuccess({data: res,address1: addr,network1: network}));
                 // ownProps.con()
             } else {
+                dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'error occured' }));
+
                // dispatch(addAction(Actions.BRIDGE_INIT_FAILED, { message: intl('fatal-error-details') }));
             }
             
         }
     } catch(e) {
         if(!!e.message){
-            //dispatch(addAction(TokenBridgeActions.AUTHENTICATION_FAILED, {message: e.message }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
     }finally {
-       // dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 }
 
@@ -92,8 +96,10 @@ const signFirstPairAddress = async (dispatch: Dispatch<AnyAction>,
         }
     } catch(e) {
             if(!!e.message){
-       }
+                dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
+            }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 }
 
@@ -130,8 +136,10 @@ const signSecondPairAddress = async (dispatch: Dispatch<AnyAction>,
         }
     } catch(e) {
             if(!!e.message){
+                dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
             }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 }
 
@@ -153,6 +161,17 @@ const reconnect = async (dispatch: Dispatch<AnyAction>)  => {
     const client = inject<BridgeClient>(BridgeClient);
     //@ts-ignore
     await client.signInToServer(dispatch);
+}
+
+const connect = async (dispatch: Dispatch<AnyAction>)  => {
+    const client = inject<BridgeClient>(BridgeClient);
+    try {
+        await client.signInToServer(dispatch);
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+        return;
+    } catch (error) {
+        console.log(error,'errror');
+    }
 }
 export const MainPageSlice = createSlice({
     name: 'mainPage',
@@ -178,6 +197,7 @@ export const MainPageSlice = createSlice({
         connected: false,
         groupId: '',
         reconnecting: false,
+        dataLoaded: false
     } as MainPageProps,
     reducers: {
         pairAddresses: (state,action) => {
@@ -230,6 +250,9 @@ export const MainPageSlice = createSlice({
         },
         swapSuccess: (state,action) => {
 
+        },
+        dataLoaded: (state,action) => {
+            state.dataLoaded = true
         }
     },
     extraReducers: builder => {
@@ -261,7 +284,8 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): M
         destNetwork: state.destNetwork,
         network: address.network,
         isPaired: state.isPaired,
-        groupId: appState.data.state.groupInfo.groupId
+        groupId: appState.data.state.groupInfo.groupId,
+        dataLoaded: state.dataLoaded
     } as MainPageProps;
 }
 
@@ -294,6 +318,14 @@ export function MainPage() {
             reconnect(dispatch)
         }
     })
+
+    useEffect(()=>{
+        if(connected && !pageProps.dataLoaded){
+            connect(dispatch)
+            dispatch(Actions.dataLoaded({}))
+        }
+    })
+
 
     const NotConnected = () => {
         const ConBot = <ConnectButtonWapper View={ConnectBtn} />

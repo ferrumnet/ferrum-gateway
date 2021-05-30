@@ -31,8 +31,8 @@ export function Navbar (props: ReponsivePageWrapperProps&ReponsivePageWrapperDis
     const styles = themedStyles(theme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
 
-    const error = initError && (
-        <ErrorBar error={initError} />
+    const error = (
+        <ErrorBar error={initError||'error'} />
     );
 
     return(
@@ -68,8 +68,11 @@ export function Navbar (props: ReponsivePageWrapperProps&ReponsivePageWrapperDis
                         </>
                     }
                 </div>
+                <div style={{...styles.errorContainer}}>
+                    {error}
+                </div>
             </div>
-            {error}
+            
         </>
     )
 }
@@ -96,5 +99,8 @@ const themedStyles = (theme) => ({
         color: 'white',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    errorContainer: {
+        padding: '20px 5%'
     }
 })

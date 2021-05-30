@@ -24,6 +24,7 @@ import { formatter } from './../../common/Utils';
 import { ReloadOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import { BridgeClient } from "./../../clients/BridgeClient";
+import { addAction, CommonActions } from "./../../common/Actions";
 
 export interface liquidityPageProps{
     network: string,
@@ -58,13 +59,16 @@ const onConnect = async (dispatch:Dispatch<AnyAction>,network: string,targetCur:
         return res;
     } catch(e) {
         if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
 
 const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCurrency: string,success: (v:string,tx:string)=>void,allowanceRequired:boolean) => {
     try {
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);
         ValidationUtils.isTrue(!!targetCurrency,'targetCurrency is required')
         const res = await client.addLiquidity(dispatch, targetCurrency, amount);
@@ -85,13 +89,16 @@ const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCu
         }
     } catch(e) {
         if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
 
 const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCurrency: string,success: (v:string,tx:string)=>void) => {
     try {
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);
         ValidationUtils.isTrue(!!targetCurrency,'targetCurrency is required')
         const res = await client.removeLiquidity(dispatch, targetCurrency, amount);
@@ -102,15 +109,22 @@ const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targe
     } catch(e) {
         if(!!e.message){
             console.log(e.message)
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 }
 
-const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => dispatch(Actions.amountChanged({value: v}));
+const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
+    dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+    dispatch(Actions.amountChanged({value: v})
+    );
+}
 
 const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: AddressDetails[]) => {
     try{
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         let details = addr?.find(e=>e.symbol === v);
         const sc = inject<BridgeClient>(BridgeClient);
         if(details){
@@ -120,8 +134,10 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: Address
     }catch(e) {
         if(!!e.message){
             console.log(e.message);
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }      
 }
 
@@ -234,7 +250,6 @@ export const liquidityPageSlice = createSlice({
             state.reconnecting = true;
         });
         builder.addCase('mainPage/loadedUserPairs', (state, action) => {
-            console.log('pairdedpaired')
             //@ts-ignore
             state.pairedAddress = action.payload.pairedAddress;
         });

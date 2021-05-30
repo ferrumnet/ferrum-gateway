@@ -15,6 +15,12 @@
   flex: 1;
 }
 
+.top-row {
+  display: block;
+  flex: 1;
+}
+
+
 .col-left .col-right {
   display: flex;
   flex-direction: column;

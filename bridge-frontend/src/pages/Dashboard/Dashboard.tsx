@@ -183,7 +183,6 @@ export function Dashboard() {
     const theme = _loadTheme(themeVariables, stateData.customTheme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
-    const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
 
     const handleCon = async () => {
         await onBridgeLoad(dispatch).catch(console.error)
@@ -193,45 +192,61 @@ export function Dashboard() {
         if(!appInitialized && !stateData.dataLoaded){
             intializing(dispatch)
         }
-        if(appInitialized && connected && !stateData.dataLoaded){
+        if(appInitialized && !stateData.dataLoaded){
             handleCon()
+            dispatch(Actions.dataFetched({}));
         }
     })
-    
-    return (
-        <>
 
-            {(!!initError || !!stateData.initializeError) ? (
-                <Page>
+    if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
+        return (
+            <WebPageWrapper
+            mode={'web3'}
+            theme={theme}
+            container={stateData.initialized ? IocModule.container() : undefined}
+            authError={stateData.initializeError}
+          >
+              <Page>
+                  <Switch>
+                      <Route path='/:gid/liquidity'>
+                          <LiquidityPage/>
+                      </Route>
+                      <Route path='/:gid/swap'>
+                          <SwapPage/>
+                      </Route>
+                      <Route path='/:gid/'>
+                          <MainPage/>
+                      </Route>
+                      <Route path='/'>
+                          <MainPage/>
+                      </Route>
+                  </Switch>
+              </Page>
+              <WaitingComponent/>
+          </WebPageWrapper>
+        )
+    }
+
+    const fatalErrorComp = (
+        (!!initError || !!stateData.initializeError) ? (
+            <>
+            <Page>
                     <h3>Error loading the application</h3><br />
                     <p>{initError || stateData.initializeError }</p>
                 </Page>
-            ):(
-                <WebPageWrapper
-                  mode={'web3'}
-                  theme={theme}
-                  container={stateData.initialized ? IocModule.container() : undefined}
-                  authError={stateData.initializeError}
-                >
-                    <Page>
-                        <Switch>
-                            <Route path='/:gid/liquidity'>
-                                <LiquidityPage/>
-                            </Route>
-                            <Route path='/:gid/swap'>
-                                <SwapPage/>
-                            </Route>
-                            <Route path='/:gid/'>
-                                <MainPage/>
-                            </Route>
-                            <Route path='/'>
-                                <MainPage/>
-                            </Route>
-                        </Switch>
-                    </Page>
-                    <WaitingComponent/>
-                </WebPageWrapper>
-            ) }
+            </>
+        ) : (
+            <Page>
+                <h3>Connecting...</h3><br />
+            </Page>
+        )
+    )
+
+    return (
+        <>
+            <Page>
+                {fatalErrorComp}
+            </Page> 
         </>
     );
 }

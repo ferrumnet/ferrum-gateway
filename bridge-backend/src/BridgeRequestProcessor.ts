@@ -65,6 +65,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             currency, amount
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         ValidationUtils.isTrue(!!currency, "'currency' must be provided");
         ValidationUtils.isTrue(!!amount, "'amount must be provided");
         return this.svc.removeLiquidityIfPossibleGetTransaction(userId, currency, amount);
@@ -106,6 +107,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             network,
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         ValidationUtils.isTrue(!!network, "'network' must be provided");
         const items = await this.svc.getUserWithdrawItems(network, userId.toLowerCase());
         return { 'withdrawableBalanceItems': items};
@@ -150,6 +152,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             network
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         ValidationUtils.isTrue(!!network, "'network' must be provided");
         return { pairedAddress: await this.svc.getUserPairedAddress(network, userId) };
     }
@@ -158,6 +161,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             currency, amount
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         ValidationUtils.isTrue(!!currency, "'currency' must be provided");
         ValidationUtils.isTrue(!!amount, "'amount must be provided");
         return this.svc.addLiquidityGetTransaction(userId, currency, amount);
@@ -167,6 +171,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             id
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         return this.svc.withdrawSignedGetTransaction(id, userId);
     }
 
@@ -174,6 +179,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         const {
             currency, amount, targetCurrency
         } = req.data;
+        ValidationUtils.isTrue(!!userId, 'user must be signed in');
         return this.svc.swapGetTransaction(userId, currency, amount, targetCurrency);
     }
 }

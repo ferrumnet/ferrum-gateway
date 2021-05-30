@@ -12,7 +12,6 @@ import {
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import ButtonLoader from './btnWithLoader';
 import { AnyAction, Dispatch } from "redux";
-import { addAction, CommonActions } from "../common/Actions";
 import { BridgeClient } from './../clients/BridgeClient';
 import { inject,inject2,UserBridgeWithdrawableBalanceItem } from "types";
 import { useToasts } from 'react-toast-notifications';
@@ -24,6 +23,8 @@ import { CheckCircleTwoTone,PlusOutlined } from '@ant-design/icons';
 import {
     SyncOutlined,
   } from '@ant-design/icons';
+import { CommonActions,addAction } from './../common/Actions';
+
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
@@ -54,6 +55,9 @@ export const SidePanelSlice = createSlice({
         transactionExecuted:  (state,action) => {
             state.txExecuted = true;
         },
+        dataLoaded: (state,action) => {
+            state.dataLoaded = true
+        }
     },
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
@@ -126,7 +130,7 @@ const executeWithrawItem = async (
         error('Withdrawal failed');
     }catch(e) {
         if(!!e.message){
-            //dispatch(addAction(TokenBridgeActions.AUTHENTICATION_FAILED, {message: e.message }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
@@ -160,7 +164,7 @@ const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
      
     }catch(e) {
         if(!!e.message){
-           console.log(e.message)
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
@@ -197,6 +201,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         if(connected && groupId){
             if(appInitialized && !pageProps.dataLoaded){
                handleSync()
+               dispatch(Actions.dataLoaded({}))
             }
         }
       });

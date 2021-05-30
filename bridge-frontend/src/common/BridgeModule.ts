@@ -18,7 +18,7 @@ export class BridgeModule implements Module {
             c.register(BridgeClient, c => new BridgeClient(
                 c.get(ApiClient),c.get(UnifyreExtensionKitClient)
             ));
-            c.register(PairAddressService, c => new PairAddressService(c.get(PairAddressService),c.get(Connect)));
+            c.register(PairAddressService, c => new PairAddressService(c.get(UnifyreExtensionKitClient),c.get(Connect)));
             c.register(PairAddressSignatureVerifyre, c => new PairAddressSignatureVerifyre());
 
         } finally {

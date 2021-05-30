@@ -103,7 +103,7 @@ export class BridgeClient implements Injectable {
             command: 'GetSwapTransactionStatus', data: {tid: txId,sendNetwork,timestamp}, params: [] } as JsonRpcRequest);
         return res;
         } catch(e) {
-            //dispatch(addAction(Actions.BRIDGE_LOAD_FAILED, {message: e.message || '' }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'getAvailableLiquidity' }));
         }
@@ -124,7 +124,7 @@ export class BridgeClient implements Injectable {
             //ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
             //dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
         } catch(e) {
-            //dispatch(addAction(Actions.BRIDGE_LOAD_FAILED, {message: e.message || '' }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'getAvailableLiquidity' }));
         }
@@ -145,7 +145,7 @@ export class BridgeClient implements Injectable {
             }
             //dispatch(addAction(Actions.BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN, {liquidity}))
         } catch(e) {
-            //dispatch(addAction(Actions.AUTHENTICATION_FAILED, {message: e.message || '' }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'getAvailableLiquidity' }));
         }
@@ -166,7 +166,7 @@ export class BridgeClient implements Injectable {
             ValidationUtils.isTrue(!liquidity, 'Invalid liquidity received');
             dispatch(addAction(Actions.BRIDGE_LIQUIDITY_FOR_USER_LOADED, {liquidity}))
         } catch(e) {
-            //dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {message: e.message || '' }));
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
@@ -209,7 +209,7 @@ export class BridgeClient implements Injectable {
             await this.withdrawableBalanceItemUpdateTransaction(dispatch, w.receiveTransactionId, txIds[0]);
             return 'success';
         } catch(e) {
-            dispatch(addAction(Actions.AUTHENTICATION_FAILED, {
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {
                 message: e.message || '' }));
             dispatch(addAction(Actions.BRIDGE_SWAP_FAILED, {
                 message: e.message || '' }));
@@ -347,6 +347,7 @@ export class BridgeClient implements Injectable {
                 "itemId": response
             };
         } catch(e) {
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
             // dispatch(addAction(Actions.BRIDGE_SWAP_FAILED, {
             //     message: e.message || '' }));
         } finally {
@@ -393,6 +394,8 @@ export class BridgeClient implements Injectable {
             return txIds[0];
         } catch(e) {
             logError('Error processRequest', e);
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'Could send a request. ' + e.message || '' }));
+
             //dispatch(addAction(CommonActions.CONTINUATION_DATA_FAILED, {message: 'Could send a request. ' + e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'processRequest' }));

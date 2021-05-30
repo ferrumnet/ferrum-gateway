@@ -30,7 +30,7 @@ export function GeneralPageLayout({top, middle, bottom}) {
             style={{...styles.fullScreen}}        
         >
             <div>
-                <div className="full-row">{top}</div>
+                <div className="top-row">{top}</div>
                 <div className="full-row" style={{...styles.fullScreen}}>
                     <div className="col-mid">{middle}</div>
                 </div>

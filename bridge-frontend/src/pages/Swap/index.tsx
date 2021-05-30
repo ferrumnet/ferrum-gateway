@@ -144,7 +144,6 @@ export const swapageSlice = createSlice({
             state.reconnecting = true;
         });
         builder.addCase('mainPage/loadedUserPairs', (state, action) => {
-            console.log('pairdedpaired')
             //@ts-ignore
             state.pairedAddress = action.payload.pairedAddress;
         });
@@ -176,18 +175,20 @@ const onConnect = async (
         }
         return res;
     } catch(e) {
-        throw e;
+        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
 
 const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
+    dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
     dispatch(Actions.amountChanged({value: v}));
 };
 
 const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: any,addr?: AddressDetails[],pair?: PairedAddress,history?: any) => {
     try{
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         let details = addr?.find(e=>e.symbol === v);
         const sc = inject<BridgeClient>(BridgeClient);
@@ -209,6 +210,7 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
     }catch(e) {
         if(!!e.message){
             console.log(e.message)
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
@@ -222,6 +224,7 @@ const onSwap = async (
     allowanceRequired:boolean,showModal: () => void
     ) => {
     try {
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const client = inject<BridgeClient>(BridgeClient);        
         ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
@@ -248,6 +251,7 @@ const onSwap = async (
     }catch(e) {
         if(!!e.message){
             console.log(e.message);
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
         const sc = inject<BridgeClient>(BridgeClient);
@@ -270,8 +274,10 @@ const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwo
         return '';
     }catch(e) {
         if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 };
 
@@ -284,7 +290,6 @@ const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string)
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items.withdrawableBalanceItems.length > 0){
             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === itemId);
-            console.log(findMatch,'matches');
             if(findMatch.length > 0){
                 dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
                 return 'created'
@@ -293,9 +298,11 @@ const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string)
         return '';
     }catch(e) {
         if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
         
     }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 };
 

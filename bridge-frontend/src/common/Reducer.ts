@@ -47,6 +47,8 @@ export function dataReducer(state: AppGlobalState = {
             return {...state,groupInfo: action.payload}
         case CommonActions.ERROR_OCCURED:
             return {...state,error: action.payload.message}
+        case CommonActions.RESET_ERROR:
+            return {...state,error: ''}
         default:
             return state;
     }
