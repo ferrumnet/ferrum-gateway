@@ -23,6 +23,7 @@ export class BridgeProcessor implements Injectable {
         private pairVerifyer: PairAddressSignatureVerifyre,
         private helper: EthereumSmartContractHelper,
         private privateKey: string,
+        private processorAddress: string,
         logFac: LoggerFactory,
     ) {
         this.log = logFac.getLogger('BridgeProcessor')
@@ -140,6 +141,12 @@ export class BridgeProcessor implements Injectable {
                 used: '',
                 useTransactions: [],
             } as UserBridgeWithdrawableBalanceItem;
+            await this.svc.withdrawSignedVerify(conf!.targetCurrency, targetAddress,
+                targetAmount.toFixed(),
+                payBySig.hash,
+                payBySig.salt,
+                payBySig.signature,
+                this.processorAddress);
             await this.svc.newWithdrawItem(processed);
             return [true, processed];
         } catch (e) {

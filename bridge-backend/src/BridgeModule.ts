@@ -66,6 +66,7 @@ export class BridgeModule implements Module {
                 } as Web3ProviderConfig;
         const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
             await decryptPrivateKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
+        const processorAddress = getEnv('PROCESSOR_ADDRESS');
         container.registerSingleton(TokenBridgeContractClinet,
             c => new TokenBridgeContractClinet(
                 c.get(EthereumSmartContractHelper),
@@ -76,6 +77,7 @@ export class BridgeModule implements Module {
             c.get(BridgeConfigStorage), c.get(PairAddressSignatureVerifyre),
             c.get(EthereumSmartContractHelper),
             privateKey,
+            processorAddress,
             c.get(LoggerFactory)));
         container.register('JsonStorage', () => new Object());
         container.registerSingleton(EthereumSmartContractHelper, () => new EthereumSmartContractHelper(
