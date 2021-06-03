@@ -8,25 +8,33 @@ const rootStyle = {
     minHeight: '100%',
     fontSize: '12px',
 }
-export function RegularBtn({ onClick=()=>{},disabled=false,text }) {
+export function RegularBtn({ onClick=()=>{},disabled,text,propStyle,props }) {
     const theme = useContext(ThemeContext);
     const style= {
+      ...propStyle,
+        rootDisabled: [{
+          backgroundColor: 'red'                //  <---                //  <---
+        }],
         root: [
           {
             ...rootStyle,
+            backgroundColor: theme.get(Theme.Button.btnPrimary),
+            color: theme.get(Theme.Colors.textColor),
             border: `1px solid ${theme.get(Theme.Button.btnPrimary)}`,
             borderRadius: theme.get(Theme.Button.btnBorderRadius),
+            ...propStyle,
             selectors: {                     //  <--- 
               ':disabled': {                    //  <--- this part doesn't work.
-                color: theme.get(Theme.Colors.textColor),      //  <---                //  <---
+                color: theme.get(Theme.Colors.textColor),  
+                backgroundColor: 'red'                //  <---                //  <---
               },
             }
           }
         ]
       };
-
     return (
-        <DefaultButton 
+        <PrimaryButton  
+            {...props}
             style={style}
             text={text}
             onClick={onClick} 
@@ -35,9 +43,13 @@ export function RegularBtn({ onClick=()=>{},disabled=false,text }) {
     );
 }
 
-export function OutlinedBtn({onClick=()=>{},text,disabled=false,propStyle}) {
+export function OutlinedBtn({onClick=()=>{},text,disabled,propStyle,props}) {
     const theme = useContext(ThemeContext);
     const style= {
+        ...propStyle,
+        rootDisabled: [{
+          backgroundColor: 'red'                //  <---                //  <---
+        }],
         root: [
           {
             ...rootStyle,
@@ -49,7 +61,8 @@ export function OutlinedBtn({onClick=()=>{},text,disabled=false,propStyle}) {
             minHeight: '43px',
             selectors: {                     //  <--- 
               ':disabled': {                    //  <--- this part doesn't work.
-                color: theme.get(Theme.Colors.textColor),      //  <---                //  <---
+                color: theme.get(Theme.Colors.textColor), 
+                backgroundColor: 'red'                //  <---                //  <---
               },
             }
           }
@@ -61,6 +74,7 @@ export function OutlinedBtn({onClick=()=>{},text,disabled=false,propStyle}) {
             text={text}
             onClick={onClick} 
             disabled={disabled} 
+            {...props}
         />
     );
 }

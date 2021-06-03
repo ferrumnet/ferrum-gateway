@@ -194,3 +194,4 @@ export interface UserBridgeLiquidityItem {
     currency: string;
     liquidity: string;
 }
+

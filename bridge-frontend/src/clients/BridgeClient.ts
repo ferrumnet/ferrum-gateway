@@ -176,8 +176,10 @@ export class BridgeClient implements Injectable {
      * Loads liquidity added by user
      */
     async loadUserBridgeBalance(dispatch: Dispatch<AnyAction>): Promise<UserBridgeWithdrawableBalanceItem[]> {
+        const userProfile = await this.client.getUserProfile();
+        const network = userProfile.accountGroups[0].addresses[0]?.network;
         const res = await this.api.api({
-            command: 'getUserWithdrawItems', data: {network: this.network, userAddress: this.userAddress}, params: [] } as JsonRpcRequest);
+            command: 'getUserWithdrawItems', data: {network, userAddress: this.userAddress}, params: [] } as JsonRpcRequest);
         const { withdrawableBalanceItems } = res;
         ValidationUtils.isTrue(!!withdrawableBalanceItems, 'Invalid balances received');
         dispatch(addAction(Actions.BRIDGE_BALANCE_LOADED, {withdrawableBalanceItems}))
@@ -332,6 +334,7 @@ export class BridgeClient implements Injectable {
         ) {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
+            console.log(targetCurrency,'targetCurrency',currency);    
             const res = await this.api.api({
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
@@ -366,6 +369,8 @@ export class BridgeClient implements Injectable {
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
             const { isApprove, requests } = res;
+            console.log(isApprove,'idApprove')
+
             return isApprove;
         } catch(e) {
             console.log(e.message);

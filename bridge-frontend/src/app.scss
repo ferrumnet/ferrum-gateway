@@ -7,6 +7,10 @@
     }
 }
 
+.is-disabled{
+    background-color: rgba(128, 128, 128, 0.205) !important;
+}
+
 .buttonwithloader{
     background-color: #008000ab; /* Green */
     border: none;
@@ -26,7 +30,7 @@
 
 .page_cont{
     position: absolute;
-    top: 10em;
+    top: 2em;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -795,7 +799,6 @@ option{
 
 .ant-steps-item-title{
     font-size: 12px !important;
-    color: white !important
 }
 
 .bottom-stick{

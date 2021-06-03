@@ -20,7 +20,7 @@ import { CommonActions,addAction } from './../../common/Actions';
 import { MainPage } from './../Main/Main';
 import { SwapPage } from './../Swap';
 import { LiquidityPage } from './../Liquidity'
-import { Connect } from 'unifyre-extension-web3-retrofit';
+import { AppAccountState } from 'common-containers';
 interface DashboardState {
     initialized: boolean,
     isHome: boolean,
@@ -31,18 +31,19 @@ interface DashboardState {
     panelOpen: boolean,
     groupId: string,
     filter: string,
+    selectedToken: string,
     initializeError?: string,
     dataLoaded: boolean
 }
 
 function _loadTheme(themeVariables: FulentTheme, customTheme: any) {
     const themeConstants = WebdefaultDarkThemeConstantsBuilder(themeVariables)
-      .set(Theme.Colors.bkgShade0, themeVariables.semanticColors.bodyBackground)
+      .set(Theme.Colors.bkgShade0, '#F6F5F7')
       .set(Theme.Colors.bkgShade1, themeVariables.palette.neutralLight)
       .set(Theme.Colors.bkgShade2, themeVariables.palette.neutralLighter)
       .set(Theme.Colors.bkgShade3, themeVariables.palette.neutralQuaternary)
       .set(Theme.Colors.bkgShade4, themeVariables.palette.neutralTertiary)
-      .set(Theme.Colors.textColor, themeVariables.semanticColors.bodyText)
+      .set(Theme.Colors.textColor, 'black')
       .set(Theme.Colors.themeNavBkg, themeVariables.semanticColors.bodyStandoutBackground)
       .set(Theme.Spaces.line, themeVariables.spacing.l1)
       .set(Theme.Spaces.screenMarginHorizontal, themeVariables.spacing.s2)
@@ -154,11 +155,16 @@ const intializing = (dispatch: Dispatch<AnyAction>) => {
 }
 
 
-function stateToProps(appState: BridgeAppState): DashboardContentProps {
+function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): DashboardContentProps {
     const state = (appState.ui.dashboard || {}) as DashboardState;
+    const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
+    const address = addr[0] || {};
     return {
         ...state,
         initializeError: state.initializeError,
+        network: address.network,
+        selectedToken: state.selectedToken,
+        addresses: addr,
         dataLoaded: state.dataLoaded
     } as DashboardContentProps;
 }
@@ -173,14 +179,17 @@ export interface DashboardProps {
     panelOpen: boolean,
     groupId: string,
     filter: string,
-    initializeError?: string
+    initializeError?: string,
+
 }
 
 export function Dashboard() {
     const dispatch = useDispatch();
     const themeVariables = useTheme();
-    const stateData = useSelector<BridgeAppState, DashboardContentProps>(appS => stateToProps(appS));
+    const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
+    const stateData = useSelector<BridgeAppState, DashboardContentProps>(appS => stateToProps(appS,userAccounts));
     const theme = _loadTheme(themeVariables, stateData.customTheme);
+    const styles = themedStyles(theme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
 
@@ -207,20 +216,25 @@ export function Dashboard() {
             authError={stateData.initializeError}
           >
               <Page>
-                  <Switch>
-                      <Route path='/:gid/liquidity'>
-                          <LiquidityPage/>
-                      </Route>
-                      <Route path='/:gid/swap'>
-                          <SwapPage/>
-                      </Route>
-                      <Route path='/:gid/'>
-                          <MainPage/>
-                      </Route>
-                      <Route path='/'>
-                          <MainPage/>
-                      </Route>
-                  </Switch>
+                  <div style={styles.projectTitle}>
+                      Welcome to the <span style={styles.emphaisize}>Bondly</span> Token Bridge.
+                  </div>
+                  <div style={styles.container}>
+                    <Switch>
+                        <Route path='/:gid/liquidity'>
+                            <LiquidityPage/>
+                        </Route>
+                        <Route path='/:gid/swap'>
+                            <SwapPage/>
+                        </Route>
+                        <Route path='/:gid/'>
+                            <MainPage/>
+                        </Route>
+                        <Route path='/'>
+                            <MainPage/>
+                        </Route>
+                    </Switch>
+                  </div>
               </Page>
               <WaitingComponent/>
           </WebPageWrapper>
@@ -262,8 +276,21 @@ const themedStyles = (theme) => ({
           }
         ]
     },
+    container: {
+        position: "relative" as "relative"
+    },
     headerStyles: {
         color: theme.get(Theme.Colors.textColor),
+    },
+    projectTitle: {
+        textAlign: "center" as "center",
+        fontSize: '25px',
+        letterSpacing: 0.5,
+        marginBottom: '1rem',
+        marginTop: '1rem'
+    },
+    emphaisize: {
+        fontWeight: 600
     }
   });
   
