@@ -201,10 +201,12 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
         if(currenciesList.length > 0){
             dispatch(Actions.swapDetails({value: currenciesList}))                
         }
+        console.log(details,'detailsss');
         if(details){
             dispatch(Actions.tokenSelected({value: v || {},details}));
             await sc.getAvailableLiquidity(dispatch,details?.address, details?.currency)
             const allowance = await sc.checkAllowance(dispatch,details.currency,'5', currenciesList[0].targetCurrency);
+            console.log(allowance,'allowanceoi')
             dispatch(Actions.checkAllowance({value: allowance}))
         }
     }catch(e) {
@@ -389,19 +391,6 @@ export function SwapPage () {
         <div className="page_cont" >
             <div className="centered-body" style={styles.container}>
 
-            <SwapModal
-                isModalOpen={isModalOpen}
-                showModal={showModal}
-                hideModal={hideModal}
-                status={1}
-                txId={pageProps.swapId}
-                sendNetwork={pageProps.network}
-                timestamp={Date.now()}
-                callback={checkTxStatus}
-                itemCallback={checkifItemIsCreated}
-                itemId={pageProps.itemId}
-                claim={openPanelHandler}
-            />
             <>
                 <div className="body-not-centered swap swap-page">
                     <div className="header title ">  

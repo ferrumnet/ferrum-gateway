@@ -22,6 +22,7 @@ export function SwapModal (props: {
   showModal:()=>void,
   hideModal:()=>void,
   status: number,
+  setStatus: (v:number)=>void,
   txId: string,
   sendNetwork: string,
   timestamp: number,
@@ -32,7 +33,6 @@ export function SwapModal (props: {
 }) {
   const theme = useContext(ThemeContext);
   const styles = themedStyles(theme);    
-  const [modalStatus,setModalStatus] = useState(1)
   const [refreshing,setRefreshing] = useState(false)
   const dispatch = useDispatch()
   // Use useId() to ensure that the IDs are unique on the page.
@@ -41,44 +41,50 @@ export function SwapModal (props: {
 
   useEffect(
     ()=>{
-      if(props.isModalOpen){
-        let tx =props.txId;        
-        if(modalStatus === 1){
+      let isMounted = true;               // note mutable flag
+      if(isMounted && props.isModalOpen){
+        let tx =props.txId;    
+        if(props.status === 1){
           setTimeout(
             async ()=>{
-            const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)
+            const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
+      
             if(status && status === 'successful'){
-              setModalStatus(2);
+              props.setStatus(2)
             }
-          },6000);
+
+            if(status && status === 'failed'){
+              props.setStatus(-1)
+            }
+          },50000);
         }
 
-        if(modalStatus === 2){
+        if(props.status === 2){
           setTimeout(
             async ()=>{
               const status = await props.itemCallback(dispatch,props.itemId)
-              console.log('called',status)
               if(status && status === 'created'){
-                setModalStatus(3);
+                props.setStatus(3);
               }
-          },6000);
+          },800000);
         }
       }
+      return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
     }
-  )
-
+  ,[])
+    
   const handleCheckItem = async () => {
     setRefreshing(true)
     const status = await props.itemCallback(dispatch,props.itemId)
     if(status && status === 'created'){
-      setModalStatus(3);
+      props.setStatus(3);
     }
     setRefreshing(false)
   }
 
   
   const handleReset = () => {
-    setModalStatus(1);
+    props.setStatus(1);
     setTimeout(()=>{
       props.hideModal();
     },100)
@@ -86,65 +92,48 @@ export function SwapModal (props: {
   
   return (
     <div>    
-      <Modal
-        titleAriaId={titleId}
-        isOpen={props.isModalOpen}
-        onDismiss={handleReset}
-        isBlocking={false}
-        containerClassName={styles.container}
-        isClickableOutsideFocusTrap={false}
-        isModeless={true}
-      >
-        <div className={styles.header}>
-          <span id={titleId}>Swap Transaction</span>
-          <IconButton
-            styles={{icon: {color: 'white'}}}
-            iconProps={cancelIcon}
-            ariaLabel="Close popup modal"
-          />
-          <CloseCircleOutlined
-            onClick={handleReset}
-          />
-        </div>
         <div className={styles.body}>
           <Steps
             className={styles.textStyles}
+            direction="vertical" 
           >
             <Step 
               className={styles.textStyles}
-              status={modalStatus > 1 ? "finish" : "wait"} 
-              title={modalStatus === 1 ? 'Swapping token' : 'Swap Success'}
+              status={props.status > 1 ? "finish" : "wait"} 
+              title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
               description={
                 <div className={styles.textStyles}>
-                  {modalStatus > 1 ? `Your Swap transaction was successfully processed`
+                  {props.status > 1 ? `Your Swap transaction was successfully processed`
                   : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
                 </div>
               }
-              icon={modalStatus === 1 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+              style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
+              icon={props.status === 1 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
             />
             <Step 
-              status={modalStatus > 2 ? "finish" : modalStatus > 1 ? "wait" : "process"} 
-              title= {modalStatus === 2 ? 'Withdrawal Processing' : 'Process Claim'}
+              status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
+              title= {props.status === 2 ? 'Withdrawal Processing' : 'Process Claim'}
               description={
                 <div className={styles.textStyles}>
-                  {modalStatus === 2 ? 'Your Claim item is being processed' : modalStatus > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
-                  {modalStatus === 2 && <p onClick={()=>handleCheckItem()} className={styles.cursorStyles}> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
+                  {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
+                  {props.status === 2 && <p onClick={()=>handleCheckItem()} className={styles.cursorStyles}> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
                 </div>
               }
-              icon={modalStatus === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+              style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
+              icon={props.status === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
             />
             <Step 
-              status={modalStatus > 2 ? "finish" : "wait"} 
-              title="Claim Widthdrawal" 
+              status={props.status > 2 ? "finish" : "wait"} 
+              title="Claim Withdrawal" 
               description={
                 <div className={styles.center}>
-                  {modalStatus === 3 && <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{handleReset(); props.claim(dispatch) }}>Claim</a> }
+                  {props.status === 3 && <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{handleReset(); props.claim(dispatch) }}>Claim</a> }
                 </div>
               }
+              style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
             />
           </Steps>
         </div>
-      </Modal>
     </div>
   );
 };
@@ -158,7 +147,8 @@ const themedStyles = (theme) => mergeStyleSets({
     flexFlow: 'column nowrap',
     alignItems: 'stretch',
     width: '50%',
-    padding: '1rem'
+    padding: '1rem',
+    backgroundColor: `grey`
   },
   header: [
     // eslint-disable-next-line
@@ -175,7 +165,7 @@ const themedStyles = (theme) => mergeStyleSets({
   ],
   body: {
     flex: '4 4 auto',
-    padding: '0 24px 24px 24px',
+    padding: '0 10px 0px',
     overflowY: 'hidden',
     selectors: {
       p: { margin: '14px 0' },
@@ -186,7 +176,7 @@ const themedStyles = (theme) => mergeStyleSets({
     },
     color: theme.get(Theme.Colors.textColor),
     marginTop: '0.5rem',
-    marginBottom: '2rem'
+    marginBottom: '0rem'
   },
   textStyles: {
     color: theme.get(Theme.Colors.textColor),

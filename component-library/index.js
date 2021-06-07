@@ -3,4 +3,7 @@ export * from './src/PageLayout'
 export * from './src/NavBar';
 export * from './src/TopBar';
 export * from './src/Button';
+export * from './src/Divider';
 export * from './src/chain/ConnectButton';
+export * from './src/Select';
+export * from './src/TextField';

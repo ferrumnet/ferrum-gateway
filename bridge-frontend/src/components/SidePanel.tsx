@@ -24,6 +24,7 @@ import {
     SyncOutlined,
   } from '@ant-design/icons';
 import { CommonActions,addAction } from './../common/Actions';
+import { Drawer, Button } from 'antd';
 
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
@@ -215,15 +216,14 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     };
 
     return (
-        <Panel
-            isOpen={props.isOpen}
-            onDismiss={props.dismissPanel}
-            type={PanelType.medium}
-            closeButtonAriaLabel="Close"
-            isLightDismiss={true}
-            headerText= {"Withdrawal Items"}
+        <Drawer
+          title="Withdrawal Items"
+          width={520}
+          closable={false}
+          onClose={props.dismissPanel}
+          visible={props.isOpen}
         >
-            <Accordion>
+          <Accordion>
                 { pageProps.userWithdrawalItems.map(
                         e => <div>
                         <AccordionItem>
@@ -285,8 +285,8 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         </div>
                     )
                 }
-            </Accordion>            
-        </Panel>
+            </Accordion>   
+        </Drawer>
     )
 }
 

@@ -75,7 +75,6 @@ export class BridgeProcessor implements Injectable {
         }
         const userAddress = tx.fromItems[0].address;
         const unverifiedPair = await this.svc.getUserPairedAddress(network, userAddress);
-        console.log('Geting pair for address ', userAddress, unverifiedPair);
         if (!unverifiedPair || !this.pairVerifyer.verify(unverifiedPair!)) {
             this.log.info(`[${network}] Unverified pair ${unverifiedPair} related to the transaction ${tx.id}. Cannot process`);
             return undefined;
@@ -92,31 +91,41 @@ export class BridgeProcessor implements Injectable {
             } else {
             }
 
-            const pair = await this.getAndValidatePairForTransaction(tx);
-            if (!pair) {
-                this.log.info(`No pair for the transactino: ${tx.id}`);
-                return [false, undefined];
-            }
+            // const pair = await this.getAndValidatePairForTransaction(tx);
+            // if (!pair) {
+            //     this.log.info(`No pair for the transactino: ${tx.id}`);
+            //     return [false, undefined];
+            // }
 
             // Creating a new process option.
             // Find the relevant token config for the pair
             // Calculate the target amount
             const sourceNetwork = tx.network;
-            const sourceAddress = pair.pair.network1 === tx.network ? pair.pair.address1 :
-                pair.pair.network2 === tx.network ? pair.pair.address2 : undefined;
-            const targetNetwork = pair.pair.network1 === tx.network ? pair.pair.network2 :
-                pair.pair.network1;
-            const targetAddress = pair.pair.network1 === tx.network ? pair.pair.address2 :
-                pair.pair.address1;
-            ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
+            const NetworkCombinations = {
+                "BSC_TESTNET":"RINKEBY",
+                "RINKEBY":"BSC_TESTNET",
+                "BSC":"ETHEREUM",
+                "ETHEREUM":"BSC"
+            }
+            // const sourceAddress = pair.pair.network1 === tx.network ? pair.pair.address1 :
+            //     pair.pair.network2 === tx.network ? pair.pair.address2 : undefined;
+            // const targetNetwork = pair.pair.network1 === tx.network ? pair.pair.network2 :
+            //     pair.pair.network1;
+            // const targetAddress = pair.pair.network1 === tx.network ? pair.pair.address2 :
+            //     pair.pair.address1;
+            const sourceAddress = tx.fromItems[0].address;
+            const targetAddress = tx.fromItems[0].address;
+            const targetNetwork = NetworkCombinations[sourceNetwork];
+            //ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
             const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork);
-            ValidationUtils.isTrue(!!conf, `No token config between ${JSON.stringify(pair)} networks (source ${tx.network})`);
+            //ValidationUtils.isTrue(!!conf, `No token config between ${JSON.stringify(pair)} networks (source ${tx.network})`);
 
             const sourceAmount = new Big(tx.toItems[0].amount);
             let targetAmount = sourceAmount.minus(new Big(conf!.feeConstant || '0'));
             if (targetAmount.lt(new Big(0))) {
                 targetAmount = new Big(0);
             }
+
             ValidationUtils.isTrue(sourceAddress === tx.fromItems[0].address,
                 `UNEXPECTED ERROR: Source address is different from the transaction source ${tx.id}`);
             const payBySig = await this.createSignedPayment(
@@ -176,7 +185,8 @@ export class BridgeProcessor implements Injectable {
             .sign(this.privateKey, payBySig.hash.replace('0x', ''), true);
         const baseV = sigP.v - chainId * 2 - 8;
         //@ts-ignore
-        const rpcSig = fixSig(toRpcSig(baseV + 2 + 8, Buffer.from(sigP.r, 'hex'),Buffer.from(sigP.s, 'hex'), 1));
+        const rpcSig = fixSig(toRpcSig(baseV, Buffer.from(sigP.r, 'hex'),Buffer.from(sigP.s, 'hex'), 1));
+
         payBySig.signature = rpcSig;
         ValidationUtils.isTrue(!!payBySig.signature, `Error generating signature for ${(
             { network, address, currency, amount })}`);

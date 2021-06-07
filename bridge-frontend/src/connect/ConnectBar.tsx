@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { BridgeAppState } from '../common/BridgeAppState';
 import { MessageBar, MessageBarType } from '@fluentui/react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
+import { PrimaryButton } from '@fluentui/react/lib/Button';
 
 export interface ConnectBarProps {
     additionalOptions?: any
@@ -48,10 +49,11 @@ export function ConnectBar(props: ConnectBarProps) {
     const theme = useContext(ThemeContext);
     const ConBot = <ConnectButtonWapper View={ConnectBtn} />
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
+    const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
 
     const error = (initError && initError != '') && (
         <div style={{
-            "padding": '20px 5%',"backgroundColor": `${theme.get(Theme.Colors.bkgShade0)}`,
+            "backgroundColor": `${theme.get(Theme.Colors.bkgShade0)}`,
             "display":"flex","justifyContent":"center"}}
             >
             <ErrorBar error={initError||'error'} />
@@ -65,11 +67,24 @@ export function ConnectBar(props: ConnectBarProps) {
                 left={<img alt="Ferrum Network"
                     src="https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"/>}
                 actionItems={
-                <> {props.additionalOptions} </>
+                <> 
+                   
+                   {props.additionalOptions} 
+                </>
+                }
+                center={
+                    <>  
+                        {
+                        switchRequest &&
+                            <PrimaryButton
+                                text="Switch Network"
+                            />
+                        }
+                    </>
                 }
                 right={(
                     <>
-                    {ConBot}
+                        {ConBot}
                     </>)
                 }
                 style={{"padding": '20px 5%'}}
