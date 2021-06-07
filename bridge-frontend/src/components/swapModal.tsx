@@ -43,24 +43,27 @@ export function SwapModal (props: {
     ()=>{
       let isMounted = true;               // note mutable flag
       if(isMounted && props.isModalOpen){
-        let tx =props.txId;        
+        let tx =props.txId;    
         if(props.status === 1){
           setTimeout(
             async ()=>{
-            const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)            
+            const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
+      
             if(status && status === 'successful'){
               props.setStatus(2)
             }
-          },10000);
+
+            if(status && status === 'failed'){
+              props.setStatus(-1)
+            }
+          },50000);
         }
 
         if(props.status === 2){
           setTimeout(
             async ()=>{
               const status = await props.itemCallback(dispatch,props.itemId)
-              console.log('called',status)
               if(status && status === 'created'){
-                console.log('called',status)
                 props.setStatus(3);
               }
           },800000);
@@ -89,29 +92,10 @@ export function SwapModal (props: {
   
   return (
     <div>    
-      <Modal
-        titleAriaId={titleId}
-        isOpen={props.isModalOpen}
-        onDismiss={handleReset}
-        isBlocking={false}
-        containerClassName={styles.container}
-        isClickableOutsideFocusTrap={false}
-        isModeless={true}
-      >
-        <div className={styles.header}>
-          <span id={titleId}>Swap Transaction</span>
-          <IconButton
-            styles={{icon: {color: 'white'}}}
-            iconProps={cancelIcon}
-            ariaLabel="Close popup modal"
-          />
-          <CloseCircleOutlined
-            onClick={handleReset}
-          />
-        </div>
         <div className={styles.body}>
           <Steps
             className={styles.textStyles}
+            direction="vertical" 
           >
             <Step 
               className={styles.textStyles}
@@ -140,7 +124,7 @@ export function SwapModal (props: {
             />
             <Step 
               status={props.status > 2 ? "finish" : "wait"} 
-              title="Claim Widthdrawal" 
+              title="Claim Withdrawal" 
               description={
                 <div className={styles.center}>
                   {props.status === 3 && <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{handleReset(); props.claim(dispatch) }}>Claim</a> }
@@ -150,7 +134,6 @@ export function SwapModal (props: {
             />
           </Steps>
         </div>
-      </Modal>
     </div>
   );
 };
@@ -182,7 +165,7 @@ const themedStyles = (theme) => mergeStyleSets({
   ],
   body: {
     flex: '4 4 auto',
-    padding: '0 24px 24px 24px',
+    padding: '0 10px 0px',
     overflowY: 'hidden',
     selectors: {
       p: { margin: '14px 0' },
@@ -193,7 +176,7 @@ const themedStyles = (theme) => mergeStyleSets({
     },
     color: theme.get(Theme.Colors.textColor),
     marginTop: '0.5rem',
-    marginBottom: '2rem'
+    marginBottom: '0rem'
   },
   textStyles: {
     color: theme.get(Theme.Colors.textColor),

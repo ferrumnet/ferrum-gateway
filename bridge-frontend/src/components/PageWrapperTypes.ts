@@ -6,7 +6,6 @@ export type ApplicationMode = 'web3' | 'unifyre';
 export interface ReponsivePageWrapperProps {
     container?: Container;
     theme: ThemeConstantProvider;
-    mode: ApplicationMode;
     footerHtml?: string;
     homepage?: string;
     navBarContent?: any;

@@ -5,7 +5,7 @@ import {Page,OutlinedBtn,Divider,CustomSelect,WideTextField,InputField,RegularBt
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
-import { PairedAddress,SignedPairAddress,CHAIN_ID_FOR_NETWORK,inject,IocModule, supportedNetworks } from 'types';
+import { PairedAddress,SignedPairAddress, supportedNetworks } from 'types';
 import { AppAccountState } from 'common-containers';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
@@ -18,11 +18,16 @@ import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
     reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    openPanelHandler,onSwap
+    onSwap, executeWithdraw
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
-import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/icons';
+import { WithdrawNoti } from '../../components/withdrawalNoti';
+import { LoadingOutlined } from '@ant-design/icons';
+import { openPanelHandler } from './../Swap';
+import { message, Result } from 'antd';
+import { Utils } from 'types';
+import {SidePanelProps} from './../../components/SidePanel';
 
 const { Step } = Steps;
 
@@ -59,6 +64,7 @@ export interface MainPageProps {
     tokenValid: boolean,
     currenciesDetails: any,
     itemId: string,
+    swapWithdrawNetwork: string,
     isNetworkReverse: boolean
 }
 
@@ -100,6 +106,7 @@ export const MainPageSlice = createSlice({
         itemId: '',
         isNetworkReverse: false,
         currenciesDetails: {},
+        swapWithdrawNetwork: ''
     } as MainPageProps,
     reducers: {
         pairAddresses: (state,action) => {
@@ -110,9 +117,6 @@ export const MainPageSlice = createSlice({
                 state.pairedAddress.network2 = state.destNetwork;
                 state.isPaired = true;
             }
-        },
-        signFirstPairAddress: (state,action) => {
-
         },
         onDestinationNetworkChanged:(state,action) => {
             state.destNetwork = action.payload.value
@@ -159,7 +163,8 @@ export const MainPageSlice = createSlice({
         swapSuccess: (state,action) => {
             state.amount= '';
             state.swapId= action.payload.swapId;
-            state.itemId= action.payload.itemId
+            state.itemId= action.payload.itemId;
+            state.swapWithdrawNetwork= state.destNetwork;
         },
         fetchedSourceCurrencies: (state,action) => {
             state.currencyList = action.payload.currencies;
@@ -190,6 +195,10 @@ export const MainPageSlice = createSlice({
         },
         setMax:(state,action) => {
             state.amount = action.payload.balance
+        },
+        resetSwap: (state,action) => {
+            state.swapId = '';
+            state.itemId = ''
         }
     },
     extraReducers: builder => {
@@ -208,7 +217,6 @@ export const Actions = MainPageSlice.actions;
 
 function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): MainPageProps {
     const state = (appState.ui.pairPage || {}) as MainPageProps;
-    const accounts = userAccounts.user.accountGroups;
     const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
     const address = addr[0] || {};
 
@@ -240,6 +248,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): M
         isNetworkReverse: state.isNetworkReverse
     } as MainPageProps;
 }
+
 export function ConnectBtn(props: IConnectViewProps) {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
@@ -253,6 +262,7 @@ export function ConnectBtn(props: IConnectViewProps) {
         />
     )
 }
+
 export function MainPage() {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
@@ -263,28 +273,44 @@ export function MainPage() {
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
-
     const [modalStatus,setModalStatus] = useState(1)
-
+    const [isNotiShown, setIsNotiShown] = useState(false);
+    const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
+    const swapping = ((pageProps.swapId!='') && modalStatus < 3);
+    const swapSuccess = ((pageProps.swapId!='') && modalStatus >= 3);
+    const swapFailure = ((pageProps.swapId!='') && modalStatus === -1);
+    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
+    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+    const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && modalStatus < 3));
+    const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
+    
     useEffect(()=>{
         if(pageProps.reconnecting){
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses)
+            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible)
         }
     })
     
     useEffect(()=>{
         if(connected && !pageProps.dataLoaded){
-            connect(dispatch)
+            connect(dispatch,setIsNotiModalVisible)
             fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses)
             dispatch(Actions.dataLoaded({}))
         }
+        if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown){
+            setTimeout(
+                () => {
+                    setIsNotiShown(true);
+                    setIsNotiModalVisible(true)
+                },3500
+            )
+            
+        }
     })
 
-    const networks = [...Object.keys(supportedNetworks).map((e)=>e)];
     const menu = (
         <Menu >
             {
-                networks.map(e=>{
+                [...Object.keys(supportedNetworks).map((e)=>e)].map(e=>{
                     //@ts-ignore
                     const active = ((supportedNetworks[`${e as any}`] === ('inactive')) || (e === pageProps.network)) ? true : false;
                     return (
@@ -322,6 +348,27 @@ export function MainPage() {
         )
     }
 
+    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+        message.success({
+            content: <Result
+                status="success"
+                title="Your Withdrawal Transaction Processing"
+                subTitle={v}
+                extra={[
+                    <>
+                        <div> View Transaction Status </div>
+                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                    </>
+                ]}
+            />,
+            className: 'custom-class',
+            style: {
+              marginTop: '20vh',
+            },
+        }, 20);  
+    };
+
+
     
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
@@ -333,23 +380,15 @@ export function MainPage() {
 
     
     const ContentContainer = () => {
-        const ConBot = <ConnectButtonWapper View={ConnectBtn} />
-
         return (
             <div style={styles.mainContent}>
-                 <SwapModal
-                    isModalOpen={isModalOpen}
-                    showModal={showModal}
-                    hideModal={hideModal}
-                    status={modalStatus}
-                    txId={pageProps.swapId}
-                    sendNetwork={pageProps.network}
-                    timestamp={Date.now()}
-                    callback={checkTxStatus}
-                    itemCallback={checkifItemIsCreated}
-                    itemId={pageProps.itemId}
-                    claim={openPanelHandler}
-                    setStatus={(v)=>setModalStatus(v)}
+
+                <WithdrawNoti
+                    isModalVisible={isNotiModalVisible}
+                    setIsModalVisible={setIsNotiModalVisible}
+                    network={pageProps.network}
+                    numberOfWithdrawals={unUsedItems}
+                    sideCtrl={()=>openPanelHandler(dispatch)}
                 />
                 <ConfirmationModal
                     isModalOpen={isConfirmModalOpen}
@@ -359,14 +398,14 @@ export function MainPage() {
                     token={pageProps.selectedToken}
                     destination={pageProps.addresses[0]?.address || ''}
                     fee={'0'}
-                    total={'0'}
+                    total={`${Number(pageProps.amount) - 0}`}
                     setIsModalClose={()=>hideConfirmModal()}
                     processSwap={()=>onSwap(dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
                         onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork)}
 
                 />
                 {
-                    !connected ?
+                    (!connected && !pageProps.swapId) ?
                         <NotConnected/>
                     :   <Connected/>
                 }
@@ -390,15 +429,60 @@ export function MainPage() {
                             direction="vertical" 
                             current={0}
                         >
-                            <Step status={connected ? "finish":"wait"} title={<div style={styles.stepStyle} >Connect Your Wallet</div>}/>
-                            <Step status={!pageProps.allowanceRequired ? "finish":"wait"} title={<div style={styles.stepStyle}>{pageProps.allowanceRequired ? 'Approve Your Wallet to Swap Now':'Wallet Approved'}</div>}/>
-                            <Step status={((!pageProps.allowanceRequired) && ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && modalStatus < 3))) ? "finish":"wait"} title={<div style={styles.stepStyle}>Enter Swap Amount</div>}/>
+                            <Step 
+                                status={connected ? "finish":"wait"} 
+                                title={<div style={styles.stepStyle}>
+                                    Connect Your Wallet
+                                </div>}
+                            />
+                            <Step 
+                                status={!pageProps.allowanceRequired ? "finish":"wait"} 
+                                title={<div style={styles.stepStyle}>{pageProps.allowanceRequired ? 'Approve Your Wallet to Swap Now':'Wallet Approved'}</div>}
+                            />
+                            <Step status={((!pageProps.allowanceRequired) && validateStep3) ? 
+                                "finish":"wait"
+                            } 
+                                title={<div style={styles.stepStyle}>Enter Swap Amount</div>}
+                            />
                             <Step 
                                 status={((pageProps.swapId!='') && (modalStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (modalStatus < 3)) ? "process" : "wait"} 
-                                title={<div style={styles.stepStyle}>{((pageProps.swapId!='') && (modalStatus < 3)) ? <div onClick={()=>showModal()}>Swap Processing</div> : 'Swap Token' }</div>}
+                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle}>{((pageProps.swapId!='') && (modalStatus < 3)) ? 
+                                <div onClick={()=>showModal()}>Swap Processing</div> : 'Swap Token' }</div>}
                                 icon={((pageProps.swapId!='') && modalStatus < 3) && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+                                description={swapping && (
+                                    <div>
+                                        <SwapModal
+                                            isModalOpen={swapping}
+                                            showModal={showModal}
+                                            hideModal={hideModal}
+                                            status={modalStatus}
+                                            txId={pageProps.swapId}
+                                            sendNetwork={pageProps.network}
+                                            timestamp={Date.now()}
+                                            callback={checkTxStatus}
+                                            itemCallback={checkifItemIsCreated}
+                                            itemId={pageProps.itemId}
+                                            claim={openPanelHandler}
+                                            setStatus={(v)=>setModalStatus(v)}
+                                        />
+                                    </div> )
+                                }
                             />
-                            <Step status={(pageProps.swapId && modalStatus === 3) ? "finish":"wait"}  title={<div style={styles.stepStyle}>{'Switch Network & Withdraw'}</div>}/>
+                            <Step 
+                                status={(pageProps.swapId && modalStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? "process" : "finish" : "wait"}  
+                                title={<div style={ ((pageProps.swapId && modalStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) ? styles.stepStyle2 : styles.stepStyle}>
+                                    {(pageProps.swapId && modalStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network to Withdraw' : 'Withdraw Now' : 'Switch Network & Withdraw'}</div>}
+                                description={
+                                    ((pageProps.swapId && modalStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) &&
+                                        <p style={styles.subtextError2}>
+                                            <Alert
+                                                message=""
+                                                description={`Switch your current Network to ${pageProps.destNetwork} to withdraw your swap`}
+                                                type="error"
+                                            />
+                                        </p>
+                                }
+                            />
                         </Steps>
                     </div>
                 </>
@@ -420,8 +504,7 @@ export function MainPage() {
                         <p>From</p>
                         <div style={styles.tabbedBtn}>
                             {pageProps.network} <br/> Network
-                        </div>
-                        
+                        </div>   
                     </div>
                     <div style={styles.tabbedBtnItem}>
                         <p></p>
@@ -443,10 +526,7 @@ export function MainPage() {
                                 </Dropdown>
                             </div>
                         </div>
-                        
                     </div>
-                   
-
                 </div>
             </div>
             {
@@ -478,7 +558,7 @@ export function MainPage() {
                         type={'Number'}
                         value={pageProps.amount}
                         onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
-                        disabled={ pageProps.allowanceRequired }
+                        disabled={ pageProps.allowanceRequired || (pageProps.swapId!='' && (swapFailure || swapSuccess || swapping))}
                     />
                     <span style={styles.addon} onClick={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0].balance,fee: 0}))}>
                         Max
@@ -486,28 +566,46 @@ export function MainPage() {
                 </div>
                 
             </div>
-            <p style={styles.subtext}>{pageProps.addresses[0].balance || 0} {pageProps.selectedToken} Balance Available.</p>
+            <p style={styles.subtext}><p>{pageProps.addresses[0]?.balance || 0} {pageProps.selectedToken} Balance Available.</p> <p>Min 5 {pageProps.selectedToken}</p></p>
             <div style={styles.inputContainer}>
                 <p>Destination Address</p>
                 <InputField
                     disabled={true}
-                    defaultValue={pageProps.addresses[0].address}
+                    defaultValue={pageProps.addresses[0]?.address}
                     placeholder={'Address on destination Network'}
                 />
             </div>
-            
             {
-                !pageProps.allowanceRequired &&
+                (!pageProps.allowanceRequired && swapSuccess && swapFailure) &&
+                (
                     <div style={styles.swapBtnContainer}>
-                        
                         <RegularBtn
-                            onClick={()=>showConfirmModal()}
-                            text={'Swap'}
+                            onClick={()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage)}
+                            text={ 'Withdraw'}
                             propStyle={{
                                 "padding":"25px 45px",
                                 "borderRadius": '5px',
                             }}
-                            disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) || pageProps.allowanceRequired || !pageProps.tokenValid}                              
+                            disabled={swapping || (pageProps.network != pageProps.swapWithdrawNetwork)}                              
+                        />
+                    </div>
+                )
+            }
+                
+            {
+                allowedAndNotProcessing &&
+                    <div style={styles.swapBtnContainer}>
+                        
+                        <RegularBtn
+                            onClick={()=>showConfirmModal()}
+                            text={ swapping ? 'Swap Processing' : 'Swap'}
+                            propStyle={{
+                                "padding":"25px 45px",
+                                "borderRadius": '5px',
+                            }}
+                            disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) 
+                                || pageProps.allowanceRequired || !pageProps.tokenValid || swapping
+                            }                              
                         />
                     </div>
             }
@@ -518,7 +616,7 @@ export function MainPage() {
                         <RegularBtn
                             text={'APPROVE'}
                             onClick={
-                                ()=>onSwap(dispatch,'5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
+                                ()=>onSwap(dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
                                     onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork)
                             }
                             propStyle={{
@@ -590,12 +688,19 @@ const themedStyles = (theme) => ({
     subtext: {
         marginTop: '0.2rem',
         fontWeight: 600,
-        fontSize: '12px'
+        fontSize: '12px',
+        display: "flex",
+        justifyContent: "space-between"
     },
     subtextError: {
         marginTop: '0.8rem',
         fontWeight: 500,
         fontSize: '12px'
+    },
+    subtextError2: {
+        marginTop: '0.1rem',
+        fontWeight: 500,
+        fontSize: '10px'
     },
     error: {
         color: 'red'
@@ -627,6 +732,13 @@ const themedStyles = (theme) => ({
         "color": "black",
         fontSize: '12px ',
         marginBottom: '50px',
+        textAlign: 'center' as 'center'
+
+    },
+    stepStyle2: {
+        "color": "black",
+        fontSize: '12px ',
+        marginBottom: '10px',
         textAlign: 'center' as 'center'
 
     },

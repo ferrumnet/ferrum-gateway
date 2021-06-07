@@ -209,7 +209,7 @@ export class BridgeClient implements Injectable {
             const txIds = (response.response || []).map(r => r.transactionId);
             dispatch(addAction(CommonActions.WAITING, { source: 'withdrawableBalanceItemAddTransaction' }));
             await this.withdrawableBalanceItemUpdateTransaction(dispatch, w.receiveTransactionId, txIds[0]);
-            return 'success';
+            return ['success',txIds[0]];
         } catch(e) {
             dispatch(addAction(CommonActions.ERROR_OCCURED, {
                 message: e.message || '' }));

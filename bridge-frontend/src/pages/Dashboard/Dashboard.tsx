@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react';
+import React,{useEffect, useState} from 'react';
 // @ts-ignore
 import { Page } from 'component-library';
 import { Route, Switch } from 'react-router-dom';
@@ -8,19 +8,33 @@ import './../../app.scss'
 import { createSlice,AnyAction } from '@reduxjs/toolkit';
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
 //@ts-ignore
-import { Theme, ThemeConstantProvider, WebdefaultDarkThemeConstantsBuilder } from 'unifyre-react-helper';
-import { inject,IocModule } from 'types';
+import { Theme, ThemeConstantProvider,WebdefaultLightThemeConstantsBuilder} from 'unifyre-react-helper';
+import { inject } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { Dispatch } from "redux";
 import { getGroupIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
-import { WebPageWrapper } from '../../components/WebPageWrapper';
 import { WaitingComponent } from '../../components/WebWaiting';
 import { CommonActions,addAction } from './../../common/Actions';
 import { MainPage } from './../Main/Main';
 import { SwapPage } from './../Swap';
 import { LiquidityPage } from './../Liquidity'
 import { AppAccountState } from 'common-containers';
+ import {
+    GeneralPageLayout
+    // @ts-ignore
+} from 'component-library';
+
+import { Provider as FluentProvider, teamsTheme } from '@fluentui/react-northstar';
+import { ThemeContext } from 'unifyre-react-helper';
+import { ConnectBar } from './../../connect/ConnectBar';
+import { ReponsivePageWrapperDispatch, ReponsivePageWrapperProps } from './../../components/PageWrapperTypes';
+import { openPanelHandler } from './../Swap'
+import { useHistory } from 'react-router';
+import { Badge } from 'antd';
+import {SidePanelProps} from './../../components/SidePanel';
+import { SidePane } from './../../components/SidePanel';
+
 interface DashboardState {
     initialized: boolean,
     isHome: boolean,
@@ -37,14 +51,14 @@ interface DashboardState {
 }
 
 function _loadTheme(themeVariables: FulentTheme, customTheme: any) {
-    const themeConstants = WebdefaultDarkThemeConstantsBuilder(themeVariables)
+    const themeConstants = WebdefaultLightThemeConstantsBuilder(themeVariables)
       .set(Theme.Colors.bkgShade0, '#F6F5F7')
       .set(Theme.Colors.bkgShade1, themeVariables.palette.neutralLight)
       .set(Theme.Colors.bkgShade2, themeVariables.palette.neutralLighter)
       .set(Theme.Colors.bkgShade3, themeVariables.palette.neutralQuaternary)
       .set(Theme.Colors.bkgShade4, themeVariables.palette.neutralTertiary)
       .set(Theme.Colors.textColor, 'black')
-      .set(Theme.Colors.themeNavBkg, themeVariables.semanticColors.bodyStandoutBackground)
+      .set(Theme.Colors.themeNavBkg, '#F6F5F7')
       .set(Theme.Spaces.line, themeVariables.spacing.l1)
       .set(Theme.Spaces.screenMarginHorizontal, themeVariables.spacing.s2)
       .set(Theme.Spaces.screenMarginVertical, themeVariables.spacing.s2)
@@ -183,6 +197,67 @@ export interface DashboardProps {
 
 }
 
+export function ResponsivePageWrapper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
+    const [open,setOpen] = useState(false);
+    const history = useHistory();
+    const dispatch = useDispatch();
+    const panelOpen =  useSelector<BridgeAppState, boolean>(state => state.ui.swapPage.panelOpen);
+
+    const handleDismiss = () => {
+        openPanelHandler(dispatch)
+        setOpen(false);
+    }
+    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
+    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+
+    const bridgeItems = (
+        <>
+            <div onClick={()=>setOpen(!open)}>
+                My Withdrawals 
+                <span>
+                    <Badge
+                        className="site-badge-count-109"
+                        count={unUsedItems || 0}
+                        style={{ backgroundColor: '#52c41a' }}
+                    />
+                </span>
+            </div>
+            <div onClick={()=>history.push('./')}>
+                My Pair
+            </div>
+        </>
+    );
+    return (
+        <>
+           <ThemeContext.Provider value={props.theme}>
+                <FluentProvider theme={teamsTheme}>
+                <GeneralPageLayout
+                        top={
+                            <ConnectBar
+                                additionalOptions={
+                                    <>
+                                        {bridgeItems}
+                                    </>
+                                }
+                            />
+                        }
+                        middle={
+                            <>
+                                {props.children}
+                                <SidePane
+                                    isOpen={open||panelOpen}
+                                    dismissPanel={handleDismiss}
+                                />
+                            </>
+                        }
+                    >
+                </GeneralPageLayout>
+                </FluentProvider>
+            </ThemeContext.Provider>
+        </>
+    );
+}
+
 export function Dashboard() {
     const dispatch = useDispatch();
     const themeVariables = useTheme();
@@ -192,6 +267,7 @@ export function Dashboard() {
     const styles = themedStyles(theme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
+    const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
 
     const handleCon = async () => {
         await onBridgeLoad(dispatch).catch(console.error)
@@ -209,15 +285,12 @@ export function Dashboard() {
 
     if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
         return (
-            <WebPageWrapper
-            mode={'web3'}
-            theme={theme}
-            container={stateData.initialized ? IocModule.container() : undefined}
-            authError={stateData.initializeError}
-          >
+            <ResponsivePageWrapper
+                theme={theme}
+            >
               <Page>
                   <div style={styles.projectTitle}>
-                      Welcome to the <span style={styles.emphaisize}>Bondly</span> Token Bridge.
+                      Welcome to the <span style={styles.emphaisize}>{groupInfo.projectTitle}</span> Token Bridge.
                   </div>
                   <div style={styles.container}>
                     <Switch>
@@ -237,7 +310,7 @@ export function Dashboard() {
                   </div>
               </Page>
               <WaitingComponent/>
-          </WebPageWrapper>
+          </ResponsivePageWrapper>
         )
     }
 

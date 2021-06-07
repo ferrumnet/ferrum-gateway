@@ -1,10 +1,10 @@
 import { AnyAction, Dispatch } from "redux";
-import { PairedAddress,SignedPairAddress,CHAIN_ID_FOR_NETWORK,inject,IocModule, supportedNetworks } from 'types';
+import { PairedAddress,SignedPairAddress,inject} from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
 import {PairAddressSignatureVerifyre} from './../../pairUtils/PairAddressSignatureVerifyer';
-import { Connect, CurrencyList } from 'unifyre-extension-web3-retrofit';
+import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
@@ -21,15 +21,46 @@ export const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: Signed
                 const network = connect.network() as any;
                 const addr = connect.account()!;
                 dispatch(Actions.bridgeInitSuccess({data: res,address1: addr,network1: network}));
-                // ownProps.con()
             } else {
                 dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'error occured' }));
-
-               // dispatch(addAction(Actions.BRIDGE_INIT_FAILED, { message: intl('fatal-error-details') }));
             }
             
         }
     } catch(e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
+        }
+    }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+    }
+}
+
+export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,success:(v:string,tx:string)=>void,error:(v:string)=>void) => {
+    try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
+        const sc = inject<BridgeClient>(BridgeClient);
+        const connect = inject<Connect>(Connect);
+        const network = connect.network() as any;
+        const items = await sc.getUserWithdrawItems(dispatch,network);
+        if(items.withdrawableBalanceItems.length > 0){
+            const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item);
+            if(findMatch.length > 0){
+                const res:any = await sc.withdraw(dispatch,findMatch[0],network);
+                if(!!res && !!res[0]){
+                    console.log(res)
+                    success(network,res[1]);
+                    dispatch(Actions.resetSwap({}))
+                    return;
+                }
+            }else{
+                error('Invalid Withdrawal');
+                dispatch(Actions.resetSwap({}))
+                return;
+            }
+        }
+        error('Withdrawal failed');
+        dispatch(Actions.resetSwap({}))
+    }catch(e) {
         if(!!e.message){
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
@@ -78,7 +109,12 @@ export const onSwap = async (
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const client = inject<BridgeClient>(BridgeClient);        
-        ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
+        if(allowanceRequired){
+            ValidationUtils.isTrue(!(Number(balance) < 1 ),'Minimum of 0.5 token Balance required for approval');
+
+        }else{
+            ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
+        }
         ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
 
         const res = await client.swap(dispatch,currency, amount, targetNet);
@@ -119,14 +155,11 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
         const res = await vrf.getSourceCurrencies(dispatch,network);
         let details = addr?.find(e=>e.symbol === v);
         dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
-        console.log(details,'detailsss',v);
-
         if(!!res){
             dispatch(Actions.fetchedSourceCurrencies({currencies:res}))
             dispatch(Actions.validateToken({value: true}))
             if(details){
                 const allowance = await vrf.checkAllowance(dispatch,details.currency,'5', res[0].targetCurrency);
-                console.log(allowance,'alaoowowo')
                 dispatch(Actions.checkAllowance({value: allowance}))
                 dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
                 let TokenAllowed = res?.find((e:any)=> (e.sourceCurrency === details?.currency||e.targetCurrency === details?.currency));
@@ -201,16 +234,20 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
     dispatch(Actions.resetPair({}));
 }
 
-export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[])  => {
+export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
+    showNotiModal?: (v:boolean)=>void,unused?:number)  => {
     const client = inject<BridgeClient>(BridgeClient);
     dispatch(Actions.reconnected({}))
     //@ts-ignore
     await client.signInToServer(dispatch);
     await fetchSourceCurrencies(dispatch,v,addr);
     dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+    if(showNotiModal && (unused! > 0)){
+        showNotiModal(true)!
+    }
 }
 
-export const connect = async (dispatch: Dispatch<AnyAction>)  => {
+export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:boolean)=>void,unused?:number)  => {
     const client = inject<BridgeClient>(BridgeClient);
     try {
         await client.signInToServer(dispatch);
@@ -218,6 +255,12 @@ export const connect = async (dispatch: Dispatch<AnyAction>)  => {
         return;
     } catch (error) {
         console.log(error,'errror');
+    }finally{
+        if(unused! > 0){
+            setTimeout(()=> {if(showNotiModal) showNotiModal(true)}
+            ,4000)
+        }
+       
     }
 }
 

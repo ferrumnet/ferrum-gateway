@@ -27,13 +27,13 @@ export class TokenBridgeContractClinet implements Injectable {
         hash: string, salt: string, signature: string, expectedAddress: string) {
         const [network, token] = EthereumSmartContractHelper.parseCurrency(targetCurrency);
         const amountInt = await this.helper.amountToMachine(targetCurrency, amount);
-        console.log('Pre Result of withdrawSignedVerify', {targetCurrency, payee, amount, hash, salt, signature});
-        const res = await this.instance(network).methods.withdrawSignedVerify(token, payee, amountInt,
-            salt, signature).call();
-        console.log('Result of withdrawSignedVerify', res);
-        ValidationUtils.isTrue(res[0] === hash, 'Invalid hash - cannot verify');
-        ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
-            `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
+        console.log('Pre Result of withdrawSignedVerify', {targetCurrency, payee, amount, hash, salt, signature},this.instance(network).methods,this.instance(network));
+        // const res = await this.instance(network).methods.withdrawSigned(token, payee, amountInt,
+        //     salt, signature).call();
+        // console.log('Result of withdrawSignedVerify', res);
+        // ValidationUtils.isTrue(res[0] === hash, 'Invalid hash - cannot verify');
+        // ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
+        //     `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
     }
 
     protected bridgePool(network: string, contractAddress: string) {
