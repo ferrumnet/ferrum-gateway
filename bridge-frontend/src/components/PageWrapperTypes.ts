@@ -12,6 +12,14 @@ export interface ReponsivePageWrapperProps {
    
     children: any;
     authError?: string;
+    setter?: any;
+    newTheme?: any;
+}
+
+export interface ThemeProps {
+
+    setter?: any;
+    newTheme?: any;
 }
 
 export interface ReponsivePageWrapperDispatch {

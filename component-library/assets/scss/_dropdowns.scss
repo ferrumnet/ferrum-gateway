@@ -1,0 +1,70 @@
+@import "./variables";
+
+.assets-dropdown {
+  .network-detail {
+    display: flex;
+    align-items: center;
+  }
+}
+.dropdown {
+  &.show {
+    button {
+      i {
+        transform: rotate(180deg);
+        transform-origin: center center;
+      }
+    }
+  }
+  .dropdown-menu {
+    width: 100%;
+    padding: 0 !important;
+    border: 0;
+    overflow: hidden;
+    background: #272a33;
+    box-shadow: 0px 2px 8px rgba(11, 14, 17, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform-origin: top;
+    animation-fill-mode: forwards;
+    transform: scale(0.9, 0.7) translateY(-20px);
+    display: block;
+    transition: all 80ms ease;
+    &.show {
+      transform: scale(1, 1) translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      color: #f3f3f3;
+      background: none;
+      &.active {
+        background: rgba($themePrimary, 0.25) !important;
+        &:after {
+          content: "\f5e0";
+          font-family: $font-mat;
+          color: $themePrimary;
+          font-size: 1.25rem;
+        }
+      }
+      &:hover {
+        background: rgba($themePrimary, 0.1) !important;
+      }
+      span {
+        line-height: 0.9;
+        margin-left: 0.25rem;
+        strong {
+          display: block;
+          width: 100%;
+          font-size: 0.8rem;
+        }
+        small {
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+}
