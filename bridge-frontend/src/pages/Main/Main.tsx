@@ -18,7 +18,7 @@ import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
     reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    onSwap, executeWithdraw
+    onSwap, executeWithdraw,changeNetwork
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
@@ -204,6 +204,10 @@ export const MainPageSlice = createSlice({
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
             state.reconnecting = true;
+            state.isNetworkReverse = false;
+        });
+        builder.addCase('connect/connectionSucceeded', (state, action) => {
+            state.isNetworkReverse = false;
         });
         builder.addCase('BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN', (state, action) => {
             //@ts-ignore
@@ -286,7 +290,7 @@ export function MainPage() {
     
     useEffect(()=>{
         if(pageProps.reconnecting){
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible)
+            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible);
         }
     })
     
@@ -299,8 +303,8 @@ export function MainPage() {
         if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown){
             setTimeout(
                 () => {
-                    setIsNotiShown(true);
                     setIsNotiModalVisible(true)
+                    setIsNotiShown(true);
                 },3500
             )
             
@@ -365,7 +369,8 @@ export function MainPage() {
             style: {
               marginTop: '20vh',
             },
-        }, 20);  
+            duration: 12
+        }, 12);  
     };
 
 
@@ -401,11 +406,11 @@ export function MainPage() {
                     total={`${Number(pageProps.amount) - 0}`}
                     setIsModalClose={()=>hideConfirmModal()}
                     processSwap={()=>onSwap(dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
-                        onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork)}
+                        onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,setModalStatus)}
 
                 />
                 {
-                    (!connected && !pageProps.swapId) ?
+                    (!connected && !pageProps.swapId && !pageProps.isNetworkReverse) ?
                         <NotConnected/>
                     :   <Connected/>
                 }
@@ -576,19 +581,29 @@ export function MainPage() {
                 />
             </div>
             {
-                (!pageProps.allowanceRequired && swapSuccess && swapFailure) &&
+                (!pageProps.allowanceRequired && (swapSuccess)) &&
                 (
                     <div style={styles.swapBtnContainer}>
                         <RegularBtn
-                            onClick={()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage)}
-                            text={ 'Withdraw'}
+                            onClick={
+                                (pageProps.network != pageProps.swapWithdrawNetwork) ?
+                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork,pageProps.selectedToken,pageProps.addresses) :
+                                ()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage,setModalStatus)}
+                            text={ (pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network' : 'Withdraw'}
                             propStyle={{
                                 "padding":"25px 45px",
                                 "borderRadius": '5px',
                             }}
-                            disabled={swapping || (pageProps.network != pageProps.swapWithdrawNetwork)}                              
+                            disabled={swapping}                              
                         />
+                        {
+                            ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) &&
+                            <p style={{...styles.subtext,...styles.manualNote}}>
+                                <Alert message={`Manually Switch your Network ${pageProps.destNetwork} from Metamask`} type="warning" showIcon />
+                            </p>
+                        }
                     </div>
+                    
                 )
             }
                 
@@ -617,7 +632,7 @@ export function MainPage() {
                             text={'APPROVE'}
                             onClick={
                                 ()=>onSwap(dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
-                                    onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork)
+                                    onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,setModalStatus)
                             }
                             propStyle={{
                                 "padding":"25px 45px",
@@ -684,6 +699,9 @@ const themedStyles = (theme) => ({
     },
     right:{
         width: '25%'
+    },
+    manualNote:{
+        marginTop: '0.8rem',
     },
     subtext: {
         marginTop: '0.2rem',

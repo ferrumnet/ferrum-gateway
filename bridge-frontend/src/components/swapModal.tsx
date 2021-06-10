@@ -48,7 +48,7 @@ export function SwapModal (props: {
           setTimeout(
             async ()=>{
             const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
-      
+            console.log(status,'status')
             if(status && status === 'successful'){
               props.setStatus(2)
             }
@@ -103,12 +103,17 @@ export function SwapModal (props: {
               title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
               description={
                 <div className={styles.textStyles}>
-                  {props.status > 1 ? `Your Swap transaction was successfully processed`
+                  {props.status > 1 ? `Your Swap transaction was successfully processed` :
+                    props.status < 0 ? 'Swap transaction failed' 
                   : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
                 </div>
               }
               style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
-              icon={props.status === 1 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+              icon={
+                props.status === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
+                props.status === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
+                : undefined
+              }  
             />
             <Step 
               status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 

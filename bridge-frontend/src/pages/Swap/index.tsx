@@ -97,7 +97,6 @@ export const swapageSlice = createSlice({
             state.destAddress = action.payload.value
         },
         loadedUserPairs: (state,action) => {
-            console.log(action.payload,'payee');
             state.signedPairedAddress = action.payload.pairedAddress;
             state.pairedAddress = action.payload.pairedAddress;
             state.baseAddress = action.payload.pairedAddress.pair?.address1;
@@ -201,12 +200,10 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
         if(currenciesList.length > 0){
             dispatch(Actions.swapDetails({value: currenciesList}))                
         }
-        console.log(details,'detailsss');
         if(details){
             dispatch(Actions.tokenSelected({value: v || {},details}));
             await sc.getAvailableLiquidity(dispatch,details?.address, details?.currency)
             const allowance = await sc.checkAllowance(dispatch,details.currency,'5', currenciesList[0].targetCurrency);
-            console.log(allowance,'allowanceoi')
             dispatch(Actions.checkAllowance({value: allowance}))
         }
     }catch(e) {

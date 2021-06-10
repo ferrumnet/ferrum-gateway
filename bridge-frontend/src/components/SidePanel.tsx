@@ -25,6 +25,8 @@ import {
   } from '@ant-design/icons';
 import { CommonActions,addAction } from './../common/Actions';
 import { Drawer, Button } from 'antd';
+import { message, Result } from 'antd';
+import { CloseIcon } from '@fluentui/react-icons-northstar';
 
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
@@ -90,7 +92,8 @@ export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountSt
 const Actions = SidePanelSlice.actions;
 
 export interface swapDisptach {
-    executeWithrawItem: (item:UserBridgeWithdrawableBalanceItem,dis:()=>void,success:(v:string)=>void,error:(v:string)=>void) => void,
+    executeWithrawItem: (item:UserBridgeWithdrawableBalanceItem,
+        dis:()=>void,success:(v:string)=>void,error:(v:string)=>void) => void,
 }
 
 const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
@@ -98,7 +101,7 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
         const res = await sc.getUserWithdrawItems(dispatch,network); 
-        if(res.withdrawableBalanceItems.length > 0){
+        if(res &&res.withdrawableBalanceItems.length > 0){
             dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
         } 
     } catch (error) {
@@ -111,7 +114,8 @@ const executeWithrawItem = async (
         item:UserBridgeWithdrawableBalanceItem,
         dis:()=>void,
         success:(v:string)=>void,
-        error:(v:string)=>void
+        error:(v:string)=>void,
+        popup: (v:string,tx:string) => void
     ) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
@@ -119,8 +123,9 @@ const executeWithrawItem = async (
         const network = connect.network() as any;
         const res = await sc.withdraw(dispatch,item,network)
         dis();
-        if(!!res){
-            success('Withdrawal was Successful and is processing...') 
+        if(!!res && !!res[0]){
+            success('Withdrawal was Successful and is processing...');
+            popup(network,res[1]);
             const items = await sc.getUserWithdrawItems(dispatch,network);
             if(items && items.withdrawableBalanceItems.length > 0){
                 dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
@@ -185,14 +190,12 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     useEffect(() => {
         if(pageProps.txExecuted){
-            const interval = setInterval(async () => {
+            setTimeout( async ()=>{
                 await updatePendingWithrawItems(dispatch);
-            }, 
-            20000 );
-            return () => clearInterval(interval);
+            },15000)
         }
      
-    }, [])
+    })
     
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
@@ -213,6 +216,28 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
+    };
+
+    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+        message.success({
+            content: <Result
+                status="success"
+                title="Your Withdrawal Transaction Processing"
+                subTitle={v}
+                extra={[
+                    <>
+                        <div> View Transaction Status </div>
+                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
+                    </>
+                ]}
+            />,
+            className: 'custom-class',
+            style: {
+              marginTop: '20vh',
+            },
+            duration: 12,
+        },
+        12);  
     };
 
     return (
@@ -269,7 +294,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                         e.sendNetwork === pageProps.Network &&
                                         <>
                                             {
-                                                (!e.used  || e.used === 'failed') && <ButtonLoader completed={false} onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage);props.dismissPanel()}} disabled={false}/>
+                                                (!e.used  || e.used === 'failed') && <ButtonLoader completed={false} onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} disabled={false}/>
                                             }
                                             {
                                                 (e.used === 'pending') && <ButtonLoader onPress={()=>{}} disabled={true} completed={false}/>

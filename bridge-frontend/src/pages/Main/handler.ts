@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from "redux";
-import { PairedAddress,SignedPairAddress,inject} from 'types';
+import { PairedAddress,SignedPairAddress,inject,chainData} from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
@@ -8,6 +8,27 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
+
+export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string,v:string,addr?: AddressDetails[],) => {
+    try {
+        //@ts-ignore
+        console.log(network,chainData[network]);
+        //@ts-ignore
+        let ethereum = window.ethereum;
+        // @ts-ignore
+        if (window.ethereum) {
+            //@ts-ignore
+            const data = [chainData[network]]
+            /* eslint-disable */
+            const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data})
+            if (tx) {
+                console.log(tx)
+            }
+        }
+    } catch (e) {
+        console.log(e,'======')
+    }
+}
 
 export const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: SignedPairAddress) => {
     try {
@@ -35,7 +56,8 @@ export const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: Signed
     }
 }
 
-export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,success:(v:string,tx:string)=>void,error:(v:string)=>void) => {
+export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
+    success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const sc = inject<BridgeClient>(BridgeClient);
@@ -47,14 +69,15 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
             if(findMatch.length > 0){
                 const res:any = await sc.withdraw(dispatch,findMatch[0],network);
                 if(!!res && !!res[0]){
-                    console.log(res)
                     success(network,res[1]);
                     dispatch(Actions.resetSwap({}))
+                    setStatus(1)
                     return;
                 }
             }else{
                 error('Invalid Withdrawal');
                 dispatch(Actions.resetSwap({}))
+                setStatus(1)
                 return;
             }
         }
@@ -103,7 +126,7 @@ export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,balance:string,currency:string,targetNet: string,
     v: (v:string)=>void,y: (v:string)=>void,
-    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,
+    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,setStatus:(v:number)=>void
     ) => {
     try {
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
@@ -136,7 +159,6 @@ export const onSwap = async (
         v('error occured')
     }catch(e) {
         if(!!e.message){
-            console.log(e.message);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
