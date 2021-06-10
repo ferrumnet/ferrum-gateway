@@ -9,13 +9,18 @@ import "../../assets/scss/_header.scss";
   WithdrawlsButton,
   SwitchNetworkButton,
   ThemeSelector,
+  logo,
+  altText
 }) => {
   return (
     <header>
       <Navbar expand="lg">
-        <Navbar.Brand href="#home">Logo here</Navbar.Brand>
-
-        
+        <Navbar.Brand href="#home">
+          <img 
+            alt={`${altText}`}
+            src={`${logo}`}
+          />
+        </Navbar.Brand>        
         <span className="d-flex align-items-center ml-auto">
           <div className="theme-switcher float-left d-flex mr-3">
             <strong className="text-sec mr-3">
@@ -23,9 +28,9 @@ import "../../assets/scss/_header.scss";
             </strong>
             { ThemeSelector && <ThemeSelector />}
           </div>
-          {WithdrawlsButton &&<WithdrawlsButton />}
-          {SwitchNetworkButton && <SwitchNetworkButton />}
-          {ConnectButton && <ConnectButton />}
+          {WithdrawlsButton}
+          {SwitchNetworkButton}
+          {ConnectButton}
         </span>
       </Navbar>
     </header>

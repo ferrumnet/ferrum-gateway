@@ -1,8 +1,7 @@
 import React,{useEffect, useState} from 'react';
 // @ts-ignore
-import { Page,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge, ConnectBridge } from 'component-library';
+import { Page,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge } from 'component-library';
 import ThemeSelector from "../../ThemeSelector"
-import { Route, Switch } from 'react-router-dom';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
 import './../../app.scss'
@@ -15,26 +14,16 @@ import { BridgeClient } from "./../../clients/BridgeClient";
 import { Dispatch } from "redux";
 import { getGroupIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
-import { WaitingComponent } from '../../components/WebWaiting';
 import { CommonActions,addAction } from './../../common/Actions';
-import { MainPage } from './../Main/Main';
-import { SwapPage } from './../Swap';
-import { LiquidityPage } from './../Liquidity'
 import { AppAccountState } from 'common-containers';
- import {
-    GeneralPageLayout
-    // @ts-ignore
-} from 'component-library';
-
-import { Provider as FluentProvider, teamsTheme } from '@fluentui/react-northstar';
-import { ThemeContext } from 'unifyre-react-helper';
-import { ConnectBar } from './../../connect/ConnectBar';
+import { ConnectButtonWapper} from 'common-containers';
 import { ReponsivePageWrapperDispatch, ReponsivePageWrapperProps,ThemeProps } from './../../components/PageWrapperTypes';
 import { openPanelHandler } from './../Swap'
 import { useHistory } from 'react-router';
-import { Badge } from 'antd';
 import {SidePanelProps} from './../../components/SidePanel';
 import { SidePane } from './../../components/SidePanel';
+import { changeNetwork } from "./../Main/handler"
+import { WaitingComponent } from '../../components/WebWaiting';
 
 interface DashboardState {
     initialized: boolean,
@@ -198,66 +187,6 @@ export interface DashboardProps {
 
 }
 
-export function ResponsivePageWrapper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
-    const [open,setOpen] = useState(false);
-    const history = useHistory();
-    const dispatch = useDispatch();
-    const panelOpen =  useSelector<BridgeAppState, boolean>(state => state.ui.swapPage.panelOpen);
-
-    const handleDismiss = () => {
-        openPanelHandler(dispatch)
-        setOpen(false);
-    }
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
-
-    const bridgeItems = (
-        <>
-            <div onClick={()=>setOpen(!open)}>
-                My Withdrawals 
-                <span>
-                    <Badge
-                        className="site-badge-count-109"
-                        count={unUsedItems || 0}
-                        style={{ backgroundColor: '#52c41a' }}
-                    />
-                </span>
-            </div>
-            <div onClick={()=>history.push('./')}>
-                My Pair
-            </div>
-        </>
-    );
-    return (
-        <>
-           <ThemeContext.Provider value={props.theme}>
-                <FluentProvider theme={teamsTheme}>
-                <GeneralPageLayout
-                        top={
-                            <ConnectBar
-                                additionalOptions={
-                                    <>
-                                        {bridgeItems}
-                                    </>
-                                }
-                            />
-                        }
-                        middle={
-                            <>
-                                {props.children}
-                                <SidePane
-                                    isOpen={open||panelOpen}
-                                    dismissPanel={handleDismiss}
-                                />
-                            </>
-                        }
-                    >
-                </GeneralPageLayout>
-                </FluentProvider>
-            </ThemeContext.Provider>
-        </>
-    );
-}
 
 // Author Abdul Ahad
 export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
@@ -265,75 +194,72 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const history = useHistory();
     const dispatch = useDispatch();
     const panelOpen =  useSelector<BridgeAppState, boolean>(state => state.ui.swapPage.panelOpen);
-
     const handleDismiss = () => {
         openPanelHandler(dispatch)
         setOpen(false);
     }
     const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
     let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+    const ConBot = <ConnectButtonWapper View={CnctButton} />
+    const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
+    const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
+    const network = useSelector<BridgeAppState, string>(state => state.ui.pairPage.destNetwork);
+    const PairPageProps = useSelector<BridgeAppState, any>(state => state.ui.pairPage);
+    const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
 
     const bridgeItems = (
         <>
-            <div onClick={()=>setOpen(!open)}>
-                My Withdrawals 
-                <span>
-                    <Badge
-                        className="site-badge-count-109"
-                        count={unUsedItems || 0}
-                        style={{ backgroundColor: '#52c41a' }}
-                    />
-                </span>
-            </div>
-            <div onClick={()=>history.push('./')}>
-                My Pair
-            </div>
+            <WithdrawlsButton customClasses="mr-3" count={unUsedItems || 0} onClick={()=>setOpen(!open)}/>
         </>
     );
+
+    const SwitchBtn = (
+        <>
+            {
+                switchRequest && network != ('RINKEBY' || 'ETHEREUM') &&
+                <SwitchNetworkButton customClasses="mr-3"
+                    onClick={()=>changeNetwork(dispatch,network,PairPageProps.selectedToken,PairPageProps.addresses)} 
+                />
+            }
+        </>
+    )
+    
     return (
         <>
-        <Header ConnectButton={CnctButton} WithdrawlsButton={()=><WithdrawlsButton customClasses="mr-3"/>} SwitchNetworkButton={()=><SwitchNetworkButton customClasses="mr-3"/>} ThemeSelector={()=><ThemeSelector setter={props.setter} newTheme={props.newTheme}/>}/>
+            <Header  
+                ConnectButton={ConBot}
+                WithdrawlsButton={bridgeItems} 
+                SwitchNetworkButton={SwitchBtn} 
+                ThemeSelector={()=><ThemeSelector setter={props.setter} 
+                newTheme={props.newTheme}/>}
+                logo={groupInfo.themeVariables?.mainLogo}
+                altText={groupInfo.projectTitle}
+            />
+            <div className="mt-5 d-flex justify-content-center">
+                <h4>Welcome to the {groupInfo.projectTitle} Token Bridge.</h4>
+            </div>
            <AppContainer>
                <ContentContainer> 
-     <div className="landing-page">
-     <div className="steps-wrapper">
-     <div className="row">
-            <div className="col-lg-4 col-md-4 mb-3">
-                <ProgressTracker/>
-         </div>
-         <div className="col-lg-8 col-md-8">
-             <TokenBridge/>
-         </div>
-         </div>
-         </div>
-      </div>
-      </ContentContainer>
-           </AppContainer>
-           <ThemeContext.Provider value={props.theme}>
-                <FluentProvider theme={teamsTheme}>
-                <GeneralPageLayout
-                        top={
-                            <ConnectBar
-                                additionalOptions={
-                                    <>
-                                        {bridgeItems}
-                                    </>
-                                }
-                            />
-                        }
-                        middle={
-                            <>
-                                {props.children}
+                    <div className="landing-page">
+                        <div className="steps-wrapper">
+                            <div className="row">
+                                <div className="col-lg-4 col-md-4 mb-3">
+                                    <ProgressTracker/>
+                                </div>
+                                <div className="col-lg-8 col-md-8">
+                                    <TokenBridge
+                                        connected={connected}
+                                    />
+                                </div>
                                 <SidePane
                                     isOpen={open||panelOpen}
                                     dismissPanel={handleDismiss}
                                 />
-                            </>
-                        }
-                    >
-                </GeneralPageLayout>
-                </FluentProvider>
-            </ThemeContext.Provider>
+                            </div>
+                        </div>
+                    </div>
+                </ContentContainer>
+           </AppContainer>
         </>
     );
 }
@@ -344,10 +270,8 @@ export function Dashboard(props:ThemeProps) {
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const stateData = useSelector<BridgeAppState, DashboardContentProps>(appS => stateToProps(appS,userAccounts));
     const theme = _loadTheme(themeVariables, stateData.customTheme);
-    const styles = themedStyles(theme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
-    const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
 
     const handleCon = async () => {
         await onBridgeLoad(dispatch).catch(console.error)
@@ -365,34 +289,15 @@ export function Dashboard(props:ThemeProps) {
 
     if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
         return (
+            
             <AppWraper
                 theme={theme}
                 setter={props.setter}
                 newTheme={props.newTheme}
             >
-              <Page>
-                  <div style={styles.projectTitle}>
-                      Welcome to the <span style={styles.emphaisize}>{groupInfo.projectTitle}</span> Token Bridge.
-                  </div>
-                  <div style={styles.container}>
-                    <Switch>
-                        <Route path='/:gid/liquidity'>
-                            <LiquidityPage/>
-                        </Route>
-                        <Route path='/:gid/swap'>
-                            <SwapPage/>
-                        </Route>
-                        <Route path='/:gid/'>
-                            <MainPage/>
-                        </Route>
-                        <Route path='/'>
-                            <MainPage/>
-                        </Route>
-                    </Switch>
-                  </div>
-              </Page>
-              <WaitingComponent/>
-          </AppWraper>
+                <WaitingComponent/>
+
+            </AppWraper> 
         )
     }
 

@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import {ConnectBridge} from "./ConnectBridge";
 import { Card, Button } from "react-bootstrap";
-export const TokenBridge = () => {
-  const [startConnect, SetStartConnect] = useState(false);
+export const TokenBridge = ({...rest}) => {
   return (
     <>
-      {!startConnect ? (
+      {!rest.connected ? (
         <Card className="card-connect-wallet text-center">
           <small className="text-sec mb-5">
             Daily limit <strong>78,477.83 USDT</strong>? per address <br></br>
@@ -30,8 +29,8 @@ export const TokenBridge = () => {
         </Card>
       ) : (
         <ConnectBridge
-          startConnect={startConnect}
-          SetStartConnect={SetStartConnect}
+          startConnect={rest.connected}
+          SetStartConnect={()=>{}}
         />
       )}
     </>

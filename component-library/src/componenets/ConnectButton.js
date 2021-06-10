@@ -11,7 +11,7 @@ export const CnctButton = ({ customClasses, ...rest }) => {
       className={`btn-icon btn-connect ${customClasses ? customClasses :""}`}
       {...rest}
     >
-      <i className="mdi mdi-wallet"></i> <span>Connect</span>
+      <i className="mdi mdi-wallet"></i> <span>{!rest.connected ? 'Connect' : 'Disconnect'}</span>
     </Button>
   );
 };
