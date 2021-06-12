@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as themes from "./theme/schema.json";
 import { setAllThemes } from "./storageUtils/storage";
+
 const Index = () => {
   setAllThemes("all-themes", themes);
   return <App />;

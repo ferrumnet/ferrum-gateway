@@ -6,6 +6,7 @@
         "colors": {
           "body": "#f1f1f1",
           "text": "#000000",
+          "inverse":  "#fffff",
           "card": "#fffff",
           "button": {
             "text": "#000000",
@@ -24,6 +25,7 @@
         "colors": {
           "body": "#1e2026",
           "text": "#ffffff",
+          "inverse":  "#000000",
           "button": {
             "text": "#ffffff",
             "background": "#f0b92d"

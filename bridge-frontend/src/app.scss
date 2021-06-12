@@ -7,6 +7,27 @@
     }
 }
 
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.ant-steps-icon {
+    position: relative;
+    top: -2px !important;
+}
+
+.ms-MessageBar-innerText{
+    margin: 0px auto;
+}
+
 .is-disabled{
     background-color: rgba(128, 128, 128, 0.205) !important;
 }

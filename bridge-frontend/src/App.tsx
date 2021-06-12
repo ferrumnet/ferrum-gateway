@@ -9,9 +9,6 @@ import { BridgeModule } from "./common/BridgeModule";
 import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ToastProvider, useToasts } from "react-toast-notifications";
-import { GlobalStyles } from "./theme/GlobalStyles";
-import { useTheme } from "./theme/useTheme";
-import { ThemeProvider } from "styled-components";
 
 
 const _module = new BridgeModule();
@@ -25,27 +22,14 @@ const store = StoreBuilder.build(
 );
 
 function App() {
-  const { theme, themeLoaded, getFonts } = useTheme();
-  const [selectedTheme, setSelectedTheme] = useState(theme);
-  const [newTheme] = useState();
-  useEffect(() => {
-    setSelectedTheme(theme);
-    // eslint-disable-next-line
-  }, [themeLoaded]);
-
-  console.log(selectedTheme)
-
+  
   return (
     <StoreBuilder.Provider store={store}>
-      <ThemeProvider theme={selectedTheme}>
-        <GlobalStyles/>
         <ToastProvider>
           <Router>
-            <Dashboard setter={(value :any)=>setSelectedTheme(value)} newTheme={newTheme}/>
+            <Dashboard/>
           </Router>
-        </ToastProvider>
-     
-      </ThemeProvider>
+        </ToastProvider> 
     </StoreBuilder.Provider>
   );
 }

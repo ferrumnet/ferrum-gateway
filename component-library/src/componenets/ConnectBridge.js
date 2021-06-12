@@ -4,7 +4,8 @@ import {NetworkSwitch} from "./NetworkSwitch";
 import {AmountInput} from "./AmountInput";
 import { Link } from "react-router-dom";
 import { Card, Button } from "react-bootstrap";
-export const ConnectBridge = ({ startConnect, SetStartConnect }) => {
+
+export const ConnectBridge = ({ ...rest }) => {
   return (
     <>
       <Card>
@@ -14,14 +15,6 @@ export const ConnectBridge = ({ startConnect, SetStartConnect }) => {
           <NetworkSwitch />
           <AmountInput />
         </div>
-        <Button
-          className="btn-pri btn-icon btn-connect mt-4"
-          onClick={() => {
-            SetStartConnect(false);
-          }}
-        >
-          <i className="mdi mdi-wallet"></i>Diconnect
-        </Button>
         <Button
           className="btn-pri btn-icon btn-connect mt-4"
           //   onClick={() => {

@@ -1,6 +1,6 @@
-import React,{useEffect, useState} from 'react';
+import React,{useEffect, useState,useContext} from 'react';
 // @ts-ignore
-import { Page,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge } from 'component-library';
+import { Page,Row,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge } from 'component-library';
 import ThemeSelector from "../../ThemeSelector"
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,7 +8,7 @@ import './../../app.scss'
 import { createSlice,AnyAction } from '@reduxjs/toolkit';
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
 //@ts-ignore
-import { Theme, ThemeConstantProvider,WebdefaultLightThemeConstantsBuilder} from 'unifyre-react-helper';
+import { Theme,ThemeContext, ThemeConstantProvider,WebdefaultLightThemeConstantsBuilder} from 'unifyre-react-helper';
 import { inject } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { Dispatch } from "redux";
@@ -23,7 +23,14 @@ import { useHistory } from 'react-router';
 import {SidePanelProps} from './../../components/SidePanel';
 import { SidePane } from './../../components/SidePanel';
 import { changeNetwork } from "./../Main/handler"
+import { ConnectBridge,SideBarContainer } from "./../Main/Main";
 import { WaitingComponent } from '../../components/WebWaiting';
+import { MessageBar, MessageBarType } from '@fluentui/react';
+import { setAllThemes } from "./../../storageUtils/storage";
+import { GlobalStyles } from "./../../theme/GlobalStyles";
+import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
+import { ThemeProvider } from "styled-components";
+import * as themesToBeLoaded from "./../../theme/schema.json";
 
 interface DashboardState {
     initialized: boolean,
@@ -144,6 +151,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
         }else{
             await client.signInToServer(dispatch)
             loadThemeForGroup(groupInfo.themeVariables);
+            setAllThemes("all-themes", {default:groupInfo.newTheme});
             return;
         }
     } catch (error) {
@@ -187,11 +195,28 @@ export interface DashboardProps {
 
 }
 
+function ErrorBar(props: {error: string}) {
+    return (
+        <Row withPadding centered>
+            <MessageBar
+                messageBarType={MessageBarType.blocked}
+                isMultiline={true}
+                dismissButtonAriaLabel="Close"
+                truncated={true}
+                overflowButtonAriaLabel="See more"
+            >
+                {props.error}
+            </MessageBar>
+        </Row>
+    );
+}
 
 // Author Abdul Ahad
 export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
     const [open,setOpen] = useState(false);
     const history = useHistory();
+    const inlineTheme = useContext(ThemeContext);   
+    const styles = themedStyles(inlineTheme);
     const dispatch = useDispatch();
     const panelOpen =  useSelector<BridgeAppState, boolean>(state => state.ui.swapPage.panelOpen);
     const handleDismiss = () => {
@@ -199,17 +224,29 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
         setOpen(false);
     }
     const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+    const unusedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
     const ConBot = <ConnectButtonWapper View={CnctButton} />
     const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
     const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
     const network = useSelector<BridgeAppState, string>(state => state.ui.pairPage.destNetwork);
     const PairPageProps = useSelector<BridgeAppState, any>(state => state.ui.pairPage);
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
+    const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
+ 
+
+    const error = (initError && initError != '') && (
+        <div style={{
+           ...styles.error
+        }}
+        >
+            <ErrorBar error={initError||'error'} />
+        </div>
+
+    );
 
     const bridgeItems = (
         <>
-            <WithdrawlsButton customClasses="mr-3" count={unUsedItems || 0} onClick={()=>setOpen(!open)}/>
+            <WithdrawlsButton customClasses="mr-3" count={unusedItems || 0} onClick={()=>setOpen(!open)}/>
         </>
     );
 
@@ -235,20 +272,27 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                 logo={groupInfo.themeVariables?.mainLogo}
                 altText={groupInfo.projectTitle}
             />
-            <div className="mt-5 d-flex justify-content-center">
-                <h4>Welcome to the {groupInfo.projectTitle} Token Bridge.</h4>
+            <div className="mt-4 d-flex justify-content-center text-center">
+                <div>
+                    <h4 style={{"marginBottom":"0em"}} className="text-center display-12 font-weight-bold">Welcome to the {groupInfo.projectTitle} token bridge.</h4>
+                </div>
             </div>
+
+            {error}
            <AppContainer>
                <ContentContainer> 
                     <div className="landing-page">
                         <div className="steps-wrapper">
                             <div className="row">
                                 <div className="col-lg-4 col-md-4 mb-3">
-                                    <ProgressTracker/>
+                                    <SideBarContainer/>
                                 </div>
                                 <div className="col-lg-8 col-md-8">
                                     <TokenBridge
                                         connected={connected}
+                                        conBtn={ConBot}
+                                        connect={onBridgeLoad}
+                                        ConnectBridge={ConnectBridge}
                                     />
                                 </div>
                                 <SidePane
@@ -257,6 +301,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                                 />
                             </div>
                         </div>
+                        <WaitingComponent/>
                     </div>
                 </ContentContainer>
            </AppContainer>
@@ -269,9 +314,17 @@ export function Dashboard(props:ThemeProps) {
     const themeVariables = useTheme();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const stateData = useSelector<BridgeAppState, DashboardContentProps>(appS => stateToProps(appS,userAccounts));
-    const theme = _loadTheme(themeVariables, stateData.customTheme);
+    const themes = _loadTheme(themeVariables, stateData.customTheme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
+    const { theme, themeLoaded, getFonts } = newThemeInitialization();
+    const [selectedTheme, setSelectedTheme] = useState(theme);
+    const [newTheme] = useState();
+
+    useEffect(() => {
+      setSelectedTheme(theme);
+      // eslint-disable-next-line
+    }, [themeLoaded]);
 
     const handleCon = async () => {
         await onBridgeLoad(dispatch).catch(console.error)
@@ -289,15 +342,16 @@ export function Dashboard(props:ThemeProps) {
 
     if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
         return (
-            
-            <AppWraper
-                theme={theme}
-                setter={props.setter}
-                newTheme={props.newTheme}
-            >
-                <WaitingComponent/>
+            <ThemeProvider theme={selectedTheme}>
+                <GlobalStyles/>
+                <AppWraper
+                    theme={themes}
+                    setter={(value :any)=>setSelectedTheme(value)}
+                    newTheme={newTheme}
+                >
 
-            </AppWraper> 
+                </AppWraper> 
+            </ThemeProvider>
         )
     }
 
@@ -335,6 +389,13 @@ const themedStyles = (theme) => ({
             height: '40px',
           }
         ]
+    },
+    errorContainer: {
+        padding: '20px 5%'
+    },
+    error: {
+        "display":"flex","justifyContent":"center",width: "50%",
+        margin: "0px auto",padding: '20px 5%'
     },
     container: {
         position: "relative" as "relative"

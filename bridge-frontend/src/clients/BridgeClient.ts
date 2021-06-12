@@ -266,7 +266,7 @@ export class BridgeClient implements Injectable {
             // dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
             //     message: e.message || '' }));
         } finally {
-          dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+          //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
     }
 

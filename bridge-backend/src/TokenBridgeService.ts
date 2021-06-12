@@ -208,6 +208,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!groupId, '"groupId" must be provided');
         const r = await this.groupInfoModel!.findOne({groupId}).exec();
         if (r) {
+            console.log(r.toJSON());
             return r.toJSON();
         }
         return;

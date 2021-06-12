@@ -51,32 +51,29 @@ const CustomMenu = React.forwardRef(
 );
 
 export const AssetsSelector = ({
-  assets = [
-    { title: "USDT", subTitle: "Thther US" },
-    { title: "USDT", subTitle: "Thther US" },
-    { title: "USDT", subTitle: "Thther US" },
-    { title: "USDT", subTitle: "Thther US" },
-    { title: "USDT", subTitle: "Thther US" },
-  ],
+  assets = [],
+  icons = {},
+  selectedToken,
+  onChange
 }) => {
   return (
     <Dropdown className="assets-dropdown">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
         <span>
-          <img src={IconCryptoTrx} alt="loading"></img> USDT
+          <img src={icons[selectedToken]} alt="loading"></img> {selectedToken}
         </span>
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>
       <Dropdown.Menu as={CustomMenu}>
         {assets?.map((asset, index) => (
-          <Dropdown.Item eventKey={index} active={index === 0} key={index}>
+          <Dropdown.Item eventKey={index} active={index === 0} key={index} onClick={()=>onChange(asset)}>
             <div className="network-detail">
               <div className="icon-network icon-lg">
-                <img src={IconCryptoTrx} alt="loading"></img>
+                <img src={icons[asset]} alt="loading"></img>
               </div>
               <span>
-                <strong>{asset.title}</strong>
-                <small>{asset.subTitle}</small>
+                <strong>{asset}</strong>
+                <small>{asset}</small>
               </span>
             </div>
           </Dropdown.Item>

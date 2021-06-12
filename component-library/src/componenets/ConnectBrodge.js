@@ -20,7 +20,7 @@ export const ConnectBrodge = ({ startConnect, SetStartConnect }) => {
             SetStartConnect(false);
           }}
         >
-          <i className="mdi mdi-wallet"></i>Diconnect
+          <i className="mdi mdi-wallet"></i>Disconnect
         </Button>
         <Button
           className="btn-pri btn-icon btn-connect mt-4"

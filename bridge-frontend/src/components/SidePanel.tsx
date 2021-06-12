@@ -16,7 +16,7 @@ import { BridgeClient } from './../clients/BridgeClient';
 import { inject,inject2,UserBridgeWithdrawableBalanceItem } from "types";
 import { useToasts } from 'react-toast-notifications';
 import { BridgeAppState } from '../common/BridgeAppState';
-import { AppAccountState } from 'common-containers';
+import { ApiClient, AppAccountState } from 'common-containers';
 import { createSlice } from '@reduxjs/toolkit';
 import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CheckCircleTwoTone,PlusOutlined } from '@ant-design/icons';
@@ -27,7 +27,8 @@ import { CommonActions,addAction } from './../common/Actions';
 import { Drawer, Button } from 'antd';
 import { message, Result } from 'antd';
 import { CloseIcon } from '@fluentui/react-icons-northstar';
-
+import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import {connectSlice} from "common-containers";
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
@@ -109,6 +110,18 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
     }
 }
 
+const getData= async (dispatch:Dispatch<AnyAction>) => {
+    try {
+        const [connect,client] = inject2<Connect,UnifyreExtensionWeb3Client>(Connect,UnifyreExtensionWeb3Client);
+        const network = connect.network() as any;
+        const userProfile = await client.getUserProfile();
+        const Actions = connectSlice.actions;
+        dispatch(Actions.connectionSucceeded({userProfile}))
+    } catch (error) {
+        
+    }
+}
+
 const executeWithrawItem = async (
         dispatch: Dispatch<AnyAction>,
         item:UserBridgeWithdrawableBalanceItem,
@@ -148,7 +161,7 @@ const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items.withdrawableBalanceItems.length > 0){
+        if(items && items.withdrawableBalanceItems.length > 0){
             if(items.withdrawableBalanceItems){
                 const pendingItems = items.withdrawableBalanceItems.filter((e:any) => e.used === 'pending');
                 if(pendingItems.length > 0){
@@ -192,7 +205,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         if(pageProps.txExecuted){
             setTimeout( async ()=>{
                 await updatePendingWithrawItems(dispatch);
-            },15000)
+            },200000)
         }
      
     })
@@ -208,7 +221,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                dispatch(Actions.dataLoaded({}))
             }
         }
-      });
+    });
 
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
@@ -228,14 +241,19 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                     <>
                         <div> View Transaction Status </div>
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
-                    </>
+                    </>,
+                    <p></p>,
+                    <p>
+                      <Button key="buy" onClick={()=>{message.destroy('withdr');getData(dispatch)}}>Close</Button>
+                    </p>
                 ]}
             />,
             className: 'custom-class',
             style: {
               marginTop: '20vh',
             },
-            duration: 12,
+            duration: 0,
+            key: 'withdr'
         },
         12);  
     };

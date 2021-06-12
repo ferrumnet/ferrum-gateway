@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 //@ts-ignore
-import {Page,OutlinedBtn,Divider,CustomSelect,WideTextField,InputField,RegularBtn} from 'component-library';
+import {Page,OutlinedBtn,Divider,CustomSelect,WideTextField,InputField,RegularBtn,AssetsSelector,NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
@@ -10,15 +10,12 @@ import { AppAccountState } from 'common-containers';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { AnimatedSwapBtn } from './../../components/swapBtn';
-import { Menu, Dropdown } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
     reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    onSwap, executeWithdraw,changeNetwork
+    onSwap, executeWithdraw,changeNetwork,updateData
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
@@ -28,6 +25,9 @@ import { openPanelHandler } from './../Swap';
 import { message, Result } from 'antd';
 import { Utils } from 'types';
 import {SidePanelProps} from './../../components/SidePanel';
+import { Card, Button } from "react-bootstrap";
+import { InputGroup, FormControl, Form } from "react-bootstrap";
+
 
 const { Step } = Steps;
 
@@ -65,7 +65,8 @@ export interface MainPageProps {
     currenciesDetails: any,
     itemId: string,
     swapWithdrawNetwork: string,
-    isNetworkReverse: boolean
+    isNetworkReverse: boolean,
+    progressStatus: number
 }
 
 
@@ -106,7 +107,8 @@ export const MainPageSlice = createSlice({
         itemId: '',
         isNetworkReverse: false,
         currenciesDetails: {},
-        swapWithdrawNetwork: ''
+        swapWithdrawNetwork: '',
+        progressStatus: 1
     } as MainPageProps,
     reducers: {
         pairAddresses: (state,action) => {
@@ -199,6 +201,9 @@ export const MainPageSlice = createSlice({
         resetSwap: (state,action) => {
             state.swapId = '';
             state.itemId = ''
+        },
+        setProgressStatus: (state,action) => {
+            state.progressStatus = action.payload.status
         }
     },
     extraReducers: builder => {
@@ -267,7 +272,7 @@ export function ConnectBtn(props: IConnectViewProps) {
     )
 }
 
-export function MainPage() {
+export const ConnectBridge = () => {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
     const dispatch = useDispatch();
@@ -277,15 +282,238 @@ export function MainPage() {
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
-    const [modalStatus,setModalStatus] = useState(1)
     const [isNotiShown, setIsNotiShown] = useState(false);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
-    const swapping = ((pageProps.swapId!='') && modalStatus < 3);
-    const swapSuccess = ((pageProps.swapId!='') && modalStatus >= 3);
-    const swapFailure = ((pageProps.swapId!='') && modalStatus === -1);
+    const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
+    const swapSuccess = ((pageProps.swapId!='') && pageProps.progressStatus >= 3);
+    const swapFailure = ((pageProps.swapId!='') && pageProps.progressStatus === -1);
     const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
     let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
-    const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && modalStatus < 3));
+    const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
+    const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
+    
+    useEffect(()=>{
+        if(pageProps.reconnecting){
+            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible);
+        }
+    })
+    
+    useEffect(()=>{
+        if(connected && !pageProps.dataLoaded){
+            connect(dispatch,setIsNotiModalVisible)
+            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses)
+            dispatch(Actions.dataLoaded({}))
+        }
+
+    })
+
+    if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown){
+        setTimeout(
+            () => {
+                setIsNotiModalVisible(true)
+                setIsNotiShown(true);
+            },3000
+        )
+        
+    }
+
+    //@ts-ignore
+    const inactive =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('inactive'))))];
+    //@ts-ignore
+    const active =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('active'))))]
+
+    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+        message.success({
+            content: <Result
+                status="success"
+                title="Your Withdrawal Transaction Processing"
+                subTitle={v}
+                extra={[
+                    <>
+                        <div> View Transaction Status </div>
+                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                    </>,
+                    <p></p>,
+                    <Button key="buy" onClick={()=>{message.destroy('withdr');updateData(dispatch)}}>Close</Button>
+                ]}
+            />,
+            className: 'custom-class',
+            style: {
+              marginTop: '20vh',
+            },
+            duration: 0,
+            key: 'withdr'
+        }, 0);  
+    };
+
+
+    
+    const onMessage = async (v:string) => {    
+        addToast(v, { appearance: 'error',autoDismiss: true })        
+    };
+
+    const onSuccessMessage = async (v:string) => {    
+        addToast(v, { appearance: 'success',autoDismiss: true })        
+    };
+
+    return (
+        <>
+         <WithdrawNoti
+            isModalVisible={isNotiModalVisible}
+            setIsModalVisible={setIsNotiModalVisible}
+            network={pageProps.network}
+            numberOfWithdrawals={unUsedItems}
+            sideCtrl={()=>openPanelHandler(dispatch)}
+        />
+         <ConfirmationModal
+            isModalOpen={isConfirmModalOpen}
+            amount={pageProps.amount}
+            sourceNetwork={pageProps.network}
+            destinationNatwork={pageProps.destNetwork}
+            token={pageProps.selectedToken}
+            destination={pageProps.addresses[0]?.address || ''}
+            fee={'0'}
+            total={`${Number(pageProps.amount) - 0}`}
+            setIsModalClose={()=>hideConfirmModal()}
+            processSwap={()=>onSwap(dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
+                onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,(v)=> dispatch(Actions.setProgressStatus({status:v})))}
+
+        />
+        <Card className="text-center">
+            <small className="text-vary-color mb-5">
+                    Swap Token Across chains
+                    <hr className="mini-underline"></hr>
+            </small>
+            <div className="text-left">
+             
+                <label className="text-vary-color">Assets</label>
+                <AssetsSelector 
+                    assets={[...pageProps.addresses.map(e=>e.symbol)]}
+                    icons={supportedIcons}
+                    onChange={(v:any)=> fetchSourceCurrencies(dispatch,v,pageProps.addresses)}
+                    selectedToken={pageProps.selectedToken}
+                />
+                <NetworkSwitch 
+                    availableNetworks={[...active]}
+                    suspendedNetworks={[...inactive]}
+                    currentNetwork={pageProps.network}
+                    currentDestNetwork={pageProps.destNetwork}
+                    onNetworkChanged={(e:string)=>dispatch(Actions.destNetworkChanged({value: e}))}
+                    setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
+                    IsNetworkReverse={pageProps.isNetworkReverse}
+                />
+                {
+                    pageProps.isNetworkReverse &&  
+                    <p style={styles.subtextError} className="text-pri">
+                        <Alert
+                            style={{"padding":"4.5px","fontSize":"8px"}}
+                            message=""
+                            description={`Switch your current Network to ${pageProps.destNetwork} \n to execute swap this way`}
+                            type="error"
+                        />
+                    </p>
+                }
+                <AmountInput
+                    symbol={pageProps.selectedToken}
+                    amount={pageProps.amount}
+                    value={pageProps.amount}
+                    fee={0}
+                    icons={supportedIcons}
+                    addonStyle={styles.addon}
+                    groupAddonStyle={styles.groupAddon}
+                    balance={pageProps.addresses[0].balance}
+                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0].balance,fee: 0}))}
+                    onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
+                />
+                <div style={styles.inputContainer} >
+                    <Form.Label className="text-sec" htmlFor="basic-url">
+                        Destination Address
+                    </Form.Label>
+                    <InputGroup className="mb-3 transparent text-sec disabled" placeholder={'Address on destination Network'}>
+                        <FormControl className={"transparent text-sec disabled"} disabled={true} defaultValue={pageProps.addresses[0]?.address} value={pageProps.addresses[0]?.address}/>
+                    </InputGroup>
+                </div>
+                   
+            </div>
+            {
+                (!pageProps.allowanceRequired && (swapSuccess)) &&
+                (
+                    <div style={styles.swapBtnContainer}>
+                         <Button
+                            onClick={
+                                (pageProps.network != pageProps.swapWithdrawNetwork) ?
+                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork,pageProps.selectedToken,pageProps.addresses) :
+                                ()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage,(v)=> dispatch(Actions.setProgressStatus({status:v})))}
+                            disabled={swapping || ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) } 
+                            className="btn-pri action btn-icon btn-connect mt-4"
+                        >
+                        <i className="mdi mdi-arrow-collapse"></i>{(pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network' : 'Withdraw'}
+                        </Button>
+                        {
+                            ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) &&
+                            <p style={{...styles.manualNote}}>
+                                <Alert message={`Manually Switch your Network to ${pageProps.destNetwork} from Metamask`} type="warning" showIcon />
+                            </p>
+                        }
+                    </div>
+                )
+            }
+            {
+               allowedAndNotProcessing &&
+                (
+                    <div style={styles.swapBtnContainer}>
+                         <Button
+                             onClick={()=>showConfirmModal()}                            
+                             disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) 
+                                 || pageProps.allowanceRequired || !pageProps.tokenValid || swapping
+                             } 
+                            className="btn-pri action btn-icon btn-connect mt-4"
+                        >
+                        <i 
+                        className="mdi mdi-swap-horizontal-bold"></i>{ swapping ? 'Swap Processing' : 'Swap'}
+                        </Button>
+                    </div>
+                )
+            }
+            {
+                pageProps.allowanceRequired &&
+                <div style={styles.swapBtnContainer}>
+                        <Button
+                            onClick={
+                                ()=>onSwap(dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
+                                    onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,(v) => dispatch(Actions.setProgressStatus({status:v})))
+                            }
+                            className="btn-pri action btn-icon btn-connect mt-4"
+                            disabled={!pageProps.selectedToken || !pageProps.allowanceRequired}
+                        >
+                            <i className="mdi mdi-lock-open-outline"></i>{'APPROVE'}
+                        </Button>
+                    </div>
+            }
+            
+        </Card>
+        </>
+    );
+};
+
+export const SideBarContainer = () => {
+    const theme = useContext(ThemeContext);   
+    const styles = themedStyles(theme);
+    const dispatch = useDispatch();
+    const { addToast } = useToasts();
+    const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
+    const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
+    const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
+    const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
+    const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
+    const [isNotiShown, setIsNotiShown] = useState(false);
+    const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
+    const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
+    const swapSuccess = ((pageProps.swapId!='') && pageProps.progressStatus >= 3);
+    const swapFailure = ((pageProps.swapId!='') && pageProps.progressStatus === -1);
+    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
+    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+    const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
     const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
     
     useEffect(()=>{
@@ -303,124 +531,15 @@ export function MainPage() {
         if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown){
             setTimeout(
                 () => {
-                    setIsNotiModalVisible(true)
                     setIsNotiShown(true);
+                    setIsNotiModalVisible(true)
                 },3500
             )
             
         }
     })
-
-    const menu = (
-        <Menu >
-            {
-                [...Object.keys(supportedNetworks).map((e)=>e)].map(e=>{
-                    //@ts-ignore
-                    const active = ((supportedNetworks[`${e as any}`] === ('inactive')) || (e === pageProps.network)) ? true : false;
-                    return (
-                        <Menu.Item key={e} disabled={active} >
-                            <a onClick={()=>dispatch(Actions.destNetworkChanged({value: e}))}>
-                                {e}
-                            </a>
-                        </Menu.Item>
-                    )
-                })
-            }
-        </Menu>
-    );
-
-    const NotConnected = () => {
-        const ConBot = <ConnectButtonWapper View={ConnectBtn} />
-
-        return (
-        <div style={styles.notConnectedContainer}>
-            <div style={styles.formatLongText}>
-                You can use this token bridge to send <span style={styles.emphasize}>Bondly</span> tokens from Ethereum to BSC and Vice Versa.
-                <Divider
-                    style={styles.dividerStyle}
-                />
-            </div>
-            <div style={{...styles.formatLongText,...styles.emphasize}}>
-                {'Follow the Step by Step guide to send your tokens across the bridge.'}
-            
-            </div>
-            <div style={styles.notConnectedBtnContainer}>
-                {ConBot}
-            </div>
-
-        </div>
-        )
-    }
-
-    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
-        message.success({
-            content: <Result
-                status="success"
-                title="Your Withdrawal Transaction Processing"
-                subTitle={v}
-                extra={[
-                    <>
-                        <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
-                    </>
-                ]}
-            />,
-            className: 'custom-class',
-            style: {
-              marginTop: '20vh',
-            },
-            duration: 12
-        }, 12);  
-    };
-
-
     
-    const onMessage = async (v:string) => {    
-        addToast(v, { appearance: 'error',autoDismiss: true })        
-    };
-
-    const onSuccessMessage = async (v:string) => {    
-        addToast(v, { appearance: 'success',autoDismiss: true })        
-    };
-
-    
-    const ContentContainer = () => {
-        return (
-            <div style={styles.mainContent}>
-
-                <WithdrawNoti
-                    isModalVisible={isNotiModalVisible}
-                    setIsModalVisible={setIsNotiModalVisible}
-                    network={pageProps.network}
-                    numberOfWithdrawals={unUsedItems}
-                    sideCtrl={()=>openPanelHandler(dispatch)}
-                />
-                <ConfirmationModal
-                    isModalOpen={isConfirmModalOpen}
-                    amount={pageProps.amount}
-                    sourceNetwork={pageProps.network}
-                    destinationNatwork={pageProps.destNetwork}
-                    token={pageProps.selectedToken}
-                    destination={pageProps.addresses[0]?.address || ''}
-                    fee={'0'}
-                    total={`${Number(pageProps.amount) - 0}`}
-                    setIsModalClose={()=>hideConfirmModal()}
-                    processSwap={()=>onSwap(dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
-                        onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,setModalStatus)}
-
-                />
-                {
-                    (!connected && !pageProps.swapId && !pageProps.isNetworkReverse) ?
-                        <NotConnected/>
-                    :   <Connected/>
-                }
-            </div>
-               
-        )
-    }
-
-    const SideContentContainer = () => {
-        return (
+    return (
             <div style={styles.sideInfo}>
                 <>
                     <>
@@ -450,17 +569,17 @@ export function MainPage() {
                                 title={<div style={styles.stepStyle}>Enter Swap Amount</div>}
                             />
                             <Step 
-                                status={((pageProps.swapId!='') && (modalStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (modalStatus < 3)) ? "process" : "wait"} 
-                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle}>{((pageProps.swapId!='') && (modalStatus < 3)) ? 
+                                status={((pageProps.swapId!='') && (pageProps.progressStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? "process" : "wait"} 
+                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle}>{((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? 
                                 <div onClick={()=>showModal()}>Swap Processing</div> : 'Swap Token' }</div>}
-                                icon={((pageProps.swapId!='') && modalStatus < 3) && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+                                icon={((pageProps.swapId!='') && pageProps.progressStatus < 3) && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
                                 description={swapping && (
                                     <div>
                                         <SwapModal
                                             isModalOpen={swapping}
                                             showModal={showModal}
                                             hideModal={hideModal}
-                                            status={modalStatus}
+                                            status={pageProps.progressStatus}
                                             txId={pageProps.swapId}
                                             sendNetwork={pageProps.network}
                                             timestamp={Date.now()}
@@ -468,17 +587,17 @@ export function MainPage() {
                                             itemCallback={checkifItemIsCreated}
                                             itemId={pageProps.itemId}
                                             claim={openPanelHandler}
-                                            setStatus={(v)=>setModalStatus(v)}
+                                            setStatus={(v)=> dispatch(Actions.setProgressStatus({status:v}))}
                                         />
                                     </div> )
                                 }
                             />
                             <Step 
-                                status={(pageProps.swapId && modalStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? "process" : "finish" : "wait"}  
-                                title={<div style={ ((pageProps.swapId && modalStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) ? styles.stepStyle2 : styles.stepStyle}>
-                                    {(pageProps.swapId && modalStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network to Withdraw' : 'Withdraw Now' : 'Switch Network & Withdraw'}</div>}
+                                status={(pageProps.swapId && pageProps.progressStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? "process" : "finish" : "wait"}  
+                                title={<div style={ ((pageProps.swapId && pageProps.progressStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) ? styles.stepStyle2 : styles.stepStyle}>
+                                    {(pageProps.swapId && pageProps.progressStatus === 3) ? (pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network to Withdraw' : 'Withdraw Now' : 'Switch Network & Withdraw'}</div>}
                                 description={
-                                    ((pageProps.swapId && modalStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) &&
+                                    ((pageProps.swapId && pageProps.progressStatus === 3) && (pageProps.network != pageProps.swapWithdrawNetwork)) &&
                                         <p style={styles.subtextError2}>
                                             <Alert
                                                 message=""
@@ -493,179 +612,8 @@ export function MainPage() {
                 </>
             </div>
         )
-    }
-
-    const Connected  = () => (
-        <div style={styles.connectedContainer}>
-            <div style={styles.centered}>
-                Swap Across chains
-                <Divider
-                    style={styles.dividerStyle}
-                />
-            </div>
-            <div>
-                <div style={styles.tabbedBtnContainers}>
-                    <div style={styles.tabbedBtnItem}>
-                        <p>From</p>
-                        <div style={styles.tabbedBtn}>
-                            {pageProps.network} <br/> Network
-                        </div>   
-                    </div>
-                    <div style={styles.tabbedBtnItem}>
-                        <p></p>
-                        <div style={styles.arrow}>
-                            <AnimatedSwapBtn setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))} isNetworkReverse={pageProps.isNetworkReverse}/>
-                        </div>
-                    </div>
-                    <div style={styles.tabbedBtnItem}>
-                        <p>To</p>
-                        <div style={styles.tabbedBtn}>
-                            <div>    
-                                {pageProps.destNetwork}  <br/> Network
-                            </div>
-                            <div style={styles.destinationNetContainer}>
-                                <Dropdown overlay={menu}>
-                                    <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-                                    <DownOutlined/>
-                                    </a>
-                                </Dropdown>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {
-                pageProps.isNetworkReverse &&  
-                <p style={styles.subtextError}>
-                    <Alert
-                        message=""
-                        description={`Switch your current Network to ${pageProps.destNetwork} to execute swap this way`}
-                        type="error"
-                    />
-                </p>
-                
-            }
-            <div style={styles.inputContainer}>
-                <p style={styles.labelParagraph}>Asset</p>
-                <CustomSelect
-                    items={{...pageProps.addresses.map(e=>e.symbol)}}
-                    defaultValue={pageProps.selectedToken} 
-                    onChange={(v:any)=> fetchSourceCurrencies(dispatch,v,pageProps.addresses)}
-                />
-            </div>
-            {!pageProps.tokenValid && <p style={{...styles.subtext,...styles.error}}> Invalid token Selected.</p> }
-
-            <div style={styles.inputContainer}>
-                <p>Amount</p>
-                <div style={styles.groupAddon}>
-                    <WideTextField
-                        placeholder={0.0}
-                        type={'Number'}
-                        value={pageProps.amount}
-                        onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
-                        disabled={ pageProps.allowanceRequired || (pageProps.swapId!='' && (swapFailure || swapSuccess || swapping))}
-                    />
-                    <span style={styles.addon} onClick={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0].balance,fee: 0}))}>
-                        Max
-                    </span>
-                </div>
-                
-            </div>
-            <p style={styles.subtext}><p>{pageProps.addresses[0]?.balance || 0} {pageProps.selectedToken} Balance Available.</p> <p>Min 5 {pageProps.selectedToken}</p></p>
-            <div style={styles.inputContainer}>
-                <p>Destination Address</p>
-                <InputField
-                    disabled={true}
-                    defaultValue={pageProps.addresses[0]?.address}
-                    placeholder={'Address on destination Network'}
-                />
-            </div>
-            {
-                (!pageProps.allowanceRequired && (swapSuccess)) &&
-                (
-                    <div style={styles.swapBtnContainer}>
-                        <RegularBtn
-                            onClick={
-                                (pageProps.network != pageProps.swapWithdrawNetwork) ?
-                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork,pageProps.selectedToken,pageProps.addresses) :
-                                ()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage,setModalStatus)}
-                            text={ (pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network' : 'Withdraw'}
-                            propStyle={{
-                                "padding":"25px 45px",
-                                "borderRadius": '5px',
-                            }}
-                            disabled={swapping}                              
-                        />
-                        {
-                            ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) &&
-                            <p style={{...styles.subtext,...styles.manualNote}}>
-                                <Alert message={`Manually Switch your Network ${pageProps.destNetwork} from Metamask`} type="warning" showIcon />
-                            </p>
-                        }
-                    </div>
-                    
-                )
-            }
-                
-            {
-                allowedAndNotProcessing &&
-                    <div style={styles.swapBtnContainer}>
-                        
-                        <RegularBtn
-                            onClick={()=>showConfirmModal()}
-                            text={ swapping ? 'Swap Processing' : 'Swap'}
-                            propStyle={{
-                                "padding":"25px 45px",
-                                "borderRadius": '5px',
-                            }}
-                            disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) 
-                                || pageProps.allowanceRequired || !pageProps.tokenValid || swapping
-                            }                              
-                        />
-                    </div>
-            }
-
-            {
-                pageProps.allowanceRequired &&
-                <div style={styles.swapBtnContainer}>
-                        <RegularBtn
-                            text={'APPROVE'}
-                            onClick={
-                                ()=>onSwap(dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
-                                    onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,setModalStatus)
-                            }
-                            propStyle={{
-                                "padding":"25px 45px",
-                                "borderRadius": '5px',
-                            }}
-                            disabled={!pageProps.selectedToken || !pageProps.allowanceRequired}
-                        />
-                    </div>
-            }
-        </div>
-    )
-
-    return (
-        <Page>
-            <div className="page_cont">
-                <div style={styles.container }>
-                    <div style={styles.innerContainer }>
-                        <div style={styles.left}>
-                            <SideContentContainer/>
-                        </div>
-                        <div style={styles.center}>
-                            <ContentContainer/>
-                        </div>
-
-                        <div style={styles.left}>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </Page>
-    )
 }
+
 
 
 //@ts-ignore
@@ -687,9 +635,11 @@ const themedStyles = (theme) => ({
         position: "absolute" as "absolute",
         right: '5%',
         display: "flex",
-        height: "100%",
+        height: "40%",
         alignItems: "center" as "center",
-        cursor: "pointer"
+        cursor: "pointer",
+        top: "15px",
+        padding: "10px"
     },
     left:{
         width: '30%'
@@ -702,6 +652,10 @@ const themedStyles = (theme) => ({
     },
     manualNote:{
         marginTop: '0.8rem',
+        fontWeight: 600,
+        fontSize: '12px',
+        display: "flex",
+        justifyContent: "center"
     },
     subtext: {
         marginTop: '0.2rem',
@@ -711,9 +665,11 @@ const themedStyles = (theme) => ({
         justifyContent: "space-between"
     },
     subtextError: {
-        marginTop: '0.8rem',
+        marginTop: '0rem',
+        marginBottom: '1rem',
         fontWeight: 500,
-        fontSize: '12px'
+        fontSize: '12px',
+        textAlign: 'center' as 'center'
     },
     subtextError2: {
         marginTop: '0.1rem',
@@ -735,7 +691,8 @@ const themedStyles = (theme) => ({
         alignItems: 'center',
         aligncontent: 'center',
         display: 'flex',
-        justifyContent: "space-between"
+        width: '100%',
+        justifyContent: "space-evenly"
     },
     innerContainer: {
         width: '90%',
@@ -749,7 +706,7 @@ const themedStyles = (theme) => ({
     stepStyle: {
         "color": "black",
         fontSize: '12px ',
-        marginBottom: '50px',
+        marginBottom: '30px',
         textAlign: 'center' as 'center'
 
     },
@@ -785,13 +742,13 @@ const themedStyles = (theme) => ({
 
     },
     inputContainer: {
-        marginTop: '1.5rem',
-        fontWeight: 600
+        marginTop: '2rem',
+        fontWeight: 400
     },
     swapBtnContainer: {
         width: '100%',
         textAlign: 'center' as 'center',
-        margin: '1.5rem auto',
+        margin: '0.5rem auto',
         marginBottom: '0rem'
     },
     dividerStyle: {
@@ -806,7 +763,6 @@ const themedStyles = (theme) => ({
         borderRadius: '12px',
         backgroundColor: 'white',
         padding: '3rem 1.5rem',
-        width: '65%',
         margin: '0px 0px 0px auto',
         left: '10%',
         textAlign: "center" as "center",

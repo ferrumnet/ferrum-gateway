@@ -7,6 +7,9 @@
   }
 }
 .dropdown {
+  button{
+    border-radius: 3px !important;
+  }
   &.show {
     button {
       i {
@@ -29,6 +32,7 @@
     transform: scale(0.9, 0.7) translateY(-20px);
     display: block;
     transition: all 80ms ease;
+    border-radius: 2px !important;
     &.show {
       transform: scale(1, 1) translateY(0);
       opacity: 1;

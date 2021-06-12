@@ -4,12 +4,32 @@ import { createGlobalStyle } from "styled-components";
 export const GlobalStyles = createGlobalStyle`
   body {
     background: ${({ theme }) => theme.colors.body};
-    color: ${({ theme }) => theme.colors.textPri};
     font-family: ${({ theme }) => theme.font};
+    color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
+  }
+  h2,h3,h4,h5 {
+    color: ${({ theme }) => theme.colors.text};
   }
   .navbar {
     background: ${({ theme }) => theme.colors.headercolor};
+  }
+  .ant-alert-description: {
+    font-size: 11px
+  }
+  .site-badge-count-109 {
+    .ant-badge-count{
+      background-color:  ${({ theme }) => theme.colors.inverse} !important;
+      color: ${({ theme }) => theme.colors.text} !important;
+    }
+  }
+  .transparent {
+    background-color: transparent !important;
+   
+  }
+  .disabled{
+    font-size: 15px; !important;
+    opacity: 0.5
   }
   a {
     color: ${({ theme }) => theme.colors.link.textPri};
@@ -18,6 +38,11 @@ export const GlobalStyles = createGlobalStyle`
   .btn {  
     border-radius:  ${({ theme }) =>
       theme.colors.button.borderRadius} !important;
+    &.action {
+      padding: 12px 35px;
+      margin-top: 0px;
+      margin-bottom: 10px;
+    }
     &.btn-pri {
       background-color: ${({ theme }) => theme.colors.button.btnPri};
       color: ${({ theme }) => theme.colors.button.textPri};
@@ -53,7 +78,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .card {
     background-color: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius + 2} !important;
+    box-shadow: -2px -1px 5px 2px rgb(0 0 0 / 26%);
     p {
       color: ${({ theme }) => theme.colors.card.cardTextPri};
     }
@@ -63,6 +89,9 @@ export const GlobalStyles = createGlobalStyle`
         color: ${({ theme }) => theme.colors.card.cardTextPri};
       }
     }
+  }
+  .text-vary-color: {
+    color: ${({ theme }) => theme.colors.text};
   }
   .text-pri {
     color: ${({ theme }) => theme.colors.textPri};

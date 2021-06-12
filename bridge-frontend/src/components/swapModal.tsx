@@ -43,6 +43,7 @@ export function SwapModal (props: {
     ()=>{
       let isMounted = true;               // note mutable flag
       if(isMounted && props.isModalOpen){
+        console.log(props.status,'statststs')
         let tx =props.txId;    
         if(props.status === 1){
           setTimeout(

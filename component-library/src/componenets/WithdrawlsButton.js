@@ -12,9 +12,9 @@ export const WithdrawlsButton = ({ customClasses, ...rest }) => {
       <span>Withdrawals</span>
       <span>
           <Badge
-              className="site-badge-count-109"
+              className="site-badge-count-109 text-vary-color"
               count={rest.count}
-              style={{ backgroundColor: '#52c41a',marginLeft: '6px' }}
+              style={{ marginLeft: '6px' }}
           />
       </span>
     </Button>
