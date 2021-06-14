@@ -49,7 +49,6 @@ export function SwapModal (props: {
           setTimeout(
             async ()=>{
             const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
-            console.log(status,'status')
             if(status && status === 'successful'){
               props.setStatus(2)
             }
@@ -67,7 +66,7 @@ export function SwapModal (props: {
               if(status && status === 'created'){
                 props.setStatus(3);
               }
-          },800000);
+          },50000);
         }
       }
       return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
@@ -118,7 +117,7 @@ export function SwapModal (props: {
             />
             <Step 
               status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
-              title= {props.status === 2 ? 'Withdrawal Processing' : 'Process Claim'}
+              title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
               description={
                 <div className={styles.textStyles}>
                   {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}

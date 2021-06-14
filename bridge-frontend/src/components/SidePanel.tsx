@@ -104,6 +104,24 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
         const res = await sc.getUserWithdrawItems(dispatch,network); 
         if(res &&res.withdrawableBalanceItems.length > 0){
             dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
+            if(res.withdrawableBalanceItems){
+                const pendingItems = res.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
+                if(pendingItems.length > 0){
+                    pendingItems.forEach(
+                        async (item:UserBridgeWithdrawableBalanceItem) => {
+                            if(item.used === 'pending'){
+                                const lastItem = item.useTransactions.length;
+                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
+                            }
+                        }
+                    );
+                    const items = await sc.getUserWithdrawItems(dispatch,network);
+                    if(items && items.withdrawableBalanceItems.length > 0){
+                        dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
+                    }
+    
+                }
+            }
         } 
     } catch (error) {
         
@@ -206,7 +224,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         if(pageProps.txExecuted){
             setTimeout( async ()=>{
                 await updatePendingWithrawItems(dispatch);
-            },200000)
+            },50000)
         }
     })
     

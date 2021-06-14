@@ -208,7 +208,6 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
         }
     }catch(e) {
         if(!!e.message){
-            console.log(e.message)
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
@@ -249,7 +248,6 @@ const onSwap = async (
         v('error occured')
     }catch(e) {
         if(!!e.message){
-            console.log(e.message);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {

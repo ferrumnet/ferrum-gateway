@@ -577,7 +577,7 @@ export const SideBarContainer = () => {
                             <Step 
                                 status={connected ? "finish":"wait"} 
                                 title={<div style={styles.stepStyle}>
-                                    Connect Your Wallet
+                                    {connected ? 'Wallet Connected' : 'Connect Your Wallet'}
                                 </div>}
                             />
                             <Step 
@@ -587,7 +587,7 @@ export const SideBarContainer = () => {
                             <Step status={((!pageProps.allowanceRequired) && validateStep3) ? 
                                 "finish":"wait"
                             } 
-                                title={<div style={styles.stepStyle}>Enter Swap Amount</div>}
+                                title={<div style={styles.stepStyle}>{((!pageProps.allowanceRequired) && validateStep3) ? 'Amount Entered' : 'Enter Swap Amount'}</div>}
                             />
                             <Step 
                                 status={((pageProps.swapId!='') && (pageProps.progressStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? "process" : "wait"} 
@@ -749,7 +749,7 @@ const themedStyles = (theme) => ({
     },
     stepsContainer: {
         marginTop: '30px',
-        width: '90%',
+        width: '105%',
         margin: '30px auto'
     },
     mainContent: {

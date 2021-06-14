@@ -23,10 +23,10 @@ import "../../assets/scss/_header.scss";
         </Navbar.Brand>        
         <span className="d-flex align-items-center ml-auto">
           <div className="theme-switcher float-left d-flex mr-3">
-            <strong className="text-sec mr-3">
+            {/* <strong className="text-sec mr-3">
               <i className="mdi mdi-brush"></i>
-            </strong>
-            { ThemeSelector && <ThemeSelector />}
+            </strong> */}
+            { /*ThemeSelector && <ThemeSelector /> */}
           </div>
           {WithdrawlsButton}
           {SwitchNetworkButton}

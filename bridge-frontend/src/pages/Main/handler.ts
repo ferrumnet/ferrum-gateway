@@ -15,8 +15,6 @@ import {SidePanelSlice} from './../../components/SidePanel';
 export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string,v:string,addr?: AddressDetails[],) => {
     try {
         //@ts-ignore
-        console.log(network,chainData[network]);
-        //@ts-ignore
         let ethereum = window.ethereum;
         // @ts-ignore
         if (window.ethereum) {
@@ -29,7 +27,7 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string
             }
         }
     } catch (e) {
-        console.log(e,'======')
+        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e}));
     }
 }
 
@@ -68,6 +66,7 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items && items.withdrawableBalanceItems.length > 0){
+            dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item);
             if(findMatch.length > 0){
                 const res:any = await sc.withdraw(dispatch,findMatch[0],network);
@@ -181,7 +180,6 @@ export const onSwap = async (
 export const updateData= async (dispatch:Dispatch<AnyAction>) => {
     try {
         const [connect,client] = inject2<Connect,UnifyreExtensionWeb3Client>(Connect,UnifyreExtensionWeb3Client);
-        const network = connect.network() as any;
         const userProfile = await client.getUserProfile();
         const Actions = connectSlice.actions;
         dispatch(Actions.connectionSucceeded({userProfile}))

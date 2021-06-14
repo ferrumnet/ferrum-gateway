@@ -4,7 +4,6 @@ import _ from "lodash";
 
 export const useTheme = () => {
   const themes = getFromLS("all-themes");
-  console.log(themes,);
   const [theme, setTheme] = useState(themes.data.light);
   const [themeLoaded, setThemeLoaded] = useState(false);
 
