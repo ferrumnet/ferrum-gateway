@@ -26,6 +26,7 @@ export const NetworkSelector = ({
               <Dropdown.Menu variant="dark">
                 {availableNetworks?.map((network, index) => (
                   <Dropdown.Item href={`#/action-${index}`} key={"av" + index} 
+                    disabled={network === currentNetwork}
                     onClick={()=>onNetworkChanged(network)}
                   >
                     {network}

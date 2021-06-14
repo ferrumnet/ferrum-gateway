@@ -64,7 +64,7 @@ export const AssetsSelector = ({
         </span>
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>
-      <Dropdown.Menu as={CustomMenu}>
+      {/* <Dropdown.Menu as={CustomMenu}>
         {assets?.map((asset, index) => (
           <Dropdown.Item eventKey={index} active={index === 0} key={index} onClick={()=>onChange(asset)}>
             <div className="network-detail">
@@ -78,7 +78,7 @@ export const AssetsSelector = ({
             </div>
           </Dropdown.Item>
         ))}
-      </Dropdown.Menu>
+      </Dropdown.Menu> */}
     </Dropdown>
   );
 };

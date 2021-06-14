@@ -1,6 +1,6 @@
 import React,{useEffect, useState,useContext} from 'react';
 // @ts-ignore
-import { Page,Row,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge } from 'component-library';
+import { Page,Row,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge,ConnectButton} from 'component-library';
 import ThemeSelector from "../../ThemeSelector"
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
@@ -151,7 +151,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
         }else{
             await client.signInToServer(dispatch)
             loadThemeForGroup(groupInfo.themeVariables);
-            setAllThemes("all-themes", {default:groupInfo.newTheme});
+            //setAllThemes("all-themes", {default:groupInfo.newTheme});
             return;
         }
     } catch (error) {

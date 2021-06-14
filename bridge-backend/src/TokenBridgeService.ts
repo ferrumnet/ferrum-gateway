@@ -34,6 +34,8 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
 
     async withdrawSignedGetTransaction(receiveTransactionId: string, userAddress: string) {
         const w = await this.getWithdrawItem(receiveTransactionId);
+        const liquidity = await this.getAvailableLiquidity(w.sendCurrency);
+        ValidationUtils.isTrue(!(Number(w.sendAmount)<=Number(liquidity.liquidity)), `Not enough liquidity on destination network ${w.sendNetwork}`)
         ValidationUtils.isTrue(!!w, `Withdraw item with receiveTransactionId ${receiveTransactionId} was not found`)
         ValidationUtils.isTrue(ChainUtils.addressesAreEqual(
             w.sendNetwork as Network, userAddress, w.sendAddress),

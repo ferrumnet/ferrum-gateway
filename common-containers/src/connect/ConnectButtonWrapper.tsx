@@ -152,6 +152,8 @@ export function ConnectButtonWapper(props: IConnectOwnProps) {
         addressesForUser(state.connection.account?.user));
     const error = useSelector<AppState<any, any, any>, string | undefined>(state => 
         state.connection.account.connectionError);
+    console.log(balances,'balbalbalances2323');
+    
     const connector = async () => {
         await doConnect(
             dispatch,

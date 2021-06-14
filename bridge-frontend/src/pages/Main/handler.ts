@@ -8,7 +8,7 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import { UnifyreExtensionWeb3Client,CurrencyList } from 'unifyre-extension-web3-retrofit';
 import {connectSlice} from "common-containers";
 import {SidePanelSlice} from './../../components/SidePanel';
 
@@ -129,18 +129,20 @@ export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,balance:string,currency:string,targetNet: string,
     v: (v:string)=>void,y: (v:string)=>void,
-    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,setStatus:(v:number)=>void
+    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,setStatus:(v:number)=>void,availableLiquidity:string
     ) => {
     try {
-        dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
-        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
-        const client = inject<BridgeClient>(BridgeClient);        
         if(allowanceRequired){
             ValidationUtils.isTrue(!(Number(balance) < 1 ),'Minimum of 0.5 token Balance required for approval');
 
         }else{
             ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
         }
+        ValidationUtils.isTrue(!(Number(amount) > Number(availableLiquidity) ),'Not anough Liquidity available on destination network');
+        dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+        const client = inject<BridgeClient>(BridgeClient);        
+       
         ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
 
         const res = await client.swap(dispatch,currency, amount, targetNet);
@@ -188,11 +190,15 @@ export const updateData= async (dispatch:Dispatch<AnyAction>) => {
     }
 }
 
-export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[]) => {
+export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],waiting:boolean=true,defaultCurrency?:string) => {
     try {
-        dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        if(waiting){
+            dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        }
         const vrf = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
+        const currencyList = inject<CurrencyList>(CurrencyList);
+        currencyList.set([...currencyList.get(),(defaultCurrency||'')]);
         const network = connect.network() as any;
         const res = await vrf.getSourceCurrencies(dispatch,network);
         let details = addr?.find(e=>e.symbol === v);
@@ -206,7 +212,7 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
                 dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
                 let TokenAllowed = res?.find((e:any)=> (e.sourceCurrency === details?.currency||e.targetCurrency === details?.currency));
                 if(TokenAllowed){
-                    await vrf.getAvailableLiquidity(dispatch,details?.address, details?.currency) 
+                    await vrf.getAvailableLiquidity(dispatch,details?.address, res[0].targetCurrency) 
                     return;
                 }
                 dispatch(Actions.validateToken({value: false}))
@@ -220,6 +226,15 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
+}
+
+export const resetNetworks = (activeNetworks:string[],network:string) =>{
+   const index = activeNetworks.findIndex((e,index)=> (e === network));
+   if(index===(activeNetworks.length - 1)){
+       return activeNetworks[index-1] 
+   }else{
+       return activeNetworks[index+1] 
+   }
 }
 
 export const onDestinationNetworkChanged = (
@@ -277,13 +292,13 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
 }
 
 export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
-    showNotiModal?: (v:boolean)=>void,unused?:number)  => {
+    showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string)  => {
     try {
         const client = inject<BridgeClient>(BridgeClient);
         dispatch(Actions.reconnected({}))
         //@ts-ignore
         await client.signInToServer(dispatch);
-        await fetchSourceCurrencies(dispatch,v,addr);
+        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency);
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
         if(showNotiModal && (unused! > 0)){
             showNotiModal(true)!
@@ -305,10 +320,11 @@ export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: Ad
 }
 
 export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:boolean)=>void,unused?:number)  => {
-    const client = inject<BridgeClient>(BridgeClient);
     try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        const client = inject<BridgeClient>(BridgeClient);
         await client.signInToServer(dispatch);
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+        //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
         return;
     } catch (error) {
         console.log(error,'errror');

@@ -19,7 +19,7 @@ import { BridgeAppState } from '../common/BridgeAppState';
 import { ApiClient, AppAccountState } from 'common-containers';
 import { createSlice } from '@reduxjs/toolkit';
 import { Connect } from 'unifyre-extension-web3-retrofit';
-import { CheckCircleTwoTone,PlusOutlined } from '@ant-design/icons';
+import { CheckCircleTwoTone,PlusOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import {
     SyncOutlined,
   } from '@ant-design/icons';
@@ -53,7 +53,7 @@ export const SidePanelSlice = createSlice({
         onDestinationNetworkChanged:(state,action) => {
         },
         widthdrawalItemsFetched: (state,action) => {
-            state.userWithdrawalItems = action.payload.items;
+            state.userWithdrawalItems = action.payload.items.reverse();
             state.dataLoaded = true
         },
         transactionExecuted:  (state,action) => {
@@ -163,12 +163,13 @@ const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items && items.withdrawableBalanceItems.length > 0){
             if(items.withdrawableBalanceItems){
-                const pendingItems = items.withdrawableBalanceItems.filter((e:any) => e.used === 'pending');
+                const pendingItems = items.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
                 if(pendingItems.length > 0){
                     pendingItems.forEach(
                         async (item:UserBridgeWithdrawableBalanceItem) => {
                             if(item.used === 'pending'){
-                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[0].id)
+                                const lastItem = item.useTransactions.length;
+                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
                             }
                         }
                     );
@@ -207,7 +208,6 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                 await updatePendingWithrawItems(dispatch);
             },200000)
         }
-     
     })
     
     const handleSync = async ()=> {
@@ -281,6 +281,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 {e.used === 'completed' && <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: '20px'}} />}
                                                 {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
                                                 {e.used === '' && <PlusOutlined style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
                                             <div style={styles.textStyles}>
@@ -312,13 +313,39 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                         e.sendNetwork === pageProps.Network &&
                                         <>
                                             {
-                                                (!e.used  || e.used === 'failed') && <ButtonLoader completed={false} onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} disabled={false}/>
+                                                (!e.used) && <ButtonLoader 
+                                                    completed={false} 
+                                                    onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} 
+                                                    disabled={false}
+                                                    text={'Withdraw Item'}
+                                                />
                                             }
                                             {
-                                                (e.used === 'pending') && <ButtonLoader onPress={()=>{}} disabled={true} completed={false}/>
+                                                e.used === 'failed' && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} 
+                                                    disabled={false} 
+                                                    completed={false} 
+                                                    text={'Retry Withdrawal'}
+                                                />
                                             }
                                             {
-                                                (e.used === 'completed') && <ButtonLoader onPress={()=>{}} disabled={true} completed={true}/>
+                                                (e.used === 'pending') && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{}} 
+                                                    disabled={true} 
+                                                    completed={false} 
+                                                    text={'Processing Withdrawal'}
+                                                />
+                                            }
+                                            {
+                                                (e.used === 'completed') && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{}} 
+                                                    disabled={true} 
+                                                    completed={true}  
+                                                    text={'Processing Successful'}
+                                                />
                                             }
                                         </>      
                                     }
