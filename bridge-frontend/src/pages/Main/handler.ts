@@ -74,6 +74,8 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
                     success(network,res[1]);
                     dispatch(Actions.resetSwap({}))
                     setStatus(1)
+                    const updatedItems = await sc.getUserWithdrawItems(dispatch,network);
+                    dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: updatedItems.withdrawableBalanceItems}));
                     return;
                 }
             }else{
@@ -324,8 +326,10 @@ export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:b
         await client.signInToServer(dispatch);
         //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
         return;
-    } catch (error) {
-        console.log(error,'errror');
+    } catch (e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
+        }
     }finally{
         if(unused! > 0){
             setTimeout(()=> {if(showNotiModal) showNotiModal(true)}

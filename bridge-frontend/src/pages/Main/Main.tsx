@@ -312,16 +312,16 @@ export const ConnectBridge = () => {
 
     })
 
-
-    if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown && !swapSuccess){
-        setTimeout(
-            () => {
-                setIsNotiShown(true);
-                setIsNotiModalVisible(true)
-            },3000
-        )
-        
-    }
+    useEffect(()=>{
+        if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown && !swapSuccess){
+            setTimeout(
+                () => {
+                    setIsNotiShown(true);
+                    setIsNotiModalVisible(true)
+                },2500
+            )
+        }
+    })
 
     //@ts-ignore
     const inactive =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('inactive'))))];
