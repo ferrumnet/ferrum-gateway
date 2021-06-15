@@ -43,12 +43,12 @@ export function SwapModal (props: {
     ()=>{
       let isMounted = true;               // note mutable flag
       if(isMounted && props.isModalOpen){
+        console.log(props.status,'statststs')
         let tx =props.txId;    
         if(props.status === 1){
           setTimeout(
             async ()=>{
             const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
-      
             if(status && status === 'successful'){
               props.setStatus(2)
             }
@@ -66,7 +66,7 @@ export function SwapModal (props: {
               if(status && status === 'created'){
                 props.setStatus(3);
               }
-          },800000);
+          },50000);
         }
       }
       return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
@@ -103,16 +103,21 @@ export function SwapModal (props: {
               title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
               description={
                 <div className={styles.textStyles}>
-                  {props.status > 1 ? `Your Swap transaction was successfully processed`
+                  {props.status > 1 ? `Your Swap transaction was successfully processed` :
+                    props.status < 0 ? 'Swap transaction failed' 
                   : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
                 </div>
               }
               style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
-              icon={props.status === 1 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+              icon={
+                props.status === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
+                props.status === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
+                : undefined
+              }  
             />
             <Step 
               status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
-              title= {props.status === 2 ? 'Withdrawal Processing' : 'Process Claim'}
+              title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
               description={
                 <div className={styles.textStyles}>
                   {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}

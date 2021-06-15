@@ -1,0 +1,90 @@
+{
+  "data": {
+    "light": {
+      "id": "themeLight",
+      "name": "Light",
+
+      "colors": {
+        "themeColor": "#fff7e9",
+        "body": "#fff7e9",
+        "headercolor": "#272a33",
+        "themePrimary": "#272a33",
+        "themeSecondary": "#f3f3f3",
+        "textPri": "#ffffff",
+        "text": "#000000",
+        "inverse":  "#ffffff",
+        "textSec": "#afafaf",
+        "card": {
+          "cardPri": "#272a33",
+          "cardTextPri": "#f3f3f3",
+          "cardSec": "#272a33",
+          "cardTextSec": "#ffffff",
+          "borderRadius": "0"
+        },
+        "borderColor": "#828282",
+        "button": {
+          "btnPri": "#dab46e",
+          "btnSec": "#e3e3e3",
+          "btnDull": "#ffffff",
+          "textPri": "#111111",
+          "textSec": "#333333",
+          "borderRadius": "0"
+        },
+        "link": {
+          "text": "teal",
+          "opacity": 1
+        },
+        "input": {
+          "inputPri": "#f1f1f1",
+          "inputSec": "#6c757d"
+        },
+        "dropdown": {
+          "bgColor": "#272a33"
+        }
+      },
+      "font": "Ubuntu"
+    },
+    "dark": {
+      "id": "themeDark",
+      "name": "Dark",
+      "colors": {
+        "body": "#1e2026",
+        "themeColor": "#dab46e",
+        "headercolor": "#272a33",
+        "themePrimary": "#272a33",
+        "themeSecondary": "#f3f3f3",
+        "textPri": "#ffffff",
+        "textSec": "#afafaf",
+        "text": "#ffffff",
+        "inverse":  "#000000",
+        "borderColor": "#828282",
+        "card": {
+          "cardPri": "#272a33",
+          "cardTextPri": "#f3f3f3",
+          "cardSec": "#2e323a",
+          "cardTextSec": "#f3f3f3"
+        },
+        "button": {
+          "btnPri": "#dab46e",
+          "btnSec": "#e3e3e3",
+          "btnDull": "#ffffff",
+          "textPri": "#333333",
+          "textSec": "#777777",
+          "borderRadius": "0"
+        },
+        "link": {
+          "text": "#ffffff",
+          "opacity": 1
+        },
+        "input": {
+          "inputPri": "#ffffff",
+          "inputSec": "#ffffff"
+        },
+        "dropdown": {
+          "bgColor": "#272a33"
+        }
+      },
+      "font": "Ubuntu"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+@import "./variables";
+
+.modal {
+  .modal-content {
+    .modal-header {
+      .close {
+        color: $light;
+      }
+    }
+  }
+  &.modal-connect-wallet {
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      li {
+        background: lighten(#111, 20);
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        &:hover {
+          -webkit-box-shadow: inset 0px 0px 0px 1px $themePrimary;
+          -moz-box-shadow: inset 0px 0px 0px 1px $themePrimary;
+          box-shadow: inset 0px 0px 0px 1px $themePrimary;
+        }
+      }
+    }
+  }
+}

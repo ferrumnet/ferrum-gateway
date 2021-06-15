@@ -11,10 +11,24 @@ import { Steps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import 'antd/dist/antd.css';
 //@ts-ignore
-import {RegularBtn,Divider} from 'component-library';
-import { Alert } from 'antd';
+import {RegularBtn} from 'component-library';
+import { Alert,Divider } from 'antd';
+import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
+import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
+
+const images = {
+  "BSC":IconCryptoBNB,
+  "ETHEREUM":IconCryptoEth,
+  "RINKEBY":IconCryptoEth,
+  "BSC_TESTNET":IconCryptoBNB
+}
 
 const { Step } = Steps;
+
+function shorten(addr:string) {
+  if (!addr) return '';
+  return addr.substr(0, 6) + '...' + addr.substr(addr.length - 4);
+}
 
 export function ConfirmationModal (props: {
     isModalOpen: boolean,
@@ -59,29 +73,52 @@ export function ConfirmationModal (props: {
         isBlocking={false}
         containerClassName={styles.container}
         isClickableOutsideFocusTrap={false}
-        isModeless={true}
       >
         <div className={styles.header}>
-          <span id={titleId}>Confirm </span>
+            <h5 className="text-vary-color text-center">
+              Confirm
+              <Divider
+                style={{"margin":"12px 0px"}}
+              />
+            </h5>
+
         </div>
         <div className={styles.body}>
             <div className={styles.headerAmount}>{props.amount} {props.token}</div>
-            <div className={styles.itemList}>{props.sourceNetwork} to {props.destinationNatwork}</div>
+            <div className={styles.itemList}>
+              <div className={styles.tabbedBtn}>
+                <div className={styles.centered}>
+                  <img src={
+                    //@ts-ignore
+                    images[props.sourceNetwork]} alt="loading"></img>
+                  <p>{props.sourceNetwork}</p>
+                </div>
+                <span>
+                  <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+                </span>
+                <div className={styles.centered}>
+                  <img src={
+                    //@ts-ignore
+                    images[props.destinationNatwork]} alt="loading"></img>
+                  <p>{props.destinationNatwork}</p>
+                </div>
+              </div>
+            </div>
             <div className={styles.itemList}>
                 <div className={styles.listLabel}>Asset</div>
                 <div className={styles.listItem}>{props.token}</div>
             </div>
             <div className={styles.itemList}>
                 <div className={styles.listLabel}>Destination</div>
-                <div className={styles.listItem}>{props.destination}</div>
+                <div className={styles.listItem}>{shorten(props.destination)}</div>
             </div>
             <div className={styles.itemList}>
                 <div className={styles.listLabel}>Fee</div>
-                <div className={styles.listItem}>{props.fee}</div>
+                <div className={styles.listItem}>{props.fee} {props.token}</div>
             </div>
             <div className={styles.itemList}>
                 <div className={styles.listLabel}>You will receive</div>
-                <div className={styles.listItem}>{props.total}</div>
+                <div className={styles.listItem}>{props.total} {props.token}</div>
             </div>
             <div className={styles.btnList}>
                 <Alert
@@ -92,14 +129,18 @@ export function ConfirmationModal (props: {
                 <RegularBtn text={'Confirm Swap'}
                     propStyle={{
                         padding: '25px 10%',
-                        borderRadius: '5px'
+                        borderRadius: '5px',
+                        marginBottom: '5px',
+                        minWidth: '45%'
                     }}
                     onClick={()=>{props.processSwap();props.setIsModalClose()}}
                 />
                 <RegularBtn text={'Cancel'}
                     propStyle={{
                         padding: '25px 10%',
-                        borderRadius: '5px'
+                        borderRadius: '5px',
+                        marginBottom: '5px',
+                        minWidth: '45%'
                     }}
                     onClick={()=>props.setIsModalClose()}
                 />
@@ -118,17 +159,29 @@ const themedStyles = (theme) => mergeStyleSets({
     display: 'flex',
     flexFlow: 'column nowrap',
     alignItems: 'stretch',
-    minWidth: '33%',
-    padding: '1rem',
+    minWidth: '30%',
+    width: '30%',
+    padding: '0rem 1rem',
     backgroundColor: 'white'
+  },
+  tabbedBtn: {
+    minHeight: '100px',
+    boxShadow: 'black -1px 3px 11px -6px',
+    padding: '10px',
+    borderRadius: '6px',
+    alignItems: 'center',
+    aligncontent: 'center',
+    display: 'flex',
+    width: '90%',
+    justifyContent: "space-around"
   },
   itemList: {
     display: 'flex',
     justifyContent: 'space-around',
-    padding: '13px',
+    padding: '13px 2px',
     borderBottomStyle: 'solid',
-    borderBottomWidth: '1.2px',
-    borderBottomColor: '#00000029',
+    borderBottomWidth: '0.5px',
+    borderBottomColor: '#00000012',
     fontWeight: 600
   },
   btnList: {
@@ -137,10 +190,10 @@ const themedStyles = (theme) => mergeStyleSets({
     padding: '13px',
   },
   btnList2: {
-    display: 'flex',
-    justifyContent: 'space-around',
     padding: '13px',
-    width: '60%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    width: '100%',
     margin: '0px auto'
   },
   listItem: {
@@ -159,7 +212,6 @@ const themedStyles = (theme) => mergeStyleSets({
     {
       flex: '1 1 auto',
       borderTop: `2px solid ${Theme.Colors.bkgShade0}`,
-      display: 'flex',
       alignItems: 'center',
       padding: '12px 12px 0px 24px',
       fontSize: '18px',
@@ -169,10 +221,10 @@ const themedStyles = (theme) => mergeStyleSets({
     },
   ],
   headerAmount: {
-    padding: '0px 12px 0px 24px',
+    padding: '0px 12px 10px 24px',
     justifyContent: "center",
     fontWeight: 600,
-    fontSize: '22px',
+    fontSize: '35px',
     display: 'flex',
     color: theme.get(Theme.Colors.textColor)
   },
@@ -211,6 +263,9 @@ const themedStyles = (theme) => mergeStyleSets({
         borderRadius: '20%',
         minWidth: '20%',
         borderTop: '7px solid rgba(0, 0, 0, 0.06)'
+    },
+    centered: {
+      "textAlign":"center" as "center"
     }
 });
 const iconButtonStyles: Partial<IButtonStyles> = {

@@ -2,9 +2,10 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plu
 import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
-import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress } from "types";
+import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress, inject } from "types";
 import { Actions as PairPageActions} from './../pages/Main/Main';
 import { CommonActions,addAction } from './../common/Actions';
+import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 
 export const TokenBridgeActions = {
     AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
@@ -46,7 +47,7 @@ export class BridgeClient implements Injectable {
             this.network = userProfile.accountGroups[0].addresses[0]?.network;
             this.userAddress = userProfile.accountGroups[0].addresses[0]?.address;
             await this.api.signInToServer(userProfile);
-            this.loadDataAfterSignIn(dispatch);
+            this.loadDataAfterSignIn(dispatch,this.network);
             return {};
         } catch (e) {
             console.error('signInToServer', e)
@@ -57,13 +58,13 @@ export class BridgeClient implements Injectable {
         }
     }
 
-    protected async loadDataAfterSignIn(dispatch: Dispatch<AnyAction>) {
-        await this.loadUserPairedAddress(dispatch,);
+    protected async loadDataAfterSignIn(dispatch: Dispatch<AnyAction>,network:string) {
+        //await this.loadUserPairedAddress(dispatch,network);
         await this.loadUserBridgeBalance(dispatch);
         //await this.loadUserBridgeLiquidity(dispatch, this.userAddress!);
     }
 
-    private async loadUserPairedAddress(dispatch: Dispatch<AnyAction>) {
+    private async loadUserPairedAddress(dispatch: Dispatch<AnyAction>,network:String) {
         const res = await this.api.api({
             command: 'getUserPairedAddress', data: {network: this.network,address: this.userAddress}, params: [] } as JsonRpcRequest);
         const { pairedAddress } = res;
@@ -80,7 +81,12 @@ export class BridgeClient implements Injectable {
                 params: []}as JsonRpcRequest)) as any;
             if (!groupInfo) {
                 return undefined;
-            }            
+            } 
+            //doesn't work yet
+            // const currencyLst = inject<CurrencyList>(CurrencyList);
+            // currencyLst.set(groupInfo.defaultCurrency);          
+            // //inject connect
+            // //register default currency for project
             dispatch(addAction(CommonActions.GROUP_INFO_LOADED, groupInfo));
             return groupInfo;
         } catch (e) {
@@ -266,7 +272,7 @@ export class BridgeClient implements Injectable {
             // dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
             //     message: e.message || '' }));
         } finally {
-          dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+          //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
     }
 

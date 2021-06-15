@@ -1,0 +1,34 @@
+@import "./variables";
+
+.card {
+  border-radius: 10px !important;
+  border: 0;
+  padding: 1.5rem;
+  width: 100%;
+
+  &.card-connect-wallet {
+    padding: 2rem 5rem;
+    @media screen and (max-width: 991px) {
+      padding: 1.5rem;
+    }
+  }
+  &.card-network {
+    small {
+      max-width: calc(100% - 2rem);
+      width: 100%;
+      line-height: 1.1;
+    }
+  }
+}
+
+.icon-network {
+  img {
+    width: 100%;
+  }
+  &.icon-lg {
+    max-width: 40px;
+  }
+  &.icon-sm {
+    max-width: 15px;
+  }
+}

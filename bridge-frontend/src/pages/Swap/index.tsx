@@ -97,7 +97,6 @@ export const swapageSlice = createSlice({
             state.destAddress = action.payload.value
         },
         loadedUserPairs: (state,action) => {
-            console.log(action.payload,'payee');
             state.signedPairedAddress = action.payload.pairedAddress;
             state.pairedAddress = action.payload.pairedAddress;
             state.baseAddress = action.payload.pairedAddress.pair?.address1;
@@ -201,17 +200,14 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
         if(currenciesList.length > 0){
             dispatch(Actions.swapDetails({value: currenciesList}))                
         }
-        console.log(details,'detailsss');
         if(details){
             dispatch(Actions.tokenSelected({value: v || {},details}));
             await sc.getAvailableLiquidity(dispatch,details?.address, details?.currency)
             const allowance = await sc.checkAllowance(dispatch,details.currency,'5', currenciesList[0].targetCurrency);
-            console.log(allowance,'allowanceoi')
             dispatch(Actions.checkAllowance({value: allowance}))
         }
     }catch(e) {
         if(!!e.message){
-            console.log(e.message)
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
@@ -252,13 +248,12 @@ const onSwap = async (
         v('error occured')
     }catch(e) {
         if(!!e.message){
-            console.log(e.message);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
         const sc = inject<BridgeClient>(BridgeClient);
         const res = await sc.getUserWithdrawItems(dispatch,currency);  
-        if(res.withdrawableBalanceItems.length > 0){
+        if(res && res.withdrawableBalanceItems.length > 0){
             dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
         } 
        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
@@ -290,7 +285,7 @@ const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string)
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items.withdrawableBalanceItems.length > 0){
+        if(items && items.withdrawableBalanceItems.length > 0){
             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === itemId);
             if(findMatch.length > 0){
                 dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));

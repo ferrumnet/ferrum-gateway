@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from "redux";
-import { PairedAddress,SignedPairAddress,inject} from 'types';
+import { PairedAddress,SignedPairAddress,inject,chainData, inject2} from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
@@ -8,6 +8,28 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
+import { UnifyreExtensionWeb3Client,CurrencyList } from 'unifyre-extension-web3-retrofit';
+import {connectSlice} from "common-containers";
+import {SidePanelSlice} from './../../components/SidePanel';
+
+export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string,v:string,addr?: AddressDetails[],) => {
+    try {
+        //@ts-ignore
+        let ethereum = window.ethereum;
+        // @ts-ignore
+        if (window.ethereum) {
+            //@ts-ignore
+            const data = [chainData[network]]
+            /* eslint-disable */
+            const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data})
+            if (tx) {
+                console.log(tx)
+            }
+        }
+    } catch (e) {
+        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e}));
+    }
+}
 
 export const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: SignedPairAddress) => {
     try {
@@ -35,26 +57,31 @@ export const unPairAddresses = async (dispatch: Dispatch<AnyAction>,pair: Signed
     }
 }
 
-export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,success:(v:string,tx:string)=>void,error:(v:string)=>void) => {
+export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
+    success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const sc = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items.withdrawableBalanceItems.length > 0){
+        if(items && items.withdrawableBalanceItems.length > 0){
+            dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item);
             if(findMatch.length > 0){
                 const res:any = await sc.withdraw(dispatch,findMatch[0],network);
                 if(!!res && !!res[0]){
-                    console.log(res)
                     success(network,res[1]);
                     dispatch(Actions.resetSwap({}))
+                    setStatus(1)
+                    const updatedItems = await sc.getUserWithdrawItems(dispatch,network);
+                    dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: updatedItems.withdrawableBalanceItems}));
                     return;
                 }
             }else{
                 error('Invalid Withdrawal');
                 dispatch(Actions.resetSwap({}))
+                setStatus(1)
                 return;
             }
         }
@@ -103,18 +130,20 @@ export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,balance:string,currency:string,targetNet: string,
     v: (v:string)=>void,y: (v:string)=>void,
-    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,
+    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,setStatus:(v:number)=>void,availableLiquidity:string
     ) => {
     try {
-        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
-        dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
-        const client = inject<BridgeClient>(BridgeClient);        
         if(allowanceRequired){
             ValidationUtils.isTrue(!(Number(balance) < 1 ),'Minimum of 0.5 token Balance required for approval');
 
         }else{
             ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
         }
+        ValidationUtils.isTrue(!(Number(amount) > Number(availableLiquidity) ),'Not anough Liquidity available on destination network');
+        dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+        const client = inject<BridgeClient>(BridgeClient);        
+       
         ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
 
         const res = await client.swap(dispatch,currency, amount, targetNet);
@@ -125,6 +154,8 @@ export const onSwap = async (
                 if(allowance){
                     y('Approval Successful, You can now go on to swap your transaction.');
                     dispatch(Actions.checkAllowance({value: false}))
+                    dispatch(Actions.resetPair({}));
+
                 }
                 return;
             }else{
@@ -136,21 +167,38 @@ export const onSwap = async (
         v('error occured')
     }catch(e) {
         if(!!e.message){
-            console.log(e.message);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
         const sc = inject<BridgeClient>(BridgeClient);
         const res = await sc.getUserWithdrawItems(dispatch,currency);  
+        if(res && res.withdrawableBalanceItems.length > 0){
+            dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
+        }
        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 }
 
-
-export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[]) => {
+export const updateData= async (dispatch:Dispatch<AnyAction>) => {
     try {
+        const [connect,client] = inject2<Connect,UnifyreExtensionWeb3Client>(Connect,UnifyreExtensionWeb3Client);
+        const userProfile = await client.getUserProfile();
+        const Actions = connectSlice.actions;
+        dispatch(Actions.connectionSucceeded({userProfile}))
+    } catch (error) {
+        
+    }
+}
+
+export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],waiting:boolean=true,defaultCurrency?:string) => {
+    try {
+        if(waiting){
+            dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        }
         const vrf = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
+        const currencyList = inject<CurrencyList>(CurrencyList);
+        currencyList.set([...currencyList.get(),(defaultCurrency||'')]);
         const network = connect.network() as any;
         const res = await vrf.getSourceCurrencies(dispatch,network);
         let details = addr?.find(e=>e.symbol === v);
@@ -164,7 +212,7 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
                 dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
                 let TokenAllowed = res?.find((e:any)=> (e.sourceCurrency === details?.currency||e.targetCurrency === details?.currency));
                 if(TokenAllowed){
-                    await vrf.getAvailableLiquidity(dispatch,details?.address, details?.currency) 
+                    await vrf.getAvailableLiquidity(dispatch,details?.address, res[0].targetCurrency) 
                     return;
                 }
                 dispatch(Actions.validateToken({value: false}))
@@ -178,6 +226,15 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
+}
+
+export const resetNetworks = (activeNetworks:string[],network:string) =>{
+   const index = activeNetworks.findIndex((e,index)=> (e === network));
+   if(index===(activeNetworks.length - 1)){
+       return activeNetworks[index-1] 
+   }else{
+       return activeNetworks[index+1] 
+   }
 }
 
 export const onDestinationNetworkChanged = (
@@ -235,26 +292,44 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
 }
 
 export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
-    showNotiModal?: (v:boolean)=>void,unused?:number)  => {
-    const client = inject<BridgeClient>(BridgeClient);
-    dispatch(Actions.reconnected({}))
-    //@ts-ignore
-    await client.signInToServer(dispatch);
-    await fetchSourceCurrencies(dispatch,v,addr);
-    dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-    if(showNotiModal && (unused! > 0)){
-        showNotiModal(true)!
+    showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string)  => {
+    try {
+        const client = inject<BridgeClient>(BridgeClient);
+        dispatch(Actions.reconnected({}))
+        //@ts-ignore
+        await client.signInToServer(dispatch);
+        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency);
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+        if(showNotiModal && (unused! > 0)){
+            showNotiModal(true)!
+        }
+    } catch (e) {
+        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
+
+    }finally{
+        const sc = inject<BridgeClient>(BridgeClient);
+        const connect = inject<Connect>(Connect);
+        const network = connect.network() as any;
+        const res = await sc.getUserWithdrawItems(dispatch,network);
+        if(res && res.withdrawableBalanceItems.length > 0){
+            dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
+        }
+       dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
+    
 }
 
 export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:boolean)=>void,unused?:number)  => {
-    const client = inject<BridgeClient>(BridgeClient);
     try {
+        dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        const client = inject<BridgeClient>(BridgeClient);
         await client.signInToServer(dispatch);
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+        //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
         return;
-    } catch (error) {
-        console.log(error,'errror');
+    } catch (e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
+        }
     }finally{
         if(unused! > 0){
             setTimeout(()=> {if(showNotiModal) showNotiModal(true)}
@@ -289,7 +364,8 @@ export const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items.withdrawableBalanceItems.length > 0){
+        if(items && items.withdrawableBalanceItems.length > 0){
+            dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === itemId);
             if(findMatch.length > 0){
                 return 'created'
@@ -302,7 +378,7 @@ export const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:
         }
         
     }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+       dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }))
     }
 };
 

@@ -1,0 +1,42 @@
+{
+    "data" : {
+      "light" : {
+        "id": "themeLight",
+        "name": "Light",
+        "colors": {
+          "body": "#f1f1f1",
+          "text": "#000000",
+          "inverse":  "#fffff",
+          "card": "#fffff",
+          "button": {
+            "text": "#000000",
+            "background": "#f0b92d"
+          },
+          "link": {
+            "text": "teal",
+            "opacity": 1
+          }
+        },
+        "font": "Ubuntu"
+      },
+      "dark" : {
+        "id": "themeDark",
+        "name": "Dark",
+        "colors": {
+          "body": "#1e2026",
+          "text": "#ffffff",
+          "inverse":  "#000000",
+          "button": {
+            "text": "#ffffff",
+            "background": "#f0b92d"
+          },
+          "card": "#272a33",
+          "link": {
+            "text": "#ffffff",
+            "opacity": 1
+          }
+        },
+        "font": "Ubuntu"
+      }
+    }
+  }

@@ -3,12 +3,12 @@ import React,{useContext} from 'react';
 import { TopBar, ConnectButton,Row } from 'component-library';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 import { ETH, FRM, FRMX } from 'types';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../common/BridgeAppState';
 import { MessageBar, MessageBarType } from '@fluentui/react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { PrimaryButton } from '@fluentui/react/lib/Button';
-
+import { changeNetwork } from "./../pages/Main/handler"
 export interface ConnectBarProps {
     additionalOptions?: any
 }
@@ -50,7 +50,10 @@ export function ConnectBar(props: ConnectBarProps) {
     const ConBot = <ConnectButtonWapper View={ConnectBtn} />
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
-
+    const network = useSelector<BridgeAppState, string>(state => state.ui.pairPage.destNetwork);
+    const datas = useSelector<BridgeAppState, any>(state => state.ui.pairPage);
+    const dispatch = useDispatch();
+    
     const error = (initError && initError != '') && (
         <div style={{
             "backgroundColor": `${theme.get(Theme.Colors.bkgShade0)}`,
@@ -75,9 +78,10 @@ export function ConnectBar(props: ConnectBarProps) {
                 center={
                     <>  
                         {
-                        switchRequest &&
+                        switchRequest && network != ('RINKEBY' || 'ETHEREUM') &&
                             <PrimaryButton
                                 text="Switch Network"
+                                onClick={()=>changeNetwork(dispatch,network,datas.selectedToken,datas.addresses)}
                             />
                         }
                     </>

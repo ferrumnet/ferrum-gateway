@@ -16,16 +16,19 @@ import { BridgeClient } from './../clients/BridgeClient';
 import { inject,inject2,UserBridgeWithdrawableBalanceItem } from "types";
 import { useToasts } from 'react-toast-notifications';
 import { BridgeAppState } from '../common/BridgeAppState';
-import { AppAccountState } from 'common-containers';
+import { ApiClient, AppAccountState } from 'common-containers';
 import { createSlice } from '@reduxjs/toolkit';
 import { Connect } from 'unifyre-extension-web3-retrofit';
-import { CheckCircleTwoTone,PlusOutlined } from '@ant-design/icons';
+import { CheckCircleTwoTone,PlusOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import {
     SyncOutlined,
   } from '@ant-design/icons';
 import { CommonActions,addAction } from './../common/Actions';
 import { Drawer, Button } from 'antd';
-
+import { message, Result } from 'antd';
+import { CloseIcon } from '@fluentui/react-icons-northstar';
+import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import {connectSlice} from "common-containers";
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
@@ -50,7 +53,7 @@ export const SidePanelSlice = createSlice({
         onDestinationNetworkChanged:(state,action) => {
         },
         widthdrawalItemsFetched: (state,action) => {
-            state.userWithdrawalItems = action.payload.items;
+            state.userWithdrawalItems = action.payload.items.reverse();
             state.dataLoaded = true
         },
         transactionExecuted:  (state,action) => {
@@ -90,7 +93,8 @@ export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountSt
 const Actions = SidePanelSlice.actions;
 
 export interface swapDisptach {
-    executeWithrawItem: (item:UserBridgeWithdrawableBalanceItem,dis:()=>void,success:(v:string)=>void,error:(v:string)=>void) => void,
+    executeWithrawItem: (item:UserBridgeWithdrawableBalanceItem,
+        dis:()=>void,success:(v:string)=>void,error:(v:string)=>void) => void,
 }
 
 const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
@@ -98,9 +102,39 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
         const res = await sc.getUserWithdrawItems(dispatch,network); 
-        if(res.withdrawableBalanceItems.length > 0){
+        if(res &&res.withdrawableBalanceItems.length > 0){
             dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
+            if(res.withdrawableBalanceItems){
+                const pendingItems = res.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
+                if(pendingItems.length > 0){
+                    pendingItems.forEach(
+                        async (item:UserBridgeWithdrawableBalanceItem) => {
+                            if(item.used === 'pending'){
+                                const lastItem = item.useTransactions.length;
+                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
+                            }
+                        }
+                    );
+                    const items = await sc.getUserWithdrawItems(dispatch,network);
+                    if(items && items.withdrawableBalanceItems.length > 0){
+                        dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
+                    }
+    
+                }
+            }
         } 
+    } catch (error) {
+        
+    }
+}
+
+const getData= async (dispatch:Dispatch<AnyAction>) => {
+    try {
+        const [connect,client] = inject2<Connect,UnifyreExtensionWeb3Client>(Connect,UnifyreExtensionWeb3Client);
+        const network = connect.network() as any;
+        const userProfile = await client.getUserProfile();
+        const Actions = connectSlice.actions;
+        dispatch(Actions.connectionSucceeded({userProfile}))
     } catch (error) {
         
     }
@@ -111,7 +145,8 @@ const executeWithrawItem = async (
         item:UserBridgeWithdrawableBalanceItem,
         dis:()=>void,
         success:(v:string)=>void,
-        error:(v:string)=>void
+        error:(v:string)=>void,
+        popup: (v:string,tx:string) => void
     ) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
@@ -119,8 +154,9 @@ const executeWithrawItem = async (
         const network = connect.network() as any;
         const res = await sc.withdraw(dispatch,item,network)
         dis();
-        if(!!res){
-            success('Withdrawal was Successful and is processing...') 
+        if(!!res && !!res[0]){
+            success('Withdrawal was Successful and is processing...');
+            popup(network,res[1]);
             const items = await sc.getUserWithdrawItems(dispatch,network);
             if(items && items.withdrawableBalanceItems.length > 0){
                 dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
@@ -143,14 +179,15 @@ const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
         const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items.withdrawableBalanceItems.length > 0){
+        if(items && items.withdrawableBalanceItems.length > 0){
             if(items.withdrawableBalanceItems){
-                const pendingItems = items.withdrawableBalanceItems.filter((e:any) => e.used === 'pending');
+                const pendingItems = items.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
                 if(pendingItems.length > 0){
                     pendingItems.forEach(
                         async (item:UserBridgeWithdrawableBalanceItem) => {
                             if(item.used === 'pending'){
-                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[0].id)
+                                const lastItem = item.useTransactions.length;
+                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
                             }
                         }
                     );
@@ -185,14 +222,11 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     useEffect(() => {
         if(pageProps.txExecuted){
-            const interval = setInterval(async () => {
+            setTimeout( async ()=>{
                 await updatePendingWithrawItems(dispatch);
-            }, 
-            20000 );
-            return () => clearInterval(interval);
+            },50000)
         }
-     
-    }, [])
+    })
     
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
@@ -205,7 +239,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                dispatch(Actions.dataLoaded({}))
             }
         }
-      });
+    });
 
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
@@ -213,6 +247,33 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
+    };
+
+    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+        message.success({
+            content: <Result
+                status="success"
+                title="Your Withdrawal Transaction Processing"
+                subTitle={v}
+                extra={[
+                    <>
+                        <div> View Transaction Status </div>
+                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
+                    </>,
+                    <p></p>,
+                    <p>
+                      <Button key="buy" onClick={()=>{message.destroy('withdr');getData(dispatch)}}>Close</Button>
+                    </p>
+                ]}
+            />,
+            className: 'custom-class',
+            style: {
+              marginTop: '20vh',
+            },
+            duration: 0,
+            key: 'withdr'
+        },
+        12);  
     };
 
     return (
@@ -238,6 +299,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 {e.used === 'completed' && <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: '20px'}} />}
                                                 {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
                                                 {e.used === '' && <PlusOutlined style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
                                             <div style={styles.textStyles}>
@@ -269,13 +331,39 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                         e.sendNetwork === pageProps.Network &&
                                         <>
                                             {
-                                                (!e.used  || e.used === 'failed') && <ButtonLoader completed={false} onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage);props.dismissPanel()}} disabled={false}/>
+                                                (!e.used) && <ButtonLoader 
+                                                    completed={false} 
+                                                    onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} 
+                                                    disabled={false}
+                                                    text={'Withdraw Item'}
+                                                />
                                             }
                                             {
-                                                (e.used === 'pending') && <ButtonLoader onPress={()=>{}} disabled={true} completed={false}/>
+                                                e.used === 'failed' && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{executeWithrawItem(dispatch,e,props.dismissPanel,onSuccessMessage,onMessage,onWithdrawSuccessMessage);props.dismissPanel()}} 
+                                                    disabled={false} 
+                                                    completed={false} 
+                                                    text={'Retry Withdrawal'}
+                                                />
                                             }
                                             {
-                                                (e.used === 'completed') && <ButtonLoader onPress={()=>{}} disabled={true} completed={true}/>
+                                                (e.used === 'pending') && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{}} 
+                                                    disabled={true} 
+                                                    completed={false} 
+                                                    text={'Processing Withdrawal'}
+                                                />
+                                            }
+                                            {
+                                                (e.used === 'completed') && 
+                                                <ButtonLoader 
+                                                    onPress={()=>{}} 
+                                                    disabled={true} 
+                                                    completed={true}  
+                                                    text={'Processing Successful'}
+                                                />
                                             }
                                         </>      
                                     }
