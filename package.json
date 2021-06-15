@@ -14,5 +14,8 @@
     "bridge-frontend",
     "commons/*"
   ],
-  "scripts": {}
+  "scripts": {},
+  "resolutions": {
+    "got": "^11.3.0"
+  }
 }

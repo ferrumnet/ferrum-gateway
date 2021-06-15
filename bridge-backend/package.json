@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "dist": "webpack",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
     "deploy-prod": "TODO: Deploy to prod",
     "deploy": "./bin/deploy.sh"
@@ -44,6 +45,7 @@
     "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "got": "^11.3.0",
+    "mongodb-client-encryption": "^1.2.5",
     "mongoose": "^5.7.7",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
