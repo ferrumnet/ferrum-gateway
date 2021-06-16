@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	  mode: 'production',
-	  entry: './src/BridgeModule.ts',
+	  entry: './src/Cli.ts',
 	  target: 'node',
 	  devtool: 'inline-source-map',
 	  module: {
