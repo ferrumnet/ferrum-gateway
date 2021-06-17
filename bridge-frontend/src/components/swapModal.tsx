@@ -43,7 +43,6 @@ export function SwapModal (props: {
     ()=>{
       let isMounted = true;               // note mutable flag
       if(isMounted && props.isModalOpen){
-        console.log(props.status,'statststs')
         let tx =props.txId;    
         if(props.status === 1){
           setTimeout(
@@ -56,7 +55,7 @@ export function SwapModal (props: {
             if(status && status === 'failed'){
               props.setStatus(-1)
             }
-          },50000);
+          },100000);
         }
 
         if(props.status === 2){
@@ -66,12 +65,12 @@ export function SwapModal (props: {
               if(status && status === 'created'){
                 props.setStatus(3);
               }
-          },50000);
+          },20000);
         }
       }
       return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
     }
-  ,[])
+  ,)
     
   const handleCheckItem = async () => {
     setRefreshing(true)

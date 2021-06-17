@@ -25,9 +25,15 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string
             if (tx) {
                 console.log(tx)
             }
+        }else{
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable, manually switch network on metamask' }));
         }
     } catch (e) {
-        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e}));
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable on Browser, manually switch network on metamask' }));
+        }
+    } finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 }
 

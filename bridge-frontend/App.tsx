@@ -12,7 +12,7 @@ import { ToastProvider, useToasts } from "react-toast-notifications";
 import { GlobalStyles } from "./theme/GlobalStyles";
 import { useTheme } from "./theme/useTheme";
 import { ThemeProvider } from "styled-components";
-
+import { getEnv } from 'types';
 
 const _module = new BridgeModule();
 const BASE_URL = "http://localhost:8080";
@@ -23,6 +23,7 @@ const store = StoreBuilder.build(
   _module,
   BASE_URL
 );
+require('dotenv').config()
 
 function App() {
   const { theme, themeLoaded, getFonts } = useTheme();
