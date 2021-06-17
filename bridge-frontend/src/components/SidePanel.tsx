@@ -303,14 +303,14 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
                                             </div>
                                             <div style={styles.textStyles}>
-                                                Swap {e.receiveAmount} to {Utils.shorten(e.receiveCurrency)}
+                                                Swap {e.receiveAmount} to {Utils.shorten(e.sendCurrency)}
                                             </div>
                                         </div> 
                                     </AccordionItemButton>
                                 </AccordionItemHeading>
                                 <AccordionItemPanel>
                                 <p style={{...styles.accInfo}} >
-                                    Receiver Currency : {e.receiveCurrency}
+                                    Receiver Currency : {e.sendCurrency}
                                 </p>
                                 <p style={{...styles.accInfo}}>
                                     Sender Currency : {e.receiveCurrency}

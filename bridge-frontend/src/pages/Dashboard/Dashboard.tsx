@@ -151,7 +151,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
         }else{
             await client.signInToServer(dispatch)
             loadThemeForGroup(groupInfo.themeVariables);
-            //setAllThemes("all-themes", {default:groupInfo.newTheme});
+            //@ts-ignore
             return;
         }
     } catch (error) {
@@ -232,7 +232,12 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const PairPageProps = useSelector<BridgeAppState, any>(state => state.ui.pairPage);
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
- 
+    const favicon = document.getElementById("dynfav"); // Accessing favicon element
+    const titleText = document.getElementById("title"); // Accessing favicon element
+    //@ts-ignore
+    favicon.href = groupInfo.themeVariables?.mainLogo;
+    //@ts-ignore
+    titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
 
     const error = (initError && initError != '') && (
         <div style={{
