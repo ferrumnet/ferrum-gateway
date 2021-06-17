@@ -13,6 +13,7 @@ import { BasicHandlerFunction } from 'aws-lambda-helper/dist/http/BasicHandlerFu
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { getEnv } from 'types';
+
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
         const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
@@ -89,6 +90,13 @@ export class GatewayModule implements Module {
     }
 }
 
-const handlerClass = new BasicHandlerFunction(new GatewayModule());
+const INIT: any = { }
+
+function init() {
+    INIT.bhf = new BasicHandlerFunction(new GatewayModule());
+    return INIT.bhf;
+}
+
+const handlerClass = INIT.bhf || init();
 
 export const handler = handlerClass.handler
