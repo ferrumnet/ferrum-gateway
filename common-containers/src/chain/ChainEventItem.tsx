@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createAsyncThunk, createSlice, Dispatch, ThunkDispatch } from '@reduxjs/toolkit';
 import { Network } from 'ferrum-plumbing';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChainEventStatus, ChainEventBase, inject, } from 'types';
-import { AppState } from 'src/store/AppState';
-import { ApiClient } from 'src/clients/ApiClient';
+import { AppState } from '../store/AppState';
 
 const FETCH_TIMEOUT: number = 1000 * 11;
 
@@ -14,6 +13,7 @@ export interface ChainEventItemProps {
     children: any;
     initialStatus: ChainEventStatus;
     eventType: string;
+    updater: (item: ChainEventBase, dispatch: Dispatch<AnyAction>) => Promise<ChainEventBase>;
 }
 
 export const chainEventsSlice = createSlice({
@@ -21,12 +21,19 @@ export const chainEventsSlice = createSlice({
     initialState: {} as {[k: string]: ChainEventBase},
     reducers: {
         watchEvent: (state, action) => {
-            state[action.payload.id] = action.payload;
+            console.log('WATCH CALLED!', action)
+            if (!state[action.payload.id]) {
+               state[action.payload.id] = action.payload;
+            }
         },
         unwatchEvent: (state, action) => {
-            delete state[action.payload.id];
+            console.log('UNWATCH CALLED!', action)
+            if (!!state[action.payload.id]) {
+                delete state[action.payload.id];
+            }
         },
         eventUpdated: (state, action) => {
+            console.log('UPDATING ACTION', action.payload.id)
             state[action.payload.id] = action.payload;
         },
     },
@@ -37,26 +44,37 @@ const refreshPendingThunk = createAsyncThunk('data/refreshPending', async (paylo
     // Only applies to the fully signed in and initialized state...
     if (!state.data.init.initialized || !state.connection.account.user?.userId) { return; }
     const we = state.data.watchEvents;
-    const api = inject<ApiClient>(ApiClient);
     const items = Object.values(we);
+    console.log('WATCHING ', {we})
     // Group by event type..
-    const byEvTtpe: any = {};
-    items.forEach(et => {
-        // @ts-ignore
-        et.id = et.eventId;
-        byEvTtpe[et.eventType] = et;
+    items.forEach(async et => {
+        const eventItem = et;
+        const res = await (eventItem as any).updater(eventItem, thunk.dispatch);
+        console.log('UPDATED EVENT', {res});
+        if (!!res) {
+            if (res.status !== 'pending') {
+                console.log('UNWATCHING', {res});
+                thunk.dispatch(chainEventsSlice.actions.unwatchEvent(res));
+            } else {
+                thunk.dispatch(chainEventsSlice.actions.eventUpdated(res));
+            }
+        }
     });
-    const rv: ChainEventBase[] = [];
-    for (const k of Object.keys(byEvTtpe)) {
-        const res = await api.updateChainEvent(k, byEvTtpe[k]);
-        if (!!res) { thunk.dispatch(chainEventsSlice.actions.eventUpdated(res)); }
-    }
-    return rv;
 });
 
-// Periodically ping
-if (window) {
-    window.setInterval(() => refreshPendingThunk({}), FETCH_TIMEOUT);
+const init: any = {};
+
+function kickOff(dispatch: any) {
+    if (!!init.init) {
+        return;
+    }
+    init.init = true;
+    // Periodically ping
+    if (window) {
+        window.setInterval(() => {
+            dispatch(refreshPendingThunk({}));
+        }, FETCH_TIMEOUT);
+    }
 }
 
 /**
@@ -73,17 +91,22 @@ if (window) {
  */
 export function ChainEventItem(props: ChainEventItemProps) {
     const myEvent = useSelector<AppState<any, any, any>, ChainEventBase>(
-        st => st.data.watchEvents[props.id]);
+        st => {
+            return st.data.watchEvents[props.id]
+        });
     const dispatch = useDispatch();
-    const {network, id, initialStatus} = props;
+    const {network, id, initialStatus, updater} = props;
     useEffect(() => {
         if ((initialStatus === '' || initialStatus === 'pending') && !!network && !!id) {
-            dispatch(chainEventsSlice.actions.watchEvent({network, id: id, }))
+            dispatch(chainEventsSlice.actions.watchEvent({network, id: id, updater}));
         }
-        if (myEvent && (myEvent?.status !== 'pending' && myEvent?.status !== '')) {
-            dispatch(chainEventsSlice.actions.unwatchEvent({id: id}))
-        }
-
-    }, [myEvent, network, id, initialStatus]);
+        // if (myEvent && (myEvent?.status !== 'pending' && myEvent?.status !== ''
+        //         && myEvent?.status !== undefined)) {
+        //     dispatch(chainEventsSlice.actions.unwatchEvent({id: id}))
+        // }
+    }, [network, id, initialStatus]);
+    useEffect(() => {
+        kickOff(dispatch);
+    }, []);
     return props.children;
 }

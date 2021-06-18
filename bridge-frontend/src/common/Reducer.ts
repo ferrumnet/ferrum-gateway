@@ -32,7 +32,7 @@ export function userReducer(
 
 export function dataReducer(state: AppGlobalState = { 
         initialized: false,
-        waiting: false, 
+        waiting: false,
         allProjects: [], 
         allStakings: [],
         groupInfo: {} as any,

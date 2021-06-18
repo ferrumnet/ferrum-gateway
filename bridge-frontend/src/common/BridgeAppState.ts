@@ -40,5 +40,4 @@ export interface AppGlobalState extends AppInitializingState {
     error: ''
 }
 
-
 export type BridgeAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

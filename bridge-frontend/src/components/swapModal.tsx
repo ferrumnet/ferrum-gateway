@@ -70,7 +70,7 @@ export function SwapModal (props: {
       }
       return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
     }
-  ,)
+  , []);
     
   const handleCheckItem = async () => {
     setRefreshing(true)

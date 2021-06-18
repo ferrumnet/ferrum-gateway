@@ -2,7 +2,7 @@ import React,{Dispatch, useEffect} from 'react';
 import { Connect } from 'unifyre-extension-web3-retrofit/dist/contract/Connect';
 import { ValidationUtils } from 'ferrum-plumbing';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import { AnyAction, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressesForUser, addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
 import { ETH, FRM, FRMX, inject, inject3, inject5, } from 'types';
@@ -64,36 +64,34 @@ export interface IConnectViewProps {
     onClick: () => void;
 }
 
-const onDisconnect = async (dispatch: Dispatch<AnyAction>) => {
+export const onDisconnect = createAsyncThunk('connect/onDisconnect',
+    async (payload: {}, ctx) => {
     const connect = inject<Connect>(Connect);
     console.log('Disconnecting...');
     await connect.getProvider()!.disconnect();
-    dispatch(Actions.disconnect());
-}
+    ctx.dispatch(Actions.disconnect());
+});
 
-async function reConnect(dispatch: Dispatch<AnyAction>) {
+export const reConnect = createAsyncThunk('connect/reConnect', async (payload: {}, ctx) => {
     const [client, connect, api] = inject3<UnifyreExtensionWeb3Client, Connect, ApiClient>(
         UnifyreExtensionWeb3Client, Connect, ApiClient);
     await connect.reset();
-    console.log('CON RES ISO ', connect.netId(), connect.account());
     const userProfile = await client.getUserProfile();
     const res = await api.signInToServer(userProfile);
     if (res) {
-        dispatch(Actions.reconnected({userProfile}));
+        ctx.dispatch(Actions.reconnected({userProfile}));
     } else {
-        onDisconnect(dispatch);
+        ctx.dispatch(onDisconnect({}));
     }
-}
+});
 
-async function doConnect(dispatch: Dispatch<AnyAction>,
-    isAutoConnect: boolean,
-    ) {
-        console.log('Using web3')
+export const onConnect = createAsyncThunk('connect/onConnect',
+    async (payload: {isAutoConnect: boolean}, ctx) => {
     const [client, connect, currencyList, api, provider] = 
         inject5<UnifyreExtensionWeb3Client, Connect, CurrencyList, ApiClient, Web3ModalProvider>(
             UnifyreExtensionWeb3Client, Connect, CurrencyList, ApiClient, 'Web3ModalProvider');
     try {
-        if (isAutoConnect && !provider.isCached()) {
+        if (payload.isAutoConnect && !provider.isCached()) {
             return; // Dont try to connect if we are not cached.
         }
         connect.setProvider(provider);
@@ -109,16 +107,16 @@ async function doConnect(dispatch: Dispatch<AnyAction>,
         console.log('Provider is...', connect.getProvider())
         connect.getProvider()!.addEventListener('disconnect', (reason: string) => {
             console.log('DISCONNECTED FROM WALLET CONNECT', reason);
-            dispatch(Actions.disconnect());
+            ctx.dispatch(Actions.disconnect());
         });
         connect.getProvider()!.addEventListener('change', () => {
             console.log('RECONNECTING');
-            reConnect(dispatch);
+            ctx.dispatch(reConnect({}));
         });
         const userProfile = await client.getUserProfile();
         const res = await api.signInToServer(userProfile);
         if (res) {
-            dispatch(Actions.connectionSucceeded({userProfile}));
+            ctx.dispatch(Actions.connectionSucceeded({userProfile}));
         } else {
             connect.getProvider()?.disconnect();
         }
@@ -133,10 +131,10 @@ async function doConnect(dispatch: Dispatch<AnyAction>,
             } catch (de) {
                 console.error('Error disconnecting provider ', de);
             }
-            dispatch(Actions.connectionFailed({ message: `Connection failed ${e.message}` }));
+            ctx.dispatch(Actions.connectionFailed({ message: `Connection failed ${e.message}` }));
         }
     }
-}
+});
 
 const AUTO_CON = { tried: false };
 
@@ -152,12 +150,9 @@ export function ConnectButtonWapper(props: IConnectOwnProps) {
         addressesForUser(state.connection.account?.user));
     const error = useSelector<AppState<any, any, any>, string | undefined>(state => 
         state.connection.account.connectionError);
-    console.log(balances,'balbalbalances2323');
     
     const connector = async () => {
-        await doConnect(
-            dispatch,
-            true);
+        dispatch(onConnect({isAutoConnect: true}));
     }
     useEffect(() => {
         if (AUTO_CON.tried) return;
@@ -182,11 +177,9 @@ export function ConnectButtonWapper(props: IConnectOwnProps) {
                 error={error}
                 onClick={() => {
                     if (connected) {
-                        onDisconnect(dispatch);
+                        dispatch(onDisconnect);
                     } else {
-                        doConnect(
-                            dispatch,
-                            false);
+                        dispatch(onConnect({isAutoConnect: false}));
                     }
                 }}
             />

@@ -10,7 +10,6 @@ import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ToastProvider, useToasts } from "react-toast-notifications";
 
-
 const _module = new BridgeModule();
 const BASE_URL = "http://localhost:8080";
 const store = StoreBuilder.build(

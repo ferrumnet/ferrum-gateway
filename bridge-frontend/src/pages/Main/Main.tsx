@@ -28,7 +28,6 @@ import {SidePanelProps} from './../../components/SidePanel';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 
-
 const { Step } = Steps;
 
 export interface MainPageProps {
@@ -294,23 +293,23 @@ export const ConnectBridge = () => {
     const balances = useSelector<AppState<any, any, any>, AddressDetails[]>(state => 
         addressesForUser(state.connection.account?.user));
 
+    const {dataLoaded, reconnecting} = pageProps;
     useEffect(()=>{
-        if(pageProps.reconnecting){
+        if(reconnecting){
             reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
         }
         if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
             dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
         }
-    })
+    }, [reconnecting]);
     
     useEffect(()=>{
-        if(connected && !pageProps.dataLoaded){
+        if(connected && !dataLoaded){
             connect(dispatch,setIsNotiModalVisible)
             fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency)
             dispatch(Actions.dataLoaded({}))
         }
-
-    })
+    }, [connected, dataLoaded]);
 
     useEffect(()=>{
         if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown && !swapSuccess){
@@ -321,7 +320,7 @@ export const ConnectBridge = () => {
                 },2500
             )
         }
-    })
+    }, []);
 
     //@ts-ignore
     const inactive =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('inactive'))))];

@@ -90,13 +90,6 @@ export class GatewayModule implements Module {
     }
 }
 
-const INIT: any = { }
-
-function init() {
-    INIT.bhf = new BasicHandlerFunction(new GatewayModule());
-    return INIT.bhf;
-}
-
-const handlerClass = INIT.bhf || init();
+const handlerClass = new BasicHandlerFunction(new GatewayModule());
 
 export const handler = handlerClass.handler

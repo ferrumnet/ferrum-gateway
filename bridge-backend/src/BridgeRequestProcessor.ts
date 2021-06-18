@@ -34,6 +34,9 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         
         this.registerProcessor('updateWithdrawItemAddTransaction',
             req => this.updateWithdrawItemAddTransaction(req));
+
+        this.registerProcessor('updateWithdrawItemPendingTransactions',
+            req => this.updateWithdrawItemPendingTransactions(req));
         
         this.registerProcessor('updateUserPairedAddress',
             req => this.updateUserPairedAddress(req));
@@ -111,6 +114,14 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         ValidationUtils.isTrue(!!network, "'network' must be provided");
         const items = await this.svc.getUserWithdrawItems(network, userId.toLowerCase());
         return { 'withdrawableBalanceItems': items};
+    }
+
+    async updateWithdrawItemPendingTransactions(req: HttpRequestData) {
+        const {
+            id,
+        } = req.data;
+        ValidationUtils.isTrue(!!id, "'id' must be provided");
+        return this.svc.updateWithdrawItemPendingTransactions(id);
     }
 
     async updateWithdrawItemAddTransaction(req: HttpRequestData) {

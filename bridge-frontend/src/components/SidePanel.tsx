@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
-import { connect,useDispatch, useSelector } from 'react-redux';
-import { Utils } from 'types';
-import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
+import { Network } from 'ferrum-plumbing';
+import { useDispatch, useSelector } from 'react-redux';
+import { ChainEventBase, inject, Utils } from 'types';
 import {
     Accordion,
     AccordionItem,
@@ -13,10 +13,10 @@ import {ThemeContext, Theme} from 'unifyre-react-helper';
 import ButtonLoader from './btnWithLoader';
 import { AnyAction, Dispatch } from "redux";
 import { BridgeClient } from './../clients/BridgeClient';
-import { inject,inject2,UserBridgeWithdrawableBalanceItem } from "types";
+import { inject2,UserBridgeWithdrawableBalanceItem } from "types";
 import { useToasts } from 'react-toast-notifications';
 import { BridgeAppState } from '../common/BridgeAppState';
-import { ApiClient, AppAccountState } from 'common-containers';
+import { AppAccountState } from 'common-containers';
 import { createSlice } from '@reduxjs/toolkit';
 import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CheckCircleTwoTone,PlusOutlined,CloseCircleOutlined } from '@ant-design/icons';
@@ -26,9 +26,10 @@ import {
 import { CommonActions,addAction } from './../common/Actions';
 import { Drawer, Button } from 'antd';
 import { message, Result } from 'antd';
-import { CloseIcon } from '@fluentui/react-icons-northstar';
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import {connectSlice} from "common-containers";
+import { connectSlice } from "common-containers";
+import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
+
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
@@ -61,11 +62,19 @@ export const SidePanelSlice = createSlice({
         },
         dataLoaded: (state,action) => {
             state.dataLoaded = true
+        },
+        withdrawItemUpdated: (state, action) => {
+            const {withdrawItem} = action.payload;
+            const wi = state.userWithdrawalItems.findIndex(i => i.id === withdrawItem.id);
+            state.userWithdrawalItems[wi] = withdrawItem;
         }
     },
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
             state.reconnecting = true;
+        });
+        builder.addCase('connect/connectionSucceeded', (state, action) => {
+            // TODO:
         });
         builder.addCase('mainPage/loadedUserPairs', (state, action) => {
             //@ts-ignore
@@ -85,8 +94,8 @@ export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountSt
     return {
         userWithdrawalItems: state.userWithdrawalItems || [],
         Network: address.network,
-        dataLoaded: state.dataLoaded,
-        txExecuted: state.txExecuted
+        dataLoaded: state.dataLoaded!,
+        txExecuted: state.txExecuted!
     };
 }
 
@@ -122,7 +131,8 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
     
                 }
             }
-        } 
+        }
+        dispatch(Actions.dataLoaded({}));
     } catch (error) {
         
     }
@@ -165,12 +175,24 @@ const executeWithrawItem = async (
             return;
         }
         error('Withdrawal failed');
-    }catch(e) {
+    }catch(e: any) {
         if(!!e.message){
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+    }
+}
+
+async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
+    try {
+        const c = inject<BridgeClient>(BridgeClient);
+        const res = await c.updateWithdrawItemPendingTransactions(item.network, item.id);
+        dispatch(Actions.withdrawItemUpdated({withdrawItem: res}));
+        return { ...item, status: res.used, };
+    } catch(e) {
+        console.error('updateWithdrawItem ', e);
+        return item;
     }
 }
 
@@ -200,7 +222,7 @@ const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
             }
         }
      
-    }catch(e) {
+    }catch(e: any) {
         if(!!e.message){
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
         }
@@ -220,14 +242,6 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
 
-    useEffect(() => {
-        if(pageProps.txExecuted){
-            setTimeout( async ()=>{
-                await updatePendingWithrawItems(dispatch);
-            },50000)
-        }
-    })
-    
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
     }
@@ -236,10 +250,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         if(connected && groupId){
             if(appInitialized && !pageProps.dataLoaded){
                handleSync()
-               dispatch(Actions.dataLoaded({}))
             }
         }
-    });
+    }, [connected, groupId]);
 
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
@@ -287,6 +300,13 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
           <Accordion>
                 { pageProps.userWithdrawalItems.map(
                         e => <div>
+                        <ChainEventItem
+                            id={e.receiveTransactionId}
+                            network={e.receiveNetwork as Network}
+                            initialStatus={'pending' /*e.used*/}
+                            eventType={'WITHDRAW_ITEM'}
+                            updater={updateWithdrawItem}
+                        >
                         <AccordionItem>
                                 <AccordionItemHeading>
                                     <AccordionItemButton>
@@ -370,6 +390,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                     
                                 </AccordionItemPanel>
                             </AccordionItem>
+                        </ChainEventItem>
                         </div>
                     )
                 }

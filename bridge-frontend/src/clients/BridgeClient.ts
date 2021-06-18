@@ -5,7 +5,6 @@ import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress, inject } from "types";
 import { Actions as PairPageActions} from './../pages/Main/Main';
 import { CommonActions,addAction } from './../common/Actions';
-import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 
 export const TokenBridgeActions = {
     AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
@@ -227,6 +226,13 @@ export class BridgeClient implements Injectable {
         }
     }
 
+    public async updateWithdrawItemPendingTransactions(network: Network, id: string):
+    Promise<UserBridgeWithdrawableBalanceItem> {
+        const res = await this.api.api({
+            command: 'updateWithdrawItemPendingTransactions', data: {id}, params: [] } as JsonRpcRequest);
+        ValidationUtils.isTrue(!!res, 'Error updating balance item');
+        return res;
+    }
 
     public async withdrawableBalanceItemUpdateTransaction(dispatch: Dispatch<AnyAction>,
         id: string,

@@ -4,7 +4,6 @@ import abiDecoder from 'abi-decoder';
 import { HexString, Injectable, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
-import { ChainUtils } from 'ferrum-chain-clients';
 
 const Helper = EthereumSmartContractHelper;
 

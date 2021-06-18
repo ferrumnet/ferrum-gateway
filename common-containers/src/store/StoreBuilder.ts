@@ -1,6 +1,7 @@
 import { combineReducers, configureStore, Reducer } from '@reduxjs/toolkit'
 import { Module } from 'ferrum-plumbing';
 import { Provider } from 'react-redux'
+import { chainEventsSlice } from '../chain/ChainEventItem';
 import { connectSlice } from '../connect/ConnectButtonWrapper';
 import { initSlice, initThunk } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
@@ -22,6 +23,7 @@ export class StoreBuilder {
                 data: combineReducers({
                     init: initSlice.reducer,
                     state: dataReducer,
+                    watchEvents: chainEventsSlice.reducer,
                 }),
                 ui: uiReducer,
             })

@@ -135,6 +135,27 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         return item;
     }
 
+    async updateWithdrawItemPendingTransactions(id: string) {
+        let item = await this.getWithdrawItem(id);
+        item = {...item};
+        ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
+        const pendingTxs = (item.useTransactions || []).filter(t => t.status === 'pending');
+        console.log('PENDING TXS', pendingTxs);
+        for (const tx of pendingTxs) {
+            const txStatus = await this.helper.getTransactionStatus(item.sendNetwork, tx.id, tx.timestamp);
+            tx.status = txStatus;
+            console.log(`Updating status for withdraw item ${id}: ${item.sendNetwork} ${txStatus}-${tx.id}`);
+            if(txStatus === ('timedout' || 'failed')){
+                item.used = 'failed';
+            }else if(txStatus === 'successful'){
+                item.used = 'completed'
+            }else{
+                item.used = 'pending'
+            }
+        }
+        return await this.updateWithdrawItem(item);
+    }
+
     async updateWithdrawItemAddTransaction(id: string, tid: string) {
         let item = await this.getWithdrawItem(id);
         item = {...item};
