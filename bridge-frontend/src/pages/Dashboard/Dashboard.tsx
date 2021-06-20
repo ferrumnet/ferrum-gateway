@@ -26,11 +26,9 @@ import { changeNetwork } from "./../Main/handler"
 import { ConnectBridge,SideBarContainer } from "./../Main/Main";
 import { WaitingComponent } from '../../components/WebWaiting';
 import { MessageBar, MessageBarType } from '@fluentui/react';
-import { setAllThemes } from "./../../storageUtils/storage";
 import { GlobalStyles } from "./../../theme/GlobalStyles";
 import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
-import * as themesToBeLoaded from "./../../theme/schema.json";
 
 interface DashboardState {
     initialized: boolean,
@@ -239,7 +237,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     //@ts-ignore
     titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
 
-    const error = (initError && initError != '') && (
+    const error = (initError && initError != '' &&  initError != 'Make sure to initialize the web3 client such as Metamask') && (
         <div style={{
            ...styles.error
         }}
@@ -336,14 +334,17 @@ export function Dashboard(props:ThemeProps) {
 
     }
     useEffect(() => {
-        if(!appInitialized && !stateData.dataLoaded){
+        if(!appInitialized){
             intializing(dispatch)
         }
+    },[appInitialized]);
+
+    useEffect(() => {
         if(appInitialized && !stateData.dataLoaded){
             handleCon()
             dispatch(Actions.dataFetched({}));
         }
-    })
+    },[appInitialized,stateData.dataLoaded])
 
     if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
         return (

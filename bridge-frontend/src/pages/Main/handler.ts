@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from "redux";
-import { PairedAddress,SignedPairAddress,inject,chainData, inject2} from 'types';
+import { PairedAddress,SignedPairAddress,inject,chainData, inject2,tokenData} from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
@@ -22,9 +22,6 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string
             const data = [chainData[network]]
             /* eslint-disable */
             const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data})
-            if (tx) {
-                console.log(tx)
-            }
         }else{
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable, manually switch network on metamask' }));
         }
@@ -34,6 +31,41 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,network:string
         }
     } finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+    }
+}
+
+export const addToken = async (dispatch: Dispatch<AnyAction>,token: string,message:(v:string)=>Promise<void>) => {
+     //@ts-ignore
+     let ethereum = window.ethereum;
+    try {
+        // wasAdded is a boolean. Like any RPC method, an error may be thrown.
+        const wasAdded = await ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+            //@ts-ignore
+            type: tokenData[`${token}`].type,
+            options: {
+                //@ts-ignore
+                address: tokenData[`${token}`].tokenAddress, 
+                //@ts-ignore
+                symbol: tokenData[token].tokenSymbol,
+                //@ts-ignore
+                decimals: tokenData[token].tokenDecimals,
+                //@ts-ignore
+                image: tokenData[token].tokenImage
+            },
+            },
+        });
+
+        if (wasAdded) {
+            message('Token added Successfully');
+        } else {
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Error occured adding token, try Manually adding' }));
+        }
+    } catch (e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Error occured adding token, try Manually adding' }));
+        }
     }
 }
 
@@ -70,6 +102,7 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
         const sc = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
+        dispatch(Actions.activeWithdrawSuccess({value: true}))
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items && items.withdrawableBalanceItems.length > 0){
             dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
@@ -134,13 +167,21 @@ export const signFirstPairAddress = async (dispatch: Dispatch<AnyAction>,
 
 export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
-    amount:string,balance:string,currency:string,targetNet: string,
+    amount:string,
+    balance:string,
+    currency:string,
+    targetNet: string,
     v: (v:string)=>void,y: (v:string)=>void,
-    allowanceRequired:boolean,showModal: () => void,network:String,destnetwork:string,setStatus:(v:number)=>void,availableLiquidity:string
+    allowanceRequired:boolean,showModal: () => void,
+    network:String,destnetwork:string,
+    setStatus:(v:number)=>void,
+    availableLiquidity:string,
+    selected: string,
+    fee: string
     ) => {
     try {
         if(allowanceRequired){
-            ValidationUtils.isTrue(!(Number(balance) < 1 ),'Minimum of 0.5 token Balance required for approval');
+            ValidationUtils.isTrue(!(Number(balance) < 1 ),`Minimum of 0.05 ${selected} Balance required for approval`);
 
         }else{
             ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
@@ -152,7 +193,7 @@ export const onSwap = async (
        
         ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
 
-        const res = await client.swap(dispatch,currency, amount, targetNet);
+        const res = await client.swap(dispatch,currency, amount, targetNet, fee);
        
         if( res?.status === 'success'){
             if(allowanceRequired){
@@ -191,8 +232,12 @@ export const updateData= async (dispatch:Dispatch<AnyAction>) => {
         const userProfile = await client.getUserProfile();
         const Actions = connectSlice.actions;
         dispatch(Actions.connectionSucceeded({userProfile}))
-    } catch (error) {
-        
+    } catch (e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
+        }
+    }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 }
 
@@ -351,6 +396,9 @@ export const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,se
         const sc = inject<BridgeClient>(BridgeClient);
         const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
         if(res){
+            if(res === 'successful'){
+                updateData(dispatch)
+            }
             return res;
         }
         return '';

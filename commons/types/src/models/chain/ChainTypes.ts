@@ -6,5 +6,7 @@ export interface ChainEventBase {
     id: string;
     network: Network;
     status: ChainEventStatus;
+    stater?: (v:number) => void,
+    callback?: any,
     eventType: string;
 }

@@ -188,7 +188,7 @@ export class BridgeClient implements Injectable {
         const { withdrawableBalanceItems } = res;
         ValidationUtils.isTrue(!!withdrawableBalanceItems, 'Invalid balances received');
         dispatch(addAction(Actions.BRIDGE_BALANCE_LOADED, {withdrawableBalanceItems}))
-        console.log('GOT ITEMS', {withdrawableBalanceItems})
+        //console.log('GOT ITEMS', {withdrawableBalanceItems})
         return withdrawableBalanceItems || [];
     }
 
@@ -343,13 +343,14 @@ export class BridgeClient implements Injectable {
         currency: string,
         amount: string,
         targetCurrency: string,
+        fee: string
         ) {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
             console.log(targetCurrency,'targetCurrency',currency);    
             const res = await this.api.api({
                 command: 'swapGetTransaction',
-                data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
+                data: {currency, amount, targetCurrency,fee}, params: [] } as JsonRpcRequest);
             const { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
@@ -381,8 +382,6 @@ export class BridgeClient implements Injectable {
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
             const { isApprove, requests } = res;
-            console.log(isApprove,'idApprove')
-
             return isApprove;
         } catch(e) {
             console.log(e.message);

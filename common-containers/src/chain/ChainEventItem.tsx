@@ -13,6 +13,8 @@ export interface ChainEventItemProps {
     children: any;
     initialStatus: ChainEventStatus;
     eventType: string;
+    stater?: (v:number) => void,
+    callback?: any,
     updater: (item: ChainEventBase, dispatch: Dispatch<AnyAction>) => Promise<ChainEventBase>;
 }
 
@@ -98,7 +100,7 @@ export function ChainEventItem(props: ChainEventItemProps) {
     const {network, id, initialStatus, updater} = props;
     useEffect(() => {
         if ((initialStatus === '' || initialStatus === 'pending') && !!network && !!id) {
-            dispatch(chainEventsSlice.actions.watchEvent({network, id: id, updater}));
+            dispatch(chainEventsSlice.actions.watchEvent({...props}));
         }
         // if (myEvent && (myEvent?.status !== 'pending' && myEvent?.status !== ''
         //         && myEvent?.status !== undefined)) {
