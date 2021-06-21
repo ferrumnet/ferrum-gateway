@@ -309,7 +309,7 @@ export const ConnectBridge = () => {
     },[reconnecting]);
 
     useEffect(()=>{
-        if(!connected){
+        if(!connected && !reconnecting){
             connect(dispatch,setIsNotiModalVisible)
         }
     },[connected]);
@@ -538,38 +538,15 @@ export const SideBarContainer = () => {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
     const dispatch = useDispatch();
-    const { addToast } = useToasts();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
-    const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
-    const [isNotiShown, setIsNotiShown] = useState(false);
     const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
-    const swapSuccess = ((pageProps.swapId!='') && pageProps.progressStatus >= 3);
-    const swapFailure = ((pageProps.swapId!='') && pageProps.progressStatus === -1);
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
     const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
-    const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
-    
-    useEffect(()=>{
-        if(pageProps.reconnecting){
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
-        }
-    })
-    
-    useEffect(()=>{
-        if(connected && !pageProps.dataLoaded){
-            connect(dispatch,setIsNotiModalVisible)
-            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,propsGroupInfo.defaultCurrency)
-            dispatch(Actions.dataLoaded({}))
-        }
-        
-    })
-    
+ 
     return (
             <div style={styles.sideInfo}>
                 <>

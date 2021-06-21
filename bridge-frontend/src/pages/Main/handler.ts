@@ -345,8 +345,8 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
 export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
     showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string)  => {
     try {
-        const client = inject<BridgeClient>(BridgeClient);
         dispatch(Actions.reconnected({}))
+        const client = inject<BridgeClient>(BridgeClient);
         //@ts-ignore
         await client.signInToServer(dispatch);
         await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency);
