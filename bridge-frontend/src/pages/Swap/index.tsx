@@ -174,6 +174,7 @@ const onConnect = async (
         }
         return res;
     } catch(e) {
+		console.error('onConnect', e);
         dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));

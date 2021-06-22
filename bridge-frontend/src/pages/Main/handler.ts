@@ -254,7 +254,7 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
         const res = await vrf.getSourceCurrencies(dispatch,network);
         let details = addr?.find(e=>e.symbol === v);
         dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
-        if(!!res){
+        if(!!res) {
             dispatch(Actions.fetchedSourceCurrencies({currencies:res}))
             dispatch(Actions.validateToken({value: true}))
             if(details){

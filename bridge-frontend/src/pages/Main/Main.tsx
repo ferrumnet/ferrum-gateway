@@ -1,8 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 //@ts-ignore
-import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector,
-	NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
+import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector, NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
@@ -401,7 +400,7 @@ export const ConnectBridge = () => {
             total={`${Number(pageProps.amount) - 0}`}
             setIsModalClose={()=>hideConfirmModal()}
             processSwap={()=>onSwap(
-                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
+                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
                 onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                 (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
             )}
@@ -516,7 +515,7 @@ export const ConnectBridge = () => {
                         <Button
                             onClick={
                                 ()=>onSwap(
-                                    dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
+                                    dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
                                     onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                                     (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
                                 )
