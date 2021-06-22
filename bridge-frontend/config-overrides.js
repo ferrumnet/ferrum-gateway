@@ -5,7 +5,6 @@ module.exports = {
     webpack: function override(config) {
         var addr1 = path.resolve(__dirname,'../' + (process.platform === 'win32' ? '\\component-library\\src' : 'component-library/src'));
         var addr2 = path.resolve(__dirname,'../' + (process.platform === 'win32' ? '\\node_modules\\desktop-components-library\\src' : 'node_modules/desktop-components-library/src'));
-        // console.log('ADDR IS ', addr); throw new Error('ASD')
         config.module.rules.push({
             test: /\.(js|jsx)$/,
             include: [
@@ -20,7 +19,7 @@ module.exports = {
                 cacheDirectory: true,
             },
         });
-        console.log('Current watch op', config)
+        // console.log('Current watch op', config)
         return config
     },
     devServer: function overrideDevServer(configFunction) {
