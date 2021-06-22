@@ -11,16 +11,89 @@ import { Steps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import { Utils } from 'types';
+import { Utils,ChainEventBase } from 'types';
 import { AnyAction, Dispatch } from "redux";
 import { useDispatch } from 'react-redux';
+import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
+import { BridgeClient } from "./../clients/BridgeClient";
+import { inject} from 'types';
+import {SidePanelSlice} from './../components/SidePanel';
+import { Connect } from 'unifyre-extension-web3-retrofit';
+import { UnifyreExtensionWeb3Client,CurrencyList } from 'unifyre-extension-web3-retrofit';
+import {connectSlice} from "common-containers";
+import { CommonActions,addAction } from './../common/Actions';
 
 const { Step } = Steps;
+
+const updateData= async (dispatch:Dispatch<AnyAction>) => {
+  try {
+      const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
+      const userProfile = await client.getUserProfile();
+      const Actions = connectSlice.actions;
+      dispatch(Actions.connectionSucceeded({userProfile}))
+      console.log(userProfile,'userProfile')
+  } catch (e) {
+      if(!!e.message){
+          dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
+      }
+  }finally {
+      dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+  }
+}
+
+async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
+  try {
+    const sc = inject<BridgeClient>(BridgeClient);
+    const res = await sc.checkTxStatus(dispatch,item.id,item.network,Date.now());
+    if(res){
+      if(res && res === 'successful'){
+        if(item.stater) item.stater(2)
+        setTimeout(async ()=>{
+          await updateData(dispatch)
+        },3000)
+        return { ...item, status: 'completed' };
+      }
+      if(res && res === 'failed'){
+        if(item.stater) item.stater(-1)
+        return { ...item, status: 'failed' };
+      }
+    }
+    return { ...item, status: 'pending' };
+  } catch (e) {
+    console.error('error updating', e);
+    return item;
+
+  }
+}
+
+async function updateSecondStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
+  try {
+    const sc = inject<BridgeClient>(BridgeClient);
+    const connect = inject<Connect>(Connect);
+    const network = connect.network() as any;
+    const items = await sc.getUserWithdrawItems(dispatch,network);
+    if(items && items.withdrawableBalanceItems.length > 0){
+        dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
+        const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item.id);
+        if(findMatch.length > 0){
+          if(item.stater) item.stater(3);
+          return { ...item, status: 'completed' };
+        }
+    }   
+    return { ...item, status: 'pending' };
+  } catch (e) {
+    console.error('error updating', e);
+    return item;
+
+  }
+}
+
 
 export function SwapModal (props: {
   isModalOpen: boolean,
   showModal:()=>void,
   hideModal:()=>void,
+  showNoti: (v:boolean) => void,
   status: number,
   setStatus: (v:number)=>void,
   txId: string,
@@ -35,42 +108,6 @@ export function SwapModal (props: {
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
   const dispatch = useDispatch()
-  // Use useId() to ensure that the IDs are unique on the page.
-  // (It's also okay to use plain strings and manually ensure uniqueness.)
-  const titleId = useId('title');
-
-  useEffect(
-    ()=>{
-      let isMounted = true;               // note mutable flag
-      if(isMounted && props.isModalOpen){
-        let tx =props.txId;    
-        if(props.status === 1){
-          setTimeout(
-            async ()=>{
-            const status = await props.callback(dispatch,tx,props.sendNetwork,props.timestamp)      
-            if(status && status === 'successful'){
-              props.setStatus(2)
-            }
-
-            if(status && status === 'failed'){
-              props.setStatus(-1)
-            }
-          },100000);
-        }
-
-        if(props.status === 2){
-          setTimeout(
-            async ()=>{
-              const status = await props.itemCallback(dispatch,props.itemId)
-              if(status && status === 'created'){
-                props.setStatus(3);
-              }
-          },20000);
-        }
-      }
-      return () => { isMounted = false }; // use cleanup to toggle value, if unmounted
-    }
-  , []);
     
   const handleCheckItem = async () => {
     setRefreshing(true)
@@ -81,7 +118,7 @@ export function SwapModal (props: {
     setRefreshing(false)
   }
 
-  
+
   const handleReset = () => {
     props.setStatus(1);
     setTimeout(()=>{
@@ -96,36 +133,57 @@ export function SwapModal (props: {
             className={styles.textStyles}
             direction="vertical" 
           >
-            <Step 
-              className={styles.textStyles}
-              status={props.status > 1 ? "finish" : "wait"} 
-              title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
-              description={
-                <div className={styles.textStyles}>
-                  {props.status > 1 ? `Your Swap transaction was successfully processed` :
-                    props.status < 0 ? 'Swap transaction failed' 
-                  : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
-                </div>
-              }
-              style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
-              icon={
-                props.status === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
-                props.status === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
-                : undefined
-              }  
-            />
-            <Step 
-              status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
-              title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
-              description={
-                <div className={styles.textStyles}>
-                  {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
-                  {props.status === 2 && <p onClick={()=>handleCheckItem()} className={styles.cursorStyles}> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
-                </div>
-              }
-              style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
-              icon={props.status === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
-            />
+
+              <Step 
+                className={styles.textStyles}
+                status={props.status > 1 ? "finish" : "wait"} 
+                title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
+                description={
+                  <ChainEventItem
+                      id={props.txId}
+                      network={props.sendNetwork as any}
+                      initialStatus={'pending' /*e.used*/}
+                      eventType={'SWAP_STAGE_1'}
+                      stater={props.setStatus}
+                      callback={props.callback}
+                      updater={updateFirstStage}
+                  >
+                  <div className={styles.textStyles}>
+                    {props.status > 1 ? `Your Swap transaction was successfully processed` :
+                      props.status < 0 ? 'Swap transaction failed' 
+                    : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
+                  </div>
+                  </ChainEventItem>
+                }
+                style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
+                icon={
+                  props.status === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
+                  props.status === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
+                  : undefined
+                }  
+              />
+              <Step 
+                status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
+                title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
+                description={
+                  <ChainEventItem
+                      id={props.itemId}
+                      network={props.sendNetwork as any}
+                      initialStatus={'pending' /*e.used*/}
+                      eventType={'SWAP_STAGE_2'}
+                      stater={props.setStatus}
+                      callback={props.itemCallback}
+                      updater={updateSecondStage}
+                  >
+                    <div className={styles.textStyles}>
+                      {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
+                      {props.status === 2 && <p onClick={()=>handleCheckItem()} className={styles.cursorStyles}> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
+                    </div>
+                  </ChainEventItem>
+                }
+                style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
+                icon={props.status === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+              />
             <Step 
               status={props.status > 2 ? "finish" : "wait"} 
               title="Claim Withdrawal" 

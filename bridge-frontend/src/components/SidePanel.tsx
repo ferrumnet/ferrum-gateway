@@ -29,6 +29,8 @@ import { message, Result } from 'antd';
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { connectSlice } from "common-containers";
 import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
+import { Actions as MainPageAction } from './../pages/Main/Main';
+import { addToken } from './../pages/Main/handler';
 
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
@@ -241,6 +243,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
+    const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
@@ -274,8 +277,18 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
+                    <p style={styles.point} onClick={()=>addToken(dispatch,token,onMessage)}>
+                        <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding: '5px'}}/> 
+                        <span>Add Token to MetaMask</span>
+                    </p>,
+                    <p></p>,
                     <p>
-                      <Button key="buy" onClick={()=>{message.destroy('withdr');getData(dispatch)}}>Close</Button>
+                      <Button key="buy" onClick={()=>{
+                          message.destroy('withdr');
+                          getData(dispatch);
+                          dispatch(MainPageAction.resetSwap({}));
+                          dispatch(MainPageAction.setProgressStatus({status:1}))
+                        }}>Close</Button>
                     </p>
                 ]}
             />,
@@ -542,6 +555,12 @@ const themedStyles = (theme) => ({
     littleText: {
         fontSize: '12.5px',
         fontWeight: '200'
+    },
+    point:{
+        cursor: "pointer",
+        display: "flex",
+        justifyContent: "center" as "center",
+        alignItems: "center" as "center",
     },
     percentStake: {
         textAlign: "center" as "center",

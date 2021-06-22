@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { PairedAddress,SignedPairAddress, supportedNetworks } from 'types';
 import { AppAccountState } from 'common-containers';
-import { ConnectButtonWapper, IConnectViewProps,addressesForUser, addressForUser, AppState, dummyAppUserProfile } from 'common-containers';
+import {IConnectViewProps,addressesForUser, AppState } from 'common-containers';
 import { Steps } from 'antd';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import {SwapModal} from './../../components/swapModal';
@@ -15,7 +15,7 @@ import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
     reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    onSwap, executeWithdraw,changeNetwork,updateData,resetNetworks
+    onSwap, executeWithdraw,changeNetwork,updateData,resetNetworks,addToken
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
@@ -27,6 +27,7 @@ import { Utils } from 'types';
 import {SidePanelProps} from './../../components/SidePanel';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
+import { PlusOutlined } from '@ant-design/icons';
 
 const { Step } = Steps;
 
@@ -65,7 +66,8 @@ export interface MainPageProps {
     itemId: string,
     swapWithdrawNetwork: string,
     isNetworkReverse: boolean,
-    progressStatus: number
+    progressStatus: number,
+    withdrawSuccess: boolean
 }
 
 
@@ -107,7 +109,8 @@ export const MainPageSlice = createSlice({
         isNetworkReverse: false,
         currenciesDetails: {},
         swapWithdrawNetwork: '',
-        progressStatus: 1
+        progressStatus: 1,
+        withdrawSuccess: false
     } as MainPageProps,
     reducers: {
         pairAddresses: (state,action) => {
@@ -147,7 +150,6 @@ export const MainPageSlice = createSlice({
             state.isPaired=action.payload.pairedAddress.pair?.address2 ?  true : false;
             state.baseSigned=action.payload.pairedAddress.signature1 ? true: false;
             state.network= action.payload.pairedAddress.pair?.network1;
-            state.destNetwork= action.payload.pairedAddress.pair?.network2 || state.destNetwork;
             state.baseNetwork=  action.payload.pairedAddress.pair?.network2 ?
                                 action.payload.pairedAddress.pair?.network2 : state.baseNetwork || (state.pairedAddress?.network1); 
             state.reconnecting = false;         
@@ -172,7 +174,7 @@ export const MainPageSlice = createSlice({
         },
         dataLoaded: (state,action) => {
             state.dataLoaded = true;
-            state.destNetwork = state.currenciesDetails.Network
+            state.destNetwork = state.currenciesDetails.targetNetwork
         },
         destNetworkChanged: (state,action) => {
             state.destNetwork = action.payload.value
@@ -202,6 +204,9 @@ export const MainPageSlice = createSlice({
         },
         setProgressStatus: (state,action) => {
             state.progressStatus = action.payload.status
+        },
+        activeWithdrawSuccess: (state,action) => {
+            state.withdrawSuccess = action.payload.value
         }
     },
     extraReducers: builder => {
@@ -252,7 +257,8 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): M
         swapId: state.swapId,
         itemId: state.itemId,
         tokenValid: state.tokenValid,
-        isNetworkReverse: state.isNetworkReverse
+        isNetworkReverse: state.isNetworkReverse,
+        withdrawSuccess: state.withdrawSuccess
     } as MainPageProps;
 }
 
@@ -294,34 +300,37 @@ export const ConnectBridge = () => {
         addressesForUser(state.connection.account?.user));
 
     const {dataLoaded, reconnecting} = pageProps;
+
     useEffect(()=>{
         if(reconnecting){
+            dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
             reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
         }
-        if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
-            dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
+    },[reconnecting]);
+
+    useEffect(()=>{
+        if(!connected && !reconnecting){
+            connect(dispatch,setIsNotiModalVisible)
         }
-    }, [reconnecting]);
+    },[connected]);
     
     useEffect(()=>{
-        if(connected && !dataLoaded){
-            connect(dispatch,setIsNotiModalVisible)
+        if(!dataLoaded){
             fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency)
             dispatch(Actions.dataLoaded({}))
+            if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
+                dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
+            }
         }
-    }, [connected, dataLoaded]);
+    }, [dataLoaded]);
 
     useEffect(()=>{
-        if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown && !swapSuccess){
-            setTimeout(
-                () => {
-                    setIsNotiShown(true);
-                    setIsNotiModalVisible(true)
-                },2500
-            )
+        if((unUsedItems > 0 && !pageProps.withdrawSuccess)){
+            setIsNotiModalVisible(true)
         }
-    }, []);
+    }, [unUsedItems, pageProps.withdrawSuccess]);
 
+ 
     //@ts-ignore
     const inactive =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('inactive'))))];
     //@ts-ignore
@@ -339,7 +348,18 @@ export const ConnectBridge = () => {
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-                    <Button key="buy" onClick={()=>{message.destroy('withdr');updateData(dispatch)}}>Close</Button>
+                    <p style={styles.point} onClick={()=>addToken(dispatch,pageProps.selectedToken,onMessage)}>
+                        <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding:'5px'}}/>
+                        <span>Add Token to MetaMask</span>
+                    </p>,
+                    <p></p>,
+                    <Button key="buy" onClick={()=>{
+                        message.destroy('withdr');
+                        updateData(dispatch);
+                        dispatch(Actions.resetSwap({}));
+                        dispatch(Actions.setProgressStatus({status:1}))
+                        dispatch(Actions.activeWithdrawSuccess({value: false}))
+                    }}>Close</Button>
                 ]}
             />,
             className: 'custom-class',
@@ -383,7 +403,7 @@ export const ConnectBridge = () => {
             processSwap={()=>onSwap(
                 dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
                 onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
-                (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity
+                (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
             )}
 
         />
@@ -452,7 +472,7 @@ export const ConnectBridge = () => {
                    
             </div>
             {
-                (!pageProps.allowanceRequired && (swapSuccess)) &&
+                ((swapSuccess)) &&
                 (
                     <div style={styles.swapBtnContainer}>
                          <Button
@@ -485,21 +505,20 @@ export const ConnectBridge = () => {
                              } 
                             className="btn-pri action btn-icon btn-connect mt-4"
                         >
-                        <i 
-                        className="mdi mdi-swap-horizontal-bold"></i>{ swapping ? 'Swap Processing' : 'Swap'}
+                        <i className="mdi mdi-swap-horizontal-bold"></i>{ swapping ? 'Swap Processing' : 'Swap'}
                         </Button>
                     </div>
                 )
             }
             {
-                pageProps.allowanceRequired &&
+                (pageProps.allowanceRequired && !swapSuccess) &&
                 <div style={styles.swapBtnContainer}>
                         <Button
                             onClick={
                                 ()=>onSwap(
                                     dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails.targetCurrency,
                                     onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
-                                    (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity
+                                    (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
                                 )
                             }
                             className="btn-pri action btn-icon btn-connect mt-4"
@@ -519,46 +538,15 @@ export const SideBarContainer = () => {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
     const dispatch = useDispatch();
-    const { addToast } = useToasts();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
-    const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
-    const [isNotiShown, setIsNotiShown] = useState(false);
     const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
-    const swapSuccess = ((pageProps.swapId!='') && pageProps.progressStatus >= 3);
-    const swapFailure = ((pageProps.swapId!='') && pageProps.progressStatus === -1);
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
     const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
-    const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
-    
-    useEffect(()=>{
-        if(pageProps.reconnecting){
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
-        }
-    })
-    
-    useEffect(()=>{
-        if(connected && !pageProps.dataLoaded){
-            connect(dispatch,setIsNotiModalVisible)
-            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,propsGroupInfo.defaultCurrency)
-            dispatch(Actions.dataLoaded({}))
-        }
-        if(unUsedItems > 0 && pageProps.dataLoaded && !isNotiShown){
-            setTimeout(
-                () => {
-                    setIsNotiShown(true);
-                    setIsNotiModalVisible(true)
-                },3500
-            )
-            
-        }
-    })
-    
+ 
     return (
             <div style={styles.sideInfo}>
                 <>
@@ -607,6 +595,7 @@ export const SideBarContainer = () => {
                                             itemCallback={checkifItemIsCreated}
                                             itemId={pageProps.itemId}
                                             claim={openPanelHandler}
+                                            showNoti={(v:boolean)=>setIsNotiModalVisible(v)}
                                             setStatus={(v)=> dispatch(Actions.setProgressStatus({status:v}))}
                                         />
                                     </div> )
@@ -660,6 +649,12 @@ const themedStyles = (theme) => ({
         cursor: "pointer",
         top: "15px",
         padding: "10px"
+    },
+    point:{
+        cursor: "pointer",
+        display: "flex",
+        justifyContent: "center" as "center",
+        alignItems: "center" as "center"
     },
     left:{
         width: '30%'

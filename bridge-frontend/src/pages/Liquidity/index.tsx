@@ -108,7 +108,6 @@ const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targe
         }
     } catch(e) {
         if(!!e.message){
-            console.log(e.message)
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
@@ -133,7 +132,6 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: Address
         dispatch(Actions.tokenSelected({value: v || {},details}))
     }catch(e) {
         if(!!e.message){
-            console.log(e.message);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {

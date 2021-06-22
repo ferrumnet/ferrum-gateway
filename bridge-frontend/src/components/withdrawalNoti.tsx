@@ -31,17 +31,15 @@ export const WithdrawNoti = (props:
             <p  style={{...styles.centered}}>Choose the withdrawal network in MetaMask and withdraw your Tokens</p>
             <p  style={{...styles.centered,...styles.spaced}}>
                 <RegularBtn
-                    text='Retrieve Later, Let me Swap.'
-                    propStyle={{...styles.btnStyle}}
-                    onClick={()=>handleCancel()}
-
-                />
-                <RegularBtn
-                    text='Retrieve Token Now.'
+                    text='Retrieve Token Now'
                     propStyle={{...styles.btnStyle}}
                     onClick={()=>handleOk()}
 
                 />
+            </p>
+            <p></p>
+            <p style={{...styles.centered,...styles.underlined}}>
+              <a onClick={()=>handleCancel()}>Retrieve Later, Let me Swap.</a>
             </p>
         </div> 
         
@@ -60,10 +58,13 @@ const themedStyles = (theme) => ({
     },
     btnStyle: {
         marginTop: '1rem',
-        width: '40%',
+        width: '50%',
         padding: '2rem'
     },
     spaced: {
         justifyContent: 'space-around'
+    },
+    underlined: {
+      textDecoration: 'underline'
     }
 })

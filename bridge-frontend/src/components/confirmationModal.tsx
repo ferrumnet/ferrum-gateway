@@ -113,12 +113,12 @@ export function ConfirmationModal (props: {
                 <div className={styles.listItem}>{shorten(props.destination)}</div>
             </div>
             <div className={styles.itemList}>
-                <div className={styles.listLabel}>Fee</div>
-                <div className={styles.listItem}>{props.fee} {props.token}</div>
+                <div className={styles.listLabel}>Fee ({props.fee}%)</div>
+                <div className={styles.listItem}>{((Number(props.fee)/100)*Number(props.total))} {props.token}</div>
             </div>
             <div className={styles.itemList}>
                 <div className={styles.listLabel}>You will receive</div>
-                <div className={styles.listItem}>{props.total} {props.token}</div>
+                <div className={styles.listItem}>{(Number(props.total) - ((Number(props.fee)/100)*Number(props.total)))} {props.token}</div>
             </div>
             <div className={styles.btnList}>
                 <Alert

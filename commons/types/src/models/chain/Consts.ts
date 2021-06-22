@@ -27,6 +27,16 @@ const chainContent = (chainId:string,chainName:string,name:string,
     "blockExplorerUrls": [blockExplorerUrls],
 })
 
+export const tokenData = {
+    "FRM" : {
+        tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
+        tokenSymbol: 'FRM',
+        tokenDecimals: 18,
+        tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
+        type: 'ERC20'
+    }
+}
+
 export const chainData = {
     'ETHEREUM': chainContent('0x1',
     'Ethereum Mainnet', 'ETH','ETH',
@@ -36,7 +46,7 @@ export const chainData = {
     4,'https://rinkeby.infura.io/v3/undefined/','https://rinkeby.etherscan.io/'),
     'BSC_TESTNET': chainContent('0x61',
     'BSC Testnet', 'BNB','BNB',
-    97,'https://data-seed-prebsc-1-s1.binance.org:8545/','https://explorer.binance.org/smart-testnet/'),
+    18,'https://data-seed-prebsc-1-s1.binance.org:8545/','https://explorer.binance.org/smart-testnet/'),
     'BSC': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
     18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
