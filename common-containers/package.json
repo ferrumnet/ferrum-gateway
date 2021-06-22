@@ -18,15 +18,17 @@
   "license": "MIT",
   "dependencies": {
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
+    "redux-logger": "^3.0.6",
+    "types": "1.0.0",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
-    "unifyre-extension-web3-retrofit": "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git",
-    "types": "1.0.0"
+    "unifyre-extension-web3-retrofit": "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
     "@types/jest": "^24.0.13",
+    "@types/redux-logger": "^3.0.8",
     "jest": "^26.6.0",
     "minimist": "^1.2.5",
     "ts-lint": "^4.5.1",

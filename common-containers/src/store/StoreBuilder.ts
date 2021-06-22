@@ -5,6 +5,7 @@ import { chainEventsSlice } from '../chain/ChainEventItem';
 import { connectSlice } from '../connect/ConnectButtonWrapper';
 import { initSlice, initThunk } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
+import logger from 'redux-logger';
 
 export class StoreBuilder {
     static build<TUserState, TGlobalState extends AppInitializingState, TUiState>(
@@ -15,6 +16,8 @@ export class StoreBuilder {
         apiBaseUrl: string,
     ) {
         const store = configureStore({
+			middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+			devTools: process.env.NODE_ENV !== 'production',
             reducer: combineReducers({
                 connection: combineReducers({
                     account: connectSlice.reducer,

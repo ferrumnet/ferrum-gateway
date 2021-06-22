@@ -301,9 +301,13 @@ export const ConnectBridge = () => {
 
     const {dataLoaded, reconnecting} = pageProps;
 
+    const networkOptions = Object.values(supportedNetworks)
+		.filter(n => n.key !== pageProps.network);
+
     useEffect(()=>{
         if(reconnecting){
-            dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
+            dispatch(Actions.resetDestNetwork({value:networkOptions
+				.filter(n => n.active && n.key !== pageProps.network)}));
             reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
         }
     },[reconnecting]);
@@ -318,11 +322,13 @@ export const ConnectBridge = () => {
         if(!dataLoaded){
             fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency)
             dispatch(Actions.dataLoaded({}))
-            if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
-                dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
-            }
+            // if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
+            //     dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
+            // }
         }
     }, [dataLoaded]);
+
+	console.log('NETI ARE ', {networkOptions})
 
     useEffect(()=>{
         if((unUsedItems > 0 && !pageProps.withdrawSuccess)){
@@ -330,11 +336,6 @@ export const ConnectBridge = () => {
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
  
-    const inactive =   Object.keys(supportedNetworks)
-		.filter(k => !supportedNetworks[k].active);
-    const active =   Object.keys(supportedNetworks)
-		.filter(k => supportedNetworks[k].active);
-
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
@@ -421,10 +422,10 @@ export const ConnectBridge = () => {
                     selectedToken={pageProps.selectedToken}
                 />
                 <NetworkSwitch 
-                    availableNetworks={[...active]}
-                    suspendedNetworks={[...inactive]}
-                    currentNetwork={pageProps.network}
-                    currentDestNetwork={resetNetworks(active,pageProps.network)}
+                    availableNetworks={networkOptions.filter( n => n.active)}
+                    suspendedNetworks={networkOptions.filter( n => !n.active)}
+                    currentNetwork={supportedNetworks[pageProps.network]}
+                    currentDestNetwork={supportedNetworks[pageProps.destNetwork] || networkOptions[0]}
                     onNetworkChanged={(e:NetworkDropdown)=>dispatch(Actions.destNetworkChanged({value: e.key}))}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
                     IsNetworkReverse={pageProps.isNetworkReverse}

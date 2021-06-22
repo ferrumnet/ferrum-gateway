@@ -147,9 +147,9 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
             dispatch(Actions.initializeError({initError: 'Invalid group Info'}));
             return;
         }else{
-            await client.signInToServer(dispatch)
-            loadThemeForGroup(groupInfo.themeVariables);
-            //@ts-ignore
+            await loadThemeForGroup(groupInfo.themeVariables);
+			// Initialize group tokens...
+
             return;
         }
     } catch (error) {

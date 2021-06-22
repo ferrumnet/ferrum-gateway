@@ -6,7 +6,7 @@ import {networkImages as images} from './../images';
 
 export const NetworkSwitch = (
   {
-    availableNetworks = [],
+    availableNetworks = [], // {key, display, active, mainnet }
     suspendedNetworks = [],
     currentNetwork,
     currentDestNetwork,
@@ -31,8 +31,8 @@ export const NetworkSwitch = (
               <NetworkSelector
               currentNetwork={currentDestNetwork}
               icon={images[currentDestNetwork.key]}
-              availableNetworks={[...availableNetworks]}
-              suspendedNetworks={[...suspendedNetworks]}
+              availableNetworks={availableNetworks}
+              suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
             />
           }
@@ -48,16 +48,16 @@ export const NetworkSwitch = (
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork]}
-              availableNetworks={[...availableNetworks]}
-              suspendedNetworks={[...suspendedNetworks]}
+              icon={images[currentDestNetwork.key]}
+              availableNetworks={availableNetworks}
+              suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
             /> :
              <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork]}
+              icon={images[currentNetwork.key]}
               showDropdown={false}
-              availableNetworks={["Action", "Another Action", "Something else"]}
+              availableNetworks={[]}
             />
           }
          

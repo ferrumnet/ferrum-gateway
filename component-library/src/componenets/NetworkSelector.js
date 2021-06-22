@@ -10,6 +10,7 @@ export const NetworkSelector = ({
   availableNetworks = [],
   suspendedNetworks = [],
 }) => {
+	console.log('CURRENT NETI ISO ', currentNetwork)
   return (
     <Card className="card-network card-sec">
       <div className="icon-network icon-lg mb-3">
@@ -26,10 +27,10 @@ export const NetworkSelector = ({
               <Dropdown.Menu variant="dark">
                 {availableNetworks?.map((network, index) => (
                   <Dropdown.Item href={`#/action-${index}`} key={"av" + index} 
-                    disabled={network === currentNetwork.key}
+                    disabled={network.key === currentNetwork.key}
                     onClick={()=>onNetworkChanged(network)}
                   >
-                    {network}
+                    {network.display}
                   </Dropdown.Item>
                 ))}
                 {suspendedNetworks?.map((network, index) => (
