@@ -16,6 +16,8 @@ import {
 import { KMS } from 'aws-sdk';
 require('dotenv').config();
 const global = { init: false };
+const GLOBAL_BRIDGE_CONTRACT = '0x1aa287daca4f3d4426343cd54de0fdc8bd41632c';
+
 export class BridgeModule implements Module {
     async configAsync(container: Container) {
         const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
@@ -30,18 +32,14 @@ export class BridgeModule implements Module {
                 } as MongooseConfig,
                 addressManagerEndpoint: getEnv('ADDRESS_MANAGER_ENDPOINT'),
                 addressManagerSecret: getEnv('ADDRESS_MANAGER_SECRET'),
-                payer: {
-                    'ETHEREUM': getEnv('TOKEN_BRDIGE_CONTRACT_ETHEREUM'),
-                    'RINKEBY': getEnv('TOKEN_BRDIGE_CONTRACT_RINKEBY'),
-                    'BSC': getEnv('TOKEN_BRDIGE_CONTRACT_BSC'),
-                    'BSC_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET'),
-                },
                 bridgeConfig: {
                     contractClient: {
-                        'ETHEREUM': getEnv('TOKEN_BRDIGE_CONTRACT_ETHEREUM'),
-                        'RINKEBY': getEnv('TOKEN_BRDIGE_CONTRACT_RINKEBY'),
-                        'BSC': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET'),
-                        'BSC_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET'),
+                        'ETHEREUM': getEnv('TOKEN_BRDIGE_CONTRACT_ETHEREUM') || GLOBAL_BRIDGE_CONTRACT,
+                        'RINKEBY': getEnv('TOKEN_BRDIGE_CONTRACT_RINKEBY') || GLOBAL_BRIDGE_CONTRACT,
+                        'BSC': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
+                        'BSC_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
+                        'POLYGON': getEnv('TOKEN_BRDIGE_CONTRACT_POLYGON') || GLOBAL_BRIDGE_CONTRACT,
+                        'MUMBAI_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
                     }
                 }
             } as BridgeProcessorConfig;
@@ -54,6 +52,8 @@ export class BridgeModule implements Module {
                 web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
                 web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC'),
                 web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
+                web3ProviderPloygon: getEnv('WEB3_PROVIDER_POLYGON'),
+                web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
             } as any as MultiChainConfig);
         container.register('MultiChainConfig', () => chainConf);
         container.registerModule(new ChainClientsModule());
@@ -63,6 +63,8 @@ export class BridgeModule implements Module {
                     'RINKEBY': chainConf.web3ProviderRinkeby,
                     'BSC': chainConf.web3ProviderBsc!,
                     'BSC_TESTNET': chainConf.web3ProviderBscTestnet!,
+                    'POLYGON': chainConf.web3ProviderPolygon!,
+                    'MUMBAI_TESTNET': chainConf.web3ProviderMumbaiTestnet!,
                 } as Web3ProviderConfig;
         const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
             await decryptPrivateKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
@@ -74,6 +76,7 @@ export class BridgeModule implements Module {
             ));
         container.registerSingleton(BridgeProcessor, c => new BridgeProcessor(
             conf, c.get(ChainClientFactory), c.get(TokenBridgeService),
+			c.get(TokenBridgeContractClinet),
             c.get(BridgeConfigStorage), c.get(PairAddressSignatureVerifyre),
             c.get(EthereumSmartContractHelper),
             privateKey,

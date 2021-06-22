@@ -13,25 +13,34 @@ import { BasicHandlerFunction } from 'aws-lambda-helper/dist/http/BasicHandlerFu
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { getEnv } from 'types';
+import { MultiChainConfig } from 'ferrum-chain-clients';
 
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
         const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
         const stakingAppConfArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + 'UNI_APP_STAKING_APP'];
         let stakingAppConfig: any = {} as any;
+		let netConfig: MultiChainConfig = {} as any;
         if (stakingAppConfArn) {
             stakingAppConfig = await new SecretsProvider(region, stakingAppConfArn).get();
         } else {
+			netConfig = {
+				web3Provider: getEnv('WEB3_PROVIDER_ETHEREUM'),
+				web3ProviderEthereum: getEnv('WEB3_PROVIDER_ETHEREUM'),
+				web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
+				web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
+				web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC'),
+				web3ProviderPolygon: getEnv('WEB3_PROVIDER_POLYGON'),
+				web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
+			} as any as MultiChainConfig;
+
             stakingAppConfig = {
+				...netConfig,
                 database: {
                     connectionString: getEnv('MONGOOSE_CONNECTION_STRING'),
                 } as any,
                 authRandomKey: getEnv('RANDOM_SECRET'),
                 signingKeyHex: getEnv('REQUEST_SIGNING_KEY'),
-                web3ProviderEthereum: getEnv('WEB3_PROVIDER_ETHEREUM'),
-                web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
-                web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
-                web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC'),
                 backend: getEnv('UNIFYRE_BACKEND'),
                 region,
                 cmkKeyArn: getEnv('CMK_KEY_ARN'),
@@ -60,11 +69,11 @@ export class GatewayModule implements Module {
         // ));
 
         const networkProviders = {
-                    // 'ETHEREUM': stakingAppConfig.web3ProviderEthereum,
-                    // 'RINKEBY': stakingAppConfig.web3ProviderRinkeby,
-                    // 'BSC': stakingAppConfig.web3ProviderBsc,
-                    // 'BSC_TESTNET': stakingAppConfig.web3ProviderBscTestnet,
-                } as Web3ProviderConfig;
+			'ETHEREUM': stakingAppConfig.web3ProviderEthereum,
+			'RINKEBY': stakingAppConfig.web3ProviderRinkeby,
+			'BSC': stakingAppConfig.web3ProviderBsc,
+			'BSC_TESTNET': stakingAppConfig.web3ProviderBscTestnet,
+			} as Web3ProviderConfig;
         await container.registerModule(
             new UnifyreBackendProxyModule('DUMMY', 'asd', // stakingAppConfig.authRandomKey,
                 '',));
@@ -76,8 +85,7 @@ export class GatewayModule implements Module {
                 c => new HttpHandler(
                     c.get(UnifyreBackendProxyService),
                     c.get(BridgeRequestProcessor),
-                    // stakingAppConfig.authRandomKey,
-                    // networkProviders,
+					netConfig,
                     ));
         container.registerSingleton("LambdaSqsHandler",
             () => new Object());

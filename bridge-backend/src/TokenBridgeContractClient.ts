@@ -4,8 +4,14 @@ import abiDecoder from 'abi-decoder';
 import { HexString, Injectable, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
+import { BridgeSwapEvent } from './common/TokenBridgeTypes';
+import { ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
 
 const Helper = EthereumSmartContractHelper;
+
+const NetworkNameByChainId: {[k:number]: string} = {};
+Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK)
+	.forEach(k => NetworkNameByChainId[ETHEREUM_CHAIN_ID_FOR_NETWORK[k]] = k);
 
 export class TokenBridgeContractClinet implements Injectable {
     constructor(
@@ -34,6 +40,31 @@ export class TokenBridgeContractClinet implements Injectable {
         // ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
         //     `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
     }
+
+	async getSwapEvents(network: string): Promise<BridgeSwapEvent[]> {
+        const address = this.contractAddress[network];
+        ValidationUtils.isTrue(!!address, `No address for network ${network}`)
+		const web3 = await this.helper.web3(network);
+		const block = await web3.getBlockNumber();
+		const events = await this.bridgePool(network, address)
+			.getPastEvents('BridgeSwap', block - 500, 'latest',);
+		const logs: BridgeSwapEvent[] = [];
+		for (const e of events) {
+			const decoded = web3.abi.decodeLog(bridgeAbi, e.raw.data, e.raw.topics);
+			const currency = `${network}:${decoded.token.toLowerCase()}`;
+			logs.push({
+				network,
+				transactionId: e.transactionHash,
+				from: decoded.from,
+				amount: await this.helper.amountToHuman(currency, decoded.amount),
+				 targetAddrdess: decoded.targetAddress,
+				 targetNetwork: NetworkNameByChainId[decoded.targetNetwork],
+				 targetToken: decoded.targetToken,
+				 token: decoded.token,
+			} as BridgeSwapEvent);
+		}
+		return logs;
+	}
 
     protected bridgePool(network: string, contractAddress: string) {
         const web3 = this.helper.web3(network);

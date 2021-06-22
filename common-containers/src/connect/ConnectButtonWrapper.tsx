@@ -13,12 +13,16 @@ import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract
 export const DEFAULT_TOKENS_FOR_WEB3_MODE = [
     FRM['RINKEBY'][0],
     FRM['ETHEREUM'][0],
+    FRM['POLYGON'][0],
     FRMX['ETHEREUM'][0],
     FRM['BSC_TESTNET'][0],
+    FRM['MUMBAI_TESTNET'][0],
     ETH['ETHEREUM'][0],
     ETH['RINKEBY'][0],
     ETH['BSC_TESTNET'][0],
     ETH['BSC'][0],
+    ETH['POLYGON'][0],
+    ETH['MUMBAI_TESTNET'][0],
 ];
 
 export const connectSlice = createSlice({
@@ -28,6 +32,11 @@ export const connectSlice = createSlice({
     } as AppAccountState,
     reducers: {
         connectionSucceeded: (state, action) => {
+            const {userProfile} = action.payload;
+            state.user = userProfile;
+            state.connectionError = undefined;
+        },
+        userProfileUpdated: (state, action) => {
             const {userProfile} = action.payload;
             state.user = userProfile;
             state.connectionError = undefined;
@@ -131,7 +140,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
             } catch (de) {
                 console.error('Error disconnecting provider ', de);
             }
-            ctx.dispatch(Actions.connectionFailed({ message: `Connection failed ${e.message}` }));
+            ctx.dispatch(Actions.connectionFailed({ message: `Connection failed ${(e as any).message}` }));
         }
     }
 });

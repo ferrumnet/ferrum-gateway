@@ -1,3 +1,4 @@
+import { Network } from 'ferrum-plumbing';
 import { Eip712TypeDefinition} from 'unifyre-extension-web3-retrofit/dist/client/Eip712';
 
 export const PairedAddressType: Eip712TypeDefinition =  {
@@ -8,3 +9,15 @@ export const PairedAddressType: Eip712TypeDefinition =  {
         { name: 'address2', type: 'address' },
     ],
 };
+
+export interface BridgeSwapEvent {
+	network: Network;
+	transactionId: string;
+	from: string;
+	token: string;
+	targetNetwork: string;
+	targetToken: string;
+	targetAddrdess: string;
+	amount: string;
+}
+

@@ -16,7 +16,7 @@ export const NetworkSelector = ({
         <img src={icon} alt="loading"></img>
       </div>
       <div className="d-flex align-items-center justify-content-between">
-        <small>{currentNetwork}</small>
+        <small>{currentNetwork.display}</small>
         {
           showDropdown &&
             <Dropdown>
@@ -26,7 +26,7 @@ export const NetworkSelector = ({
               <Dropdown.Menu variant="dark">
                 {availableNetworks?.map((network, index) => (
                   <Dropdown.Item href={`#/action-${index}`} key={"av" + index} 
-                    disabled={network === currentNetwork}
+                    disabled={network === currentNetwork.key}
                     onClick={()=>onNetworkChanged(network)}
                   >
                     {network}
@@ -34,7 +34,7 @@ export const NetworkSelector = ({
                 ))}
                 {suspendedNetworks?.map((network, index) => (
                   <Dropdown.Header key={"sus" + index}>
-                    {network}
+                    {network.display}
                   </Dropdown.Header>
                 ))}
               

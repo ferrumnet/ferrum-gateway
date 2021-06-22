@@ -6,7 +6,7 @@ import { PayBySignatureData } from 'types';
 import {ValidationUtils} from "ferrum-plumbing";
 
 const NAME = "FERRUM_TOKEN_BRIDGE_POOL";
-const VERSION = "000.001";
+const VERSION = "000.002";
 
 export function domainSeparator(eth: Eth, netId: number, contractAddress: HexString) {
     const hashedName = Web3.utils.keccak256(Web3.utils.utf8ToHex(NAME));
@@ -40,8 +40,9 @@ export function produceSignatureWithdrawHash(eth: Eth,
         payee: HexString,
         amountInt: string,
         salt: string): PayBySignatureData {
+	// TODO: Try the sig utils
     const methodHash = Web3.utils.keccak256(
-        Web3.utils.utf8ToHex('WithdrawSigned(address token, address payee,uint256 amount,bytes32 salt)'));
+        Web3.utils.utf8ToHex('WithdrawSigned(address token,address payee,uint256 amount,bytes32 salt)'));
 
     const params = ['bytes32', 'address', 'address', 'uint256', 'bytes32'];
     const structure = eth.abi.encodeParameters(params, [methodHash, token, payee, amountInt, salt]);

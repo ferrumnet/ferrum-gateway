@@ -1,6 +1,5 @@
 import { ChainClientFactory, SimpleTransferTransaction } from "ferrum-chain-clients";
 import { Injectable, Logger, LoggerFactory, Network, ValidationUtils } from "ferrum-plumbing";
-import { Big } from 'big.js';
 import { BridgeModule } from "./BridgeModule";
 import { LambdaGlobalContext } from "aws-lambda-helper";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
@@ -12,6 +11,9 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { fixSig, produceSignatureWithdrawHash, randomSalt } from "./BridgeUtils";
 import { toRpcSig } from 'ethereumjs-util';
 import { SignedPairAddress } from "types";
+import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
+import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
+import * as Eip712 from 'web3-tools';
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;
@@ -19,6 +21,7 @@ export class BridgeProcessor implements Injectable {
         private config: BridgeProcessorConfig,
         private chain: ChainClientFactory,
         private svc: TokenBridgeService,
+		private bridgeContract: TokenBridgeContractClinet,
         private tokenConfig: BridgeConfigStorage,
         private pairVerifyer: PairAddressSignatureVerifyre,
         private helper: EthereumSmartContractHelper,
@@ -37,27 +40,26 @@ export class BridgeProcessor implements Injectable {
          * Get the sender details from mongo and verify the pair target.
          * Send tokens to their address.
          */
-        const poolAddress = this.config.payer[network];
+        const poolAddress = this.config.bridgeConfig.contractClient[network];
         ValidationUtils.isTrue(!!poolAddress, `No payer for ${network} is configured`);
         const client = this.chain.forNetwork(network);
         const relevantTokens = await this.tokenConfig.getSourceCurrencies(network);
         ValidationUtils.isTrue(!!relevantTokens.length, `No relevent token found in config for ${network}`);
         try {
             console.log(relevantTokens.map((j:any) => j.sourceCurrency),'soucre currencies')
-            const incoming = await client.getRecentTransactionsByAddress(
-                poolAddress, relevantTokens.map((j:any) => j.sourceCurrency));
-                //@ts-ignore
-            // console.log('Got icoming txs:', {...incoming},{...incoming})
+			// todo: get event logs
+            const incoming = await this.bridgeContract.getSwapEvents(network);
+            console.log('Got icoming txs:', {...incoming},{...incoming})
             if (!incoming || !incoming.length) {
-                this.log.info('No recent transaction for address ' + poolAddress);
+                this.log.info('No recent transaction for address ' + network + ':' + poolAddress);
                 return;
             }
             
             for (const tx of incoming.reverse()) {
-                this.log.info(`Processing transaction ${tx.id}`);
+                this.log.info(`Processing transaction ${tx.transactionId}`);
                 const [existed, _] = await this.processSingleTransaction(tx);
                 if (existed) {
-                    this.log.info(`Reached a transaction that was already processed: ${tx.id}`);
+                    this.log.info(`Reached a transaction that was already processed: ${tx.transactionId}`);
                     return;
                 }
             }
@@ -82,10 +84,10 @@ export class BridgeProcessor implements Injectable {
         return unverifiedPair;
     }
 
-    private async processSingleTransaction(tx: SimpleTransferTransaction):
+    private async processSingleTransaction(event: BridgeSwapEvent):
         Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
         try {
-            let processed = await this.svc.getWithdrawItem(tx.id);
+            let processed = await this.svc.getWithdrawItem(event.transactionId);
             if (!!processed) {
                 return [true, processed];
             } else {
@@ -100,58 +102,57 @@ export class BridgeProcessor implements Injectable {
             // Creating a new process option.
             // Find the relevant token config for the pair
             // Calculate the target amount
-            const sourceNetwork = tx.network;
-            const NetworkCombinations = {
-                "BSC_TESTNET":"RINKEBY",
-                "RINKEBY":"BSC_TESTNET",
-                "BSC":"ETHEREUM",
-                "ETHEREUM":"BSC"
-            }
+            const sourceNetwork = event.network;
             // const sourceAddress = pair.pair.network1 === tx.network ? pair.pair.address1 :
             //     pair.pair.network2 === tx.network ? pair.pair.address2 : undefined;
             // const targetNetwork = pair.pair.network1 === tx.network ? pair.pair.network2 :
             //     pair.pair.network1;
             // const targetAddress = pair.pair.network1 === tx.network ? pair.pair.address2 :
             //     pair.pair.address1;
-            const sourceAddress = tx.fromItems[0].address;
-            const targetAddress = tx.fromItems[0].address;
-            const targetNetwork = NetworkCombinations[sourceNetwork];
+            const sourceAddress = event.from;
+            const targetAddress = event.targetAddrdess || event.from;
+            const targetNetwork = event.targetNetwork;
             //ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
             const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork);
-            //ValidationUtils.isTrue(!!conf, `No token config between ${JSON.stringify(pair)} networks (source ${tx.network})`);
+			const sourcecurrency = `${sourceNetwork}:${event.token}`;
+			const targetCurrency = `${targetNetwork}:${event.targetToken}`;
+            ValidationUtils.isTrue(!!conf &&
+				conf.sourceCurrency === sourcecurrency && conf.targetCurrency === targetCurrency,
+				`No token config between ${JSON.stringify(sourcecurrency)} networks (target ${targetCurrency})`);
 
-            const sourceAmount = new Big(tx.toItems[0].amount);
-            let targetAmount = sourceAmount.minus(new Big(conf!.feeConstant || '0'));
-            if (targetAmount.lt(new Big(0))) {
-                targetAmount = new Big(0);
-            }
+            const sourceAmount = await this.helper.amountToMachine(sourcecurrency, event.amount);
+            const targetAmount = await this.helper.amountToMachine(targetCurrency, event.amount);
+            // let targetAmount = sourceAmount.minus(new Big(conf!.feeConstant || '0'));
+            // if (targetAmount.lt(new Big(0))) {
+            //     targetAmount = new Big(0);
+            // }
 
-            ValidationUtils.isTrue(sourceAddress === tx.fromItems[0].address,
-                `UNEXPECTED ERROR: Source address is different from the transaction source ${tx.id}`);
+            // ValidationUtils.isTrue(sourceAddress === tx.fromItems[0].address,
+            //     `UNEXPECTED ERROR: Source address is different from the transaction source ${tx.id}`);
             const payBySig = await this.createSignedPayment(
-                targetNetwork, targetAddress, conf!.targetCurrency, targetAmount.toFixed(),
+                targetNetwork, targetAddress, targetCurrency, targetAmount,
             );
             processed = {
                 id: payBySig.hash, // same as signedWithdrawHash
                 timestamp: new Date().valueOf(),
                 receiveNetwork: conf!.sourceNetwork,
                 receiveCurrency: conf!.sourceCurrency,
-                receiveTransactionId: tx.id,
+                receiveTransactionId: event.transactionId,
                 receiveAddress: sourceAddress,
-                receiveAmount: sourceAmount.toFixed(),
+                receiveAmount: event.amount,
                 payBySig,
 
                 sendNetwork: targetNetwork,
                 sendAddress: targetAddress,
                 sendTimestamp: new Date().valueOf(),
                 sendCurrency: conf?.targetCurrency,
-                sendAmount: targetAmount.toFixed(),
+                sendAmount: event.amount,
 
                 used: '',
                 useTransactions: [],
             } as UserBridgeWithdrawableBalanceItem;
             await this.svc.withdrawSignedVerify(conf!.targetCurrency, targetAddress,
-                targetAmount.toFixed(),
+                targetAmount,
                 payBySig.hash,
                 payBySig.salt,
                 payBySig.signature,
@@ -159,7 +160,7 @@ export class BridgeProcessor implements Injectable {
             await this.svc.newWithdrawItem(processed);
             return [true, processed];
         } catch (e) {
-            this.log.error(`Error when processing transactions "${JSON.stringify(tx)}": ${e}`);
+            this.log.error(`Error when processing transactions "${JSON.stringify(event)}": ${e}`);
             return [false, undefined];
         }
     }
@@ -173,12 +174,32 @@ export class BridgeProcessor implements Injectable {
         const payBySig = produceSignatureWithdrawHash(
             this.helper.web3(network),
             chainId,
-            this.config.payer[network],
+            this.config.bridgeConfig.contractClient[network],
             token,
             address,
             amountStr,
             salt,
         );
+
+		const params = {
+			contractName: 'FERRUM_TOKEN_BRIDGE_POOL',
+			contractVersion: '0.0.2',
+			method: 'WithdrawSigned',
+			args: [
+				{ type: 'address', name: 'token', value: address },
+				{ type: 'address', name: 'payee', value: token },
+				{ type: 'uint256', name: 'amount', value: amountStr },
+				{ type: 'bytes32', name: 'sat', value: salt },
+			]
+		} as Eip712.Eip712Params;
+
+		const sig2 = Eip712.produceSignature(
+			this.helper.web3(network),
+			chainId,
+            this.config.bridgeConfig.contractClient[network],
+			params);
+		
+		console.log('SIG 2 WAS ', sig2);
         // Create signature. TODO: Use a more secure method. Address manager is not secure enough.
         // E.g. Have an ecnrypted SK as ENV. Configure KMS to only work with a certain IP
         const sigP = await this.chain.forNetwork(network as any)

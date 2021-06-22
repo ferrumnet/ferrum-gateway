@@ -6,11 +6,13 @@ import {
 } from "ferrum-plumbing";
 import { ChainEventBase } from 'types';
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { MultiChainConfig } from "ferrum-chain-clients";
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
             private bridgeProcessor: BridgeRequestProcessor,// BridgeRequestProcessor,
+			private newtworkConfig: MultiChainConfig,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
     }
@@ -41,7 +43,7 @@ export class HttpHandler implements LambdaHttpHandler {
                     body = await this.updateChainEvents(userId, req);
                     break;
                 case 'getHttpProviders':
-                    body = {}; //this.networkConfig;
+                    body = this.newtworkConfig;
                     break;
                 case 'getUserProjects':
                     ValidationUtils.isTrue(!!userId, 'User must be signed in');

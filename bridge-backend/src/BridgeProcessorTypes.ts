@@ -19,7 +19,6 @@ export interface TokenBridgeConfig {
 }
 export interface BridgeProcessorConfig {
     database: MongooseConfig;
-    payer: NetworkRelatedConfig;
     addressManagerEndpoint: string;
     addressManagerSecret: string;
     bridgeConfig: TokenBridgeConfig;
@@ -31,8 +30,7 @@ export function getEnv(env: string) {
     return res!;
 }
 
-//@ts-ignore
-const bridgeTokenConfigSchema: Schema = new Schema<BridgeProcessorConfig>({
+const bridgeTokenConfigSchema: Schema = new Schema<Document&BridgeProcessorConfig>({
     sourceNetwork: String,
     targetNetwork: String,
     sourceCurrency: String,

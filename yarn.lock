@@ -7671,7 +7671,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-chain-clients@git+https://github.com/ferrumnet/ferrum-chain-clients.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-chain-clients.git#f0e7eaee5a606ebff4e25efc65ca7dd7c09308fb"
+  resolved "git+https://github.com/ferrumnet/ferrum-chain-clients.git#f0d078cc6ec24e2d940b334b3fd8ea1574679b7e"
   dependencies:
     "@binance-chain/javascript-sdk" "^2.15.0"
     abi-decoder latest
@@ -7701,7 +7701,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#f80e133c1fccc4a8e504e51e61c9b0ef9a3f0cc3"
+  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#0a855970415961e16d3c4e2bf2189ab44b849abc"
   dependencies:
     cross-fetch "^3.0.4"
 

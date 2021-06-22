@@ -2,16 +2,37 @@
 export const FRM: {[k: string]: [string, string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM'],
     'RINKEBY': ['RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM'],
+    'POLYGON': ['POLYGON:0xd99bafe5031cc8b345cb2e8c80135991f12d7130', 'FRM'],
     'BSC_TESTNET': ['BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM'],
+    'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0x81895ae339C46d5e0CD5BD4B810cBA32F85f0108', 'FRM'],
 };
 
-export const supportedNetworks= {
-    'ETHEREUM': 'active',
-    'RINKEBY': 'active',
-    'BSC_TESTNET': 'active',
-    'MATIC': 'inactive',
-    'SOLANA': 'inactive'
+export interface NetworkDropdown {
+	key: string;
+	display: string;
+	active: boolean;
+	mainnet: boolean;
+}
+
+const _supportedNetworks: any = {
+    'ETHEREUM': ['active', 'Ethereum', 'mainnet'],
+    'RINKEBY': ['active', 'Rinkeby testnet', 'testnet'],
+    'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
+    'BSC': ['active', 'BSC', 'mainnet'],
+    'POLYGON': ['active', 'Polugon (Matic)', 'mainnet'],
+    'MUMBAI_TESTNET': ['inactive', 'Matic testnet', 'testnet'],
+    'SOLANA': ['inactive', 'Solana', 'mainnet']
 };
+
+// TODO: Directly write the constants
+export const supportedNetworks: { [k: string]: NetworkDropdown } = {}
+Object.keys(_supportedNetworks).forEach(k => {
+	const [a, d, m] = _supportedNetworks[k];
+	supportedNetworks[k] = {
+		key: k, active: a === 'active',
+		display: d,
+		mainnet: m === 'mainnet'}
+})
 
 const chainContent = (chainId:string,chainName:string,name:string,
     symbol:string,decimals:number,rpcUrls:string,blockExplorerUrls:string) => ({

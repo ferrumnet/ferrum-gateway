@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 //@ts-ignore
-import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector,NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
+import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector,
+	NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
-import { PairedAddress,SignedPairAddress, supportedNetworks } from 'types';
+import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown } from 'types';
 import { AppAccountState } from 'common-containers';
 import {IConnectViewProps,addressesForUser, AppState } from 'common-containers';
 import { Steps } from 'antd';
@@ -329,12 +330,11 @@ export const ConnectBridge = () => {
             setIsNotiModalVisible(true)
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
-
  
-    //@ts-ignore
-    const inactive =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('inactive'))))];
-    //@ts-ignore
-    const active =   [...Object.keys(supportedNetworks).filter((e,index)=>((supportedNetworks[`${e}`] === ('active'))))]
+    const inactive =   Object.keys(supportedNetworks)
+		.filter(k => !supportedNetworks[k].active);
+    const active =   Object.keys(supportedNetworks)
+		.filter(k => supportedNetworks[k].active);
 
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
@@ -426,7 +426,7 @@ export const ConnectBridge = () => {
                     suspendedNetworks={[...inactive]}
                     currentNetwork={pageProps.network}
                     currentDestNetwork={resetNetworks(active,pageProps.network)}
-                    onNetworkChanged={(e:string)=>dispatch(Actions.destNetworkChanged({value: e}))}
+                    onNetworkChanged={(e:NetworkDropdown)=>dispatch(Actions.destNetworkChanged({value: e.key}))}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
                     IsNetworkReverse={pageProps.isNetworkReverse}
                 />
@@ -584,18 +584,12 @@ export const SideBarContainer = () => {
                                 description={swapping && (
                                     <div>
                                         <SwapModal
-                                            isModalOpen={swapping}
-                                            showModal={showModal}
-                                            hideModal={hideModal}
                                             status={pageProps.progressStatus}
                                             txId={pageProps.swapId}
                                             sendNetwork={pageProps.network}
                                             timestamp={Date.now()}
-                                            callback={checkTxStatus}
-                                            itemCallback={checkifItemIsCreated}
                                             itemId={pageProps.itemId}
                                             claim={openPanelHandler}
-                                            showNoti={(v:boolean)=>setIsNotiModalVisible(v)}
                                             setStatus={(v)=> dispatch(Actions.setProgressStatus({status:v}))}
                                         />
                                     </div> )

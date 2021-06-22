@@ -270,13 +270,15 @@ export class BridgeClient implements Injectable {
         return res;
     }
 
-    async getUserWithdrawItems(dispatch: Dispatch<AnyAction>, network: string) {
+    async getUserWithdrawItems(dispatch: Dispatch<AnyAction>, network: string):
+		Promise<{withdrawableBalanceItems: UserBridgeWithdrawableBalanceItem[]}> {
         try {
             const res = await this.api.api({command: 'getUserWithdrawItems', data: { network }, params: [] } as JsonRpcRequest);
             return res;
         } catch(e) {
             // dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
             //     message: e.message || '' }));
+			return {withdrawableBalanceItems: []};
         } finally {
           //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }

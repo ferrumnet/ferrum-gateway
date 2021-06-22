@@ -24,13 +24,13 @@ export const NetworkSwitch = (
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork]}
+              icon={images[currentNetwork.key]}
               showDropdown={false}
-              availableNetworks={["Action", "Another Action", "Something else"]}
+              availableNetworks={[]}
             /> :
               <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork]}
+              icon={images[currentDestNetwork.key]}
               availableNetworks={[...availableNetworks]}
               suspendedNetworks={[...suspendedNetworks]}
               onNetworkChanged={onNetworkChanged}

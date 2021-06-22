@@ -35,6 +35,7 @@ import { addToken } from './../pages/Main/handler';
 export interface SidePanelProps {
     userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
     Network: string,
+	step: number,
     reconnecting?: boolean,
     dataLoaded?: boolean,
     txExecuted?: boolean
@@ -46,6 +47,7 @@ export const SidePanelSlice = createSlice({
         userWithdrawalItems: [],
         reconnecting: false,
         Network: '',
+		step: 1,
         dataLoaded: false,
         txExecuted: false
     } as SidePanelProps,
@@ -59,6 +61,9 @@ export const SidePanelSlice = createSlice({
             state.userWithdrawalItems = action.payload.items.reverse();
             state.dataLoaded = true
         },
+		moveToNext: (state, action) => {
+			state.step = action.payload.step;
+		},
         transactionExecuted:  (state,action) => {
             state.txExecuted = true;
         },
@@ -97,7 +102,8 @@ export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountSt
         userWithdrawalItems: state.userWithdrawalItems || [],
         Network: address.network,
         dataLoaded: state.dataLoaded!,
-        txExecuted: state.txExecuted!
+        txExecuted: state.txExecuted!,
+		step: state.step,
     };
 }
 

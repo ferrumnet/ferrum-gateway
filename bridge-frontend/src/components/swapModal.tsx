@@ -11,7 +11,7 @@ import { Steps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
-import { Utils,ChainEventBase } from 'types';
+import { Utils,ChainEventBase, ChainEventStatus } from 'types';
 import { AnyAction, Dispatch } from "redux";
 import { useDispatch } from 'react-redux';
 import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
@@ -25,16 +25,17 @@ import { CommonActions,addAction } from './../common/Actions';
 
 const { Step } = Steps;
 
+// TODO: Update the user profile and allow balance re-fetch without changing the connection
 const updateData= async (dispatch:Dispatch<AnyAction>) => {
   try {
       const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
       const userProfile = await client.getUserProfile();
       const Actions = connectSlice.actions;
-      dispatch(Actions.connectionSucceeded({userProfile}))
-      console.log(userProfile,'userProfile')
+      dispatch(Actions.userProfileUpdated({userProfile}))
+      console.log(userProfile,'updated userProfile on swapModal')
   } catch (e) {
-      if(!!e.message){
-          dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
+      if(!!(e as any).message){
+          dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as any).message }));
       }
   }finally {
       dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
@@ -45,20 +46,18 @@ async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyActi
   try {
     const sc = inject<BridgeClient>(BridgeClient);
     const res = await sc.checkTxStatus(dispatch,item.id,item.network,Date.now());
-    if(res){
-      if(res && res === 'successful'){
-        if(item.stater) item.stater(2)
-        setTimeout(async ()=>{
-          await updateData(dispatch)
-        },3000)
+    if(res) {
+      if(res && res === 'successful') {
+		dispatch(SidePanelSlice.actions.moveToNext({step: 2}));
+        await updateData(dispatch)
         return { ...item, status: 'completed' };
       }
       if(res && res === 'failed'){
-        if(item.stater) item.stater(-1)
+		dispatch(SidePanelSlice.actions.moveToNext({step: -1}));
         return { ...item, status: 'failed' };
       }
     }
-    return { ...item, status: 'pending' };
+    return { ...item, status: res || 'pending'};
   } catch (e) {
     console.error('error updating', e);
     return item;
@@ -66,41 +65,42 @@ async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyActi
   }
 }
 
-async function updateSecondStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
+async function updateWithdrawStatus(id: string, dispatch: Dispatch<AnyAction>): Promise<ChainEventStatus> {
   try {
     const sc = inject<BridgeClient>(BridgeClient);
     const connect = inject<Connect>(Connect);
     const network = connect.network() as any;
-    const items = await sc.getUserWithdrawItems(dispatch,network);
+    const items = await sc.getUserWithdrawItems(dispatch, network);
     if(items && items.withdrawableBalanceItems.length > 0){
         dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-        const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item.id);
-        if(findMatch.length > 0){
-          if(item.stater) item.stater(3);
-          return { ...item, status: 'completed' };
+        const findMatch = items.withdrawableBalanceItems.find((e:any)=>e.receiveTransactionId === 
+			id.replace('_STEP2', '')); // TODO: Hack! find a better way
+        if(!!findMatch){
+		  dispatch(SidePanelSlice.actions.moveToNext({step: 3}));
+          return 'completed';
         }
-    }   
-    return { ...item, status: 'pending' };
+    }
+    return 'pending';
   } catch (e) {
     console.error('error updating', e);
-    return item;
-
+    return 'failed';
   }
+}
+
+async function updateSecondStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
+	const newStatus = await updateWithdrawStatus(item.id, dispatch);
+	return { ...item, status: 'completed' };
 }
 
 
 export function SwapModal (props: {
-  isModalOpen: boolean,
-  showModal:()=>void,
-  hideModal:()=>void,
-  showNoti: (v:boolean) => void,
   status: number,
   setStatus: (v:number)=>void,
   txId: string,
   sendNetwork: string,
   timestamp: number,
-  callback:(dispatch:Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number)=>Promise<string|undefined>
-  itemCallback:(dispatch:Dispatch<AnyAction>,itemId:string)=>Promise<string|undefined>,
+//   callback:(dispatch:Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number)=>Promise<string|undefined>
+//   itemCallback:(dispatch:Dispatch<AnyAction>,itemId:string)=>Promise<string|undefined>,
   itemId: string
   claim: (dispatch:Dispatch<AnyAction>) =>  void
 }) {
@@ -109,23 +109,15 @@ export function SwapModal (props: {
   const [refreshing,setRefreshing] = useState(false)
   const dispatch = useDispatch()
     
-  const handleCheckItem = async () => {
-    setRefreshing(true)
-    const status = await props.itemCallback(dispatch,props.itemId)
-    if(status && status === 'created'){
-      props.setStatus(3);
-    }
-    setRefreshing(false)
-  }
+//   const handleCheckItem = async () => {
+//     setRefreshing(true)
+//     const status = await props.itemCallback(dispatch,props.itemId)
+//     if(status && status === 'created'){
+//       props.setStatus(3);
+//     }
+//     setRefreshing(false)
+//   }
 
-
-  const handleReset = () => {
-    props.setStatus(1);
-    setTimeout(()=>{
-      props.hideModal();
-    },100)
-  }
-  
   return (
     <div>    
         <div className={styles.body}>
@@ -142,10 +134,8 @@ export function SwapModal (props: {
                   <ChainEventItem
                       id={props.txId}
                       network={props.sendNetwork as any}
-                      initialStatus={'pending' /*e.used*/}
+                      initialStatus={props.status === 1 ? 'pending' : 'completed'}
                       eventType={'SWAP_STAGE_1'}
-                      stater={props.setStatus}
-                      callback={props.callback}
                       updater={updateFirstStage}
                   >
                   <div className={styles.textStyles}>
@@ -167,17 +157,18 @@ export function SwapModal (props: {
                 title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
                 description={
                   <ChainEventItem
-                      id={props.itemId}
+                      id={props.itemId + '_STEP2'}
                       network={props.sendNetwork as any}
-                      initialStatus={'pending' /*e.used*/}
+                      initialStatus={props.status <= 2 ? 'pending' : 'completed'}
                       eventType={'SWAP_STAGE_2'}
-                      stater={props.setStatus}
-                      callback={props.itemCallback}
                       updater={updateSecondStage}
                   >
                     <div className={styles.textStyles}>
                       {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
-                      {props.status === 2 && <p onClick={()=>handleCheckItem()} className={styles.cursorStyles}> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
+                      {props.status === 2 && <p onClick={()=>
+						updateWithdrawStatus(props.itemId + '_STEP2', dispatch)}
+						className={styles.cursorStyles}
+					> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
                     </div>
                   </ChainEventItem>
                 }
@@ -189,7 +180,8 @@ export function SwapModal (props: {
               title="Claim Withdrawal" 
               description={
                 <div className={styles.center}>
-                  {props.status === 3 && <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{handleReset(); props.claim(dispatch) }}>Claim</a> }
+                  {props.status === 3 &&
+				  <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{props.claim(dispatch) }}>Claim</a> }
                 </div>
               }
               style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
