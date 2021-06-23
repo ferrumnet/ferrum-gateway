@@ -148,8 +148,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
-			// Initialize group tokens...
-
+			// TODO: Initialize group tokens here for all networks.
             return;
         }
     } catch (error) {

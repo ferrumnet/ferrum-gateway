@@ -196,7 +196,7 @@ export const MainPageSlice = createSlice({
             state.isNetworkReverse = !state.isNetworkReverse;
         },
         setMax:(state,action) => {
-            state.amount = action.payload.balance
+            state.amount = action.payload?.balance || '0';
         },
         resetSwap: (state,action) => {
             state.swapId = '';
@@ -302,7 +302,7 @@ export const ConnectBridge = () => {
     const {dataLoaded, reconnecting} = pageProps;
 
     const networkOptions = Object.values(supportedNetworks)
-		.filter(n => n.key !== pageProps.network);
+		.filter(n => n.key !== pageProps.network && n.mainnet === !!process.env.USE_MAINNET );
 
     useEffect(()=>{
         if(reconnecting){
@@ -327,8 +327,6 @@ export const ConnectBridge = () => {
             // }
         }
     }, [dataLoaded]);
-
-	console.log('NETI ARE ', {networkOptions})
 
     useEffect(()=>{
         if((unUsedItems > 0 && !pageProps.withdrawSuccess)){
@@ -424,7 +422,7 @@ export const ConnectBridge = () => {
                 <NetworkSwitch 
                     availableNetworks={networkOptions.filter( n => n.active)}
                     suspendedNetworks={networkOptions.filter( n => !n.active)}
-                    currentNetwork={supportedNetworks[pageProps.network]}
+                    currentNetwork={supportedNetworks[pageProps.network] || {}}
                     currentDestNetwork={supportedNetworks[pageProps.destNetwork] || networkOptions[0]}
                     onNetworkChanged={(e:NetworkDropdown)=>dispatch(Actions.destNetworkChanged({value: e.key}))}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
@@ -449,8 +447,8 @@ export const ConnectBridge = () => {
                     icons={supportedIcons}
                     addonStyle={styles.addon}
                     groupAddonStyle={styles.groupAddon}
-                    balance={pageProps.addresses[0].balance}
-                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0].balance,fee: 0}))}
+                    balance={pageProps.addresses[0]?.balance}
+                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0]?.balance,fee: 0}))}
                     onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
                 />
                 <div style={styles.inputContainer} >
@@ -516,7 +514,7 @@ export const ConnectBridge = () => {
                         <Button
                             onClick={
                                 ()=>onSwap(
-                                    dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
+                                    dispatch,'0.5',pageProps.addresses[0]?.balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
                                     onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                                     (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
                                 )

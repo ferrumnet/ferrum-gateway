@@ -10,7 +10,6 @@ export const NetworkSelector = ({
   availableNetworks = [],
   suspendedNetworks = [],
 }) => {
-	console.log('CURRENT NETI ISO ', currentNetwork)
   return (
     <Card className="card-network card-sec">
       <div className="icon-network icon-lg mb-3">

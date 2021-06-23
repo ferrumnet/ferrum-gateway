@@ -279,15 +279,6 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
     }
 }
 
-export const resetNetworks = (activeNetworks:string[],network:string) =>{
-   const index = activeNetworks.findIndex((e,index)=> (e === network));
-   if(index===(activeNetworks.length - 1)){
-       return activeNetworks[index-1] 
-   }else{
-       return activeNetworks[index+1] 
-   }
-}
-
 export const onDestinationNetworkChanged = (
     dispatch: Dispatch<AnyAction>,v:string) => {
     dispatch(Actions.onDestinationNetworkChanged({value:v}))

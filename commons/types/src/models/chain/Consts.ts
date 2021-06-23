@@ -4,7 +4,7 @@ export const FRM: {[k: string]: [string, string]} = {
     'RINKEBY': ['RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM'],
     'POLYGON': ['POLYGON:0xd99bafe5031cc8b345cb2e8c80135991f12d7130', 'FRM'],
     'BSC_TESTNET': ['BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM'],
-    'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0x81895ae339C46d5e0CD5BD4B810cBA32F85f0108', 'FRM'],
+    'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM'],
 };
 
 export interface NetworkDropdown {
@@ -20,7 +20,7 @@ const _supportedNetworks: any = {
     'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
     'BSC': ['active', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polugon (Matic)', 'mainnet'],
-    'MUMBAI_TESTNET': ['inactive', 'Matic testnet', 'testnet'],
+    'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
     'SOLANA': ['inactive', 'Solana', 'mainnet']
 };
 
