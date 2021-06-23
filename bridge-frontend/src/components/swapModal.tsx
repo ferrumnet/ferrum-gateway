@@ -13,7 +13,7 @@ import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/
 import 'antd/dist/antd.css';
 import { Utils,ChainEventBase, ChainEventStatus } from 'types';
 import { AnyAction, Dispatch } from "redux";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
 import { BridgeClient } from "./../clients/BridgeClient";
 import { inject} from 'types';
@@ -22,6 +22,9 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { UnifyreExtensionWeb3Client,CurrencyList } from 'unifyre-extension-web3-retrofit';
 import {connectSlice} from "common-containers";
 import { CommonActions,addAction } from './../common/Actions';
+import { BridgeAppState } from './../common/BridgeAppState';
+import { SidePanelProps } from './../components/SidePanel';
+import { MainPageSlice } from './../pages/Main/Main';
 
 const { Step } = Steps;
 
@@ -48,7 +51,7 @@ async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyActi
     const res = await sc.checkTxStatus(dispatch,item.id,item.network,Date.now());
     if(res) {
       if(res && res === 'successful') {
-		dispatch(SidePanelSlice.actions.moveToNext({step: 2}));
+		    dispatch(SidePanelSlice.actions.moveToNext({step: 2}));
         await updateData(dispatch)
         return { ...item, status: 'completed' };
       }
@@ -70,13 +73,14 @@ async function updateWithdrawStatus(id: string, dispatch: Dispatch<AnyAction>): 
     const sc = inject<BridgeClient>(BridgeClient);
     const connect = inject<Connect>(Connect);
     const network = connect.network() as any;
+    await updateData(dispatch)
     const items = await sc.getUserWithdrawItems(dispatch, network);
     if(items && items.withdrawableBalanceItems.length > 0){
         dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-        const findMatch = items.withdrawableBalanceItems.find((e:any)=>e.receiveTransactionId === 
-			id.replace('_STEP2', '')); // TODO: Hack! find a better way
+        const findMatch = items.withdrawableBalanceItems.find((e:any)=>e.receiveTransactionId === id.replace('_STEP2', '')); // TODO: Hack! find a better way
         if(!!findMatch){
-		  dispatch(SidePanelSlice.actions.moveToNext({step: 3}));
+		      dispatch(SidePanelSlice.actions.moveToNext({step: 3}));
+          dispatch(MainPageSlice.actions.setProgressStatus({status:3}));
           return 'completed';
         }
     }
@@ -88,8 +92,11 @@ async function updateWithdrawStatus(id: string, dispatch: Dispatch<AnyAction>): 
 }
 
 async function updateSecondStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
-	const newStatus = await updateWithdrawStatus(item.id, dispatch);
-	return { ...item, status: 'completed' };
+  const newStatus = await updateWithdrawStatus(item.id, dispatch);
+  if(newStatus === 'completed'){
+	  return { ...item, status: 'completed' };
+  }
+  return { ...item, status: 'pending' };
 }
 
 
@@ -99,6 +106,7 @@ export function SwapModal (props: {
   txId: string,
   sendNetwork: string,
   timestamp: number,
+  swapping: boolean,
 //   callback:(dispatch:Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number)=>Promise<string|undefined>
 //   itemCallback:(dispatch:Dispatch<AnyAction>,itemId:string)=>Promise<string|undefined>,
   itemId: string
@@ -108,7 +116,7 @@ export function SwapModal (props: {
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
   const dispatch = useDispatch()
-    
+  const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
 //   const handleCheckItem = async () => {
 //     setRefreshing(true)
 //     const status = await props.itemCallback(dispatch,props.itemId)
@@ -128,62 +136,57 @@ export function SwapModal (props: {
 
               <Step 
                 className={styles.textStyles}
-                status={props.status > 1 ? "finish" : "wait"} 
-                title={props.status === 1 ? 'Swapping token' : 'Swap Success'}
+                status={pageProps.step > 1 ? "finish" : "wait"} 
+                title={pageProps.step === 1 ? 'Swapping token' : 'Swap Success'}
                 description={
                   <ChainEventItem
                       id={props.txId}
                       network={props.sendNetwork as any}
-                      initialStatus={props.status === 1 ? 'pending' : 'completed'}
+                      initialStatus={props.swapping && pageProps.step === 1 ? 'pending' : 'completed'}
                       eventType={'SWAP_STAGE_1'}
                       updater={updateFirstStage}
                   >
                   <div className={styles.textStyles}>
-                    {props.status > 1 ? `Your Swap transaction was successfully processed` :
-                      props.status < 0 ? 'Swap transaction failed' 
+                    {pageProps.step > 1 ? `Your Swap transaction was successfully processed` :
+                      pageProps.step < 0 ? 'Swap transaction failed' 
                     : `Your Swap is processing in ${props.sendNetwork}`}  <span><a onClick={() => window.open(Utils.linkForTransaction(props.sendNetwork,props.txId), '_blank')}>{props.txId}</a></span>
                   </div>
                   </ChainEventItem>
                 }
                 style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
                 icon={
-                  props.status === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
-                  props.status === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
+                  pageProps.step === 1 ? <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> : 
+                  pageProps.step === -1  ? <CloseCircleOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/> 
                   : undefined
                 }  
               />
               <Step 
-                status={props.status > 2 ? "finish" : props.status > 1 ? "wait" : "process"} 
-                title= {props.status === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
+                status={pageProps.step> 2 ? "finish" : pageProps.step > 1 ? "wait" : "process"} 
+                title= {pageProps.step === 2 ? <div style={{"fontSize": "11.5px"}}>Withdrawal Processing</div> : 'Process Claim'}
                 description={
                   <ChainEventItem
                       id={props.itemId + '_STEP2'}
                       network={props.sendNetwork as any}
-                      initialStatus={props.status <= 2 ? 'pending' : 'completed'}
+                      initialStatus={pageProps.step === 2 ? 'pending' : 'completed'}
                       eventType={'SWAP_STAGE_2'}
                       updater={updateSecondStage}
                   >
                     <div className={styles.textStyles}>
-                      {props.status === 2 ? 'Your Claim item is being processed' : props.status > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
-                      {props.status === 2 && <p onClick={()=>
-						updateWithdrawStatus(props.itemId + '_STEP2', dispatch)}
-						className={styles.cursorStyles}
-					> Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
+                      {pageProps.step === 2 ? 'Your Claim item is being processed' : pageProps.step > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
+                      {pageProps.step === 2 && <p onClick={()=>
+                        updateWithdrawStatus(props.itemId + '_STEP2', dispatch)}
+                        className={styles.cursorStyles}
+                      > Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
                     </div>
                   </ChainEventItem>
                 }
                 style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
-                icon={props.status === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
+                icon={pageProps.step === 2 && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
               />
             <Step 
-              status={props.status > 2 ? "finish" : "wait"} 
+              status={pageProps.step > 2 ? "finish" : "wait"} 
               title="Claim Withdrawal" 
-              description={
-                <div className={styles.center}>
-                  {props.status === 3 &&
-				  <a style={{color: `${theme.get(Theme.Colors.textColor)}`,marginTop: '0.2rem'}} onClick={()=>{props.claim(dispatch) }}>Claim</a> }
-                </div>
-              }
+              description={<></>}
               style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
             />
           </Steps>

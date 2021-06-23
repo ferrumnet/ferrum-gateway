@@ -5,7 +5,7 @@ import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector, NetworkSwitch,Amo
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
-import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown } from 'types';
+import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown,FRM, getEnv } from 'types';
 import { AppAccountState } from 'common-containers';
 import {IConnectViewProps,addressesForUser, AppState } from 'common-containers';
 import { Steps } from 'antd';
@@ -14,8 +14,8 @@ import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
-    reconnect,fetchSourceCurrencies,connect,
-    onSwap, executeWithdraw,changeNetwork,updateData,addToken
+    reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
+    onSwap, executeWithdraw,changeNetwork,updateData,resetNetworks,addToken,onDestinationNetworkChanged
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
@@ -28,6 +28,8 @@ import {SidePanelProps} from './../../components/SidePanel';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import { PlusOutlined } from '@ant-design/icons';
+
+const IS_TEST = true;
 
 const { Step } = Steps;
 
@@ -45,6 +47,7 @@ export interface MainPageProps {
     symbol?: string,
     currency?: string,
     network: string,
+    destCurrency: string,
     currentNetwork?: string,
     baseNetwork?: string,
     isPaired: boolean,
@@ -83,6 +86,7 @@ export const MainPageSlice = createSlice({
         baseAddress: '',
         destAddress: '',
         destSignature: '',
+        destCurrency: '',
         baseSignature: '',
         destNetwork: '',
         network: 'ETHEREUM',
@@ -123,7 +127,8 @@ export const MainPageSlice = createSlice({
             }
         },
         onDestinationNetworkChanged:(state,action) => {
-            state.destNetwork = action.payload.value
+            state.destNetwork = action.payload.value;
+            state.destCurrency = action.payload.currency
         },
         onAddressChanged: (state,action) => {
             state.destAddress = action.payload.value
@@ -177,7 +182,8 @@ export const MainPageSlice = createSlice({
             state.destNetwork = state.currenciesDetails.targetNetwork
         },
         destNetworkChanged: (state,action) => {
-            state.destNetwork = action.payload.value
+            state.destNetwork = action.payload.value;
+            state.destCurrency = action.payload.currency
         },
         tokenSelected: (state,action) => {            
             state.selectedToken= action.payload.value != '' ? action.payload.value : state.addresses[0].symbol;
@@ -307,7 +313,7 @@ export const ConnectBridge = () => {
     useEffect(()=>{
         if(reconnecting){
             dispatch(Actions.resetDestNetwork({value:networkOptions
-				.filter(n => n.active && n.key !== pageProps.network)}));
+				.filter(n => n.active && n.key !== pageProps.network)[0].key}));
             reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
         }
     },[reconnecting]);
@@ -322,6 +328,7 @@ export const ConnectBridge = () => {
         if(!dataLoaded){
             fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency)
             dispatch(Actions.dataLoaded({}))
+            onDestinationNetworkChanged(dispatch,networkOptions[0])
             // if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
             //     dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
             // }
@@ -399,7 +406,7 @@ export const ConnectBridge = () => {
             total={`${Number(pageProps.amount) - 0}`}
             setIsModalClose={()=>hideConfirmModal()}
             processSwap={()=>onSwap(
-                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
+                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
                 onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                 (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
             )}
@@ -424,7 +431,7 @@ export const ConnectBridge = () => {
                     suspendedNetworks={networkOptions.filter( n => !n.active)}
                     currentNetwork={supportedNetworks[pageProps.network] || {}}
                     currentDestNetwork={supportedNetworks[pageProps.destNetwork] || networkOptions[0]}
-                    onNetworkChanged={(e:NetworkDropdown)=>dispatch(Actions.destNetworkChanged({value: e.key}))}
+                    onNetworkChanged={(e:NetworkDropdown)=>onDestinationNetworkChanged(dispatch,e)}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
                     IsNetworkReverse={pageProps.isNetworkReverse}
                 />
@@ -461,9 +468,9 @@ export const ConnectBridge = () => {
                     <div className="amount-rec-text">
                         <small className="text-pri d-flex align-items-center">
                             Available Liquidity On {pageProps.destNetwork} ≈ {pageProps.availableLiquidity}
-                                <span className="icon-network icon-sm mx-2">
+                            <span className="icon-network icon-sm mx-2">
                                 <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
-                                </span>
+                            </span>
                         </small>
                     </div>
                 </div>
@@ -514,7 +521,7 @@ export const ConnectBridge = () => {
                         <Button
                             onClick={
                                 ()=>onSwap(
-                                    dispatch,'0.5',pageProps.addresses[0]?.balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.currenciesDetails?.targetCurrency,
+                                    dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
                                     onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                                     (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
                                 )
@@ -582,6 +589,7 @@ export const SideBarContainer = () => {
                                 description={swapping && (
                                     <div>
                                         <SwapModal
+                                            swapping={swapping}
                                             status={pageProps.progressStatus}
                                             txId={pageProps.swapId}
                                             sendNetwork={pageProps.network}

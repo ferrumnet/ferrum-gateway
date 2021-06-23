@@ -186,7 +186,7 @@ export function ConnectButtonWapper(props: IConnectOwnProps) {
                 error={error}
                 onClick={() => {
                     if (connected) {
-                        dispatch(onDisconnect);
+                        dispatch(onDisconnect({isAutoConnect: false}));
                     } else {
                         dispatch(onConnect({isAutoConnect: false}));
                     }
