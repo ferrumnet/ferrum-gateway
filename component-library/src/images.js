@@ -1,15 +1,20 @@
 import IconCryptoTrx from "cryptocurrency-icons/svg/color/trx.svg";
 import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
+import IconCryptoPLY from "cryptocurrency-icons/svg/color/matic.svg";
+import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 
 export const networkImages = {
-  "ETHEREUM": IconCryptoEth,
-  "RINKEBY": IconCryptoEth,
-  "BSC": IconCryptoBNB,
-  "BSC_TESTNET": IconCryptoBNB,
+  "BSC":IconCryptoBNB,
+  "BSC_TESTNET":IconCryptoBNB,
+  "ETHEREUM":IconCryptoEth,
+  "RINKEBY":IconCryptoEth,
+  "POLYGON":IconCryptoPLY,
+  "MUMBAI_TESTNET":IconCryptoPLY,
+  "SOLANA":IconCryptoSOL
 }
 
 export const supportedIcons = {
-    'FRM':'https://res.cloudinary.com/ah-krypton/image/upload/v1565968829/fil.png',
+    'FRM':'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
     'ETH': IconCryptoEth
 }

@@ -60,7 +60,9 @@ export const AssetsSelector = ({
     <Dropdown className="assets-dropdown">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
         <span>
-          <img src={icons[selectedToken]} alt="loading"></img> {selectedToken}
+          <img 
+            style={{"width": "35px"}}
+            src={icons[selectedToken]} alt="loading"></img> {selectedToken}
         </span>
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>

@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from "redux";
-import { PairedAddress,SignedPairAddress,inject,chainData, inject2,tokenData} from 'types';
+import { PairedAddress,SignedPairAddress,inject,chainData, inject2,tokenData,FRM, NetworkDropdown} from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { PairAddressService } from './../../pairUtils/PairAddressService';
@@ -279,9 +279,29 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
     }
 }
 
-export const onDestinationNetworkChanged = (
-    dispatch: Dispatch<AnyAction>,v:string) => {
-    dispatch(Actions.onDestinationNetworkChanged({value:v}))
+
+export const resetNetworks = (activeNetworks:string[],network:string) =>{
+   const index = activeNetworks.findIndex((e,index)=> (e === network));
+   if(index===(activeNetworks.length - 1)){
+       return activeNetworks[index-1] 
+   }else{
+       return activeNetworks[index+1] 
+   }
+}
+
+export const onDestinationNetworkChanged = async (
+    dispatch: Dispatch<AnyAction>,v:NetworkDropdown) => {
+    //to do: better fix for other tokens implementation
+    try {
+        const vrf = inject<BridgeClient>(BridgeClient);
+        dispatch(Actions.destNetworkChanged({value: v.key,currency: FRM[v.key][0]}));
+        await vrf.getAvailableLiquidity(dispatch,v.key,FRM[v.key][0])
+    } catch (e) {
+        if(!!e.message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
+        }
+    }
+   
 }
 
 export const pairAddresses = (dispatch: Dispatch<AnyAction>,

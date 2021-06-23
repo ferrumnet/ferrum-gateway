@@ -15,12 +15,16 @@ import {RegularBtn} from 'component-library';
 import { Alert,Divider } from 'antd';
 import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
+import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
+import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 
 const images = {
   "BSC":IconCryptoBNB,
   "ETHEREUM":IconCryptoEth,
   "RINKEBY":IconCryptoEth,
-  "BSC_TESTNET":IconCryptoBNB
+  "POLYGON":IconCryptoMAT,
+  "MUMBAI_TESTNET":IconCryptoMAT,
+  "SOLANA":IconCryptoSOL
 }
 
 const { Step } = Steps;

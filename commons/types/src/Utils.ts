@@ -70,6 +70,8 @@ export class Utils {
                 return `https://bscscan.com/tx/${tid}`;
             case 'bsc_testnet':
                 return `https://testnet.bscscan.com/tx/${tid}`;
+            case 'mumbai_testnet':
+                return `https://explorer-mumbai.maticvigil.com/tx/${tid}`;
         }
         return '';
     }
