@@ -141,6 +141,9 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const pendingTxs = (item.useTransactions || []).filter(t => t.status === 'pending');
         console.log('PENDING TXS', pendingTxs);
+		if (!pendingTxs.length && item.used === 'pending') {
+			item.used = 'failed';
+		}
         for (const tx of pendingTxs) {
             const txStatus = await this.helper.getTransactionStatus(item.sendNetwork, tx.id, tx.timestamp);
             tx.status = txStatus;

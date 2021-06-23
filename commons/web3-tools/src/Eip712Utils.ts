@@ -51,7 +51,7 @@ export function produceSignature(
     //     Web3.utils.utf8ToHex('WithdrawSigned(address token, address payee,uint256 amount,bytes32 salt)'));
 
     // ['bytes32', 'address', 'address', 'uint256', 'bytes32'];
-    const params = eipParams.args.map(p => p.type);
+    const params = ['bytes32'].concat(eipParams.args.map(p => p.type));
     const structure = eth.abi.encodeParameters(params, [methodHash, ...eipParams.args.map(p => p.value)]);
     const structureHash = Web3.utils.keccak256(structure);
     const ds = domainSeparator(eth, eipParams.contractName, eipParams.contractVersion, netId, contractAddress);

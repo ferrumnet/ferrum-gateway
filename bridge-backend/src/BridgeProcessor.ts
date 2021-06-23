@@ -14,6 +14,7 @@ import { SignedPairAddress } from "types";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from 'web3-tools';
+import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;
@@ -110,7 +111,7 @@ export class BridgeProcessor implements Injectable {
             // const targetAddress = pair.pair.network1 === tx.network ? pair.pair.address2 :
             //     pair.pair.address1;
             const sourceAddress = event.from;
-            const targetAddress = event.targetAddrdess || event.from;
+            const targetAddress = event.targetAddress || event.from;
             const targetNetwork = event.targetNetwork;
             //ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
             const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork);
@@ -170,7 +171,7 @@ export class BridgeProcessor implements Injectable {
         const amountStr = await this.helper.amountToMachine(currency, amount);
         const [_, token] = EthereumSmartContractHelper.parseCurrency(currency);
         const salt = randomSalt();
-        const chainId = CHAIN_ID_FOR_NETWORK[network];
+        const chainId = Networks.for(network).chainId;
         const payBySig = produceSignatureWithdrawHash(
             this.helper.web3(network),
             chainId,

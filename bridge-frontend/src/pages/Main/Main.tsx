@@ -14,8 +14,8 @@ import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
 import {
-    reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    onSwap, executeWithdraw,changeNetwork,updateData,resetNetworks,addToken
+    reconnect,fetchSourceCurrencies,connect,
+    onSwap, executeWithdraw,changeNetwork,updateData,addToken
 } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';

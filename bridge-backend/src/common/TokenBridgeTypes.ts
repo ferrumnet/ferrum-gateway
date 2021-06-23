@@ -17,7 +17,6 @@ export interface BridgeSwapEvent {
 	token: string;
 	targetNetwork: string;
 	targetToken: string;
-	targetAddrdess: string;
+	targetAddress: string;
 	amount: string;
 }
-

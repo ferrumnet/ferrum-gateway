@@ -322,7 +322,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <ChainEventItem
                             id={e.receiveTransactionId}
                             network={e.receiveNetwork as Network}
-                            initialStatus={'pending' /*e.used*/}
+                            initialStatus={e.used}
                             eventType={'WITHDRAW_ITEM'}
                             updater={updateWithdrawItem}
                         >
