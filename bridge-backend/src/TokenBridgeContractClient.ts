@@ -48,7 +48,7 @@ export class TokenBridgeContractClinet implements Injectable {
 		const web3 = await this.helper.web3(network);
 		const block = await web3.getBlockNumber();
 		const events = await this.bridgePool(network, address)
-			.getPastEvents('BridgeSwap', {fromBlock: block - 5000});
+			.getPastEvents('BridgeSwap', {fromBlock: block - 990});
 		const logs: BridgeSwapEvent[] = [];
 		for (const e of events) {
 			try {

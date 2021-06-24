@@ -7713,7 +7713,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#e3cf643457c7b298764972f2fadba62738c7622a"
+  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#83f18e332f756dfa118543a5d297fc0bf553f914"
   dependencies:
     cross-fetch "^3.0.4"
 
@@ -16332,7 +16332,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-web3-retrofit@git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git#2f3f65120479701387f1a9b92cd86e204f3905bb"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git#3ec3b33bb74d90c16811879364067ac5110be1da"
   dependencies:
     "@walletconnect/client" "^1.3.1"
     "@walletconnect/qrcode-modal" "^1.3.1"

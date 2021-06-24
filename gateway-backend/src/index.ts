@@ -45,14 +45,6 @@ export class GatewayModule implements Module {
                 region,
                 cmkKeyArn: getEnv('CMK_KEY_ARN'),
                 adminSecret: getEnv('ADMIN_SECRET'),
-                bridgeConfig: {
-                    contractClient: {
-                        'ETHEREUM': getEnv('TOKEN_BRDIGE_CONTRACT_ETHEREUM'),
-                        'RINKEBY': getEnv('TOKEN_BRDIGE_CONTRACT_RINKEBY'),
-                        'BSC': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET'),
-                        'BSC_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET'),
-                    }
-                }
             } as any;
         }
         
@@ -73,6 +65,8 @@ export class GatewayModule implements Module {
 			'RINKEBY': stakingAppConfig.web3ProviderRinkeby,
 			'BSC': stakingAppConfig.web3ProviderBsc,
 			'BSC_TESTNET': stakingAppConfig.web3ProviderBscTestnet,
+			'POLYGON': stakingAppConfig.web3ProviderPolygon,
+			'MUMBAI_TESTNET': stakingAppConfig.web3ProviderMumbaiTestnet,
 			} as Web3ProviderConfig;
         await container.registerModule(
             new UnifyreBackendProxyModule('DUMMY', 'asd', // stakingAppConfig.authRandomKey,

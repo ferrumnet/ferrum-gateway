@@ -24,6 +24,10 @@ export interface BridgeProcessorConfig {
     bridgeConfig: TokenBridgeConfig;
 }
 
+export function env(env: string) {
+    return process.env[env];
+}
+
 export function getEnv(env: string) {
     const res = process.env[env];
     ValidationUtils.isTrue(!!res, `Make sure to set environment variable '${env}'`);

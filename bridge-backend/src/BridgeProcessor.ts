@@ -166,9 +166,8 @@ export class BridgeProcessor implements Injectable {
         }
     }
 
-    async createSignedPayment(network: string, address: string, currency: string, amount: string)
+    async createSignedPayment(network: string, address: string, currency: string, amountStr: string)
         : Promise<PayBySignatureData> {
-        const amountStr = await this.helper.amountToMachine(currency, amount);
         const [_, token] = EthereumSmartContractHelper.parseCurrency(currency);
         const salt = randomSalt();
         const chainId = Networks.for(network).chainId;
@@ -211,7 +210,7 @@ export class BridgeProcessor implements Injectable {
 
         payBySig.signature = rpcSig;
         ValidationUtils.isTrue(!!payBySig.signature, `Error generating signature for ${(
-            { network, address, currency, amount })}`);
+            { network, address, currency, amountStr })}`);
         return payBySig;
     }
 }

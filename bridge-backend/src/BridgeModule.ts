@@ -6,13 +6,10 @@ import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerif
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { BridgeProcessor } from "./BridgeProcessor";
-import { BridgeProcessorConfig,getEnv } from "./BridgeProcessorTypes";
+import { BridgeProcessorConfig,env,getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from './TokenBridgeContractClient';
 
-import {
-    LambdaGlobalContext
-} from 'aws-lambda-helper';
 import { KMS } from 'aws-sdk';
 require('dotenv').config();
 const global = { init: false };
@@ -34,12 +31,12 @@ export class BridgeModule implements Module {
                 addressManagerSecret: getEnv('ADDRESS_MANAGER_SECRET'),
                 bridgeConfig: {
                     contractClient: {
-                        'ETHEREUM': getEnv('TOKEN_BRDIGE_CONTRACT_ETHEREUM') || GLOBAL_BRIDGE_CONTRACT,
-                        'RINKEBY': getEnv('TOKEN_BRDIGE_CONTRACT_RINKEBY') || GLOBAL_BRIDGE_CONTRACT,
-                        'BSC': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
-                        'BSC_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
-                        'POLYGON': getEnv('TOKEN_BRDIGE_CONTRACT_POLYGON') || GLOBAL_BRIDGE_CONTRACT,
-                        'MUMBAI_TESTNET': getEnv('TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
+                        'ETHEREUM': env('TOKEN_BRDIGE_CONTRACT_ETHEREUM') || GLOBAL_BRIDGE_CONTRACT,
+                        'RINKEBY': env('TOKEN_BRDIGE_CONTRACT_RINKEBY') || GLOBAL_BRIDGE_CONTRACT,
+                        'BSC': env('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
+                        'BSC_TESTNET': env('TOKEN_BRDIGE_CONTRACT_BSC_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
+                        'POLYGON': env('TOKEN_BRDIGE_CONTRACT_POLYGON') || GLOBAL_BRIDGE_CONTRACT,
+                        'MUMBAI_TESTNET': env('TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET') || GLOBAL_BRIDGE_CONTRACT,
                     }
                 }
             } as BridgeProcessorConfig;

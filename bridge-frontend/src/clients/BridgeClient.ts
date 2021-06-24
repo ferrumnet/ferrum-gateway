@@ -2,7 +2,7 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plu
 import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
-import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress, inject } from "types";
+import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress, inject, Utils } from "types";
 import { Actions as PairPageActions} from './../pages/Main/Main';
 import { CommonActions,addAction } from './../common/Actions';
 
@@ -350,6 +350,9 @@ export class BridgeClient implements Injectable {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
             console.log(targetCurrency,'targetCurrency',currency);    
+			const sourceNetwork = Utils.parseCurrency(currency);
+			const targetNetwork = Utils.parseCurrency(targetCurrency);
+			ValidationUtils.isTrue(sourceNetwork !== targetNetwork, 'Source and target networks cannot be the same');
             const res = await this.api.api({
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency,fee}, params: [] } as JsonRpcRequest);

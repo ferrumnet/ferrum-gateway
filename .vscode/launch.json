@@ -12,7 +12,7 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/Cli.ts",
-            // "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+            "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],

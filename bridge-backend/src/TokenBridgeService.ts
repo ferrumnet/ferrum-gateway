@@ -10,6 +10,8 @@ import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel,
 } from "types";
 import { Big } from 'big.js';
 
+const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
+
 export class TokenBridgeService extends MongooseConnection implements Injectable {
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
     private groupInfoModel: Model<GroupInfo & Document, {}> | undefined;
@@ -57,7 +59,8 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         return await this.contract.removeLiquidityIfPossible(userAddress, currency, amount);
     }
 
-    async swapGetTransaction(userAddress: string, currency: string, amount: string, targetCurrency: string) {
+    async swapGetTransaction(userAddress: string, currency: string,
+			amount: string, targetCurrency: string) {
         const requests = await this.contract.approveIfRequired(userAddress, currency, amount);
         if (requests.length) {
             return {isApprove: true, requests};
@@ -153,7 +156,11 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
             }else if(txStatus === 'successful'){
                 item.used = 'completed'
             }else{
-                item.used = 'pending'
+				if (tx.timestamp < Date.now() - QUICK_TIMEOUT_MILLIS) {
+					item.used = 'failed';
+				} else {
+                	item.used = 'pending'
+				}
             }
         }
         return await this.updateWithdrawItem(item);
