@@ -241,7 +241,7 @@ export const updateData= async (dispatch:Dispatch<AnyAction>) => {
     }
 }
 
-export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],waiting:boolean=true,defaultCurrency?:string) => {
+export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],waiting:boolean=true,defaultCurrency?:string,destCurrency?:string) => {
     try {
         if(waiting){
             dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
@@ -251,19 +251,19 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
         const currencyList = inject<CurrencyList>(CurrencyList);
         currencyList.set([...currencyList.get(),(defaultCurrency||'')]);
         const network = connect.network() as any;
-        const res = await vrf.getSourceCurrencies(dispatch,network);
+        const res = await vrf.getTokenConfig(dispatch,network,destCurrency||'');
         let details = addr?.find(e=>e.symbol === v);
         dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
-        if(!!res && res.length) {
+        if(!!res && res.sourceNetwork) {
             dispatch(Actions.fetchedSourceCurrencies({currencies:res}))
             dispatch(Actions.validateToken({value: true}))
             if(details){
-                const allowance = await vrf.checkAllowance(dispatch,details.currency,'5', res[0].targetCurrency);
+                const allowance = await vrf.checkAllowance(dispatch,details.currency,'5', res.targetCurrency);
                 dispatch(Actions.checkAllowance({value: allowance}))
-                dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
-                let TokenAllowed = res?.find((e:any)=> (e.sourceCurrency === details?.currency||e.targetCurrency === details?.currency));
+                dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res}));
+                let TokenAllowed = res?.sourceCurrency === details?.currency || res.targetCurrency === details?.currency;
                 if(TokenAllowed){
-                    await vrf.getAvailableLiquidity(dispatch,details?.address, res[0].targetCurrency) 
+                    await vrf.getAvailableLiquidity(dispatch,details?.address,res.targetCurrency) 
                     return;
                 }
                 dispatch(Actions.validateToken({value: false}))
@@ -295,6 +295,10 @@ export const onDestinationNetworkChanged = async (
     try {
         const vrf = inject<BridgeClient>(BridgeClient);
         dispatch(Actions.destNetworkChanged({value: v.key,currency: FRM[v.key][0]}));
+        const connect = inject<Connect>(Connect);
+        const network = connect.network() as any;
+        const res = await vrf.getTokenConfig(dispatch,network,v.key||'');
+        dispatch(Actions.fetchedSourceCurrencies({currencies:res}))
         await vrf.getAvailableLiquidity(dispatch,v.key,FRM[v.key][0])
     } catch (e) {
         if(!!e.message){
@@ -354,13 +358,13 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
 }
 
 export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
-    showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string)  => {
+    showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string,destNetwork?:string)  => {
     try {
         dispatch(Actions.reconnected({}))
         const client = inject<BridgeClient>(BridgeClient);
         //@ts-ignore
         await client.signInToServer(dispatch);
-        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency);
+        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency,destNetwork);
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
         if(showNotiModal && (unused! > 0)){
             showNotiModal(true)!

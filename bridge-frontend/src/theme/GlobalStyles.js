@@ -7,6 +7,11 @@ export const GlobalStyles = createGlobalStyle`
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
+    font-size: 13px
+
+  }
+  .head{
+    font-size: 13px
   }
   h2,h3,h4,h5 {
     color: ${({ theme }) => theme.colors.text};
@@ -91,7 +96,7 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .text-vary-color: {
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme }) => theme.colors.inverse};
   }
   .text-pri {
     color: ${({ theme }) => theme.colors.textPri};
@@ -122,6 +127,53 @@ export const GlobalStyles = createGlobalStyle`
         background: rgba(${({ theme }) => theme.colors.textPri}, .25);
       }
     }
+  }
+  .ant-steps-item-title{
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .ant-steps-icon{
+    color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    span{
+      color: ${({ theme }) => theme.colors.textPri} !important;
+    }
+  }
+  .anticon{
+    .ant-steps-finish-icon{
+      color: ${({ theme }) => theme.colors.card.cardPri} !important;
+      span{
+        color: ${({ theme }) => theme.colors.card.cardPri} !important;
+      }
+    }
+  }
+  .ant-steps-item-description{
+    color: ${({ theme }) => theme.colors.inverse} !important;
+    >*{
+      color: ${({ theme }) => theme.colors.textSec} !important;
+
+      span{
+        color: ${({ theme }) => theme.colors.textSec} !important;
+      }
+    }
+  }
+  .ant-steps-item-finish {
+    .ant-steps-item-icon{
+      background-color: #168416;
+      border-color: #168416;
+    }
+  }
+  .ant-steps-item-finish > {
+    .ant-steps-item-icon{
+      background-color: #168416;
+      border-color: #168416;
+    }
+    .ant-steps-item-container > {
+      .ant-steps-item-tail::after {
+        background-color: #168416
+      }
+    } 
+  }
+  .text-vary-color{
+    color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .modal {
     .modal-content {

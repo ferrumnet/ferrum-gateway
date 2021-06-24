@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ChainEventStatus, ChainEventBase, inject, } from 'types';
 import { AppState } from '../store/AppState';
 
-const FETCH_TIMEOUT: number = 1000 * 11;
+const FETCH_TIMEOUT: number = 1000 * 25;
 
 export interface ChainEventItemProps {
     network: Network;

@@ -6,6 +6,7 @@ import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeSwapEvent } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
+import { ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
 
 const GLOB_CACHE = new LocalCache();
 const Helper = EthereumSmartContractHelper;
@@ -13,6 +14,10 @@ async function BridgeSwapEventAbi() {
 	return GLOB_CACHE.getAsync('fun.BridgeSwapEventAbi',
 		async () => bridgeAbi.find(i => i.type === 'event' && i.name === 'BridgeSwap').inputs);
 }
+
+const NetworkNameByChainId: {[k:number]: string} = {};
+Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK)
+	.forEach(k => NetworkNameByChainId[ETHEREUM_CHAIN_ID_FOR_NETWORK[k]] = k);
 
 export class TokenBridgeContractClinet implements Injectable {
     constructor(

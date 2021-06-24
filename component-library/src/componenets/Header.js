@@ -17,6 +17,7 @@ import "../../assets/scss/_header.scss";
       <Navbar expand="lg">
         <Navbar.Brand href="#home">
           <img 
+            style={{"maxWidth": '45px'}}
             alt={`${altText}`}
             src={`${logo}`}
           />

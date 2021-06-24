@@ -12,7 +12,8 @@ export const NetworkSwitch = (
     currentDestNetwork,
     onNetworkChanged,
     setIsNetworkReverse,
-    IsNetworkReverse
+    IsNetworkReverse,
+    swapping
   }
 ) => {
   return (
@@ -34,11 +35,12 @@ export const NetworkSwitch = (
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
+              disabled={swapping}
             />
           }
         </div>
         <div className="col-lg-2 col-md-2 text-center">
-          <Button className="btn-pri btn-icon btn-swap my-4" onClick={()=>setIsNetworkReverse()}>
+          <Button className="btn-pri btn-icon btn-swap my-4" disabled={swapping} onClick={()=>setIsNetworkReverse()}>
             <i className="mdi mdi-swap-horizontal"></i>
           </Button>
         </div>
@@ -52,6 +54,7 @@ export const NetworkSwitch = (
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
+              disabled={swapping}
             /> :
              <NetworkSelector
               currentNetwork={currentNetwork}
