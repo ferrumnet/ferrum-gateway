@@ -9,6 +9,7 @@ export const NetworkSelector = ({
   onNetworkChanged,
   availableNetworks = [],
   suspendedNetworks = [],
+  disabled=false
 }) => {
   return (
     <Card className="card-network card-sec">
@@ -19,9 +20,9 @@ export const NetworkSelector = ({
         <small>{currentNetwork.display}</small>
         {
           showDropdown &&
-            <Dropdown>
-              <Dropdown.Toggle variant="pri" id="dropdown-basic">
-                <i className="mdi mdi-chevron-down"></i>
+            <Dropdown disabled={disabled} >
+              <Dropdown.Toggle variant="pri" id="dropdown-basic" disabled={disabled}>
+                <i className="mdi mdi-chevron-down" disabled={disabled}></i>
               </Dropdown.Toggle>
               <Dropdown.Menu variant="dark">
                 {availableNetworks?.map((network, index) => (

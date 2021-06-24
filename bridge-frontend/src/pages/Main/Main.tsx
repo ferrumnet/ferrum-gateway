@@ -28,6 +28,8 @@ import {SidePanelProps} from './../../components/SidePanel';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import { PlusOutlined } from '@ant-design/icons';
+import {SidePanelSlice} from './../../components/SidePanel';
+import { Networks } from '../../common/Utils';
 
 const IS_TEST = true;
 
@@ -176,6 +178,7 @@ export const MainPageSlice = createSlice({
         },
         fetchedSourceCurrencies: (state,action) => {
             state.currencyList = action.payload.currencies;
+            state.currenciesDetails = action.payload.currencies;
         },
         dataLoaded: (state,action) => {
             state.dataLoaded = true;
@@ -197,6 +200,7 @@ export const MainPageSlice = createSlice({
         },
         resetDestNetwork: (state,action) => {
             state.destNetwork = action.payload.value;
+            state.destCurrency = FRM[action.payload.value][0]
         },
         changeIsNetworkReverse:(state,action) => {
             state.isNetworkReverse = !state.isNetworkReverse;
@@ -312,9 +316,8 @@ export const ConnectBridge = () => {
 
     useEffect(()=>{
         if(reconnecting){
-            dispatch(Actions.resetDestNetwork({value:networkOptions
-				.filter(n => n.active && n.key !== pageProps.network)[0].key}));
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency);
+            dispatch(Actions.resetDestNetwork({value: networkOptions.filter(n => n.active && n.key !== pageProps.network)[0].key}));
+            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency,networkOptions.filter(n => n.active && n.key !== pageProps.network)[0].key);
         }
     },[reconnecting]);
 
@@ -326,7 +329,7 @@ export const ConnectBridge = () => {
     
     useEffect(()=>{
         if(!dataLoaded){
-            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency)
+            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency,networkOptions[0].key)
             dispatch(Actions.dataLoaded({}))
             onDestinationNetworkChanged(dispatch,networkOptions[0])
             // if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
@@ -341,6 +344,11 @@ export const ConnectBridge = () => {
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
  
+    const inactive =   Object.keys(supportedNetworks)
+		.filter(k => !supportedNetworks[k].active);
+    const active =   Object.keys(supportedNetworks)
+		.filter(k => supportedNetworks[k].active);
+
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
@@ -362,6 +370,7 @@ export const ConnectBridge = () => {
                         message.destroy('withdr');
                         updateData(dispatch);
                         dispatch(Actions.resetSwap({}));
+                        dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
                         dispatch(Actions.setProgressStatus({status:1}))
                         dispatch(Actions.activeWithdrawSuccess({value: false}))
                     }}>Close</Button>
@@ -402,8 +411,8 @@ export const ConnectBridge = () => {
             destinationNatwork={pageProps.destNetwork}
             token={pageProps.selectedToken}
             destination={pageProps.addresses[0]?.address || ''}
-            fee={'0'}
-            total={`${Number(pageProps.amount) - 0}`}
+            fee={`${Number(pageProps.currenciesDetails?.fee)*100}` || '0'}
+            total={`${Number(pageProps.amount)}`}
             setIsModalClose={()=>hideConfirmModal()}
             processSwap={()=>onSwap(
                 dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
@@ -413,17 +422,17 @@ export const ConnectBridge = () => {
 
         />
         <Card className="text-center">
-            <small className="text-vary-color mb-5">
+            <small className="text-vary-color mb-5 head">
                     Swap Token Across chains
                     <hr className="mini-underline"></hr>
             </small>
             <div className="text-left">
              
-                <label className="text-vary-color">Assets</label>
+                <label className="text-sec">Assets</label>
                 <AssetsSelector 
                     assets={[pageProps.addresses.find(e=> e.currency === propsGroupInfo.defaultCurrency)]}
                     icons={supportedIcons}
-                    onChange={(v:any)=> fetchSourceCurrencies(dispatch,v,pageProps.addresses,propsGroupInfo.defaultCurrency)}
+                    onChange={(v:any)=> fetchSourceCurrencies(dispatch,v,pageProps.addresses,false,propsGroupInfo.defaultCurrency,pageProps.destCurrency)}
                     selectedToken={pageProps.selectedToken}
                 />
                 <NetworkSwitch 
@@ -434,6 +443,7 @@ export const ConnectBridge = () => {
                     onNetworkChanged={(e:NetworkDropdown)=>onDestinationNetworkChanged(dispatch,e)}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
                     IsNetworkReverse={pageProps.isNetworkReverse}
+                    swapping={swapping}
                 />
                 {
                     pageProps.isNetworkReverse &&  
@@ -551,16 +561,14 @@ export const SideBarContainer = () => {
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
     const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
- 
+    
     return (
-            <div style={styles.sideInfo}>
+            <div style={styles.sideInfo} className="card">
                 <>
-                    <>
+                    <small className="text-vary-color mb-3">
                         Progress Outline
-                        <Divider
-                            style={styles.dividerStyle}
-                        />
-                    </>
+                        <hr className="mini-underline"></hr>
+                    </small>
                     <div style={styles.stepsContainer}>
                         <Steps 
                             direction="vertical" 
@@ -568,22 +576,22 @@ export const SideBarContainer = () => {
                         >
                             <Step 
                                 status={connected ? "finish":"wait"} 
-                                title={<div style={styles.stepStyle}>
+                                title={<div style={{...styles.stepStyle}} className="text-vary-color">
                                     {connected ? 'Wallet Connected' : 'Connect Your Wallet'}
                                 </div>}
                             />
                             <Step 
                                 status={!pageProps.allowanceRequired ? "finish":"wait"} 
-                                title={<div style={styles.stepStyle}>{pageProps.allowanceRequired ? 'Approve Your Wallet to Swap Now':'Wallet Approved'}</div>}
+                                title={<div style={styles.stepStyle} className="text-vary-color">{pageProps.allowanceRequired ? 'Approve Your Wallet to Swap Now':'Wallet Approved'}</div>}
                             />
                             <Step status={((!pageProps.allowanceRequired) && validateStep3) ? 
                                 "finish":"wait"
                             } 
-                                title={<div style={styles.stepStyle}>{((!pageProps.allowanceRequired) && validateStep3) ? 'Amount Entered' : 'Enter Swap Amount'}</div>}
+                                title={<div style={styles.stepStyle} className="text-vary-color">{((!pageProps.allowanceRequired) && validateStep3) ? 'Amount Entered' : 'Enter Swap Amount'}</div>}
                             />
                             <Step 
                                 status={((pageProps.swapId!='') && (pageProps.progressStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? "process" : "wait"} 
-                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle}>{((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? 
+                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle} className="text-vary-color">{((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? 
                                 <div onClick={()=>showModal()}>Swap Processing</div> : 'Swap Token' }</div>}
                                 icon={((pageProps.swapId!='') && pageProps.progressStatus < 3) && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
                                 description={swapping && (
@@ -719,18 +727,14 @@ const themedStyles = (theme) => ({
         "paddingLeft": "0.2rem"
     },
     stepStyle: {
-        "color": "black",
         fontSize: '12px ',
         marginBottom: '30px',
         textAlign: 'center' as 'center'
-
     },
     stepStyle2: {
-        "color": "black",
         fontSize: '12px ',
         marginBottom: '10px',
         textAlign: 'center' as 'center'
-
     },
     arrow: {
         height: '100%',
@@ -776,10 +780,8 @@ const themedStyles = (theme) => ({
     sideInfo: {
         boxShadow: '-1px 4px 6px -6px black',
         borderRadius: '12px',
-        backgroundColor: 'white',
         padding: '3rem 1.5rem',
         margin: '0px 0px 0px auto',
-        left: '10%',
         textAlign: "center" as "center",
         height: "100%"
     },

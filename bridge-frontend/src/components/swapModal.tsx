@@ -99,7 +99,6 @@ async function updateSecondStage(item: ChainEventBase, dispatch: Dispatch<AnyAct
   return { ...item, status: 'pending' };
 }
 
-
 export function SwapModal (props: {
   status: number,
   setStatus: (v:number)=>void,
@@ -117,14 +116,11 @@ export function SwapModal (props: {
   const [refreshing,setRefreshing] = useState(false)
   const dispatch = useDispatch()
   const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-//   const handleCheckItem = async () => {
-//     setRefreshing(true)
-//     const status = await props.itemCallback(dispatch,props.itemId)
-//     if(status && status === 'created'){
-//       props.setStatus(3);
-//     }
-//     setRefreshing(false)
-//   }
+  const handleCheckItem = async () => {
+    setRefreshing(true)
+    await updateWithdrawStatus(props.itemId + '_STEP2', dispatch)    
+    setRefreshing(false)
+  }
 
   return (
     <div>    
@@ -173,8 +169,7 @@ export function SwapModal (props: {
                   >
                     <div className={styles.textStyles}>
                       {pageProps.step === 2 ? 'Your Claim item is being processed' : pageProps.step > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
-                      {pageProps.step === 2 && <p onClick={()=>
-                        updateWithdrawStatus(props.itemId + '_STEP2', dispatch)}
+                      {pageProps.step === 2 && <p onClick={()=>handleCheckItem()}
                         className={styles.cursorStyles}
                       > Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
                     </div>

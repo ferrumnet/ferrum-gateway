@@ -287,7 +287,8 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                         <div className="steps-wrapper">
                             <div className="row">
                                 <div className="col-lg-4 col-md-4 mb-3">
-                                    <SideBarContainer/>
+                                    <SideBarContainer
+                                    />
                                 </div>
                                 <div className="col-lg-8 col-md-8">
                                     <TokenBridge
@@ -295,6 +296,8 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                                         conBtn={ConBot}
                                         connect={onBridgeLoad}
                                         ConnectBridge={ConnectBridge}
+                                        newTheme={props.newTheme}
+                                        projectTitle={groupInfo.projectTitle}
                                     />
                                 </div>
                                 <SidePane

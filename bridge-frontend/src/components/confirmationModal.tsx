@@ -2,7 +2,7 @@ import {useContext, useEffect, useState} from 'react';
 import { useId } from '@fluentui/react-hooks';
 import {
   mergeStyleSets,
-  FontWeights,
+  ResponsiveMode,
   Modal,
   IIconProps,
 } from '@fluentui/react';
@@ -20,6 +20,7 @@ import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 
 const images = {
   "BSC":IconCryptoBNB,
+  "BSC_TESTNET":IconCryptoBNB,
   "ETHEREUM":IconCryptoEth,
   "RINKEBY":IconCryptoEth,
   "POLYGON":IconCryptoMAT,
@@ -77,6 +78,7 @@ export function ConfirmationModal (props: {
         isBlocking={false}
         containerClassName={styles.container}
         isClickableOutsideFocusTrap={false}
+        responsiveMode={ResponsiveMode.medium}
       >
         <div className={styles.header}>
             <h5 className="text-vary-color text-center">
@@ -92,7 +94,9 @@ export function ConfirmationModal (props: {
             <div className={styles.itemList}>
               <div className={styles.tabbedBtn}>
                 <div className={styles.centered}>
-                  <img src={
+                  <img 
+                    style={{"maxWidth":"32px"}}
+                    src={
                     //@ts-ignore
                     images[props.sourceNetwork]} alt="loading"></img>
                   <p>{props.sourceNetwork}</p>
@@ -101,7 +105,9 @@ export function ConfirmationModal (props: {
                   <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
                 </span>
                 <div className={styles.centered}>
-                  <img src={
+                  <img 
+                    style={{"maxWidth":"32px"}}
+                    src={
                     //@ts-ignore
                     images[props.destinationNatwork]} alt="loading"></img>
                   <p>{props.destinationNatwork}</p>
