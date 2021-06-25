@@ -1,11 +1,9 @@
 import { Container, Module } from 'ferrum-plumbing';
 import { ApiClient } from 'common-containers';
 import { BridgeClient } from '../clients/BridgeClient';
-import { Dispatch } from "redux";
-import { AnyAction } from '@reduxjs/toolkit';
 import { PairAddressService } from '../pairUtils/PairAddressService';
 import { PairAddressSignatureVerifyre } from '../pairUtils/PairAddressSignatureVerifyer';
-import { Connect, CurrencyList } from 'unifyre-extension-web3-retrofit';
+import { Connect } from 'unifyre-extension-web3-retrofit';
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class BridgeModule implements Module {

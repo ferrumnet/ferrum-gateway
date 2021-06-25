@@ -96,9 +96,9 @@ export class BridgeClient implements Injectable {
         }
     }
 
-    async getSourceCurrencies(dispatch: Dispatch<AnyAction>,network: string,destNetwork:string) {
+    async getSourceCurrencies(dispatch: Dispatch<AnyAction>,network: string) {
         const res = await this.api.api({
-            command: 'getSourceCurrencies', data: {network,destNetwork}, params: [] } as JsonRpcRequest);
+            command: 'getSourceCurrencies', data: {network}, params: [] } as JsonRpcRequest);
         return res;
     }
 
