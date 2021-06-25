@@ -1,7 +1,7 @@
-import { AwsEnvs, KmsCryptor, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
-import { EthereumSmartContractHelper, Web3ProviderConfig } from "aws-lambda-helper/dist/blockchain";
-import { ChainClientFactory, ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
-import { ConsoleLogger, Container, EncryptedData, LoggerFactory, Module, ValidationUtils } from "ferrum-plumbing";
+import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
+import { EthereumSmartContractHelper, } from "aws-lambda-helper/dist/blockchain";
+import { ChainClientFactory, EthereumAddress, } from "ferrum-chain-clients";
+import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
@@ -9,17 +9,16 @@ import { BridgeProcessor } from "./BridgeProcessor";
 import { BridgeProcessorConfig,env,getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from './TokenBridgeContractClient';
+import { CommonBackendModule, decryptKey } from 'common-backend';
 
-import { KMS } from 'aws-sdk';
-require('dotenv').config();
-const global = { init: false };
-const GLOBAL_BRIDGE_CONTRACT = '0x89262B7bd8244b01fbce9e1610bF1D9F5D97C877';
+const GLOBAL_BRIDGE_CONTRACT = '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877';
 
 export class BridgeModule implements Module {
     async configAsync(container: Container) {
-        const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
         const confArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + 'BRIDGE_PROCESSOR'];
         let conf: BridgeProcessorConfig = {} as any;
+		const region = CommonBackendModule.awsRegion();
+		
         if (confArn) {
             conf = await new SecretsProvider(region, confArn).get();
         } else {
@@ -42,47 +41,24 @@ export class BridgeModule implements Module {
             } as BridgeProcessorConfig;
         }
 
-        const chainConfArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + 'CHAIN_CONFIG'];
-        const chainConf: MultiChainConfig = !!chainConfArn ? await new SecretsProvider(region, chainConfArn).get() : 
-            ({
-                web3Provider: getEnv('WEB3_PROVIDER_ETHEREUM'),
-                web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
-                web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC'),
-                web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
-                web3ProviderPolygon: getEnv('WEB3_PROVIDER_POLYGON'),
-                web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
-            } as any as MultiChainConfig);
-        container.register('MultiChainConfig', () => chainConf);
-        container.registerModule(new ChainClientsModule());
-
-        const networkProviders = {
-                    'ETHEREUM': chainConf.web3Provider,
-                    'RINKEBY': chainConf.web3ProviderRinkeby,
-                    'BSC': chainConf.web3ProviderBsc!,
-                    'BSC_TESTNET': chainConf.web3ProviderBscTestnet!,
-                    'POLYGON': chainConf.web3ProviderPolygon!,
-                    'MUMBAI_TESTNET': chainConf.web3ProviderMumbaiTestnet!,
-                } as Web3ProviderConfig;
         const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
-            await decryptPrivateKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
-        const processorAddress = getEnv('PROCESSOR_ADDRESS');
+            await decryptKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
+        const processorAddress = (await new EthereumAddress('prod').addressFromSk(privateKey)).address;
         container.registerSingleton(TokenBridgeContractClinet,
             c => new TokenBridgeContractClinet(
                 c.get(EthereumSmartContractHelper),
                 conf.bridgeConfig.contractClient,
             ));
         container.registerSingleton(BridgeProcessor, c => new BridgeProcessor(
-            conf, c.get(ChainClientFactory), c.get(TokenBridgeService),
+            conf, c.get(ChainClientFactory),
+			c.get(TokenBridgeService),
 			c.get(TokenBridgeContractClinet),
-            c.get(BridgeConfigStorage), c.get(PairAddressSignatureVerifyre),
+            c.get(BridgeConfigStorage),
+			c.get(PairAddressSignatureVerifyre),
             c.get(EthereumSmartContractHelper),
             privateKey,
             processorAddress,
             c.get(LoggerFactory)));
-        container.register('JsonStorage', () => new Object());
-        container.registerSingleton(EthereumSmartContractHelper, () => new EthereumSmartContractHelper(
-             networkProviders));
-     
        
         container.register(PairAddressSignatureVerifyre, () => new PairAddressSignatureVerifyre());
         container.registerSingleton(BridgeConfigStorage, () => new BridgeConfigStorage())
@@ -97,16 +73,7 @@ export class BridgeModule implements Module {
             )
         );
 
-        container.register(LoggerFactory,
-            () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
-
         await container.get<TokenBridgeService>(TokenBridgeService).init(conf.database);
         await container.get<BridgeConfigStorage>(BridgeConfigStorage).init(conf.database);
     }
-}
-
-async function decryptPrivateKey(region: string, keyId: string, keyJson: string): Promise<string> {
-    ValidationUtils.isTrue(!!keyJson, 'Private key must be provided');
-    const key = JSON.parse(keyJson) as EncryptedData;
-    return await new KmsCryptor(new KMS({region}), keyId).decryptToHex(key);
 }

@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 //@ts-ignore
-import {Page,OutlinedBtn,Divider,networkImages,AssetsSelector, NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
+import { OutlinedBtn,networkImages,AssetsSelector, NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
@@ -178,11 +178,11 @@ export const MainPageSlice = createSlice({
         },
         fetchedSourceCurrencies: (state,action) => {
             state.currencyList = action.payload.currencies;
-            state.currenciesDetails = action.payload.currencies;
+            state.currenciesDetails = action.payload?.currencies;
         },
         dataLoaded: (state,action) => {
             state.dataLoaded = true;
-            state.destNetwork = state.currenciesDetails.targetNetwork
+            state.destNetwork = state.currenciesDetails?.targetNetwork
         },
         destNetworkChanged: (state,action) => {
             state.destNetwork = action.payload.value;
@@ -200,7 +200,7 @@ export const MainPageSlice = createSlice({
         },
         resetDestNetwork: (state,action) => {
             state.destNetwork = action.payload.value;
-            state.destCurrency = FRM[action.payload.value][0]
+            state.destCurrency = (FRM[action.payload.value] || [] as any[])[0]
         },
         changeIsNetworkReverse:(state,action) => {
             state.isNetworkReverse = !state.isNetworkReverse;

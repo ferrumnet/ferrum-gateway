@@ -16,7 +16,7 @@ export class StoreBuilder {
         apiBaseUrl: string,
     ) {
         const store = configureStore({
-			middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+			// middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 			devTools: process.env.NODE_ENV !== 'production',
             reducer: combineReducers({
                 connection: combineReducers({

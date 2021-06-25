@@ -5,7 +5,7 @@ import { LambdaGlobalContext } from "aws-lambda-helper";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
-import { CHAIN_ID_FOR_NETWORK, PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
+import { PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { fixSig, produceSignatureWithdrawHash, randomSalt } from "./BridgeUtils";
@@ -15,6 +15,7 @@ import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from 'web3-tools';
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
+import { CommonBackendModule } from 'common-backend';
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;
@@ -217,6 +218,7 @@ export class BridgeProcessor implements Injectable {
 
 export async function processOneWay(network: string) {
     const c = await LambdaGlobalContext.container();
+	await c.registerModule(new CommonBackendModule());
     await c.registerModule(new BridgeModule());
     const processor = c.get<BridgeProcessor>(BridgeProcessor);
     await processor.processCrossChain(network as any);

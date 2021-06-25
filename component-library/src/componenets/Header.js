@@ -10,14 +10,15 @@ import "../../assets/scss/_header.scss";
   SwitchNetworkButton,
   ThemeSelector,
   logo,
-  altText
+  altText,
+  logoHeight,
 }) => {
   return (
     <header>
       <Navbar expand="lg">
         <Navbar.Brand href="#home">
           <img 
-            style={{"maxWidth": '45px'}}
+            style={{"maxHeight": '45px'}}
             alt={`${altText}`}
             src={`${logo}`}
           />

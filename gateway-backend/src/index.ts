@@ -1,97 +1,32 @@
 import {
     UnifyreBackendProxyModule,
-    UnifyreBackendProxyService, AwsEnvs, SecretsProvider
+    UnifyreBackendProxyService,
 } from 'aws-lambda-helper';
 import {HttpHandler} from "./HttpHandler";
-import {
-    ConsoleLogger,
-    Container,
-    LoggerFactory, Module,
-} from "ferrum-plumbing";
-import { EthereumSmartContractHelper, Web3ProviderConfig } from 'aws-lambda-helper/dist/blockchain';
+import { Container, Module, } from "ferrum-plumbing";
 import { BasicHandlerFunction } from 'aws-lambda-helper/dist/http/BasicHandlerFunction';
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { BridgeModule } from "bridge-backend";
-import { getEnv } from 'types';
-import { MultiChainConfig } from 'ferrum-chain-clients';
+import { CommonBackendModule } from 'common-backend';
 
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
-        const region = process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
-        const stakingAppConfArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + 'UNI_APP_STAKING_APP'];
-        let stakingAppConfig: any = {} as any;
-		let netConfig: MultiChainConfig = {} as any;
-        if (stakingAppConfArn) {
-            stakingAppConfig = await new SecretsProvider(region, stakingAppConfArn).get();
-        } else {
-			netConfig = {
-				web3Provider: getEnv('WEB3_PROVIDER_ETHEREUM'),
-				web3ProviderEthereum: getEnv('WEB3_PROVIDER_ETHEREUM'),
-				web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
-				web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
-				web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC'),
-				web3ProviderPolygon: getEnv('WEB3_PROVIDER_POLYGON'),
-				web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
-			} as any as MultiChainConfig;
-
-            stakingAppConfig = {
-				...netConfig,
-                database: {
-                    connectionString: getEnv('MONGOOSE_CONNECTION_STRING'),
-                } as any,
-                authRandomKey: getEnv('RANDOM_SECRET'),
-                signingKeyHex: getEnv('REQUEST_SIGNING_KEY'),
-                backend: getEnv('UNIFYRE_BACKEND'),
-                region,
-                cmkKeyArn: getEnv('CMK_KEY_ARN'),
-                adminSecret: getEnv('ADMIN_SECRET'),
-            } as any;
-        }
-        
-        // makeInjectable('CloudWatch', CloudWatch);
-        // container.register('MetricsUploader', c =>
-        //     new CloudWatchClient(c.get('CloudWatch'), 'WalletAddressManager', [
-        //         { Name:'Application', Value: 'WalletAddressManager' } as Dimension,
-        //     ]));
-        // container.registerSingleton(MetricsService, c => new MetricsService(
-        //   new MetricsAggregator(),
-        //   { period: 3 * 60 * 1000 } as MetricsServiceConfig,
-        //   c.get('MetricsUploader'),
-        //   c.get(LoggerFactory),
-        // ));
-
-        const networkProviders = {
-			'ETHEREUM': stakingAppConfig.web3ProviderEthereum,
-			'RINKEBY': stakingAppConfig.web3ProviderRinkeby,
-			'BSC': stakingAppConfig.web3ProviderBsc,
-			'BSC_TESTNET': stakingAppConfig.web3ProviderBscTestnet,
-			'POLYGON': stakingAppConfig.web3ProviderPolygon,
-			'MUMBAI_TESTNET': stakingAppConfig.web3ProviderMumbaiTestnet,
-			} as Web3ProviderConfig;
+        await container.registerModule(new CommonBackendModule());
         await container.registerModule(
             new UnifyreBackendProxyModule('DUMMY', 'asd', // stakingAppConfig.authRandomKey,
                 '',));
         
-        container.registerSingleton(EthereumSmartContractHelper,
-            () => new EthereumSmartContractHelper(networkProviders));
-        container.register('JsonStorage', () => new Object());
         container.registerSingleton('LambdaHttpHandler',
                 c => new HttpHandler(
                     c.get(UnifyreBackendProxyService),
                     c.get(BridgeRequestProcessor),
-					netConfig,
+					c.get('MultiChainConfig'),
                     ));
-        container.registerSingleton("LambdaSqsHandler",
-            () => new Object());
-        container.register(LoggerFactory,
-            () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
         // Registering other modules at the end, in case they had to initialize database...
         await container.registerModule(new BridgeModule());
-
-        // Initialize databases here...
     }
 }
 
 const handlerClass = new BasicHandlerFunction(new GatewayModule());
 
-export const handler = handlerClass.handler
+export const handler = handlerClass.handler;
