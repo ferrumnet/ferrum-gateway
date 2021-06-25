@@ -50,11 +50,11 @@ const onConnect = async (dispatch:Dispatch<AnyAction>,network: string,targetCur:
     try {
 
         const sc = inject<BridgeClient>(BridgeClient);
-        const currenciesList = await sc.getSourceCurrencies(dispatch,network);
-        if(currenciesList.length > 0){
-            const allowance = await sc.checkAllowance(dispatch,targetCur,'5', targetCur);
-            dispatch(Actions.checkAllowance({value: allowance}));       
-        }
+        // const currenciesList = await sc.getSourceCurrencies(dispatch,network,'');
+        // if(currenciesList.length > 0){
+        //     const allowance = await sc.checkAllowance(dispatch,targetCur,'5', targetCur);
+        //     dispatch(Actions.checkAllowance({value: allowance}));       
+        // }
         const res  = await sc.signInToServer(dispatch);
         return res;
     } catch(e) {

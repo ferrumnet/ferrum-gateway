@@ -14,7 +14,7 @@ export const TokenBridge = ({ConnectBridge,...rest}) => {
             </small>
             <p className="max-w-400 mx-auto">
               You can use this token bridge to send {rest.projectTitle || 'Project'} tokens{" "}
-              <strong>from Across Chains with ease</strong>
+              <strong>Across Major Chains with ease.</strong>
             </p>
             <p className="mt-4">
               Follow the step by step guide to send your tokens across the bridge.

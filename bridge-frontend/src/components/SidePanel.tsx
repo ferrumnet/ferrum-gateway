@@ -275,7 +275,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         message.success({
             content: <Result
                 status="success"
-                title="Your Withdrawal Transaction Processing"
+                title="Withdrawal Transaction Processing"
                 subTitle={v}
                 extra={[
                     <>
