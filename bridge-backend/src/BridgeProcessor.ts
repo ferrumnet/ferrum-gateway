@@ -183,7 +183,7 @@ export class BridgeProcessor implements Injectable {
 
 		const params = {
 			contractName: 'FERRUM_TOKEN_BRIDGE_POOL',
-			contractVersion: '0.0.2',
+			contractVersion: '0.0.3',
 			method: 'WithdrawSigned',
 			args: [
 				{ type: 'address', name: 'token', value: address },

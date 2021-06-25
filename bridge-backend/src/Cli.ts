@@ -4,7 +4,9 @@ import { processOneWay } from "./BridgeProcessor";
 console.log('Starting ');
 // const net = argv[2];
 // const net = 'RINKEBY';
-const net = 'MUMBAI_TESTNET';
+// const net = 'MUMBAI_TESTNET';
+// const net = 'BSC_TESTNET';
+const net = 'POLYGON';
 if (!net) {
     console.log('Syntax error: include network as an argument');
 } else {

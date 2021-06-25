@@ -162,8 +162,8 @@ export class TokenBridgeContractClinet implements Injectable {
     async swap(userAddress: string, currency: string, amount: string, targetCurrency: string) {
         const [network, token] = Helper.parseCurrency(currency);
         const [targetNetwork, targetToken] = Helper.parseCurrency(targetCurrency);
-        const targetNetworkInt = CHAIN_ID_FOR_NETWORK[targetNetwork];
-        ValidationUtils.isTrue(!!targetNetworkInt, "'targetNetwork' must be provided");
+        const targetNetworkInt = Networks.for(targetNetwork).chainId;
+        ValidationUtils.isTrue(!!targetNetworkInt, `'targetNetwork' must be provided for ${targetNetwork}`);
         ValidationUtils.isTrue(!!userAddress, "'userAddress' must be provided");
         ValidationUtils.isTrue(!!amount, "'amount' must be provided");
         console.log('About to call swap', {token,  targetNetworkInt, targetToken});

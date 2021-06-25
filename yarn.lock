@@ -7713,7 +7713,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#83f18e332f756dfa118543a5d297fc0bf553f914"
+  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#5da193337f06790010805efdcc40fb3cce1e5716"
   dependencies:
     cross-fetch "^3.0.4"
 

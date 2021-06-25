@@ -312,7 +312,7 @@ export const ConnectBridge = () => {
     const {dataLoaded, reconnecting} = pageProps;
 
     const networkOptions = Object.values(supportedNetworks)
-		.filter(n => n.key !== pageProps.network && n.mainnet === !!process.env.USE_MAINNET );
+		.filter(n => n.key !== pageProps.network && n.mainnet === !!process.env.REACT_APP_USE_MAINNET );
 
     useEffect(()=>{
         if(reconnecting){
@@ -415,7 +415,7 @@ export const ConnectBridge = () => {
             total={`${Number(pageProps.amount)}`}
             setIsModalClose={()=>hideConfirmModal()}
             processSwap={()=>onSwap(
-                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
+                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails?.sourceCurrency!,pageProps.destCurrency,
                 onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
                 (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
             )}

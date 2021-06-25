@@ -13,7 +13,7 @@ import { TokenBridgeContractClinet } from './TokenBridgeContractClient';
 import { KMS } from 'aws-sdk';
 require('dotenv').config();
 const global = { init: false };
-const GLOBAL_BRIDGE_CONTRACT = '0x1aa287daca4f3d4426343cd54de0fdc8bd41632c';
+const GLOBAL_BRIDGE_CONTRACT = '0x89262B7bd8244b01fbce9e1610bF1D9F5D97C877';
 
 export class BridgeModule implements Module {
     async configAsync(container: Container) {
@@ -49,7 +49,7 @@ export class BridgeModule implements Module {
                 web3ProviderRinkeby: getEnv('WEB3_PROVIDER_RINKEBY'),
                 web3ProviderBsc: getEnv('WEB3_PROVIDER_BSC'),
                 web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
-                web3ProviderPloygon: getEnv('WEB3_PROVIDER_POLYGON'),
+                web3ProviderPolygon: getEnv('WEB3_PROVIDER_POLYGON'),
                 web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
             } as any as MultiChainConfig);
         container.register('MultiChainConfig', () => chainConf);

@@ -6,7 +6,7 @@ import { PayBySignatureData } from 'types';
 import {ValidationUtils} from "ferrum-plumbing";
 
 const NAME = "FERRUM_TOKEN_BRIDGE_POOL";
-const VERSION = "000.002";
+const VERSION = "000.003";
 
 export function domainSeparator(eth: Eth, netId: number, contractAddress: HexString) {
     const hashedName = Web3.utils.keccak256(Web3.utils.utf8ToHex(NAME));

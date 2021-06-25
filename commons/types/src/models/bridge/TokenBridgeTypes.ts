@@ -37,7 +37,7 @@ export const CHAIN_ID_FOR_NETWORK = {
     'RINKEBY': 4,
     'BSC': 56,
     'BSC_TESTNET': 97,
-    'MATIC': 137,
+    'POLYGON': 137,
     'MUMBAI_TESTNET': 80001
 } as any
 

@@ -19,7 +19,7 @@ const _supportedNetworks: any = {
     'RINKEBY': ['active', 'Rinkeby testnet', 'testnet'],
     'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
     'BSC': ['active', 'BSC', 'mainnet'],
-    'POLYGON': ['active', 'Polugon (Matic)', 'mainnet'],
+    'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
     'SOLANA': ['inactive', 'Solana', 'mainnet']
 };
