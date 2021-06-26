@@ -163,9 +163,9 @@ const onConnect = async (
         const sc = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
-        const currenciesList = await sc.getSourceCurrencies(dispatch,network);
-        const allowance = await sc.checkAllowance(dispatch,currency,'5', currenciesList[0].targetCurrency);
-        dispatch(Actions.checkAllowance({value: allowance}));     
+        // const currenciesList = await sc.getSourceCurrencies(dispatch,network);
+        // const allowance = await sc.checkAllowance(dispatch,currency,'5', currenciesList[0].targetCurrency);
+        // dispatch(Actions.checkAllowance({value: allowance}));     
         const res  = await sc.signInToServer(dispatch);
         dispatch(Actions.loadedUserPairs({pairedAddress: pair}));
         const items = await sc.getUserWithdrawItems(dispatch,network);
@@ -194,18 +194,18 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
         const sc = inject<BridgeClient>(BridgeClient);
         const connect = inject<Connect>(Connect);
         const network = connect.network() as any;
-        const currenciesList = await sc.getSourceCurrencies(dispatch,network);
-        if(!pair){
-            history.push(0);
-        }
-        if(currenciesList.length > 0){
-            dispatch(Actions.swapDetails({value: currenciesList}))                
-        }
+        // const currenciesList = await sc.getSourceCurrencies(dispatch,network);
+        // if(!pair){
+        //     history.push(0);
+        // }
+        // if(currenciesList.length > 0){
+        //     dispatch(Actions.swapDetails({value: currenciesList}))                
+        // }
         if(details){
             dispatch(Actions.tokenSelected({value: v || {},details}));
             await sc.getAvailableLiquidity(dispatch,details?.address, details?.currency)
-            const allowance = await sc.checkAllowance(dispatch,details.currency,'5', currenciesList[0].targetCurrency);
-            dispatch(Actions.checkAllowance({value: allowance}))
+            // const allowance = await sc.checkAllowance(dispatch,details.currency,'5', currenciesList[0].targetCurrency);
+            // dispatch(Actions.checkAllowance({value: allowance}))
         }
     }catch(e) {
         if(!!e.message){

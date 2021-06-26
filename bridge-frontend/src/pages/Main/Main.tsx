@@ -316,8 +316,8 @@ export const ConnectBridge = () => {
 
     useEffect(()=>{
         if(reconnecting){
-            dispatch(Actions.resetDestNetwork({value: networkOptions.filter(n => n.active && n.key !== pageProps.network)[0].key}));
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency,networkOptions.filter(n => n.active && n.key !== pageProps.network)[0].key);
+            let network = networkOptions.filter(n => n.active && n.key !== pageProps.network);
+            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency,network);
         }
     },[reconnecting]);
 
@@ -353,7 +353,7 @@ export const ConnectBridge = () => {
         message.success({
             content: <Result
                 status="success"
-                title="Your Withdrawal Transaction Processing"
+                title="Withdrawal Transaction Processing"
                 subTitle={v}
                 extra={[
                     <>
@@ -363,7 +363,7 @@ export const ConnectBridge = () => {
                     <p></p>,
                     <p style={styles.point} onClick={()=>addToken(dispatch,pageProps.selectedToken,onMessage)}>
                         <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding:'5px'}}/>
-                        <span>Add Token to MetaMask</span>
+                        <div>Add Token to MetaMask</div>
                     </p>,
                     <p></p>,
                     <Button key="buy" onClick={()=>{
@@ -591,8 +591,11 @@ export const SideBarContainer = () => {
                             />
                             <Step 
                                 status={((pageProps.swapId!='') && (pageProps.progressStatus === 3)) ? "finish" : ((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? "process" : "wait"} 
-                                title={<div style={swapping ? styles.stepStyle2 : styles.stepStyle} className="text-vary-color">{((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? 
-                                <div onClick={()=>showModal()}>Swap Processing</div> : 'Swap Token' }</div>}
+                                title={
+                                <div style={swapping ? styles.stepStyle2 : styles.stepStyle} className="text-vary-color">
+                                {((pageProps.swapId!='') && (pageProps.progressStatus < 3)) ? <div onClick={()=>showModal()}>Swap Processing</div> 
+                                : ((pageProps.swapId!='') && (pageProps.progressStatus === 3)) ? 'Swap Successful'
+                                : 'Swap Token' }</div>}
                                 icon={((pageProps.swapId!='') && pageProps.progressStatus < 3) && <LoadingOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}}/>}  
                                 description={swapping && (
                                     <div>

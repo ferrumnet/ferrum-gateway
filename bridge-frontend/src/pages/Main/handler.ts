@@ -253,7 +253,8 @@ export const fetchSourceCurrencies = async (dispatch: Dispatch<AnyAction>,v:stri
         const network = connect.network() as any;
         const res = await vrf.getTokenConfig(dispatch,network,destCurrency||'');
         let details = addr?.find(e=>e.symbol === v);
-        dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res[0]}));
+        console.log(res,'resilyyyy')
+        dispatch(Actions.tokenSelected({value: v || addr![0].symbol,details:res}));
         if(!!res && res.sourceNetwork) {
             dispatch(Actions.fetchedSourceCurrencies({currencies:res}))
             dispatch(Actions.validateToken({value: true}))
@@ -358,17 +359,14 @@ export const resetPair = (dispatch: Dispatch<AnyAction>) => {
 }
 
 export const reconnect = async (dispatch: Dispatch<AnyAction>,v:string,addr?: AddressDetails[],
-    showNotiModal?: (v:boolean)=>void,unused?:number,defaultCurrency?:string,destNetwork?:string)  => {
+    showNotiModal?: (v:boolean)=>void,defaultCurrency?:string,destNetwork?:any)  => {
     try {
+        dispatch(Actions.resetDestNetwork({value:(destNetwork||[])[0]?.key}));
         dispatch(Actions.reconnected({}))
         const client = inject<BridgeClient>(BridgeClient);
         //@ts-ignore
-        await client.signInToServer(dispatch);
-        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency,destNetwork);
+        await fetchSourceCurrencies(dispatch,v,addr,true,defaultCurrency,destNetwork[0].key);
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-        if(showNotiModal && (unused! > 0)){
-            showNotiModal(true)!
-        }
     } catch (e) {
         dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
 
