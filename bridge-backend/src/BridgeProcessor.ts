@@ -16,6 +16,7 @@ import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from 'web3-tools';
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
 import { CommonBackendModule } from 'common-backend';
+import Web3 from "web3";
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;
@@ -51,7 +52,7 @@ export class BridgeProcessor implements Injectable {
             console.log(relevantTokens.map((j:any) => j.sourceCurrency),'soucre currencies')
 			// todo: get event logs
             const incoming = await this.bridgeContract.getSwapEvents(network);
-            console.log('Got icoming txs:', {...incoming},{...incoming})
+            console.log('Got icoming txs:', {...incoming})
             if (!incoming || !incoming.length) {
                 this.log.info('No recent transaction for address ' + network + ':' + poolAddress);
                 return;
@@ -89,6 +90,7 @@ export class BridgeProcessor implements Injectable {
     private async processSingleTransaction(event: BridgeSwapEvent):
         Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
         try {
+			ValidationUtils.isTrue(!!event.transactionId, "No transaction ID");
             let processed = await this.svc.getWithdrawItem(event.transactionId);
             if (!!processed) {
                 return [true, processed];
@@ -122,7 +124,7 @@ export class BridgeProcessor implements Injectable {
 				conf.sourceCurrency === sourcecurrency && conf.targetCurrency === targetCurrency,
 				`No token config between ${JSON.stringify(sourcecurrency)} networks (target ${targetCurrency})`);
 
-            const sourceAmount = await this.helper.amountToMachine(sourcecurrency, event.amount);
+            // const sourceAmount = await this.helper.amountToMachine(sourcecurrency, event.amount);
             const targetAmount = await this.helper.amountToMachine(targetCurrency, event.amount);
             // let targetAmount = sourceAmount.minus(new Big(conf!.feeConstant || '0'));
             // if (targetAmount.lt(new Big(0))) {
@@ -131,8 +133,9 @@ export class BridgeProcessor implements Injectable {
 
             // ValidationUtils.isTrue(sourceAddress === tx.fromItems[0].address,
             //     `UNEXPECTED ERROR: Source address is different from the transaction source ${tx.id}`);
+			const salt = Web3.utils.keccak256(event.transactionId.toLocaleLowerCase());
             const payBySig = await this.createSignedPayment(
-                targetNetwork, targetAddress, targetCurrency, targetAmount,
+                targetNetwork, targetAddress, targetCurrency, targetAmount, salt
             );
             processed = {
                 id: payBySig.hash, // same as signedWithdrawHash
@@ -167,10 +170,10 @@ export class BridgeProcessor implements Injectable {
         }
     }
 
-    async createSignedPayment(network: string, address: string, currency: string, amountStr: string)
+    async createSignedPayment(network: string, address: string, currency: string,
+			amountStr: string, salt: string)
         : Promise<PayBySignatureData> {
         const [_, token] = EthereumSmartContractHelper.parseCurrency(currency);
-        const salt = randomSalt();
         const chainId = Networks.for(network).chainId;
         const payBySig = produceSignatureWithdrawHash(
             this.helper.web3(network),
@@ -190,7 +193,7 @@ export class BridgeProcessor implements Injectable {
 				{ type: 'address', name: 'token', value: address },
 				{ type: 'address', name: 'payee', value: token },
 				{ type: 'uint256', name: 'amount', value: amountStr },
-				{ type: 'bytes32', name: 'sat', value: salt },
+				{ type: 'bytes32', name: 'salt', value: salt },
 			]
 		} as Eip712.Eip712Params;
 

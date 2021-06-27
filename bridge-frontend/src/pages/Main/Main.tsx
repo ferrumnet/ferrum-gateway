@@ -5,7 +5,7 @@ import { OutlinedBtn,networkImages,AssetsSelector, NetworkSwitch,AmountInput,sup
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
-import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown,FRM, getEnv } from 'types';
+import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown,FRM } from 'types';
 import { AppAccountState } from 'common-containers';
 import {IConnectViewProps,addressesForUser, AppState } from 'common-containers';
 import { Steps } from 'antd';
@@ -29,9 +29,6 @@ import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import { PlusOutlined } from '@ant-design/icons';
 import {SidePanelSlice} from './../../components/SidePanel';
-import { Networks } from '../../common/Utils';
-
-const IS_TEST = true;
 
 const { Step } = Steps;
 
@@ -312,7 +309,8 @@ export const ConnectBridge = () => {
     const {dataLoaded, reconnecting} = pageProps;
 
     const networkOptions = Object.values(supportedNetworks)
-		.filter(n => n.key !== pageProps.network && n.mainnet === !!process.env.REACT_APP_USE_MAINNET );
+		.filter(n =>n.key !== pageProps.network &&
+			n.mainnet === !!process.env.REACT_APP_USE_MAINNET );
 
     useEffect(()=>{
         if(reconnecting){

@@ -94,7 +94,9 @@ export interface DashboardContentProps {
     groupId: string,
     filter: string,
     initializeError?: string,
-    dataLoaded: boolean
+    dataLoaded: boolean,
+	networks: string[],
+	currencies: string[],
 }
 
 export const DashboardSlice = createSlice({
@@ -109,7 +111,9 @@ export const DashboardSlice = createSlice({
         panelOpen: false,
         groupId: '',
         initializeError: '',
-        dataLoaded: false
+        dataLoaded: false,
+		networks: [],
+		currencies: [],
     } as DashboardContentProps,
     reducers: {
         initializeError: (state,action) => {            
@@ -124,7 +128,6 @@ export const DashboardSlice = createSlice({
         dataFetched: (state,action) => {
             state.dataLoaded = true
         },
-        
     },
     extraReducers: {
     },
@@ -148,7 +151,6 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
-			// TODO: Initialize group tokens here for all networks.
             return;
         }
     } catch (error) {
@@ -168,13 +170,16 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): D
     const state = (appState.ui.dashboard || {}) as DashboardState;
     const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
     const address = addr[0] || {};
+	const curs = appState.data.state.groupInfo?.bridgeCurrencies || [];
     return {
         ...state,
         initializeError: state.initializeError,
         network: address.network,
         selectedToken: state.selectedToken,
         addresses: addr,
-        dataLoaded: state.dataLoaded
+        dataLoaded: state.dataLoaded,
+		currencies: curs,
+		networks: curs.map(c => c.split(':')[0]),
     } as DashboardContentProps;
 }
 

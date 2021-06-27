@@ -16,7 +16,8 @@ export interface GroupInfo {
     noMainPage: boolean; // Main page should redirect to home page
     headerHtml?: string;
     footerHtml?: string;
-    mainLogo?: string
+    mainLogo?: string;
+	bridgeCurrencies: string[];
 }
 
 export type AppUiState = {
