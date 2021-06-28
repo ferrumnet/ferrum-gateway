@@ -9,5 +9,4 @@ export * from './models/chain/ChainTypes';
 export * from './backend/HttpRequestProcessor';
 
 export * from './models/chain/Consts';
-
 export * from "./models/group/types";

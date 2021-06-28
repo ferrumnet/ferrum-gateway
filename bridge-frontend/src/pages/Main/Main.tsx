@@ -1,22 +1,18 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {ThemeContext, Theme} from 'unifyre-react-helper';
+import {Theme, ThemeConstantProvider, ThemeContext} from 'unifyre-react-helper';
 //@ts-ignore
 import { OutlinedBtn,networkImages,AssetsSelector, NetworkSwitch,AmountInput,supportedIcons} from 'component-library';
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
-import { PairedAddress,SignedPairAddress, supportedNetworks, NetworkDropdown,FRM } from 'types';
-import { AppAccountState } from 'common-containers';
-import {IConnectViewProps,addressesForUser, AppState } from 'common-containers';
+import { supportedNetworks, NetworkDropdown, UserBridgeWithdrawableBalanceItem,
+	BridgeTokenConfig, BRIDGE_CONTRACT, inject } from 'types';
+import {IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
-import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
-import {
-    reconnect,fetchSourceCurrencies,connect,checkTxStatus,checkifItemIsCreated,
-    onSwap, executeWithdraw,changeNetwork,updateData,resetNetworks,addToken,onDestinationNetworkChanged
-} from './handler';
+import { onSwap, executeWithdraw,changeNetwork,addToken, } from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
 import { WithdrawNoti } from '../../components/withdrawalNoti';
@@ -24,47 +20,26 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { openPanelHandler } from './../Swap';
 import { message, Result } from 'antd';
 import { Utils } from 'types';
-import {SidePanelProps} from './../../components/SidePanel';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import { PlusOutlined } from '@ant-design/icons';
 import {SidePanelSlice} from './../../components/SidePanel';
+import { SwapButton } from '../../components/SwapButton';
+import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
+import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
+import { Big } from 'big.js';
+import { BridgeClient } from '../../clients/BridgeClient';
 
 const { Step } = Steps;
 
-export interface MainPageProps {
-    baseConnected: boolean,
-    destConnected: boolean,
-    baseSigned: boolean,
-    baseSignature: string,
-    destSignature: string,
-    destSigned: boolean,
-    baseAddress: string,
-    destAddress: string,
+export interface MainPageState {
     destNetwork: string,
-    pairVerified: boolean,
-    symbol?: string,
     currency?: string,
-    network: string,
-    destCurrency: string,
-    currentNetwork?: string,
-    baseNetwork?: string,
-    isPaired: boolean,
-    pairedAddress: PairedAddress,
-    signedPairedAddress?: SignedPairAddress,
-    pairedAddresses?: SignedPairAddress,
-    groupId: string,
     amount:string,
     reconnecting?: boolean,
-    dataLoaded: boolean,
-    addresses: AddressDetails[],
-    selectedToken: string,
     availableLiquidity: string,
-    currencyList: [],
-    allowanceRequired: boolean,
     swapId: string,
     tokenValid: boolean,
-    currenciesDetails: any,
     itemId: string,
     swapWithdrawNetwork: string,
     isNetworkReverse: boolean,
@@ -72,100 +47,31 @@ export interface MainPageProps {
     withdrawSuccess: boolean
 }
 
-
-
 export const MainPageSlice = createSlice({
     name: 'mainPage',
     initialState: {
-        baseConnected: false,
-        destConnected: false,
-        baseSigned:false,
-        destSigned:false,
-        pairVerified: false,
-        baseAddress: '',
-        destAddress: '',
-        destSignature: '',
-        destCurrency: '',
-        baseSignature: '',
         destNetwork: '',
-        network: 'ETHEREUM',
-        isPaired: false,
-        addresses: [],
-        pairedAddress: {
-            address1: '',
-            address2: '',
-            network1: '',
-            network2: ''
-        },
         tokenValid: true,
         connected: false,
-        groupId: '',
         reconnecting: false,
-        dataLoaded: false,
-        selectedToken: '',
-        currencyList: [],
-        allowanceRequired:true,
         availableLiquidity: '',
         amount:'',
         swapId: '',
         itemId: '',
         isNetworkReverse: false,
-        currenciesDetails: {},
         swapWithdrawNetwork: '',
         progressStatus: 1,
         withdrawSuccess: false
-    } as MainPageProps,
+    } as MainPageState,
     reducers: {
-        pairAddresses: (state,action) => {
-            if(state.pairedAddress){
-                state.pairedAddress.address1 = action.payload.address;
-                state.pairedAddress.network1 = action.payload.network || '';
-                state.pairedAddress.address2 = state.destAddress;
-                state.pairedAddress.network2 = state.destNetwork;
-                state.isPaired = true;
-            }
-        },
-        onDestinationNetworkChanged:(state,action) => {
-            state.destNetwork = action.payload.value;
-            state.destCurrency = action.payload.currency
-        },
-        onAddressChanged: (state,action) => {
-            state.destAddress = action.payload.value
-        },
-        addBaseAddressSignature: (state,action) => {
-            state.baseSignature = action.payload.sign;
-            state.baseSigned = true;
-            state.pairedAddresses = {signature2: state.pairedAddresses?.signature2||'',signature1: action.payload.sign,pair:action.payload.pair}
-        },
-        addDestAddressSignature: (state,action) => {
-            state.destSignature = action.payload.sign;
-            state.destSigned = true
-        },
+		currencyChanged: (state, action) => {
+			state.currency = action.payload.currency;
+		},
         reconnected: (state,action) => {
             state.reconnecting = false;
         },
-        loadedUserPairs: (state,action) => {
-            state.signedPairedAddress = action.payload.pairedAddress;
-            state.pairedAddress = action.payload.pairedAddress;
-            state.baseAddress = action.payload.pairedAddress.pair?.address1 || state.pairedAddress?.address1;
-            state.destAddress = action.payload.pairedAddress.pair?.address2;
-            state.baseSignature=action.payload.pairedAddress.signature1;
-            state.destSignature=action.payload.pairedAddress.signature2;
-            state.isPaired=action.payload.pairedAddress.pair?.address2 ?  true : false;
-            state.baseSigned=action.payload.pairedAddress.signature1 ? true: false;
-            state.network= action.payload.pairedAddress.pair?.network1;
-            state.baseNetwork=  action.payload.pairedAddress.pair?.network2 ?
-                                action.payload.pairedAddress.pair?.network2 : state.baseNetwork || (state.pairedAddress?.network1); 
-            state.reconnecting = false;         
-        },
-        resetPair: (state,action) => {
-            state.isPaired= false;
-        },
         validateToken: (state,action) => {
             state.tokenValid= action.payload.value;
-        },
-        bridgeInitSuccess: (state,action) => {
-            state.pairedAddress = {...state.pairedAddress,address1: action.payload.address1,network1:action.payload.network1}
         },
         swapSuccess: (state,action) => {
             state.amount= '';
@@ -173,31 +79,14 @@ export const MainPageSlice = createSlice({
             state.itemId= action.payload.itemId;
             state.swapWithdrawNetwork= state.destNetwork;
         },
-        fetchedSourceCurrencies: (state,action) => {
-            state.currencyList = action.payload.currencies;
-            state.currenciesDetails = action.payload?.currencies;
-        },
-        dataLoaded: (state,action) => {
-            state.dataLoaded = true;
-            state.destNetwork = state.currenciesDetails?.targetNetwork
-        },
         destNetworkChanged: (state,action) => {
             state.destNetwork = action.payload.value;
-            state.destCurrency = action.payload.currency
-        },
-        tokenSelected: (state,action) => {            
-            state.selectedToken= action.payload.value != '' ? action.payload.value : state.addresses[0].symbol;
-            state.currenciesDetails = action.payload.details;
-        },
-        checkAllowance: (state,action) => {
-            state.allowanceRequired = action.payload.value
         },
         amountChanged: (state,action) => {
             state.amount= action.payload.value
         },
         resetDestNetwork: (state,action) => {
             state.destNetwork = action.payload.value;
-            state.destCurrency = (FRM[action.payload.value] || [] as any[])[0]
         },
         changeIsNetworkReverse:(state,action) => {
             state.isNetworkReverse = !state.isNetworkReverse;
@@ -224,48 +113,81 @@ export const MainPageSlice = createSlice({
         builder.addCase('connect/connectionSucceeded', (state, action) => {
             state.isNetworkReverse = false;
         });
-        builder.addCase('BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN', (state, action) => {
-            //@ts-ignore
-            state.availableLiquidity= action.payload.liquidity;
-        });
     },
-    
 });
+
+export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
+	async (payload: {destNetwork: string}, ctx) => {
+	try {
+		// ctx.dispatch(MainPageSlice.actions.resetDestNetwork({value: payload.destNetwork}));
+		console.log('LOAD LIQUIDITY???', payload);
+		const client = inject<BridgeClient>(BridgeClient);
+		const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
+			.find(c => c.targetNetwork === payload.destNetwork)?.targetCurrency;
+		console.log('TAR CUR???', targetCurrency);
+		if (targetCurrency) {
+			await client.getAvailableLiquidity(ctx.dispatch, payload.destNetwork, targetCurrency);
+		}
+	} catch (e) {
+		console.error('Load liquidity', e);
+		// ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable on Browser, manually switch network on metamask' }));
+    } finally {
+    }
+});
+
+interface MainPageProps extends MainPageState {
+	network: string;
+	userAddress: string;
+	currency: string;
+	symbol: string;
+	balance: string;
+	networkOptions: NetworkDropdown[];
+	targetNetworks: NetworkDropdown[];
+	currentPair: BridgeTokenConfig;
+	allAddresses: AddressDetails[];
+	allowanceRequired: boolean;
+	contractAddress: string;
+}
 
 export const Actions = MainPageSlice.actions;
 
-function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): MainPageProps {
-    const state = (appState.ui.pairPage || {}) as MainPageProps;
-    const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
-    const address = addr[0] || {};
+function stateToProps(appState: BridgeAppState): MainPageProps {
+    const state = appState.ui.pairPage;
+	const bridgeCurrencies = appState.data.state.groupInfo?.bridgeCurrencies || [] as any;
+	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);
+    const addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
+    const address = addr[0] || {} as any;
+	const currentIdx = allNetworks.indexOf(address.network || 'N/A');
+	// Select the first currency groupInfo for the selected network
+	const currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+	const currentNetwork = supportedNetworks[address.network] || {};
 
+    const networkOptions = Object.values(supportedNetworks)
+		.filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet);
+	const targetNetworks = networkOptions
+		.filter(n => n.key !== (address.network || networkOptions[0]));
+	const destNetwork = state.destNetwork || (targetNetworks[0] || {}).key;
+	const currentPair = appState.data.state.currencyPairs.find(p =>
+		p.sourceCurrency === currency && p.targetNetwork === destNetwork);
+	const contractAddress = BRIDGE_CONTRACT[address.network];
+	const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
+	const availableLiquidity = appState.data.state
+		.bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';
     return {
         ...state,
-        baseConnected: state.baseConnected,
-        destConnected: state.destConnected,
-        baseSigned: state.baseSigned,
-        destSigned: state.destSigned,
-        addresses: addr,
-        pairVerified: state.pairVerified,
-        baseAddress: address.address,
-        destAddress: state.destAddress,
-        destSignature: state.destSignature,
-        baseSignature: state.baseSignature,
-        destNetwork: state.destNetwork,
+        userAddress: address.address,
         network: address.network,
-        isPaired: state.isPaired,
-        groupId: appState.data.state.groupInfo.groupId,
-        dataLoaded: state.dataLoaded,
-        currencyList: state.currencyList,
-        allowanceRequired: state.allowanceRequired,
-        availableLiquidity: state.availableLiquidity,
-        selectedToken: state.selectedToken || address.symbol,
-        amount: state.amount,
-        swapId: state.swapId,
-        itemId: state.itemId,
-        tokenValid: state.tokenValid,
-        isNetworkReverse: state.isNetworkReverse,
-        withdrawSuccess: state.withdrawSuccess
+        currency: currency,
+		networkOptions,
+		targetNetworks,
+		destNetwork,
+		currentPair,
+		balance: address.balance,
+		allAddresses: addr,
+		allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
+		contractAddress,
+		symbol: address.symbol,
+		availableLiquidity,
     } as MainPageProps;
 }
 
@@ -288,65 +210,32 @@ export const ConnectBridge = () => {
     const styles = themedStyles(theme);
     const dispatch = useDispatch();
     const { addToast } = useToasts();
-    const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
-    const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
+    // const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
+    // const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
-    const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
-    const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
+    const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state));
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
-    const [isNotiShown, setIsNotiShown] = useState(false);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
     const swapSuccess = ((pageProps.swapId!='') && pageProps.progressStatus >= 3);
-    const swapFailure = ((pageProps.swapId!='') && pageProps.progressStatus === -1);
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>((e.used === '') && (e.sendNetwork === pageProps.network))).length;
-    const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
-    const allowedAndNotProcessing = (!pageProps.allowanceRequired && !swapSuccess && !swapFailure)
-    const balances = useSelector<AppState<any, any, any>, AddressDetails[]>(state => 
-        addressesForUser(state.connection.account?.user));
-
-    const {dataLoaded, reconnecting} = pageProps;
-
-    const networkOptions = Object.values(supportedNetworks)
-		.filter(n =>n.key !== pageProps.network &&
-			n.mainnet === !!process.env.REACT_APP_USE_MAINNET );
-
-    useEffect(()=>{
-        if(reconnecting){
-            let network = networkOptions.filter(n => n.active && n.key !== pageProps.network);
-            reconnect(dispatch,pageProps.selectedToken,pageProps.addresses,setIsNotiModalVisible,propsGroupInfo.defaultCurrency,network);
-        }
-    },[reconnecting]);
-
-    useEffect(()=>{
-        if(!connected && !reconnecting){
-            connect(dispatch,setIsNotiModalVisible)
-        }
-    },[connected]);
+    const withdrawals =  useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
+		state => state.data.state.balanceItems);
+    let unUsedItems = withdrawals.filter(e=>((e.used === '') && (e.sendNetwork === pageProps.network))).length;
     
-    useEffect(()=>{
-        if(!dataLoaded){
-            fetchSourceCurrencies(dispatch,pageProps.selectedToken,pageProps.addresses,false,propsGroupInfo.defaultCurrency,networkOptions[0].key)
-            dispatch(Actions.dataLoaded({}))
-            onDestinationNetworkChanged(dispatch,networkOptions[0])
-            // if(pageProps.destNetwork != resetNetworks(active,pageProps.network)){
-            //     dispatch(Actions.resetDestNetwork({value:resetNetworks(active,pageProps.network)}))
-            // }
-        }
-    }, [dataLoaded]);
-
     useEffect(()=>{
         if((unUsedItems > 0 && !pageProps.withdrawSuccess)){
             setIsNotiModalVisible(true)
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
- 
-    const inactive =   Object.keys(supportedNetworks)
-		.filter(k => !supportedNetworks[k].active);
-    const active =   Object.keys(supportedNetworks)
-		.filter(k => supportedNetworks[k].active);
 
+	const {destNetwork} = pageProps;
+	//TODO: Initialize this without useEffect
+	useEffect(()=>{
+		if (destNetwork) {
+			dispatch(loadLiquidity({destNetwork}));
+		}
+	}, [destNetwork])
+ 
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
@@ -359,14 +248,14 @@ export const ConnectBridge = () => {
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-                    <p style={styles.point} onClick={()=>addToken(dispatch,pageProps.selectedToken,onMessage)}>
+                    <p style={styles.point}
+						onClick={()=>addToken(dispatch,	pageProps.currency!, onMessage)}>
                         <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding:'5px'}}/>
                         <div>Add Token to MetaMask</div>
                     </p>,
                     <p></p>,
                     <Button key="buy" onClick={()=>{
                         message.destroy('withdr');
-                        updateData(dispatch);
                         dispatch(Actions.resetSwap({}));
                         dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
                         dispatch(Actions.setProgressStatus({status:1}))
@@ -383,8 +272,6 @@ export const ConnectBridge = () => {
         }, 0);  
     };
 
-
-    
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
     };
@@ -392,6 +279,8 @@ export const ConnectBridge = () => {
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
+
+	console.log('PROPOP TULO', pageProps)
 
     return (
         <>
@@ -407,17 +296,26 @@ export const ConnectBridge = () => {
             amount={pageProps.amount}
             sourceNetwork={pageProps.network}
             destinationNatwork={pageProps.destNetwork}
-            token={pageProps.selectedToken}
-            destination={pageProps.addresses[0]?.address || ''}
-            fee={`${Number(pageProps.currenciesDetails?.fee)*100}` || '0'}
+            token={pageProps.symbol}
+            destination={pageProps.userAddress}
+            fee={`${Number(pageProps.currentPair?.fee)*100}` || '0'}
             total={`${Number(pageProps.amount)}`}
             setIsModalClose={()=>hideConfirmModal()}
             processSwap={()=>onSwap(
-                dispatch,pageProps.amount,pageProps.addresses[0].balance,pageProps.currenciesDetails?.sourceCurrency!,pageProps.destCurrency,
-                onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
-                (v)=> dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
+                dispatch,
+				pageProps.amount,
+				pageProps.balance,
+				pageProps.currency,
+				pageProps.currentPair?.targetCurrency,
+                onMessage,
+				onSuccessMessage,
+				pageProps.network,
+				pageProps.destNetwork,
+                (v)=> dispatch(Actions.setProgressStatus({status:v})),
+				pageProps.availableLiquidity,
+				pageProps.symbol,
+				(propsGroupInfo.fee??0)
             )}
-
         />
         <Card className="text-center">
             <small className="text-vary-color mb-5 head">
@@ -428,17 +326,19 @@ export const ConnectBridge = () => {
              
                 <label className="text-sec">Assets</label>
                 <AssetsSelector 
-                    assets={[pageProps.addresses.find(e=> e.currency === propsGroupInfo.defaultCurrency)]}
+                    // assets={[pageProps.allAddresses]}
                     icons={supportedIcons}
-                    onChange={(v:any)=> fetchSourceCurrencies(dispatch,v,pageProps.addresses,false,propsGroupInfo.defaultCurrency,pageProps.destCurrency)}
-                    selectedToken={pageProps.selectedToken}
+                    // onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency}))}
+                    selectedToken={pageProps.symbol}
                 />
                 <NetworkSwitch 
-                    availableNetworks={networkOptions.filter( n => n.active)}
-                    suspendedNetworks={networkOptions.filter( n => !n.active)}
+                    availableNetworks={pageProps.targetNetworks}
+                    suspendedNetworks={[]}
                     currentNetwork={supportedNetworks[pageProps.network] || {}}
-                    currentDestNetwork={supportedNetworks[pageProps.destNetwork] || networkOptions[0]}
-                    onNetworkChanged={(e:NetworkDropdown)=>onDestinationNetworkChanged(dispatch,e)}
+                    currentDestNetwork={supportedNetworks[pageProps.destNetwork]}
+                    onNetworkChanged={(e:NetworkDropdown)=> {
+						dispatch(Actions.resetDestNetwork({value: e.key}))
+					}}
                     setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
                     IsNetworkReverse={pageProps.isNetworkReverse}
                     swapping={swapping}
@@ -455,15 +355,15 @@ export const ConnectBridge = () => {
                     </p>
                 }
                 <AmountInput
-                    symbol={pageProps.selectedToken}
+                    symbol={pageProps.symbol}
                     amount={pageProps.amount}
                     value={pageProps.amount}
                     fee={0}
                     icons={supportedIcons}
                     addonStyle={styles.addon}
                     groupAddonStyle={styles.groupAddon}
-                    balance={pageProps.addresses[0]?.balance}
-                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.addresses[0]?.balance,fee: 0}))}
+                    balance={pageProps.balance}
+                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
                     onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
                 />
                 <div style={styles.inputContainer} >
@@ -471,7 +371,10 @@ export const ConnectBridge = () => {
                         Destination Address
                     </Form.Label>
                     <InputGroup className="mb-3 transparent text-sec disabled" placeholder={'Address on destination Network'}>
-                        <FormControl className={"transparent text-sec disabled"} disabled={true} defaultValue={pageProps.addresses[0]?.address} value={pageProps.addresses[0]?.address}/>
+                        <FormControl className={"transparent text-sec disabled"}
+							disabled={true}
+							defaultValue={pageProps.userAddress}
+							value={pageProps.userAddress}/>
                     </InputGroup>
                     <div className="amount-rec-text">
                         <small className="text-pri d-flex align-items-center">
@@ -482,7 +385,6 @@ export const ConnectBridge = () => {
                         </small>
                     </div>
                 </div>
-                   
             </div>
             {
                 ((swapSuccess)) &&
@@ -491,8 +393,11 @@ export const ConnectBridge = () => {
                          <Button
                             onClick={
                                 (pageProps.network != pageProps.swapWithdrawNetwork) ?
-                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork,pageProps.selectedToken,pageProps.addresses) :
-                                ()=>executeWithdraw(dispatch,pageProps.itemId,onWithdrawSuccessMessage,onMessage,(v)=> dispatch(Actions.setProgressStatus({status:v})))}
+                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork) :
+                                ()=> executeWithdraw(dispatch,
+									pageProps.itemId,
+									onWithdrawSuccessMessage,
+									onMessage,(v)=> dispatch(Actions.setProgressStatus({status:v})))}
                             disabled={swapping || ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) } 
                             className="btn-pri action btn-icon btn-connect mt-4"
                         >
@@ -507,41 +412,23 @@ export const ConnectBridge = () => {
                     </div>
                 )
             }
-            {
-               allowedAndNotProcessing &&
-                (
-                    <div style={styles.swapBtnContainer}>
-                         <Button
-                             onClick={()=>showConfirmModal()}                            
-                             disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) 
-                                 || pageProps.allowanceRequired || !pageProps.tokenValid || swapping
-                             } 
-                            className="btn-pri action btn-icon btn-connect mt-4"
-                        >
-                        <i className="mdi mdi-swap-horizontal-bold"></i>{ swapping ? 'Swap Processing' : 'Swap'}
-                        </Button>
-                    </div>
-                )
-            }
-            {
-                (pageProps.allowanceRequired && !swapSuccess) &&
-                <div style={styles.swapBtnContainer}>
-                        <Button
-                            onClick={
-                                ()=>onSwap(
-                                    dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
-                                    onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
-                                    (v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
-                                )
-                            }
-                            className="btn-pri action btn-icon btn-connect mt-4"
-                            disabled={!pageProps.selectedToken || !pageProps.allowanceRequired}
-                        >
-                            <i className="mdi mdi-lock-open-outline"></i>{'APPROVE'}
-                        </Button>
-                    </div>
-            }
-            
+			<SwapButton
+				onSwapClick={() => showConfirmModal()}                            
+					// ()=>
+					// onSwap(
+					// 	dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
+					// 	onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
+					// 	(v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
+					// )
+				approveDisabled={!pageProps.currency}
+				swapDisabled={!pageProps.currency || (Number(pageProps.amount) <= 0) 
+					|| !pageProps.tokenValid || swapping}
+				contractAddress={pageProps.contractAddress}
+				amount={pageProps.amount}
+				currency={pageProps.currency!}
+				userAddress={pageProps.userAddress}
+				pendingSwap={swapping}
+			/>
         </Card>
         </>
     );
@@ -552,11 +439,8 @@ export const SideBarContainer = () => {
     const styles = themedStyles(theme);
     const dispatch = useDispatch();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
-    const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
-    const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state,userAccounts));
+    const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state));
     const [isModalOpen, { setTrue: showModal, setFalse: hideModal }] = useBoolean(false);
-    const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
-    const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
     const validateStep3 = ((Number(pageProps.amount) > 0)||((pageProps.swapId!='') && pageProps.progressStatus < 3));
     
@@ -632,10 +516,7 @@ export const SideBarContainer = () => {
         )
 }
 
-
-
-//@ts-ignore
-const themedStyles = (theme) => ({
+const themedStyles = (theme: ThemeConstantProvider) => ({
     container: {
         marginTop: '0%',
         width: '100%',
@@ -759,7 +640,6 @@ const themedStyles = (theme) => ({
         borderRadius: '12px',
         margin: '0px auto',
         height: '100%'
-
     },
     inputContainer: {
         marginTop: '2rem',

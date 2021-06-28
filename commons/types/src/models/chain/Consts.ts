@@ -48,15 +48,43 @@ const chainContent = (chainId:string,chainName:string,name:string,
     "blockExplorerUrls": [blockExplorerUrls],
 })
 
-export const tokenData = {
-    "FRM" : {
+export const TokenInfo = {
+    "RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
         tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
         tokenSymbol: 'FRM',
         tokenDecimals: 18,
         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
         type: 'ERC20'
-    }
-}
+    },
+    "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
+        tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
+        tokenSymbol: 'FRM',
+        tokenDecimals: 18,
+        tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
+        type: 'ERC20'
+    },
+    "MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
+        tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
+        tokenSymbol: 'FRM',
+        tokenDecimals: 18,
+        tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
+        type: 'ERC20'
+    },
+    "ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c" : {
+        tokenAddress: '0xe5caef4af8780e59df925470b050fb23c43ca68c',
+        tokenSymbol: 'FRM',
+        tokenDecimals: 6,
+        tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
+        type: 'ERC20'
+    },
+    "POLYGON:0xd99bafe5031cc8b345cb2e8c80135991f12d7130" : {
+        tokenAddress: '0xd99bafe5031cc8b345cb2e8c80135991f12d7130',
+        tokenSymbol: 'FRM',
+        tokenDecimals: 18,
+        tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
+        type: 'ERC20'
+    },
+} as any
 
 export const chainData = {
     'ETHEREUM': chainContent('0x1',

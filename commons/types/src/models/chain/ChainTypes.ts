@@ -10,3 +10,9 @@ export interface ChainEventBase {
     callback?: any,
     eventType: string;
 }
+
+export interface UserContractAllocation {
+	contractAddress: string;
+	userAddress: string;
+	allocation: string;
+}

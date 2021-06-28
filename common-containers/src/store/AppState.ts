@@ -1,5 +1,5 @@
 import { AddressDetails, AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { ChainEventBase } from 'types';
+import { ChainEventBase, ChainEventStatus } from 'types';
 
 export const dummyAppUserProfile = {
     id: '',
@@ -29,6 +29,14 @@ export interface AppInitializingState {
     initError?: string;
 }
 
+export interface ApprovalState {
+	pending: boolean;
+	approveTransactionId: string;
+	approvals: { [key: string]: string };
+	status?: ChainEventStatus;
+	error?: string;
+}
+
 export interface AppState<TUserState, TGlobalState, TUiState> {
     connection: {
         account: AppAccountState;
@@ -38,6 +46,7 @@ export interface AppState<TUserState, TGlobalState, TUiState> {
         init: AppInitializingState;
         state: TGlobalState;
         watchEvents: { [k: string]: ChainEventBase };
+		approval: ApprovalState;
     };
     ui: TUiState;
 }

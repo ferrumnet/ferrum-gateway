@@ -81,7 +81,7 @@ export function ConnectBar(props: ConnectBarProps) {
                         switchRequest && network != ('RINKEBY' || 'ETHEREUM') &&
                             <PrimaryButton
                                 text="Switch Network"
-                                onClick={()=>changeNetwork(dispatch,network,datas.selectedToken,datas.addresses)}
+                                onClick={()=>changeNetwork(dispatch,network)}
                             />
                         }
                     </>

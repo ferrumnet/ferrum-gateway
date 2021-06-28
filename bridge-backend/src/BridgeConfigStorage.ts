@@ -1,7 +1,8 @@
 import { MongooseConnection } from "aws-lambda-helper";
-import { Injectable } from "ferrum-plumbing";
+import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Document, Model } from "mongoose";
-import { BridgeTokenConfig, BridgeTokenConfigModel } from "./BridgeProcessorTypes";
+import { BridgeTokenConfigModel } from "./BridgeProcessorTypes";
+import { BridgeTokenConfig } from 'types';
 
 export class BridgeConfigStorage extends MongooseConnection implements Injectable {
     private con: Connection|undefined;
@@ -24,11 +25,25 @@ export class BridgeConfigStorage extends MongooseConnection implements Injectabl
         return !!r ? r.toJSON() : undefined;
     }
 
-    async getSourceCurrencies(sourceNetwork: string): Promise<any[]> {
+    async tokenConfigForCurrencies(currencies: string[]): Promise<BridgeTokenConfig[]> {
+        this.verifyInit();
+		ValidationUtils.isTrue(currencies.length && !currencies.find(c => !c), "Bad currency list");
+        const r = await this.model!.find({'$or': [{
+			sourceCurrency: { '$in': currencies },
+		}, {
+			targetCurrency: { '$in': currencies },
+		}]}).exec();
+        if (r) {
+            return r
+        }
+        return [];
+    }
+
+    async getSourceCurrencies(sourceNetwork: string): Promise<BridgeTokenConfig[]> {
         this.verifyInit();
         const r = await this.model!.find({sourceNetwork});
         if (r) {
-            return r
+            return r.map(i => i.toJSON() as BridgeTokenConfig);
         }
         return [];
     }

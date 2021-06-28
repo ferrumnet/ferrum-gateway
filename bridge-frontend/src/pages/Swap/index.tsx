@@ -1,12 +1,12 @@
 import React, { useState,useContext, useEffect } from 'react';
-import {ThemeContext, Theme} from 'unifyre-react-helper';
+import {ThemeContext, Theme, ThemeConstantProvider} from 'unifyre-react-helper';
 //@ts-ignore
 import {Page,OutlinedBtn} from 'component-library';
 import { AnyAction, Dispatch } from "redux";
 import { createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from './../../common/BridgeAppState';
-import { SignedPairAddress,inject, PairedAddress } from 'types';
+import { SignedPairAddress,inject, PairedAddress, UserBridgeWithdrawableBalanceItem } from 'types';
 import { Divider } from '@fluentui/react-northstar'
 import { TextField} from 'office-ui-fabric-react';
 import { useHistory } from 'react-router';
@@ -24,8 +24,6 @@ import { useToasts } from 'react-toast-notifications';
 import { formatter } from './../../common/Utils';
 import { ReloadOutlined } from '@ant-design/icons';
 import { CommonActions,addAction } from './../../common/Actions';
-import {SwapModal} from './../../components/swapModal';
-import {SidePanelProps} from './../../components/SidePanel';
 import 'antd/dist/antd.css';
 
 export interface swapPageProps{
@@ -87,47 +85,16 @@ export const swapageSlice = createSlice({
         reconnecting: false
     } as swapPageProps,
     reducers: {
-        signFirstPairAddress: (state,action) => {
-
-        },
-        onDestinationNetworkChanged:(state,action) => {
-            state.destNetwork = action.payload.value
-        },
-        onAddressChanged: (state,action) => {
-            state.destAddress = action.payload.value
-        },
-        loadedUserPairs: (state,action) => {
-            state.signedPairedAddress = action.payload.pairedAddress;
-            state.pairedAddress = action.payload.pairedAddress;
-            state.baseAddress = action.payload.pairedAddress.pair?.address1;
-            state.destAddress = action.payload.pairedAddress.pair?.address2;
-            state.baseSignature=action.payload.pairedAddress.signature1;
-            state.destSignature=action.payload.pairedAddress.signature2;
-            state.baseSigned=action.payload.pairedAddress.signature1 ? true: false;
-            state.network= action.payload.pairedAddress.pair.network1;
-            state.destNetwork= action.payload.pairedAddress.pair.network2;
-            state.baseNetwork= action.payload.pairedAddress.pair.network1;
-            state.reconnecting = false;         
-        },
-        checkAllowance: (state,action) => {
-            state.allowanceRequired = action.payload.value
-        },
-        widthdrawalItemsFetched: (state,action) => {
-            state.allowanceRequired = action.payload.value
-        },
         swapDetails: (state,action) => {
             state.currenciesDetails= action.payload.value[0];
             state.selectedToken = ''
         },
         tokenSelected: (state,action) => {
-            state.selectedToken= action.payload.value;
-            state.swapDetails=action.payload.details
+            state.currency = action.payload.value;
+            state.swapDetails = action.payload.details
         },
         amountChanged: (state,action) => {
             state.amount= action.payload.value
-        },
-        approvalSuccess: (state,action) => {
-            state.message= action.payload.message
         },
         swapSuccess: (state,action) => {
             state.amount= '';
@@ -140,46 +107,34 @@ export const swapageSlice = createSlice({
     },
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
-            state.reconnecting = true;
-        });
-        builder.addCase('mainPage/loadedUserPairs', (state, action) => {
-            //@ts-ignore
-            state.pairedAddress = action.payload.pairedAddress;
+            state.reconnecting = true; // TODO: remove
         });
         builder.addCase('BRIDGE_AVAILABLE_LIQUIDITY_FOR_TOKEN', (state, action) => {
             //@ts-ignore
-            state.availableLiquidity= action.payload.liquidity;
+            state.availableLiquidity = action.payload.liquidity;
         });
     }
 });
 
 const Actions = swapageSlice.actions;
 
-const onConnect = async (
-    dispatch: Dispatch<AnyAction>,
-    pair:SignedPairAddress,network1:string,currency:string) => {
-    try {
-        dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
-        const sc = inject<BridgeClient>(BridgeClient);
-        const connect = inject<Connect>(Connect);
-        const network = connect.network() as any;
-        // const currenciesList = await sc.getSourceCurrencies(dispatch,network);
-        // const allowance = await sc.checkAllowance(dispatch,currency,'5', currenciesList[0].targetCurrency);
-        // dispatch(Actions.checkAllowance({value: allowance}));     
-        const res  = await sc.signInToServer(dispatch);
-        dispatch(Actions.loadedUserPairs({pairedAddress: pair}));
-        const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items && items.withdrawableBalanceItems.length > 0){
-            dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-        }
-        return res;
-    } catch(e) {
-		console.error('onConnect', e);
-        dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-    }
-};
+// const onConnect = async (dispatch: Dispatch<AnyAction>) => {
+//     try {
+//         dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
+//         const sc = inject<BridgeClient>(BridgeClient);
+//         const connect = inject<Connect>(Connect);
+//         // const network = connect.network() as any;
+//         // const currenciesList = await sc.getSourceCurrencies(dispatch,network);
+//         // const allowance = await sc.checkAllowance(dispatch,currency,'5', currenciesList[0].targetCurrency);
+//         // dispatch(Actions.checkAllowance({value: allowance}));     
+//         return await sc.signInToServer(dispatch);
+//     } catch(e) {
+// 		console.error('onConnect', e);
+//         dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+//     }finally {
+//         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+//     }
+// };
 
 const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
     dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
@@ -208,14 +163,15 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,targetNet: string,v?: 
             // dispatch(Actions.checkAllowance({value: allowance}))
         }
     }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
+        if(!!(e as Error).message){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
         }
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }      
 };
 
+// TODO: Why there are two different onSwap s?
 const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,balance:string,currency:string,targetNet: string,
@@ -223,6 +179,9 @@ const onSwap = async (
     allowanceRequired:boolean,showModal: () => void
     ) => {
     try {
+		// TODO: Get rid of 
+		allowanceRequired = false;
+
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const client = inject<BridgeClient>(BridgeClient);        
@@ -230,13 +189,13 @@ const onSwap = async (
         const res = await client.swap(dispatch,currency, amount, targetNet,'0');
        
         if( res?.status === 'success'){
-            if(allowanceRequired){
-                dispatch(Actions.approvalSuccess({ }));
-                const allowance = await client.checkAllowance(dispatch,currency,'5', targetNet);
-                if(allowance){
-                    y('Approval Successful, You can now go on to swap your transaction.');
-                    dispatch(Actions.checkAllowance({value: false}))
-                }
+            if(allowanceRequired){ // Should not happen
+                // dispatch(Actions.approvalSuccess({ }));
+                // const allowance = await client.checkAllowance(dispatch,currency,'5', targetNet);
+                // if(allowance){
+                //     y('Approval Successful, You can now go on to swap your transaction.');
+                //     dispatch(Actions.checkAllowance({value: false}))
+                // }
             }else{
                 y('Swap Successful, Kindly View Withdrawal Items for item checkout.');
                 dispatch(Actions.swapSuccess({message: res.status,swapId: res.txId, itemId: res.itemId }));
@@ -248,61 +207,50 @@ const onSwap = async (
         }
         v('error occured')
     }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {
         const sc = inject<BridgeClient>(BridgeClient);
-        const res = await sc.getUserWithdrawItems(dispatch,currency);  
-        if(res && res.withdrawableBalanceItems.length > 0){
-            dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
-        } 
+        await sc.getUserWithdrawItems(dispatch,currency);  
        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 }
 
-
-const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number) => {
-    try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
-        if(res){
-            return res;
-        }
-        return '';
-    }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
-    }
-};
+// const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number) => {
+//     try {
+//         const sc = inject<BridgeClient>(BridgeClient);
+//         const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
+//         if(res){
+//             return res;
+//         }
+//         return '';
+//     }catch(e) {
+// 		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+//     }finally {
+//         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+//     }
+// };
 
 
-const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string) => {
-    try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const connect = inject<Connect>(Connect);
-        const network = connect.network() as any;
-        const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items && items.withdrawableBalanceItems.length > 0){
-            const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === itemId);
-            if(findMatch.length > 0){
-                dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-                return 'created'
-            }
-        }
-        return '';
-    }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-        
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
-    }
-};
+// const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string) => {
+//     try {
+//         const sc = inject<BridgeClient>(BridgeClient);
+//         const connect = inject<Connect>(Connect);
+//         const network = connect.network() as any;
+//         const items = await sc.getUserWithdrawItems(dispatch,network);
+//         if(items && items.withdrawableBalanceItems.length > 0){
+//             const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === itemId);
+//             if(findMatch.length > 0){
+//                 dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
+//                 return 'created'
+//             }
+//         }
+//         return '';
+//     }catch(e) {
+// 		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+//     }finally {
+//         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
+//     }
+// };
 
 export const openPanelHandler = (dispatch: Dispatch<AnyAction>) => {
     dispatch(Actions.triggerPanel({}));
@@ -353,20 +301,16 @@ export function SwapPage () {
     const dispatch = useDispatch();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, swapPageProps>(state => stateToProps(state,userAccounts));
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
+    const withdrawals =  useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
+		state => state.data.state.balanceItems);
 
-    useEffect( () => {
-        if(!pageProps.pairedAddress?.pair){
-            histroy.goBack()
-        }else{
-            onConnect
-                (   dispatch,
-                    pageProps.pairedAddress,
-                    pageProps.currenciesDetails.targetCurrency,
-                    pageProps.currency
-                );
-        }
-    },[]);
+    // useEffect( () => {
+    //     if(!pageProps.pairedAddress?.pair){
+    //         histroy.goBack()
+    //     }else{
+    //         onConnect(dispatch);
+    //     }
+    // },[]);
 
     const onMessage = async (v:string) => {    
         addToast(v, { appearance: 'error',autoDismiss: true })        
@@ -381,8 +325,8 @@ export function SwapPage () {
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
-    let unUsedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
-    let unUsedTotal = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').reduce((a, b) => Number(a) + Number(b.receiveAmount), 0);
+    let unUsedItems = withdrawals.filter(e=>e.used === '').length;
+    let unUsedTotal = withdrawals.filter(e=>e.used === '').reduce((a, b) => Number(a) + Number(b.receiveAmount), 0);
     return (
         <div className="page_cont" >
             <div className="centered-body" style={styles.container}>
@@ -518,9 +462,7 @@ export function SwapPage () {
     )
 }
 
-
-//@ts-ignore
-const themedStyles = (theme) => ({
+const themedStyles = (theme: any) => ({
     container: {
         width: '85%'
     },

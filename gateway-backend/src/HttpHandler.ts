@@ -4,13 +4,15 @@ import {
     JsonRpcRequest,
     ValidationUtils
 } from "ferrum-plumbing";
-import { ChainEventBase } from 'types';
+import { ChainEventBase, UserContractAllocation } from 'types';
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
+import { CommonTokenServices } from "./services/CommonTokenServices";
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
+			private commonTokenServices: CommonTokenServices,
             private bridgeProcessor: BridgeRequestProcessor,// BridgeRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
         ) {
@@ -55,6 +57,13 @@ export class HttpHandler implements LambdaHttpHandler {
                 case 'getProjectById':
                     body = await this.getProjectById(req, userId);
                     break;
+				case 'getContractAllocation':
+					body = await this.getContractAllocation(req);
+					break;
+				case 'approveAllocationGetTransaction':
+                    ValidationUtils.isTrue(!!userId, 'User must be signed in');
+					body = await this.approveAllocationGetTransaction(req);
+					break;
                 default:
                     let processor = this.bridgeProcessor.for(req.command);
                     if (!!processor) {
@@ -109,6 +118,24 @@ export class HttpHandler implements LambdaHttpHandler {
     async getProjects(req: JsonRpcRequest): Promise<any> {
         throw new Error("Method not implemented.");
     }
+
+	async getContractAllocation(req: JsonRpcRequest): Promise<UserContractAllocation> {
+		const { userAddress, contractAddress, currency } = req.data;
+		ValidationUtils.isTrue(!!userAddress, '"userAddress" must be provided');
+		ValidationUtils.isTrue(!!contractAddress, '"contractAddress" must be provided');
+		ValidationUtils.isTrue(!!currency, '"currency" must be provided');
+		return this.commonTokenServices.allocation(userAddress, contractAddress, currency);
+	}
+
+	async approveAllocationGetTransaction(req: JsonRpcRequest): Promise<any> {
+		const { userAddress, contractAddress, currency, amount } = req.data;
+		ValidationUtils.isTrue(!!userAddress, '"userAddress" must be provided');
+		ValidationUtils.isTrue(!!contractAddress, '"contractAddress" must be provided');
+		ValidationUtils.isTrue(!!currency, '"currency" must be provided');
+		ValidationUtils.isTrue(!!amount, '"amount" must be provided');
+		return this.commonTokenServices.approveGetTransaction(
+			userAddress, contractAddress, currency, amount);
+	}
 
     signInAdmin(secret?: string): undefined | string {
         // if(secret === this.adminSecret){

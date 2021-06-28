@@ -1,26 +1,28 @@
 import React,{useEffect, useState,useContext} from 'react';
 // @ts-ignore
-import { Page,Row,Header,CnctButton,WithdrawlsButton,SwitchNetworkButton,AppContainer,ContentContainer, ProgressTracker, TokenBridge,ConnectButton} from 'component-library';
+import { Page,Row,Header,CnctButton,WithdrawlsButton,
+	SwitchNetworkButton, AppContainer,
+	ContentContainer, TokenBridge,
+// @ts-ignore
+} from 'component-library';
 import ThemeSelector from "../../ThemeSelector"
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
 import './../../app.scss'
 import { createSlice,AnyAction } from '@reduxjs/toolkit';
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
-//@ts-ignore
 import { Theme,ThemeContext, ThemeConstantProvider,WebdefaultLightThemeConstantsBuilder} from 'unifyre-react-helper';
-import { inject } from 'types';
+import { inject, inject2, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { Dispatch } from "redux";
 import { getGroupIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
 import { CommonActions,addAction } from './../../common/Actions';
-import { AppAccountState } from 'common-containers';
+import { AppAccountState, connectSlice } from 'common-containers';
 import { ConnectButtonWapper} from 'common-containers';
 import { ReponsivePageWrapperDispatch, ReponsivePageWrapperProps,ThemeProps } from './../../components/PageWrapperTypes';
 import { openPanelHandler } from './../Swap'
 import { useHistory } from 'react-router';
-import {SidePanelProps} from './../../components/SidePanel';
 import { SidePane } from './../../components/SidePanel';
 import { changeNetwork } from "./../Main/handler"
 import { ConnectBridge,SideBarContainer } from "./../Main/Main";
@@ -29,6 +31,7 @@ import { MessageBar, MessageBarType } from '@fluentui/react';
 import { GlobalStyles } from "./../../theme/GlobalStyles";
 import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
+import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 
 interface DashboardState {
     initialized: boolean,
@@ -42,7 +45,6 @@ interface DashboardState {
     filter: string,
     selectedToken: string,
     initializeError?: string,
-    dataLoaded: boolean
 }
 
 function _loadTheme(themeVariables: FulentTheme, customTheme: any) {
@@ -94,7 +96,6 @@ export interface DashboardContentProps {
     groupId: string,
     filter: string,
     initializeError?: string,
-    dataLoaded: boolean,
 	networks: string[],
 	currencies: string[],
 }
@@ -111,7 +112,6 @@ export const DashboardSlice = createSlice({
         panelOpen: false,
         groupId: '',
         initializeError: '',
-        dataLoaded: false,
 		networks: [],
 		currencies: [],
     } as DashboardContentProps,
@@ -119,14 +119,9 @@ export const DashboardSlice = createSlice({
         initializeError: (state,action) => {            
             const {initError} = action.payload;
             state.initializeError = initError;
-            state.dataLoaded = true;
         },
         initializing: (state,action) => {
             state.initializeError = '';
-            state.dataLoaded = true;
-        },
-        dataFetched: (state,action) => {
-            state.dataLoaded = true
         },
     },
     extraReducers: {
@@ -138,7 +133,6 @@ const Actions = DashboardSlice.actions;
 export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
-        dispatch(Actions.dataFetched({}));
         const client = inject<BridgeClient>(BridgeClient);
         const groupId = getGroupIdFromHref();
         if (!groupId) {
@@ -151,9 +145,20 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
+			await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies)
+			if ((groupInfo.bridgeCurrencies || []).length) {
+				const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
+				cl.set(groupInfo.bridgeCurrencies);
+				try {
+					const userProfile = await await web3client.getUserProfile();
+            		dispatch(connectSlice.actions.connectionSucceeded({userProfile}));
+				}
+				catch(e) { console.error('Could not update user profile. ', e); }
+			}
             return;
         }
     } catch (error) {
+		console.error('Error initializing', error);
         dispatch(Actions.initializeError({initError: 'Network Error'}));
         return;
     }finally {
@@ -177,7 +182,6 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): D
         network: address.network,
         selectedToken: state.selectedToken,
         addresses: addr,
-        dataLoaded: state.dataLoaded,
 		currencies: curs,
 		networks: curs.map(c => c.split(':')[0]),
     } as DashboardContentProps;
@@ -225,8 +229,9 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
         openPanelHandler(dispatch)
         setOpen(false);
     }
-    const withdrawalsProps =  useSelector<BridgeAppState, SidePanelProps>(state => state.ui.sidePanel);
-    const unusedItems = withdrawalsProps.userWithdrawalItems.filter(e=>e.used === '').length;
+    const withdrawals =  useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
+		state => state.data.state.balanceItems);
+    const unusedItems = withdrawals.filter(e=>e.used === '').length;
     const ConBot = <ConnectButtonWapper View={CnctButton} />
     const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
     const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
@@ -262,7 +267,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
             {
                 switchRequest && network != ('RINKEBY' || 'ETHEREUM') &&
                 <SwitchNetworkButton customClasses="mr-3"
-                    onClick={()=>changeNetwork(dispatch,network,PairPageProps.selectedToken,PairPageProps.addresses)} 
+                    onClick={()=>changeNetwork(dispatch,network)} 
                 />
             }
         </>
@@ -347,13 +352,12 @@ export function Dashboard(props:ThemeProps) {
     },[appInitialized]);
 
     useEffect(() => {
-        if(appInitialized && !stateData.dataLoaded){
+        if(appInitialized){
             handleCon()
-            dispatch(Actions.dataFetched({}));
         }
-    },[appInitialized,stateData.dataLoaded])
+    },[appInitialized]);
 
-    if (appInitialized && !stateData.initializeError && stateData.dataLoaded) {
+    if (appInitialized && !stateData.initializeError) {
         return (
             <ThemeProvider theme={selectedTheme}>
                 <GlobalStyles/>

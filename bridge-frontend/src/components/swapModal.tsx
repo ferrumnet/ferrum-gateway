@@ -75,8 +75,7 @@ async function updateWithdrawStatus(id: string, dispatch: Dispatch<AnyAction>): 
     const network = connect.network() as any;
     await updateData(dispatch)
     const items = await sc.getUserWithdrawItems(dispatch, network);
-    if(items && items.withdrawableBalanceItems.length > 0){
-        dispatch(SidePanelSlice.actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
+    if(items && items.withdrawableBalanceItems.length > 0) {
         const findMatch = items.withdrawableBalanceItems.find((e:any)=>e.receiveTransactionId === id.replace('_STEP2', '')); // TODO: Hack! find a better way
         if(!!findMatch){
 		      dispatch(SidePanelSlice.actions.moveToNext({step: 3}));
@@ -106,8 +105,6 @@ export function SwapModal (props: {
   sendNetwork: string,
   timestamp: number,
   swapping: boolean,
-//   callback:(dispatch:Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number)=>Promise<string|undefined>
-//   itemCallback:(dispatch:Dispatch<AnyAction>,itemId:string)=>Promise<string|undefined>,
   itemId: string
   claim: (dispatch:Dispatch<AnyAction>) =>  void
 }) {

@@ -6,6 +6,7 @@ import { connectSlice } from '../connect/ConnectButtonWrapper';
 import { initSlice, initThunk } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
 import logger from 'redux-logger';
+import { approvableButtonSlice } from '../chain/ApprovableButtonWrapper';
 
 export class StoreBuilder {
     static build<TUserState, TGlobalState extends AppInitializingState, TUiState>(
@@ -27,6 +28,7 @@ export class StoreBuilder {
                     init: initSlice.reducer,
                     state: dataReducer,
                     watchEvents: chainEventsSlice.reducer,
+					approval: approvableButtonSlice.reducer,
                 }),
                 ui: uiReducer,
             })

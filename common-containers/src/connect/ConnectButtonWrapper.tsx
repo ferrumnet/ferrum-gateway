@@ -1,8 +1,8 @@
-import React,{Dispatch, useEffect} from 'react';
+import React,{useEffect} from 'react';
 import { Connect } from 'unifyre-extension-web3-retrofit/dist/contract/Connect';
 import { ValidationUtils } from 'ferrum-plumbing';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressesForUser, addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
 import { ETH, FRM, FRMX, inject, inject3, inject5, } from 'types';
@@ -113,7 +113,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         }
         
         // Subscribe to session disconnection
-        console.log('Provider is...', connect.getProvider())
+        // console.log('Provider is...', connect.getProvider())
         connect.getProvider()!.addEventListener('disconnect', (reason: string) => {
             console.log('DISCONNECTED FROM WALLET CONNECT', reason);
             ctx.dispatch(Actions.disconnect());
@@ -169,7 +169,7 @@ export function ConnectButtonWapper(props: IConnectOwnProps) {
             AUTO_CON.tried = true;
             connector();
         }
-    },[connector, appInitialized, connected])
+    },[connector, appInitialized, connected]);
     ValidationUtils.isTrue(!!props.View, '"View" must be set');
 
     if (!appInitialized) {

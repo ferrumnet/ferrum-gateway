@@ -8,6 +8,8 @@ import { BasicHandlerFunction } from 'aws-lambda-helper/dist/http/BasicHandlerFu
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { CommonBackendModule } from 'common-backend';
+import { CommonTokenServices } from './services/CommonTokenServices';
+import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
 
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
@@ -19,9 +21,12 @@ export class GatewayModule implements Module {
         container.registerSingleton('LambdaHttpHandler',
                 c => new HttpHandler(
                     c.get(UnifyreBackendProxyService),
+					c.get(CommonTokenServices),
                     c.get(BridgeRequestProcessor),
 					c.get('MultiChainConfig'),
                     ));
+		container.registerSingleton(CommonTokenServices,
+				c => new CommonTokenServices(c.get(EthereumSmartContractHelper)));
         // Registering other modules at the end, in case they had to initialize database...
         await container.registerModule(new BridgeModule());
     }

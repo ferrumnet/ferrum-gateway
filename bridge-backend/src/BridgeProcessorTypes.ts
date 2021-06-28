@@ -1,19 +1,8 @@
 import { MongooseConfig } from "aws-lambda-helper";
 import { Connection, Document, Schema } from "mongoose";
 import {ValidationUtils} from "ferrum-plumbing";
+import { BridgeTokenConfig } from 'types';
 
-export interface BridgeTokenConfig {
-    sourceNetwork: string;
-    targetNetwork: string;
-    sourceCurrency: string;
-    targetCurrency: string;
-    feeConstant: string;
-    feeRatio: string;
-}
-
-export interface NetworkRelatedConfig {
-    [network: string]: string;
-}
 export interface TokenBridgeConfig {
     contractClient: {[k: string]: string};
 }

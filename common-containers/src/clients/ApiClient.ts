@@ -2,13 +2,16 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plu
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError, ChainEventBase } from "types";
+import { logError, ChainEventBase, UserContractAllocation } from "types";
+import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
     private jwtToken: string = '';
     private address: string = '';
     private network: string = '';
-    constructor(private baseUrl: string) { }
+    constructor(private baseUrl: string,
+        protected client: UnifyreExtensionKitClient
+		) { }
 
     __name__() { return 'ApiClient'; }
     
@@ -51,6 +54,27 @@ export class ApiClient implements Injectable {
         }
         return providers;
     }
+
+	async getContractAllocation(userAddress: string, contractAddress: string, currency: string)
+	: Promise<UserContractAllocation> {
+		return this.api({
+            command: 'getContractAllocation', data: {userAddress, contractAddress, currency},
+			params: [] } as JsonRpcRequest);
+	}
+
+	async setContractAllocation(userAddress: string, contractAddress: string, currency: string, amount?: string)
+	: Promise<string> {
+		const requests = await this.api({
+			command: 'approveAllocationGetTransaction',
+			data: {currency, amount: amount || '1', userAddress, contractAddress}, params: [] } as JsonRpcRequest);
+		ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling approve. No requests');
+		console.log('About to submit request', {requests});
+		const requestId = await this.client.sendTransactionAsync(this.network! as any, requests,
+			{currency, amount, userAddress, contractAddress});
+
+		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+		return requestId.split('|')[0]; // Convert the requestId to transction Id. TODO: Do this a better way
+	}
 
     async api(req: JsonRpcRequest): Promise<any> {
         try {

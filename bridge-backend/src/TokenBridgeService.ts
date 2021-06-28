@@ -6,15 +6,16 @@ import { Connection, Document, Model} from "mongoose";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
-    GroupInfo,GroupInfoModel
+    GroupInfo,
 } from "types";
 import { Big } from 'big.js';
+import { GroupInfoModel } from './common/TokenBridgeTypes';
 
 const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
 
 export class TokenBridgeService extends MongooseConnection implements Injectable {
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
-    private groupInfoModel: Model<GroupInfo & Document, {}> | undefined;
+    private groupInfoModel: Model<GroupInfo & Document> | undefined;
     private balanceItem?: Model<UserBridgeWithdrawableBalanceItem&Document>;
     private con: Connection|undefined;
     constructor(

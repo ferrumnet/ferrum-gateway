@@ -33,12 +33,12 @@ import { Actions as MainPageAction } from './../pages/Main/Main';
 import { addToken } from './../pages/Main/handler';
 
 export interface SidePanelProps {
-    userWithdrawalItems: UserBridgeWithdrawableBalanceItem[],
-    Network: string,
-	step: number,
-    reconnecting?: boolean,
-    dataLoaded?: boolean,
-    txExecuted?: boolean
+    Network: string;
+	step: number;
+    reconnecting?: boolean;
+    dataLoaded?: boolean;
+    txExecuted?: boolean;
+	symbol: string;
 }
 
 export const SidePanelSlice = createSlice({
@@ -49,17 +49,14 @@ export const SidePanelSlice = createSlice({
         Network: '',
 		step: 1,
         dataLoaded: false,
-        txExecuted: false
+        txExecuted: false,
+		symbol: '',
     } as SidePanelProps,
     reducers: {
         signFirstPairAddress: (state,action) => {
 
         },
         onDestinationNetworkChanged:(state,action) => {
-        },
-        widthdrawalItemsFetched: (state,action) => {
-            state.userWithdrawalItems = action.payload.items.reverse();
-            state.dataLoaded = true
         },
 		moveToNext: (state, action) => {
 			state.step = action.payload.step;
@@ -70,11 +67,6 @@ export const SidePanelSlice = createSlice({
         dataLoaded: (state,action) => {
             state.dataLoaded = true
         },
-        withdrawItemUpdated: (state, action) => {
-            const {withdrawItem} = action.payload;
-            const wi = state.userWithdrawalItems.findIndex(i => i.id === withdrawItem.id);
-            state.userWithdrawalItems[wi] = withdrawItem;
-        }
     },
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
@@ -97,13 +89,13 @@ export const SidePanelSlice = createSlice({
 export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): SidePanelProps {
     const state = (appState.ui.sidePanel || {}) as SidePanelProps;
     const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
-    const address = addr[0] || {};
+    const address = addr[0] || {} as any;
     return {
-        userWithdrawalItems: state.userWithdrawalItems || [],
         Network: address.network,
         dataLoaded: state.dataLoaded!,
         txExecuted: state.txExecuted!,
 		step: state.step,
+		symbol: address.symbol,
     };
 }
 
@@ -118,38 +110,15 @@ const getUserWithdrawItems = async (dispatch:Dispatch<AnyAction>) => {
     try {
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
-        const res = await sc.getUserWithdrawItems(dispatch,network); 
-        if(res &&res.withdrawableBalanceItems.length > 0){
-            dispatch(Actions.widthdrawalItemsFetched({items: res.withdrawableBalanceItems}));
-            if(res.withdrawableBalanceItems){
-                const pendingItems = res.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
-                if(pendingItems.length > 0){
-                    pendingItems.forEach(
-                        async (item:UserBridgeWithdrawableBalanceItem) => {
-                            if(item.used === 'pending'){
-                                const lastItem = item.useTransactions.length;
-                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
-                            }
-                        }
-                    );
-                    const items = await sc.getUserWithdrawItems(dispatch,network);
-                    if(items && items.withdrawableBalanceItems.length > 0){
-                        dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-                    }
-    
-                }
-            }
-        }
-        dispatch(Actions.dataLoaded({}));
+        await sc.getUserWithdrawItems(dispatch,network); 
     } catch (error) {
-        
+		console.error('getUserWithdrawItems', error);
     }
 }
 
 const getData= async (dispatch:Dispatch<AnyAction>) => {
     try {
         const [connect,client] = inject2<Connect,UnifyreExtensionWeb3Client>(Connect,UnifyreExtensionWeb3Client);
-        const network = connect.network() as any;
         const userProfile = await client.getUserProfile();
         const Actions = connectSlice.actions;
         dispatch(Actions.connectionSucceeded({userProfile}))
@@ -173,13 +142,10 @@ const executeWithrawItem = async (
         const res = await sc.withdraw(dispatch,item,network)
         dis();
         if(!!res && !!res[0]){
+            dispatch(Actions.transactionExecuted({}));       
             success('Withdrawal was Successful and is processing...');
             popup(network,res[1]);
-            const items = await sc.getUserWithdrawItems(dispatch,network);
-            if(items && items.withdrawableBalanceItems.length > 0){
-                dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-            }
-            dispatch(Actions.transactionExecuted({}));       
+            await sc.getUserWithdrawItems(dispatch,network);
             return;
         }
         error('Withdrawal failed');
@@ -195,47 +161,11 @@ const executeWithrawItem = async (
 async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
     try {
         const c = inject<BridgeClient>(BridgeClient);
-        const res = await c.updateWithdrawItemPendingTransactions(item.network, item.id);
-        dispatch(Actions.withdrawItemUpdated({withdrawItem: res}));
+        const res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
     } catch(e) {
         console.error('updateWithdrawItem ', e);
         return item;
-    }
-}
-
-const updatePendingWithrawItems = async (dispatch: Dispatch<AnyAction>) =>{
-    try {
-        const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
-        const network = connect.network() as any;
-        const items = await sc.getUserWithdrawItems(dispatch,network);
-        if(items && items.withdrawableBalanceItems.length > 0){
-            if(items.withdrawableBalanceItems){
-                const pendingItems = items.withdrawableBalanceItems.filter((e:any) => (e.used === 'pending' || (e.used === '' && e.useTransactions.length > 0)));
-                if(pendingItems.length > 0){
-                    pendingItems.forEach(
-                        async (item:UserBridgeWithdrawableBalanceItem) => {
-                            if(item.used === 'pending'){
-                                const lastItem = item.useTransactions.length;
-                                await sc.withdrawableBalanceItemUpdateTransaction(dispatch,item.receiveTransactionId,item.useTransactions[lastItem - 1].id)
-                            }
-                        }
-                    );
-                    const items = await sc.getUserWithdrawItems(dispatch,network);
-                    if(items && items.withdrawableBalanceItems.length > 0){
-                        dispatch(Actions.widthdrawalItemsFetched({items: items.withdrawableBalanceItems}));
-                    }
-    
-                }
-            }
-        }
-     
-    }catch(e: any) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message }));
-        }
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }
 }
 
@@ -249,7 +179,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
-    const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
+    // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
+	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
+		appS => appS.data.state.balanceItems);
 
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
@@ -283,7 +215,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-                    <p style={styles.point} onClick={()=>addToken(dispatch,token,onMessage)}>
+                    <p style={styles.point} onClick={()=>addToken(dispatch, pageProps.symbol, onMessage)}>
                         <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding: '5px'}}/> 
                         <span>Add Token to MetaMask</span>
                     </p>,
@@ -318,8 +250,8 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
           visible={props.isOpen}
         >
           <Accordion>
-                { pageProps.userWithdrawalItems.map(
-                        e => <div>
+                { userWithdrawalItems.map(
+                        (e, i) => <div key={i}>
                         <ChainEventItem
                             id={e.receiveTransactionId}
                             network={e.receiveNetwork as Network}

@@ -1,31 +1,19 @@
 import { AppInitializingState, AppState,AppAccountState } from 'common-containers';
-import { GatewayProject, GatewayStakings, UserProjectAllocation, UserProjects } from 'types';
+import { GatewayProject, GatewayStakings, GroupInfo, UserBridgeWithdrawableBalanceItem, UserProjectAllocation, UserProjects } from 'types';
 import {DashboardProps} from './../pages/Dashboard/Dashboard';
-import {MainPageProps} from './../pages/Main/Main';
+import {MainPageState} from './../pages/Main/Main';
 import {swapPageProps} from './../pages/Swap';
 import {liquidityPageProps} from './../pages/Liquidity';
 import { SidePanelProps} from '../components/SidePanel';
+import { BridgeTokenConfig } from 'types';
 
-export interface GroupInfo {
-    _id?: string;
-    groupId: string;
-    network: string;
-    themeVariables: any;
-    defaultCurrency: string;
-    homepage: string;
-    noMainPage: boolean; // Main page should redirect to home page
-    headerHtml?: string;
-    footerHtml?: string;
-    mainLogo?: string;
-	bridgeCurrencies: string[];
-}
 
-export type AppUiState = {
-    dashboard: DashboardProps,
-    pairPage: MainPageProps,
-    swapPage: swapPageProps,
-    liquidityPage: liquidityPageProps,
-    sidePanel: SidePanelProps
+export interface AppUiState {
+    dashboard: DashboardProps;
+    pairPage: MainPageState;
+    swapPage: swapPageProps;
+    liquidityPage: liquidityPageProps;
+    sidePanel: SidePanelProps;
 };
 
 export interface AppUserState {
@@ -35,10 +23,13 @@ export interface AppUserState {
 }
 
 export interface AppGlobalState extends AppInitializingState {
+	balanceItems: UserBridgeWithdrawableBalanceItem[],
     allProjects: GatewayProject[],
     allStakings: GatewayStakings,
     groupInfo: GroupInfo,
-    error: ''
+	currencyPairs: BridgeTokenConfig[],
+	bridgeLiquidity: {[k: string]: string},
+    error: '',
 }
 
 export type BridgeAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

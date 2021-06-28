@@ -47,6 +47,9 @@ export function ConfirmationModal (props: {
     processSwap: ()=> Promise<void>,
     setIsModalClose: () => void
 }) {
+	console.log('CONFIRMMI MODALO', {
+		props
+	})
   const theme = useContext(ThemeContext);
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
@@ -130,11 +133,11 @@ export function ConfirmationModal (props: {
                 <div className={styles.listLabel}>You will receive</div>
                 <div className={styles.listItem}>{(Number(props.total) - ((Number(props.fee)/100)*Number(props.total)))} {props.token}</div>
             </div>
-            <div className={styles.btnList}>
+            {/* <div className={styles.btnList}>
                 <Alert
                     message="Additional note about notification and withdrawals. More informational notes before swap." type="info" showIcon
                 />
-            </div>
+            </div> */}
             <div className={styles.btnList2}>
                 <RegularBtn text={'Confirm Swap'}
                     propStyle={{

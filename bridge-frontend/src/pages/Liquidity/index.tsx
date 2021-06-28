@@ -75,11 +75,12 @@ const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCu
         if(res){
             if(allowanceRequired){
                 dispatch(Actions.approvalSuccess({ }));
-                const allowance = await client.checkAllowance(dispatch,targetCurrency,'5', targetCurrency);
-                if(allowance){
-                    success('Approval Successful, You can now go on to add you liquidity.','');
-                    dispatch(Actions.checkAllowance({value: false}))
-                }
+				// TODO: User the allowable button
+                // const allowance = await client.checkAllowance(dispatch,targetCurrency,'5', targetCurrency);
+                // if(allowance){
+                //     success('Approval Successful, You can now go on to add you liquidity.','');
+                //     dispatch(Actions.checkAllowance({value: false}))
+                // }
                 
             }else{
                 success('Liquidity Added Successfully and processing',res.txId);
@@ -185,7 +186,7 @@ export const liquidityPageSlice = createSlice({
         destAddress: '',
         destSignature: '',
         baseSignature: '',
-        destNetwork: 'ETHEREUM',
+        destNetwork: '',
         baseNetwork: '',
         currency: '',
         userWithdrawalItems: [],
@@ -211,7 +212,7 @@ export const liquidityPageSlice = createSlice({
             state.baseSignature=action.payload.pairedAddress.signature1;
             state.destSignature=action.payload.pairedAddress.signature2;
             state.network= action.payload.pairedAddress.pair?.network1;
-            state.destNetwork= action.payload.pairedAddress.pair?.network2 || state.destNetwork;
+            // state.destNetwork= action.payload.pairedAddress.pair?.network2 || state.destNetwork;
             state.baseNetwork= action.payload.pairedAddress.pair?.network1;
             state.reconnecting = false;         
         },

@@ -1,4 +1,6 @@
 import { Network } from 'ferrum-plumbing';
+import { Connection, Schema, Document } from 'mongoose';
+import { GroupInfo } from 'types';
 import { Eip712TypeDefinition} from 'unifyre-extension-web3-retrofit/dist/client/Eip712';
 
 export const PairedAddressType: Eip712TypeDefinition =  {
@@ -20,3 +22,13 @@ export interface BridgeSwapEvent {
 	targetAddress: string;
 	amount: string;
 }
+
+export const groupInfoSchema: Schema = new Schema<Document&GroupInfo>({
+	groupId: String,
+	themeVariables: Object,
+	homepage: String,
+	defaultCurrency: String,
+	noMainPage: String,
+  });
+  
+  export const GroupInfoModel = (c: Connection) => c.model<GroupInfo&Document>('groupInfo', groupInfoSchema);

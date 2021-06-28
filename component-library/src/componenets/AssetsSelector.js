@@ -56,6 +56,7 @@ export const AssetsSelector = ({
   selectedToken,
   onChange
 }) => {
+	console.log('SELTOK ', {icons, selectedToken})
   return (
     <Dropdown className="assets-dropdown">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">

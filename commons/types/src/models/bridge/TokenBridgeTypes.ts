@@ -150,11 +150,13 @@ export function domainSeparator(network: string): DomainSeparator {
     });
 };
 
-const BRIDGE_CONTRACT = {
-    'ETHEREUM': '0x0000000000000000000000000000000000000000',
-    'RINKEBY': '0x0000000000000000000000000000000000000000',
-    'BSC': '0x0000000000000000000000000000000000000000',
-    'BSC_TESTNET': '0x0000000000000000000000000000000000000000',
+export const BRIDGE_CONTRACT = {
+    'ETHEREUM': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+    'RINKEBY': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
+    'BSC': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+    'BSC_TESTNET': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
+    'POLYGON': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+    'MUMBAI_TESTNET': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
 } as any;
 
 export interface PairedAddress {
@@ -197,3 +199,15 @@ export interface UserBridgeLiquidityItem {
     liquidity: string;
 }
 
+export interface BridgeTokenConfig {
+    sourceNetwork: string;
+    targetNetwork: string;
+    sourceCurrency: string;
+    targetCurrency: string;
+    feeConstant: string;
+    fee: string;
+}
+
+export interface NetworkRelatedConfig {
+    [network: string]: string;
+}
