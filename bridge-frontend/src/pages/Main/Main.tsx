@@ -313,8 +313,6 @@ export const ConnectBridge = () => {
 				pageProps.destNetwork,
                 (v)=> dispatch(Actions.setProgressStatus({status:v})),
 				pageProps.availableLiquidity,
-				pageProps.symbol,
-				(propsGroupInfo.fee??0)
             )}
         />
         <Card className="text-center">

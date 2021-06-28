@@ -14,9 +14,6 @@ import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
 export class GatewayModule implements Module {
     async configAsync(container: Container) {
         await container.registerModule(new CommonBackendModule());
-        await container.registerModule(
-            new UnifyreBackendProxyModule('DUMMY', 'asd', // stakingAppConfig.authRandomKey,
-                '',));
         
         container.registerSingleton('LambdaHttpHandler',
                 c => new HttpHandler(

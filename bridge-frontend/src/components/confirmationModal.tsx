@@ -172,7 +172,7 @@ const themedStyles = (theme) => mergeStyleSets({
     display: 'flex',
     flexFlow: 'column nowrap',
     alignItems: 'stretch',
-    minWidth: '30%',
+    minWidth: '450px',
     width: '30%',
     padding: '0rem 1rem',
     backgroundColor: 'white'

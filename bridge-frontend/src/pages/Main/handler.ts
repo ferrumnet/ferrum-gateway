@@ -6,7 +6,6 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // TODO: Move to a common project
 export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
@@ -110,8 +109,6 @@ export const onSwap = async (
 	destnetwork:string,
     setStatus:(v:number)=>void,
     availableLiquidity:string,
-    selected: string,
-    fee: string
     ) => {
     try {
 		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
@@ -122,7 +119,7 @@ export const onSwap = async (
        
         ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
 
-        const res = await client.swap(dispatch,currency, amount, targetCurrency, fee);
+        const res = await client.swap(dispatch,currency, amount, targetCurrency);
        
         if( res?.status === 'success'){
 			y('Swap Successful, Kindly View Withdrawal Items for item checkout.');

@@ -2,7 +2,7 @@ import { ConsoleLogger, Container, EncryptedData, LoggerFactory, Module, Validat
 import { getEnv } from 'types';
 import { EthereumSmartContractHelper, Web3ProviderConfig } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
-import { AwsEnvs, KmsCryptor, SecretsProvider } from "aws-lambda-helper";
+import { AwsEnvs, KmsCryptor, SecretsProvider, UnifyreBackendProxyModule } from "aws-lambda-helper";
 import { KMS } from 'aws-sdk';
 
 export class CommonBackendModule implements Module {
@@ -41,6 +41,9 @@ export class CommonBackendModule implements Module {
             () => new Object());
         container.register(LoggerFactory,
             () => new LoggerFactory((name: string) => new ConsoleLogger(name)));
+
+        await container.registerModule(
+            new UnifyreBackendProxyModule('DUMMY', getEnv('JWT_RANDOM_KEY'), '',));
 
         // makeInjectable('CloudWatch', CloudWatch);
         // container.register('MetricsUploader', c =>

@@ -337,7 +337,6 @@ export class BridgeClient implements Injectable {
         currency: string,
         amount: string,
         targetCurrency: string,
-        fee: string
         ) {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
@@ -347,7 +346,7 @@ export class BridgeClient implements Injectable {
 			ValidationUtils.isTrue(sourceNetwork !== targetNetwork, 'Source and target networks cannot be the same');
             const res = await this.api.api({
                 command: 'swapGetTransaction',
-                data: {currency, amount, targetCurrency,fee}, params: [] } as JsonRpcRequest);
+                data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
             const { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,

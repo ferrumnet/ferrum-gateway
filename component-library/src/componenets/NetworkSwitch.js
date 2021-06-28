@@ -40,8 +40,10 @@ export const NetworkSwitch = (
           }
         </div>
         <div className="col-lg-2 col-md-2 text-center">
-          <Button className="btn-pri btn-icon btn-swap my-4" disabled={swapping} onClick={()=>setIsNetworkReverse()}>
-            <i className="mdi mdi-swap-horizontal"></i>
+          <Button className="btn-pri btn-icon btn-swap my-4" disabled={swapping}
+		//    onClick={()=>setIsNetworkReverse()}
+		  >
+            <i className="mdi mdi-arrow-right"></i>
           </Button>
         </div>
         <div className="col-lg-5 col-md-5">
