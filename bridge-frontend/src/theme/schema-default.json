@@ -5,7 +5,7 @@
         "name": "Light",
         "colors": {
           "body": "#f1f1f1",
-          "text": "#000000",
+          "text": "#dbb46e",
           "inverse":  "#fffff",
           "card": "#fffff",
           "button": {

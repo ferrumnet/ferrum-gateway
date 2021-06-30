@@ -7,8 +7,10 @@ export const GlobalStyles = createGlobalStyle`
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
-    font-size: 13px
-
+    box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.4);
+    font-size: 18px;
+    background-image: url(https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png);
+    background-size: cover;
   }
   .head{
     font-size: 13px
@@ -82,6 +84,7 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .card {
+    border-radius: 0px!important;
     background-color: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius + 2} !important;
     box-shadow: -2px -1px 5px 2px rgb(0 0 0 / 26%);
@@ -135,6 +138,11 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.card.cardPri} !important;
     span{
       color: ${({ theme }) => theme.colors.textPri} !important;
+    }
+  }
+  .ant-steps-item-wait {
+    .ant-steps-item-icon {
+     background-color: #dbb46e;
     }
   }
   .anticon{

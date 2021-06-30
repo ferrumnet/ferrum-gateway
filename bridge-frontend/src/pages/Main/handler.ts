@@ -105,7 +105,7 @@ export const onSwap = async (
             // }else{
             // }
         }
-        v('error occured')
+        v('Transaction Rejected')
     }catch(e) {
 		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {

@@ -7,15 +7,15 @@
       "colors": {
         "themeColor": "#fff7e9",
         "body": "#fff7e9",
-        "headercolor": "#272a33",
+        "headercolor": "rgba(39, 42, 51,0)",
         "themePrimary": "#272a33",
         "themeSecondary": "#f3f3f3",
         "textPri": "#ffffff",
-        "text": "#000000",
+        "text": "#dbb46e",
         "inverse":  "#ffffff",
         "textSec": "#afafaf",
         "card": {
-          "cardPri": "#272a33",
+          "cardPri": "rgba(0,0,0,0.9)",
           "cardTextPri": "#f3f3f3",
           "cardSec": "#272a33",
           "cardTextSec": "#ffffff",

@@ -290,7 +290,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
             />
             <div className="mt-4 d-flex justify-content-center text-center">
                 <div>
-                    <h4 style={{"marginBottom":"0em"}} className="text-center display-12 font-weight-bold">Welcome to the {groupInfo.projectTitle} token bridge.</h4>
+                    <h4 style={{"marginBottom":"0em"}} className="text-center display-12 font-weight-bold">{groupInfo.projectTitle} Cross-Chain Token Bridge</h4>
                 </div>
             </div>
 
