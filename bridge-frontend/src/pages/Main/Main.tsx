@@ -314,7 +314,7 @@ export const ConnectBridge = () => {
         />
         <Card className="text-center">
             <small className="text-vary-color mb-5 head">
-                    Swap Token Across chains
+                    Swap Token Across <strong>chains</strong>
                     <hr className="mini-underline"></hr>
             </small>
             <div className="text-left">
