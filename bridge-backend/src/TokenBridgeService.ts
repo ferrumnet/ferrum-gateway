@@ -149,7 +149,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
 			item.used = 'failed';
 		}
         for (const tx of pendingTxs) {
-            const txStatus = await this.helper.getTransactionStatus(item.sendNetwork, tx.id, tx.timestamp);
+            const txStatus = await this.helper.getTransactionStatus(item.sendNetwork, tx.id, tx.timestamp || Date.now());
             tx.status = txStatus;
             console.log(`Updating status for withdraw item ${id}: ${item.sendNetwork} ${txStatus}-${tx.id}`);
             if(txStatus === ('timedout' || 'failed')){
@@ -173,7 +173,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const txItem = (item.useTransactions || []).find(t => t.id === tid);
         if (!!txItem) {
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txItem.timestamp);
+            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txItem.timestamp || Date.now());
             txItem.status = txStatus;
             console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
             if(txStatus === ('timedout' || 'failed')){
@@ -185,7 +185,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
             }
         } else {
             const txTime = Date.now();
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime);
+            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime || Date.now());
             item.useTransactions = item.useTransactions || [];
             item.useTransactions.push({id: tid, status: txStatus, timestamp: txTime});
             if(txStatus === ('timedout' || 'failed')){
@@ -203,7 +203,8 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!tid, "tid not found.");
         ValidationUtils.isTrue(!!sendNetwork, "sendNetwork not found.");
         ValidationUtils.isTrue(!!timestamp, "timestamp not found.");
-        const txStatus = await this.helper.getTransactionStatus(sendNetwork, tid, timestamp);
+        const txStatus = await this.helper.getTransactionStatus(sendNetwork, tid,
+			timestamp || Date.now());
         if(!!txStatus){
             return txStatus
         }           

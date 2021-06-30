@@ -32,7 +32,7 @@ export class HttpHandler implements LambdaHttpHandler {
             switch (req.command) {
                 case 'signInUsingAddress':
                     let {userAddress} = req.data;
-                    const unsecureSession = await this.uniBack.newSession(userAddress);
+                    const unsecureSession = await this.uniBack.newSession(userAddress, '24h');
                     body = {unsecureSession};
                     break;
                 case 'signInAdmin':
