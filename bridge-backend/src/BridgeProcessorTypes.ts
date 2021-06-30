@@ -29,7 +29,7 @@ const bridgeTokenConfigSchema: Schema = new Schema<Document&BridgeProcessorConfi
     sourceCurrency: String,
     targetCurrency: String,
     feeConstant: String,
-    feeRatio: String,
+    fee: String,
 });
 
 export const BridgeTokenConfigModel = (c: Connection) =>

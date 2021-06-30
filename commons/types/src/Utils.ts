@@ -57,7 +57,7 @@ export class Utils {
             case 'bsc_testnet':
                 return `https://testnet.bscscan.com/address/${addr}`;
             case 'mumbai_testnet':
-                return `https://explorer-mumbai.maticvigil.com/address/${addr}`;
+                return `https://mumbai.polygonscan.com/address/${addr}`;
             case 'polygon':
                 return `https://polygonscan.com/address/${addr}`;
         }
@@ -75,7 +75,7 @@ export class Utils {
             case 'bsc_testnet':
                 return `https://testnet.bscscan.com/tx/${tid}`;
             case 'mumbai_testnet':
-                return `https://explorer-mumbai.maticvigil.com/tx/${tid}`;
+                return `https://mumbai.polygonscan.com/tx/${tid}`;
             case 'polygon':
                 return `https://polygonscan.com/tx/${tid}`;
         }

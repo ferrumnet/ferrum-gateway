@@ -12,7 +12,7 @@ import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
-import { onSwap, executeWithdraw,changeNetwork,addToken, } from './handler';
+import { onSwap, executeWithdraw,changeNetwork,} from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
 import { WithdrawNoti } from '../../components/withdrawalNoti';
@@ -22,13 +22,15 @@ import { message, Result } from 'antd';
 import { Utils } from 'types';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
-import { PlusOutlined } from '@ant-design/icons';
 import {SidePanelSlice} from './../../components/SidePanel';
 import { SwapButton } from '../../components/SwapButton';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
 import { Big } from 'big.js';
 import { BridgeClient } from '../../clients/BridgeClient';
+//@ts-ignore
+import { AddTokenToMetamask } from 'component-library';
+import { addAction, CommonActions } from '../../common/Actions';
 
 const { Step } = Steps;
 
@@ -119,14 +121,14 @@ export const MainPageSlice = createSlice({
 export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
 	async (payload: {destNetwork: string}, ctx) => {
 	try {
-		// ctx.dispatch(MainPageSlice.actions.resetDestNetwork({value: payload.destNetwork}));
-		console.log('LOAD LIQUIDITY???', payload);
 		const client = inject<BridgeClient>(BridgeClient);
 		const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
 			.find(c => c.targetNetwork === payload.destNetwork)?.targetCurrency;
-		console.log('TAR CUR???', targetCurrency);
 		if (targetCurrency) {
 			await client.getAvailableLiquidity(ctx.dispatch, payload.destNetwork, targetCurrency);
+		} else {
+			ctx.dispatch(addAction(CommonActions.ERROR_OCCURED,
+				{message: 'No target token available for the selected network'}));
 		}
 	} catch (e) {
 		console.error('Load liquidity', e);
@@ -248,12 +250,7 @@ export const ConnectBridge = () => {
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-                    <p style={styles.point}
-						onClick={()=>addToken(dispatch,	pageProps.currency!, onMessage)}>
-                        <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding:'5px'}}/>
-                        <div>Add Token to MetaMask</div>
-                    </p>,
-                    <p></p>,
+					<AddTokenToMetamask currency={pageProps.currency} />,
                     <Button key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));

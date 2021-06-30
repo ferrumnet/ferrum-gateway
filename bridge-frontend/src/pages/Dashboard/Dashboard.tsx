@@ -32,6 +32,7 @@ import { GlobalStyles } from "./../../theme/GlobalStyles";
 import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import { History } from 'history';
 
 interface DashboardState {
     initialized: boolean,
@@ -130,14 +131,17 @@ export const DashboardSlice = createSlice({
 
 const Actions = DashboardSlice.actions;
 
-export async function onBridgeLoad(dispatch: Dispatch<AnyAction>) {
+export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: History) {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
-        const groupId = getGroupIdFromHref();
+        let groupId = getGroupIdFromHref();
         if (!groupId) {
-            dispatch(Actions.initializeError({initError: 'No group ID'}));
-            return;
+			// window.location.href = '/frm'
+			groupId = 'frm';
+			history.replace('/frm');
+            // dispatch(Actions.initializeError({initError: 'No group ID'}));
+            // return;
         }
         const groupInfo = await client.loadGroupInfo(dispatch, groupId!);
         if (!groupInfo) {
@@ -335,6 +339,7 @@ export function Dashboard(props:ThemeProps) {
     const { theme, themeLoaded, getFonts } = newThemeInitialization();
     const [selectedTheme, setSelectedTheme] = useState(theme);
     const [newTheme] = useState();
+	const history = useHistory();
 
     useEffect(() => {
       setSelectedTheme(theme);
@@ -342,7 +347,7 @@ export function Dashboard(props:ThemeProps) {
     }, [themeLoaded]);
 
     const handleCon = async () => {
-        await onBridgeLoad(dispatch).catch(console.error)
+        await onBridgeLoad(dispatch, history).catch(console.error)
 
     }
     useEffect(() => {

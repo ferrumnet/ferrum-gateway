@@ -22,3 +22,5 @@ export * from "./src/componenets/AmountInput";
 export * from "./src/componenets/NetworkSwitch";
 export * from "./src/componenets/AssetsSelector";
 export * from "./src/images";
+
+export * from './src/chain/AddTokenToMetamask';

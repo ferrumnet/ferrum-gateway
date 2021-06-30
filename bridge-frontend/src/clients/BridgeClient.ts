@@ -221,7 +221,10 @@ export class BridgeClient implements Injectable {
         const withdrawableBalanceItem = await this.api.api({
             command: 'updateWithdrawItemPendingTransactions', data: {id}, params: [] } as JsonRpcRequest);
         ValidationUtils.isTrue(!!withdrawableBalanceItem, 'Error updating balance item');
-		dispatch(addAction(Actions.BRIDGE_BALANCE_ITEM_UPDATED, {withdrawableBalanceItem}))
+		dispatch(addAction(Actions.BRIDGE_BALANCE_ITEM_UPDATED, withdrawableBalanceItem))
+		// TODO: Check if the updated balance item, is changed to completed.
+		// at this point we know something should have happened to the balance. 
+		// Get the balance and dispatch it to udpate the state.
         return withdrawableBalanceItem;
     }
 

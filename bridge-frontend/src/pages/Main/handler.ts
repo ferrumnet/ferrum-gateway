@@ -29,38 +29,6 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
     }
 }
 
-export const addToken = async (
-		dispatch: Dispatch<AnyAction>,
-		currency: string,
-		message:(v:string)=>Promise<void>) => {
-    //@ts-ignore
-	let ethereum = window.ethereum;
-    try {
-		const tokenData = TokenInfo[currency] as any;
-        // wasAdded is a boolean. Like any RPC method, an error may be thrown.
-        const wasAdded = await ethereum.request({
-            method: 'wallet_watchAsset',
-            params: {
-            type: tokenData.type,
-            options: {
-                address: tokenData.tokenAddress, 
-                symbol: tokenData.tokenSymbol,
-                decimals: tokenData.tokenDecimals,
-                image: tokenData.tokenImage
-            },
-            },
-        });
-
-        if (wasAdded) {
-            message('Token added Successfully');
-        } else {
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Error occured adding token, try Manually adding' }));
-        }
-    } catch (e) {
-		dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Error occured adding token, try Manually adding' }));
-    }
-}
-
 export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
     success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {

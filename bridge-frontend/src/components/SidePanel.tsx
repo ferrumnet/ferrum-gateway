@@ -30,7 +30,8 @@ import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { connectSlice } from "common-containers";
 import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
 import { Actions as MainPageAction } from './../pages/Main/Main';
-import { addToken } from './../pages/Main/handler';
+//@ts-ignore
+import { AddTokenToMetamask } from 'component-library';
 
 export interface SidePanelProps {
     Network: string;
@@ -39,6 +40,7 @@ export interface SidePanelProps {
     dataLoaded?: boolean;
     txExecuted?: boolean;
 	symbol: string;
+	currency: string;
 }
 
 export const SidePanelSlice = createSlice({
@@ -51,6 +53,7 @@ export const SidePanelSlice = createSlice({
         dataLoaded: false,
         txExecuted: false,
 		symbol: '',
+		currency: '',
     } as SidePanelProps,
     reducers: {
         signFirstPairAddress: (state,action) => {
@@ -96,6 +99,7 @@ export function stateToProps(appState: BridgeAppState,userAccounts: AppAccountSt
         txExecuted: state.txExecuted!,
 		step: state.step,
 		symbol: address.symbol,
+		currency: appState.ui.swapPage.currency || address.currency,
     };
 }
 
@@ -215,11 +219,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-                    <p style={styles.point} onClick={()=>addToken(dispatch, pageProps.symbol, onMessage)}>
-                        <PlusOutlined className="btn btn-pri" style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '12px',padding: '5px'}}/> 
-                        <span>Add Token to MetaMask</span>
-                    </p>,
-                    <p></p>,
+					<AddTokenToMetamask currency={pageProps.currency} /> ,
                     <p>
                       <Button key="buy" onClick={()=>{
                           message.destroy('withdr');
@@ -494,12 +494,6 @@ const themedStyles = (theme) => ({
     littleText: {
         fontSize: '12.5px',
         fontWeight: '200'
-    },
-    point:{
-        cursor: "pointer",
-        display: "flex",
-        justifyContent: "center" as "center",
-        alignItems: "center" as "center",
     },
     percentStake: {
         textAlign: "center" as "center",
