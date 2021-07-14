@@ -1,0 +1,16 @@
+import React from "react";
+import { Switch, Route, Redirect } from "react-router-dom";
+import PageNotFound from "./pages/error/PageNotFound";
+import SearchWalletPage from "./pages/search-wallet/page";
+
+const AppRoutes = () => {
+  return (
+    <Switch>
+      <Route exact path="/" component={SearchWalletPage} />
+      <Route exact path="/search-wallet" component={SearchWalletPage} />
+      <Route exact path="/404" component={PageNotFound} />
+      <Redirect to="/404" />
+    </Switch>
+  );
+};
+export default AppRoutes;

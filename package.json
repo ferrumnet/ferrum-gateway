@@ -12,6 +12,7 @@
     "gateway-frontend",
     "gateway-backend",
     "bridge-frontend",
+    "leaderboard-frontend",
     "commons/*"
   ],
   "scripts": {},
