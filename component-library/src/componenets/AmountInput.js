@@ -21,7 +21,7 @@ export const AmountInput = ({...rest}) => {
         <small className="text-pri d-flex align-items-center">
           You have ≈ {rest.balance} {rest.symbol}
             <span className="icon-network icon-sm mx-2">
-              <img src={rest.icons[rest.symbol]} alt="loading"></img>
+              <img src={rest.icons[rest.symbol] || rest.icons['ETH'] } alt="loading"></img>
             </span>
         </small>
       </div>

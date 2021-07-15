@@ -6,7 +6,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { supportedNetworks, NetworkDropdown, UserBridgeWithdrawableBalanceItem,
-	BridgeTokenConfig, BRIDGE_CONTRACT, inject } from 'types';
+BridgeTokenConfig, BRIDGE_CONTRACT, inject } from 'types';
 import {IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
@@ -31,6 +31,7 @@ import { BridgeClient } from '../../clients/BridgeClient';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { addAction, CommonActions } from '../../common/Actions';
+import { Modal } from 'antd';
 
 const { Step } = Steps;
 
@@ -44,8 +45,10 @@ export interface MainPageState {
     tokenValid: boolean,
     itemId: string,
     swapWithdrawNetwork: string,
+    currentPair: BridgeTokenConfig;
     isNetworkReverse: boolean,
     progressStatus: number,
+    isNetworkAllowed: boolean;
     withdrawSuccess: boolean
 }
 
@@ -60,10 +63,19 @@ export const MainPageSlice = createSlice({
         amount:'',
         swapId: '',
         itemId: '',
+        currentPair: {
+            sourceCurrency: '',
+            sourceNetwork: '',
+            targetCurrency: '',
+            targetNetwork: '',
+            fee: '',
+            feeConstant: ''
+        },
         isNetworkReverse: false,
         swapWithdrawNetwork: '',
         progressStatus: 1,
-        withdrawSuccess: false
+        withdrawSuccess: false,
+        isNetworkAllowed: true
     } as MainPageState,
     reducers: {
 		currencyChanged: (state, action) => {
@@ -119,11 +131,12 @@ export const MainPageSlice = createSlice({
 });
 
 export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
-	async (payload: {destNetwork: string}, ctx) => {
+	async (payload: {destNetwork: string,sourceCurrency:string}, ctx) => {
 	try {
 		const client = inject<BridgeClient>(BridgeClient);
+        const currencyPair = ((ctx.getState() as BridgeAppState).ui.pairPage.currentPair)
 		const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
-			.find(c => c.targetNetwork === payload.destNetwork)?.targetCurrency;
+			.find(c => c.targetNetwork === payload.destNetwork && c.sourceCurrency === payload.sourceCurrency)?.targetCurrency;
 		if (targetCurrency) {
 			await client.getAvailableLiquidity(ctx.dispatch, payload.destNetwork, targetCurrency);
 		} else {
@@ -149,6 +162,7 @@ interface MainPageProps extends MainPageState {
 	allAddresses: AddressDetails[];
 	allowanceRequired: boolean;
 	contractAddress: string;
+    isNetworkAllowed: boolean;
 }
 
 export const Actions = MainPageSlice.actions;
@@ -156,18 +170,22 @@ export const Actions = MainPageSlice.actions;
 function stateToProps(appState: BridgeAppState): MainPageProps {
     const state = appState.ui.pairPage;
 	const bridgeCurrencies = appState.data.state.groupInfo?.bridgeCurrencies || [] as any;
-	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);
+	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);    
     const addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
-    const address = addr[0] || {} as any;
+    let address = addr[0] || {} as any;
 	const currentIdx = allNetworks.indexOf(address.network || 'N/A');
 	// Select the first currency groupInfo for the selected network
 	const currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+    address = (addr.filter(e=> e.currency === currency) || [])[0] || {} as any;
 	const currentNetwork = supportedNetworks[address.network] || {};
 
     const networkOptions = Object.values(supportedNetworks)
-		.filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet);
+		.filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true);
+    const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])
+    .map(e => e.targetNetwork);
+    const allowedTargets = Array.from(new Set(Pairs));
 	const targetNetworks = networkOptions
-		.filter(n => n.key !== (address.network || networkOptions[0]));
+		.filter(n => n.key !== (address.network || networkOptions[0]) && (allowedTargets.length > 0 ? allowedTargets.includes(n.key) : true));
 	const destNetwork = state.destNetwork || (targetNetworks[0] || {}).key;
 	const currentPair = appState.data.state.currencyPairs.find(p =>
 		p.sourceCurrency === currency && p.targetNetwork === destNetwork);
@@ -175,6 +193,8 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 	const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
 	const availableLiquidity = appState.data.state
 		.bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';
+    const active = ((addr.filter(e=> e.currency === currency) || [])[0] || {})
+    const isNetworkAllowed = !((networkOptions.map(a => a?.key)||[]).includes(currentNetwork.key))
     return {
         ...state,
         userAddress: address.address,
@@ -188,8 +208,9 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 		allAddresses: addr,
 		allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
 		contractAddress,
-		symbol: address.symbol,
+		symbol: active.symbol,
 		availableLiquidity,
+        isNetworkAllowed
     } as MainPageProps;
 }
 
@@ -230,13 +251,35 @@ export const ConnectBridge = () => {
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
 
-	const {destNetwork} = pageProps;
+	const {destNetwork,network,currency,isNetworkAllowed} = pageProps;
+
 	//TODO: Initialize this without useEffect
 	useEffect(()=>{
 		if (destNetwork) {
-			dispatch(loadLiquidity({destNetwork}));
+			dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
 		}
-	}, [destNetwork])
+	}, [destNetwork,currency])
+    
+    useEffect(()=>{
+		if (isNetworkAllowed) {
+            Modal.info({
+                title: 'The Current Network is not supproted',
+                content: (
+                  <div>
+                    <p style={{"marginBottom":"0.2rem"}}>We currently only support : </p>
+                    {
+                        Object.keys(supportedNetworks).map((e:any)=>
+                            <p style={{"marginBottom":"0.1rem"}}>{e}</p>
+                        )
+                    }
+                  </div>
+                ),
+            });		
+        }else{
+            Modal.destroyAll()
+        }
+	}, [isNetworkAllowed])
+
  
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
@@ -312,75 +355,82 @@ export const ConnectBridge = () => {
 				pageProps.availableLiquidity,
             )}
         />
+        
         <Card className="text-center">
             <small className="text-vary-color mb-5 head">
                     Swap Token Across <strong>chains</strong>
                     <hr className="mini-underline"></hr>
             </small>
-            <div className="text-left">
-             
-                <label className="text-sec">Assets</label>
-                <AssetsSelector 
-                    // assets={[pageProps.allAddresses]}
-                    icons={supportedIcons}
-                    // onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency}))}
-                    selectedToken={pageProps.symbol}
-                />
-                <NetworkSwitch 
-                    availableNetworks={pageProps.targetNetworks}
-                    suspendedNetworks={[]}
-                    currentNetwork={supportedNetworks[pageProps.network] || {}}
-                    currentDestNetwork={supportedNetworks[pageProps.destNetwork]}
-                    onNetworkChanged={(e:NetworkDropdown)=> {
-						dispatch(Actions.resetDestNetwork({value: e.key}))
-					}}
-                    setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
-                    IsNetworkReverse={pageProps.isNetworkReverse}
-                    swapping={swapping}
-                />
-                {
-                    pageProps.isNetworkReverse &&  
-                    <p style={styles.subtextError} className="text-pri">
-                        <Alert
-                            style={{"padding":"4.5px","fontSize":"8px"}}
-                            message=""
-                            description={`Switch your current Network to ${pageProps.destNetwork} \n to execute swap this way`}
-                            type="error"
+            {   isNetworkAllowed ? 
+                    <div>Current Network Not Supported</div>
+                :
+                    <div className="text-left">
+                    
+                        <label className="text-sec">Assets</label>
+
+                        <AssetsSelector 
+                            assets={pageProps.allAddresses || []}
+                            icons={supportedIcons}
+                            onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency}))}
+                            selectedToken={pageProps.symbol}
                         />
-                    </p>
-                }
-                <AmountInput
-                    symbol={pageProps.symbol}
-                    amount={pageProps.amount}
-                    value={pageProps.amount}
-                    fee={0}
-                    icons={supportedIcons}
-                    addonStyle={styles.addon}
-                    groupAddonStyle={styles.groupAddon}
-                    balance={pageProps.balance}
-                    setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
-                    onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
-                />
-                <div style={styles.inputContainer} >
-                    <Form.Label className="text-sec" htmlFor="basic-url">
-                        Destination Address
-                    </Form.Label>
-                    <InputGroup className="mb-3 transparent text-sec disabled" placeholder={'Address on destination Network'}>
-                        <FormControl className={"transparent text-sec disabled"}
-							disabled={true}
-							defaultValue={pageProps.userAddress}
-							value={pageProps.userAddress}/>
-                    </InputGroup>
-                    <div className="amount-rec-text">
-                        <small className="text-pri d-flex align-items-center">
-                            Available Liquidity On {pageProps.destNetwork} ≈ {pageProps.availableLiquidity}
-                            <span className="icon-network icon-sm mx-2">
-                                <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
-                            </span>
-                        </small>
+                        <NetworkSwitch 
+                            availableNetworks={pageProps.targetNetworks}
+                            suspendedNetworks={[]}
+                            currentNetwork={supportedNetworks[pageProps.network] || {}}
+                            currentDestNetwork={supportedNetworks[pageProps.destNetwork]}
+                            onNetworkChanged={(e:NetworkDropdown)=> {
+                                dispatch(Actions.resetDestNetwork({value: e.key}))
+                            }}
+                            setIsNetworkReverse={()=>dispatch(Actions.changeIsNetworkReverse({}))}
+                            IsNetworkReverse={pageProps.isNetworkReverse}
+                            swapping={swapping}
+                        />
+                        {
+                            pageProps.isNetworkReverse &&  
+                            <p style={styles.subtextError} className="text-pri">
+                                <Alert
+                                    style={{"padding":"4.5px","fontSize":"8px"}}
+                                    message=""
+                                    description={`Switch your current Network to ${pageProps.destNetwork} \n to execute swap this way`}
+                                    type="error"
+                                />
+                            </p>
+                        }
+                        <AmountInput
+                            symbol={pageProps.symbol}
+                            amount={pageProps.amount}
+                            value={pageProps.amount}
+                            fee={0}
+                            icons={supportedIcons}
+                            addonStyle={styles.addon}
+                            groupAddonStyle={styles.groupAddon}
+                            balance={pageProps.balance}
+                            setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
+                            onChange={ (v:any) => dispatch(Actions.amountChanged({value: v.target.value}))}
+                            onWheel={ (event:any) => event.currentTarget.blur() }
+                        />
+                        <div style={styles.inputContainer} >
+                            <Form.Label className="text-sec" htmlFor="basic-url">
+                                Destination Address
+                            </Form.Label>
+                            <InputGroup className="mb-3 transparent text-sec disabled" placeholder={'Address on destination Network'}>
+                                <FormControl className={"transparent text-sec disabled"}
+                                    disabled={true}
+                                    defaultValue={pageProps.userAddress}
+                                    value={pageProps.userAddress}/>
+                            </InputGroup>
+                            <div className="amount-rec-text">
+                                <small className="text-pri d-flex align-items-center">
+                                    Available Liquidity On {pageProps.destNetwork} ≈ {pageProps.availableLiquidity}
+                                    <span className="icon-network icon-sm mx-2">
+                                        <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
+                                    </span>
+                                </small>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+            }
             {
                 ((swapSuccess)) &&
                 (
@@ -388,7 +438,7 @@ export const ConnectBridge = () => {
                          <Button
                             onClick={
                                 (pageProps.network != pageProps.swapWithdrawNetwork) ?
-                                () => changeNetwork(dispatch,pageProps.swapWithdrawNetwork) :
+                                () => changeNetwork(dispatch,(pageProps.swapWithdrawNetwork||pageProps.destNetwork)) :
                                 ()=> executeWithdraw(dispatch,
 									pageProps.itemId,
 									onWithdrawSuccessMessage,

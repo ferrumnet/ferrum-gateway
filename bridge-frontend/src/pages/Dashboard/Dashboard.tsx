@@ -26,6 +26,7 @@ import { useHistory } from 'react-router';
 import { SidePane } from './../../components/SidePanel';
 import { changeNetwork } from "./../Main/handler"
 import { ConnectBridge,SideBarContainer } from "./../Main/Main";
+import { LiquidityPage } from "./../Liquidity";
 import { WaitingComponent } from '../../components/WebWaiting';
 import { MessageBar, MessageBarType } from '@fluentui/react';
 import { GlobalStyles } from "./../../theme/GlobalStyles";
@@ -33,6 +34,7 @@ import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { History } from 'history';
+import { Switch, Route } from 'react-router-dom';
 
 interface DashboardState {
     initialized: boolean,
@@ -144,6 +146,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             // return;
         }
         const groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+        console.log(groupInfo,'groupInfoooo')
         if (!groupInfo) {
             dispatch(Actions.initializeError({initError: 'Invalid group Info'}));
             return;
@@ -246,7 +249,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
     const titleText = document.getElementById("title"); // Accessing favicon element
     //@ts-ignore
-    favicon.href = groupInfo.themeVariables?.mainLogo;
+    favicon.href = groupInfo.themeVariables?.faviconImg||groupInfo.themeVariables?.mainLogo;
     //@ts-ignore
     titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
 
@@ -298,28 +301,35 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
            <AppContainer>
                <ContentContainer> 
                     <div className="landing-page">
-                        <div className="steps-wrapper">
-                            <div className="row">
-                                <div className="col-lg-4 col-md-4 mb-3">
-                                    <SideBarContainer
-                                    />
+                        <Switch>
+                            <Route path='/:gid/liquidity/:action'>
+                                <LiquidityPage/>
+                            </Route>
+                            <Route path='/:gid/'>
+                                <div className="steps-wrapper">
+                                    <div className="row">
+                                        <div className="col-lg-4 col-md-4 mb-3">
+                                            <SideBarContainer
+                                            />
+                                        </div>
+                                        <div className="col-lg-8 col-md-8">
+                                            <TokenBridge
+                                                connected={connected}
+                                                conBtn={ConBot}
+                                                connect={onBridgeLoad}
+                                                ConnectBridge={ConnectBridge}
+                                                newTheme={props.newTheme}
+                                                projectTitle={groupInfo.projectTitle}
+                                            />
+                                        </div>
+                                        <SidePane
+                                            isOpen={open||panelOpen}
+                                            dismissPanel={handleDismiss}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="col-lg-8 col-md-8">
-                                    <TokenBridge
-                                        connected={connected}
-                                        conBtn={ConBot}
-                                        connect={onBridgeLoad}
-                                        ConnectBridge={ConnectBridge}
-                                        newTheme={props.newTheme}
-                                        projectTitle={groupInfo.projectTitle}
-                                    />
-                                </div>
-                                <SidePane
-                                    isOpen={open||panelOpen}
-                                    dismissPanel={handleDismiss}
-                                />
-                            </div>
-                        </div>
+                            </Route>
+                        </Switch>   
                         <WaitingComponent/>
                     </div>
                 </ContentContainer>

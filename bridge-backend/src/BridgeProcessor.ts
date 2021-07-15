@@ -117,8 +117,8 @@ export class BridgeProcessor implements Injectable {
             const targetAddress = event.targetAddress || event.from;
             const targetNetwork = event.targetNetwork;
             //ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
-            const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork);
-			const sourcecurrency = `${sourceNetwork}:${event.token}`;
+            const sourcecurrency = `${sourceNetwork}:${event.token}`;
+            const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork,sourcecurrency);
 			const targetCurrency = `${targetNetwork}:${event.targetToken}`;
             ValidationUtils.isTrue(!!conf &&
 				conf.sourceCurrency === sourcecurrency && conf.targetCurrency === targetCurrency,

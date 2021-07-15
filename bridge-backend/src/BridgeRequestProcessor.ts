@@ -51,7 +51,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
             req => this.bgs.getSourceCurrencies(req.data.network));
         
         this.registerProcessor('getTokenConfig',
-            req => this.bgs.tokenConfig(req.data.network,req.data.destNetwork));
+            req => this.bgs.tokenConfig(req.data.network,req.data.destNetwork,req.data.sourceCurrency));
 
         this.registerProcessor('tokenConfigForCurrencies',
             req => this.bgs.tokenConfigForCurrencies(req.data.currencies));

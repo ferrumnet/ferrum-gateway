@@ -29,7 +29,7 @@ import { MainPageSlice } from './../pages/Main/Main';
 const { Step } = Steps;
 
 // TODO: Update the user profile and allow balance re-fetch without changing the connection
-const updateData= async (dispatch:Dispatch<AnyAction>) => {
+export const updateData= async (dispatch:Dispatch<AnyAction>) => {
   try {
       const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
       const userProfile = await client.getUserProfile();

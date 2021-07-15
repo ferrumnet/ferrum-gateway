@@ -92,9 +92,9 @@ export class BridgeClient implements Injectable {
         return res;
     }
 
-    async getTokenConfig(dispatch: Dispatch<AnyAction>,network: string, destNetwork:string) {
+    async getTokenConfig(dispatch: Dispatch<AnyAction>,network: string, destNetwork:string,sourceCurrency:string) {
         const res = await this.api.api({
-            command: 'getTokenConfig', data: {network, destNetwork}, params: [] } as JsonRpcRequest);
+            command: 'getTokenConfig', data: {network, destNetwork,sourceCurrency}, params: [] } as JsonRpcRequest);
         return res;
     }
 
