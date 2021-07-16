@@ -16,5 +16,6 @@ export const networkImages = {
 
 export const supportedIcons = {
     'FRM':'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-    'ETH': IconCryptoEth
+    'ETH': IconCryptoEth,
+    'RVF': 'https://assets.coingecko.com/coins/images/14728/small/7.png?1618414105'
 }

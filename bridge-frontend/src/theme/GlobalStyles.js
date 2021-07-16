@@ -8,9 +8,12 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
     box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.4);
-    font-size: 18px;
+    font-size: 1em;
     background-image: url(https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png);
-    background-size: cover;
+    height: 100%;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
   }
   .head{
     font-size: 13px
@@ -50,6 +53,15 @@ export const GlobalStyles = createGlobalStyle`
       margin-top: 0px;
       margin-bottom: 10px;
     }
+    &.liqaction {
+      padding: 20px 35px;
+      margin-top: 0px;
+      margin-bottom: 25px;
+
+      &.btn-connect {
+        max-width: 100%
+      }
+    }
     &.btn-pri {
       background-color: ${({ theme }) => theme.colors.button.btnPri};
       color: ${({ theme }) => theme.colors.button.textPri};
@@ -64,6 +76,38 @@ export const GlobalStyles = createGlobalStyle`
     &.btn-theme {
       background-color: ${({ theme }) => theme.colors.themeColor};
       color: ${({ theme }) => theme.colors.button.textPri};
+    }
+  }
+  .liquidity-dropdown{
+    button {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ced4da12 !important;
+      border-radius: 1px;
+      padding: 10px;
+      height: 45px;
+      color: white;
+      font-weight: 200;
+      font-weight: bold;
+      border: 1px solid #ced4da !important;
+
+      &:focus{
+        background-color: transparent!important;
+      }
+
+      span{
+        font-weight: 400;
+        font-size: 14px;  
+        color: ${({ theme }) => theme.colors.textSec};  
+      }
+
+    }
+    .dropdown-menu{
+      a{
+        padding: 1rem 1rem;
+      }
     }
   }
   label {

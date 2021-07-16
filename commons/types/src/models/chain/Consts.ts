@@ -18,10 +18,9 @@ const _supportedNetworks: any = {
     'ETHEREUM': ['active', 'Ethereum', 'mainnet'],
     'RINKEBY': ['active', 'Rinkeby testnet', 'testnet'],
     'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
-    'BSC': ['active', 'BSC', 'mainnet'],
+    'BSC': ['inactive', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
-    'SOLANA': ['inactive', 'Solana', 'mainnet']
 };
 
 // TODO: Directly write the constants
@@ -99,12 +98,12 @@ export const chainData = {
     'BSC': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
     18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
-    'POLYGON': chainContent('0x89',
-    'Polugon (Matic)', 'MATIC','MATIC',
-    18,'https://bsc-dataseed.binance.org/','https://polygonscan.com/'),
+    'POLYGON': chainContent('0x137',
+    'Polygon (Matic)', 'MATIC','MATIC',
+    18,'https://rpc-mainnet.maticvigil.com/ ',' https://explorer.matic.network/'),
     'MUMBAI_TESTNET': chainContent('0x13881',
     'Matic (Mumbai) testnet', 'MATIC','MATIC',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
+    18,'https://rpc-mumbai.maticvigil.com/','https://mumbai-explorer.matic.today/'),
     'SOLANA': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
     18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
