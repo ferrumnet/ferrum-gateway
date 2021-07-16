@@ -6,6 +6,7 @@ import {
 } from "ferrum-plumbing";
 import { ChainEventBase, UserContractAllocation } from 'types';
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { CrucibleRequestProcessor } from "crucible-backend/src/CrucibleRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 
@@ -13,7 +14,8 @@ export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
 			private commonTokenServices: CommonTokenServices,
-            private bridgeProcessor: BridgeRequestProcessor,// BridgeRequestProcessor,
+            private bridgeProcessor: BridgeRequestProcessor,
+            private crucibleProcessor: CrucibleRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
@@ -69,15 +71,20 @@ export class HttpHandler implements LambdaHttpHandler {
                     if (!!processor) {
                         body = await processor(req,userId);
                     } else {
-                        return {
-                            body: JSON.stringify({error: 'bad request'}),
-                            headers: {
-                                'Access-Control-Allow-Origin': '*',
-                                'Content-Type': 'application/json',
-                            },
-                            isBase64Encoded: false,
-                            statusCode: 401 as any,
-                        } as LambdaHttpResponse;
+                    	processor = this.crucibleProcessor.for(req.command);
+						if (!!processor) {
+                        	body = await processor(req,userId);
+						} else {
+							return {
+								body: JSON.stringify({error: 'bad request'}),
+								headers: {
+									'Access-Control-Allow-Origin': '*',
+									'Content-Type': 'application/json',
+								},
+								isBase64Encoded: false,
+								statusCode: 401 as any,
+							} as LambdaHttpResponse;
+						}
                     }
             }
             return {

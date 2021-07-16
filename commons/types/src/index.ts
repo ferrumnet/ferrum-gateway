@@ -10,3 +10,5 @@ export * from './backend/HttpRequestProcessor';
 
 export * from './models/chain/Consts';
 export * from "./models/group/types";
+
+export * from './models/crucible/Types';

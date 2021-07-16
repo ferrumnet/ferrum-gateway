@@ -1,6 +1,8 @@
 import { HexString } from 'ferrum-plumbing';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
+// @ts-ignore
+import {ecsign, toRpcSig} from 'ethereumjs-util';
 
 export interface Eip712Params {
     contractName: string;
@@ -61,4 +63,14 @@ export function produceSignature(
 
 export function randomSalt() {
     return Web3.utils.randomHex(32);
+}
+
+export async function signWithPrivateKey(
+	privateKey: HexString,
+	hash: HexString,
+) {
+	const sigP2 = ecsign(
+		Buffer.from(hash!.replace('0x',''), 'hex'),
+		Buffer.from(privateKey.replace('0x',''), 'hex'),);
+	return fixSig(toRpcSig(sigP2.v, sigP2.r, sigP2.s));
 }
