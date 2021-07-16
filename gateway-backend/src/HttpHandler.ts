@@ -5,7 +5,8 @@ import {
     ValidationUtils
 } from "ferrum-plumbing";
 import { ChainEventBase, UserContractAllocation } from 'types';
-import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { BridgeRequestProcessor } from "bridge-backend/dist/BridgeRequestProcessor";
+import { CrucibleRequestProcessor } from "crucible-backend/dist/CrucibleRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
@@ -16,6 +17,7 @@ export class HttpHandler implements LambdaHttpHandler {
 			private commonTokenServices: CommonTokenServices,
             private bridgeProcessor: BridgeRequestProcessor,
             private leaderboardProcessor : LeaderboardRequestProcessor,// BridgeRequestProcessor,
+            private crucibleProcessor: CrucibleRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
@@ -74,15 +76,20 @@ export class HttpHandler implements LambdaHttpHandler {
                     if (!!processor) {
                         body = await processor(req,userId);
                     } else {
-                        return {
-                            body: JSON.stringify({error: 'bad request'}),
-                            headers: {
-                                'Access-Control-Allow-Origin': '*',
-                                'Content-Type': 'application/json',
-                            },
-                            isBase64Encoded: false,
-                            statusCode: 401 as any,
-                        } as LambdaHttpResponse;
+                    	processor = this.crucibleProcessor.for(req.command);
+						if (!!processor) {
+                        	body = await processor(req,userId);
+						} else {
+							return {
+								body: JSON.stringify({error: 'bad request'}),
+								headers: {
+									'Access-Control-Allow-Origin': '*',
+									'Content-Type': 'application/json',
+								},
+								isBase64Encoded: false,
+								statusCode: 401 as any,
+							} as LambdaHttpResponse;
+						}
                     }
             }
             return {

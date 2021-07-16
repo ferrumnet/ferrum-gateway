@@ -11,9 +11,23 @@ export interface ChainEventBase {
     eventType: string;
 }
 
+export interface AllocationSignature {
+	issuedAt: number;
+	allocator: string;
+	salt: string;
+	signature: string;
+	expirySeconds: number;
+	from: string;
+	to: string;
+}
+
 export interface UserContractAllocation {
+	signature?: AllocationSignature;
+	network: string;
 	contractAddress: string;
+	methodSelector: string;
 	userAddress: string;
+	currency: string;
 	allocation: string;
 }
 
@@ -25,4 +39,16 @@ export interface TokenDetails {
 	symbol: string;
 	decimals: number;
 	logoURI: string;
+	expirySeconds: number;
+}
+
+export interface StoredAllocationCsv {
+	network: string;
+	contract: string;
+	csv: string;
+}
+
+export interface CurrencyValue {
+	currency: string;
+	value: string;
 }

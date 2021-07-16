@@ -1,5 +1,4 @@
 import { HttpRequestProcessor,HttpRequestData } from "types";
-import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from './BridgeConfigStorage';

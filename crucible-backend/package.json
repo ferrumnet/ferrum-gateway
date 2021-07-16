@@ -1,0 +1,60 @@
+{
+  "name": "crucible-backend",
+  "version": "1.0.0",
+  "description": "Ferrum Gateway Crucible Backend",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dist": "webpack",
+    "test": "./node_modules/.bin/jest --detectOpenHandles",
+    "deploy-prod": "TODO: Deploy to prod",
+    "deploy": "./bin/deploy.sh"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/big.js": "^4.0.5",
+    "@types/jest": "^24.0.13",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/mongodb": "^3.3.6",
+    "@types/mongoose": "^5.5.23",
+    "@types/node": "^12.6.8",
+    "babel-jest": "^24.8.0",
+    "jest": "^26.6.0",
+    "ts-loader": "^6.0.4",
+    "ts-node": "^8.10.2",
+    "tslint": "^5.0.0",
+    "tslint-config-airbnb-base": "^0.3.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.43.0",
+    "webpack-babel-jest": "^1.0.4",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "abi-decoder": "^2.3.0",
+    "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
+    "aws-sdk": "^2.572.0",
+    "big.js": "^5.2.2",
+    "cross-fetch": "^3.0.4",
+    "dotenv": "^8.2.0",
+    "eth-sig-util": "^3.0.1",
+    "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git",
+    "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
+    "got": "^11.3.0",
+    "mongodb-client-encryption": "^1.2.5",
+    "mongoose": "^5.7.7",
+    "node-hid": "^2.1.1",
+    "swarm-js": "^0.1.40",
+    "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
+    "web3": "^1.2.9",
+	"common-backend": "1.0.0",
+	"types": "1.0.0"
+  },
+  "resolutions": {
+    "got": "^11.3.0"
+  }
+}

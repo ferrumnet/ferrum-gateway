@@ -9,6 +9,8 @@
     "staking-backend",
     "bridge-frontend",
     "bridge-backend",
+    "crucible-backend",
+    "crucible-frontend",
     "gateway-frontend",
     "gateway-backend",
     "bridge-frontend",
