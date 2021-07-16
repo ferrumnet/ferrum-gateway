@@ -1,13 +1,31 @@
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./assets/scss/styles.scss";
 import AppRoutes from "./AppRoutes";
 import Footer from "./layout/footer";
 import Header from "./layout/header";
+import { StoreBuilder } from "common-containers";
+import { LeaderboardModule } from "./common/LeaderboardModule";
+import { BrowserRouter } from "react-router-dom";
+import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
+
+const _module = new LeaderboardModule();
+console.log("After : LeaderboardModule")
+const BASE_URL = "http://localhost:8080";
+const store = StoreBuilder.build(
+  userReducer,
+  dataReducer,
+  uiReducer,
+  _module,
+  BASE_URL
+);
 
 function App() {
   return (
+    <>
+    {_module ? 
+    <StoreBuilder.Provider store={store}>
     <BrowserRouter>
       <div className="app-wrapper">
         <Header />
@@ -17,6 +35,9 @@ function App() {
         <Footer />
       </div>
     </BrowserRouter>
+    </StoreBuilder.Provider>
+    : "loading"}
+    </>
   );
 }
 

@@ -21,7 +21,8 @@
     "react-scripts": "4.0.3",
     "styled-components": "^5.3.0",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "web-vitals": "^1.0.1",
+    "common-containers": "1.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
