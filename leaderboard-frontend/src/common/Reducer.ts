@@ -13,6 +13,10 @@ export function userReducer(
   console.log(action)
   return state;
 }
+
+const DATA_ACTIONS = {
+  INI_DONE: "init/init/fulfilled",
+}
 export function dataReducer(
   state: AppGlobalState = {
     initialized: false,
@@ -21,8 +25,7 @@ export function dataReducer(
   action: AnyAction
 ) {
   switch(action.type){
-    case "init/init/fulfilled":
-      console.log("yesssssssssssssssssssssssssssssss")
+    case DATA_ACTIONS.INI_DONE:
       return {...state,initialized:true};
     default:
       return state;

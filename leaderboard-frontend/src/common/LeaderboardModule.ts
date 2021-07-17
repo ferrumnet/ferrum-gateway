@@ -7,7 +7,6 @@ export class LeaderboardModule implements Module {
   private static _container: Container;
 
   async configAsync(c: Container): Promise<void> {
-    console.log("LeaderboardModule : configAsync")
     if (this.configured) {
       return;
     }

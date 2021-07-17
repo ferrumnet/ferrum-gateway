@@ -5,14 +5,26 @@ import SearchWalletPage from "./pages/search-wallet/page";
 import { inject } from "types";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { LeaderboardClient } from "./clients/LeaderboardClient";
-import { useSelector } from 'react-redux';
-import {LeaderboardAppState} from "./common/LeaderboardAppState"
+import { useSelector } from "react-redux";
+import { LeaderboardAppState } from "./common/LeaderboardAppState";
+import { QueryParams } from "./types/LeaderboardTypes";
 const AppRoutes = () => {
-  const initialized =  useSelector<LeaderboardAppState, boolean>(state => state.data.init.initialized);
+  const initialized = useSelector<LeaderboardAppState, boolean>(
+    (state) => state.data.init.initialized
+  );
+  let queryParams: QueryParams;
   useEffect(() => {
-    if(initialized){
-    const client = inject<LeaderboardClient>(LeaderboardClient);
-    client.getLeaderboardPaginatedList();
+    if (initialized) {
+      queryParams = {
+        filter: { by: "", value: "" },
+        sort: { by: "createdAt", order: "ASC" },
+        page: 1,
+        limit: 2,
+      };
+      const client = inject<LeaderboardClient>(LeaderboardClient);
+      client.getLeaderboardPaginatedList(queryParams).then((response) => {
+        console.log(response.length);
+      });
     }
     // eslint-disable-next-line
   }, [initialized]);
