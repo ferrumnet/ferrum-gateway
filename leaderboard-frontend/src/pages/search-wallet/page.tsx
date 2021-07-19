@@ -1,10 +1,12 @@
 import React from "react";
 import SearchWalletView from "./view";
-
+import { SearchWalletUIProvider } from "./search-wallet-ui-context";
 const SearchWalletPage = () => {
   return (
     <>
-      <SearchWalletView />
+      <SearchWalletUIProvider>
+        <SearchWalletView />
+      </SearchWalletUIProvider>
     </>
   );
 };

@@ -18,6 +18,6 @@ export class LeaderboardRequestProcessor
   }
 
   async getLeaderboardPaginatedList(req: HttpRequestData) {
-    return this.ls.getLeaderboardPaginatedList(req.data);
+    return this.ls.getLeaderboardPaginatedList();
   }
 }

@@ -12,6 +12,8 @@
     "@types/react-dom": "^17.0.0",
     "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
+    "common-containers": "1.0.0",
+    "lodash": "^4.17.21",
     "node-sass": "^4.14.1",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.1",
@@ -21,8 +23,7 @@
     "react-scripts": "4.0.3",
     "styled-components": "^5.3.0",
     "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1",
-    "common-containers": "1.0.0"
+    "web-vitals": "^1.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

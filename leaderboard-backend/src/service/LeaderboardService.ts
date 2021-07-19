@@ -1,12 +1,11 @@
 import { MongooseConnection } from "aws-lambda-helper";
-import { Injectable } from "ferrum-plumbing";
+import { Injectable, LocalCache } from "ferrum-plumbing";
 import { Connection, Document, Model } from "mongoose";
-import {
-  QueryParams,
-  Addresses,
-  AddressesModel,
-} from "../types/LeaderboardTypes";
+import { Addresses, AddressesModel } from "../types/LeaderboardTypes";
 const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
+
+const GLOBAL_CACHE = new LocalCache();
+const CACHE_TIMEOUT = 3600000; //1 Hour
 export class LeaderboardService
   extends MongooseConnection
   implements Injectable
@@ -22,27 +21,19 @@ export class LeaderboardService
     return "LeaderboardService";
   }
 
-  async getLeaderboardPaginatedList(queryParams: QueryParams) {
+  async getLeaderboardPaginatedList() {
     this.verifyInit();
-    console.log(queryParams);
-    const r = await this.addressModel!.find(
-      queryParams?.filter?.by
-        ? { [queryParams.filter.by]: queryParams.filter.value }
-        : {}
-    )
-      .skip((queryParams?.page - 1) * queryParams?.limit)
-      .limit(queryParams.limit)
-      .sort(
-        queryParams?.sort
-          ? {
-              [queryParams.sort.by]: queryParams.sort.order === "ASC" ? 1 : -1,
-            }
-          : {}
-      )
-      .exec();
-    if (r) {
-      return JSON.stringify(r);
-    }
+    const key = "getLeaderboardPaginatedList";
+    return await GLOBAL_CACHE.getAsync(
+      key,
+      async () => {
+        const r = await this.addressModel!.find().exec();
+        if (r) {
+          return JSON.stringify(r);
+        }
+      },
+      CACHE_TIMEOUT
+    );
   }
 
   async close() {

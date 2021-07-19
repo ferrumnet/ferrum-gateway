@@ -1,89 +1,106 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useMemo } from "react";
 // import { storiesOf } from '@storybook/react';
 import DataTable from "react-data-table-component";
+import { accountsData } from "../../../utils/accountsData";
+import { useSearchWalletUIContext } from "../search-wallet-ui-context";
+import TableUtils from "../../../utils/TableUtils";
 
-const columns = [
-  {
-    name: "Rank",
-    selector: "rank",
-    sortable: true,
-  },
-  {
-    name: "Wallet Address",
-    selector: "wallet_address",
-    sortable: true,
-  },
-  {
-    name: "USD of FRM and FRMx",
-    selector: "usd_frm_frmx",
-    sortable: true,
-  },
-  {
-    name: "FRM Holiday",
-    selector: "frm_holiday",
-    sortable: true,
-  },
-  {
-    name: "FRMx Holiday",
-    selector: "frmx_holiday",
-    sortable: true,
-  },
-];
+const prepareFilter = (queryParams, values) => {
+  const { pageNumber, pageSize, sortField, sortOrder } = values;
+  const newQueryParams = { ...queryParams };
+  newQueryParams.pageNumber = pageNumber;
+  newQueryParams.pageSize = pageSize;
+  newQueryParams.sortField = sortField;
+  newQueryParams.sortOrder = sortOrder;
+  return newQueryParams;
+};
 
 const SearchWalletTable = () => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = useState({} as any);
   const [loading, setLoading] = useState(false);
-  const [totalRows, setTotalRows] = useState(0);
-  const [perPage, setPerPage] = useState(10);
+
   const theme = "dark";
+  const tableUtils = new TableUtils();
+  const searchWalletUIContext = useSearchWalletUIContext();
 
-  const fetchwallets = async (page) => {
-    setLoading(true);
+  const searchWalletUIProps = useMemo(() => {
+    return {
+      queryParams: searchWalletUIContext.queryParams,
+      setQueryParams: searchWalletUIContext.setQueryParams,
+      columns: searchWalletUIContext.columns,
+    };
+  }, [searchWalletUIContext]);
 
-    const response = await axios.get(
-      `https://reqres.in/api/wallets?page=${page}&per_page=${perPage}&delay=1`
+  const applyFilter = (values) => {
+    const newQueryParams = prepareFilter(
+      searchWalletUIProps.queryParams,
+      values
     );
-
-    setData(response.data.data);
-    setTotalRows(response.data.total);
+    searchWalletUIProps.setQueryParams(newQueryParams);
+  };
+  const handlePageChange = (page) => {
+    console.log(page);
+    setLoading(true);
+    applyFilter({ ...searchWalletUIProps.queryParams, pageNumber: page });
     setLoading(false);
   };
 
-  const handlePageChange = (page) => {
-    fetchwallets(page);
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
+  const handleRowsPerPageChange = async (newPerPage, page) => {
     setLoading(true);
-
-    const response = await axios.get(
-      `https://reqres.in/api/wallets?page=${page}&per_page=${newPerPage}&delay=1`
-    );
-
-    setData(response.data.data);
-    setPerPage(newPerPage);
+    applyFilter({
+      ...searchWalletUIProps.queryParams,
+      pageNumber: page,
+      pageSize: newPerPage,
+    });
+    setLoading(false);
+  };
+  const handleSort = (column, sortDirection) => {
+    setLoading(true);
+    applyFilter({
+      ...searchWalletUIProps.queryParams,
+      sortField: column.selector,
+      sortOrder: sortDirection,
+    });
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchwallets(1);
+    setLoading(true);
+    setData(accountsData);
+    applyFilter({
+      ...searchWalletUIProps.queryParams,
+    });
+    setLoading(false);
+
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    setFilteredData({
+      ...tableUtils.baseFilter(data, searchWalletUIProps.queryParams),
+    });
+    // eslint-disable-next-line
+  }, [searchWalletUIProps]);
 
   return (
     <DataTable
       // title="wallets"
-      columns={columns}
-      data={data}
+      columns={searchWalletUIProps.columns}
+      data={filteredData.entitiesResult}
+      defaultSortFieldId={1}
+      defaultSortAsc={
+        searchWalletUIProps.queryParams.sortOrder === "asc" ? true : false
+      }
       progressPending={loading}
       theme={theme}
       pagination
       paginationServer
-      paginationTotalRows={totalRows}
+      paginationTotalRows={filteredData.total}
       selectableRows
-      onChangeRowsPerPage={handlePerRowsChange}
+      onChangeRowsPerPage={handleRowsPerPageChange}
       onChangePage={handlePageChange}
+      onSort={handleSort}
     />
   );
 };

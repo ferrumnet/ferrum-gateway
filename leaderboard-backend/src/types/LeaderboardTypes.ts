@@ -20,13 +20,6 @@ export interface Addresses {
   createdAt: Date;
 }
 
-export interface QueryParams {
-  filter: { by: string; value: string };
-  sort: { by: string; order: string };
-  page: number;
-  limit: number;
-}
-
 export const addressSchema: Schema = new Schema<Document & Addresses>({
   network: String,
   address: String,

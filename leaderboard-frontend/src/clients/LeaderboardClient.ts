@@ -1,6 +1,5 @@
 import { Injectable, JsonRpcRequest } from "ferrum-plumbing";
 import { ApiClient } from "common-containers";
-import { QueryParams } from "../types/LeaderboardTypes";
 export class LeaderboardClient implements Injectable {
   __name__() {
     return "LeaderboardClient";
@@ -9,12 +8,10 @@ export class LeaderboardClient implements Injectable {
     console.log("LeaderboardClient");
   }
 
-  async getLeaderboardPaginatedList(queryParams: QueryParams) {
+  async getLeaderboardPaginatedList() {
     const res = await this.api.api({
       command: "getLeaderboardPaginatedList",
-      data: {
-        queryParams,
-      },
+      data: {},
       params: [],
     } as JsonRpcRequest);
     return res;
