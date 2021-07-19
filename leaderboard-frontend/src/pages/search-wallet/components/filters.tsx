@@ -8,6 +8,10 @@ const prepareFilter = (queryParams, values) => {
   const filter = { walletAddress: "" };
   filter.walletAddress = searchValue;
   newQueryParams.top = top;
+  if (top) {
+    newQueryParams.sortField = "rank";
+    newQueryParams.sortOrder = "desc";
+  }
   newQueryParams.filter = filter;
   return newQueryParams;
 };

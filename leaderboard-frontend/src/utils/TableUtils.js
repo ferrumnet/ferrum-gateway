@@ -33,12 +33,14 @@ export default class TableUtils {
       );
       console.log("after search : ", entitiesResult);
     }
+
+    let total = entitiesResult.length;
     if (top) {
       entitiesResult = entitiesResult?.length
         ? entitiesResult.slice(0, top)
         : [];
+      total = entitiesResult.length;
     }
-    const total = entitiesResult.length;
     entitiesResult = entitiesResult?.length
       ? entitiesResult.slice(
           (pageNumber - 1) * pageSize,
