@@ -1,6 +1,6 @@
 export const initialFilter = {
   filter: { walletAddress: "" },
-  sortOrder: "desc", // asc||desc
+  sortOrder: "asc", // asc||desc
   sortField: "rank",
   pageNumber: 1,
   pageSize: 10,

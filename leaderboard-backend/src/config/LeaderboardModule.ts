@@ -9,7 +9,7 @@ export class LeaderboardModule implements Module {
     let conf: LeaderBoardConfig = {} as any;
     conf = {
       database: {
-        connectionString: getEnv("MONGOOSE_CONNECTION_STRING"),
+        connectionString: getEnv("MONGOOSE_CONNECTION_STRING_LEADERBOARD"),
       } as MongooseConfig,
     };
     container.registerSingleton(

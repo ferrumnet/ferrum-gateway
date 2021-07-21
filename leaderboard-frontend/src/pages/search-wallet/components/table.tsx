@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 // import { storiesOf } from '@storybook/react';
 import DataTable from "react-data-table-component";
-import { accountsData } from "../../../utils/accountsData";
+// import { accountsData } from "../../../utils/accountsData";
 import { useSearchWalletUIContext } from "../search-wallet-ui-context";
 import TableUtils from "../../../utils/TableUtils";
 
@@ -16,7 +16,6 @@ const prepareFilter = (queryParams, values) => {
 };
 
 const SearchWalletTable = () => {
-  const [data, setData] = useState<any[]>([]);
   const [filteredData, setFilteredData] = useState({} as any);
   const [loading, setLoading] = useState(false);
 
@@ -26,12 +25,14 @@ const SearchWalletTable = () => {
 
   const searchWalletUIProps = useMemo(() => {
     return {
+      leaderboardData: searchWalletUIContext.leaderboardData,
       queryParams: searchWalletUIContext.queryParams,
       setQueryParams: searchWalletUIContext.setQueryParams,
       columns: searchWalletUIContext.columns,
     };
   }, [searchWalletUIContext]);
 
+  // console.log(searchWalletUIProps.leaderboardData);
   const applyFilter = (values) => {
     const newQueryParams = prepareFilter(
       searchWalletUIProps.queryParams,
@@ -67,7 +68,6 @@ const SearchWalletTable = () => {
 
   useEffect(() => {
     setLoading(true);
-    setData(accountsData);
     applyFilter({
       ...searchWalletUIProps.queryParams,
     });
@@ -78,7 +78,10 @@ const SearchWalletTable = () => {
 
   useEffect(() => {
     setFilteredData({
-      ...tableUtils.baseFilter(data, searchWalletUIProps.queryParams),
+      ...tableUtils.baseFilter(
+        searchWalletUIProps.leaderboardData,
+        searchWalletUIProps.queryParams
+      ),
     });
     // eslint-disable-next-line
   }, [searchWalletUIProps]);
@@ -88,10 +91,10 @@ const SearchWalletTable = () => {
       // title="wallets"
       columns={searchWalletUIProps.columns}
       data={filteredData.entitiesResult}
-      defaultSortFieldId={1}
-      defaultSortAsc={
-        searchWalletUIProps.queryParams.sortOrder === "asc" ? true : false
-      }
+      // defaultSortFieldId={1}
+      // defaultSortAsc={
+      //   searchWalletUIProps.queryParams.sortOrder === "asc" ? true : false
+      // }
       progressPending={loading}
       theme={theme}
       pagination
@@ -101,6 +104,7 @@ const SearchWalletTable = () => {
       onChangeRowsPerPage={handleRowsPerPageChange}
       onChangePage={handlePageChange}
       onSort={handleSort}
+      responsive={true}
     />
   );
 };

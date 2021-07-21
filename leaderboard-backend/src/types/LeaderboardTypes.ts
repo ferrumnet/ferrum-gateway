@@ -14,17 +14,13 @@ export function getEnv(env: string) {
   return res!;
 }
 
-export interface Addresses {
-  network: String;
-  address: String;
-  createdAt: Date;
+export interface Accounts {
+  accountType: String;
 }
 
-export const addressSchema: Schema = new Schema<Document & Addresses>({
-  network: String,
-  address: String,
-  createdAt: Date,
+export const accountsSchema: Schema = new Schema<Document & Accounts>({
+  accountType: String,
 });
 
-export const AddressesModel = (c: Connection) =>
-  c.model<Addresses & Document>("addresses", addressSchema);
+export const AccountsModel = (c: Connection) =>
+  c.model<Accounts & Document>("accounts", accountsSchema);

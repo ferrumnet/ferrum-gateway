@@ -29,9 +29,9 @@ export default class TableUtils {
     console.log("after order : ", entitiesResult);
     if (walletAddress) {
       entitiesResult = entitiesResult.filter(
-        (item) => item.walletAddress === walletAddress
+        (item) => item.address === walletAddress
       );
-      console.log("after search : ", entitiesResult);
+      // console.log("after search : ", entitiesResult);
     }
 
     let total = entitiesResult.length;

@@ -11,7 +11,7 @@ import { BrowserRouter } from "react-router-dom";
 import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 
 const _module = new LeaderboardModule();
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "http://54e01462d068.ngrok.io";
 const store = StoreBuilder.build(
   userReducer,
   dataReducer,
@@ -23,19 +23,21 @@ const store = StoreBuilder.build(
 function App() {
   return (
     <>
-    {_module ? 
-    <StoreBuilder.Provider store={store}>
-    <BrowserRouter>
-      <div className="app-wrapper">
-        <Header />
-        <main>
-          <AppRoutes />
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
-    </StoreBuilder.Provider>
-    : "loading"}
+      {_module ? (
+        <StoreBuilder.Provider store={store}>
+          <BrowserRouter>
+            <div className="app-wrapper">
+              <Header />
+              <main>
+                <AppRoutes />
+              </main>
+              <Footer />
+            </div>
+          </BrowserRouter>
+        </StoreBuilder.Provider>
+      ) : (
+        "loading"
+      )}
     </>
   );
 }

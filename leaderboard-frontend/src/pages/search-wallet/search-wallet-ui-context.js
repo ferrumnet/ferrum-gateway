@@ -10,7 +10,7 @@ export function useSearchWalletUIContext() {
 
 export const SearchWalletUIConsumer = SearchWalletUIContext.Consumer;
 
-export function SearchWalletUIProvider({ children }) {
+export function SearchWalletUIProvider({ leaderboardData, children }) {
   const [queryParams, setQueryParamsBase] = useState(initialFilter);
   const setQueryParams = useCallback((nextQueryParams) => {
     setQueryParamsBase((prevQueryParams) => {
@@ -28,33 +28,36 @@ export function SearchWalletUIProvider({ children }) {
 
   const columns = [
     {
+      maxWidth: "10px",
       name: "Rank",
       selector: "rank",
       sortable: true,
     },
     {
+      width: "auto",
       name: "Wallet Address",
-      selector: "walletAddress",
+      selector: "address",
       sortable: true,
     },
     {
       name: "USD of FRM and FRMx",
-      selector: "usdOfFerrumAndFerrumX",
+      selector: "usd_frm_and_frmx",
       sortable: true,
     },
     {
-      name: "FRM Holiday",
-      selector: "frmHolidy",
+      name: "FRM Holdings",
+      selector: "frm_holiday",
       sortable: true,
     },
     {
-      name: "FRMx Holiday",
-      selector: "frmXHolidy",
+      name: "FRMx Holdings",
+      selector: "frmx_holiday",
       sortable: true,
     },
   ];
 
   const value = {
+    leaderboardData,
     queryParams,
     setQueryParamsBase,
     setQueryParams,

@@ -10,7 +10,7 @@ const prepareFilter = (queryParams, values) => {
   newQueryParams.top = top;
   if (top) {
     newQueryParams.sortField = "rank";
-    newQueryParams.sortOrder = "desc";
+    newQueryParams.sortOrder = "asc";
   }
   newQueryParams.filter = filter;
   return newQueryParams;
