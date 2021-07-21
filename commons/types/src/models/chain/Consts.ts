@@ -124,3 +124,7 @@ export const ETH: {[k: string]: [string, string]} = {
     'POLYGON': ['POLYGON:MATIC', 'MATIC'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:MATIC', 'MATIC'],
 };
+
+export const CRUCIBLE_ROUTER: {[k: string]: string} = {
+	'ETHEREUM': '',
+}

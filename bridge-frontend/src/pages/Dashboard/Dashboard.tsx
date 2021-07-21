@@ -154,7 +154,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
 				const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
 				cl.set(groupInfo.bridgeCurrencies);
 				try {
-					const userProfile = await await web3client.getUserProfile();
+					const userProfile = await web3client.getUserProfile();
             		dispatch(connectSlice.actions.connectionSucceeded({userProfile}));
 				}
 				catch(e) { console.error('Could not update user profile. ', e); }

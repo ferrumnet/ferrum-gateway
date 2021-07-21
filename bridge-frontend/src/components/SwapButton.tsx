@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
 import { IApprovableButtonWrapperViewProps, ApprovableButtonWrapper } from 'common-containers';
-import { Button } from "react-bootstrap";
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 
 export interface SwapButtonProps {

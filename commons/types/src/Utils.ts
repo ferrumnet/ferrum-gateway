@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { Big } from 'big.js';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -115,4 +116,18 @@ export class Utils {
         const pars = cur.split(':', 2);
         return [pars[0], pars[1]];
     }
+}
+
+export class BigUtils {
+	static truthy(b?: Big): boolean {
+		return !!b && !(new Big(0).eq(b));
+	}
+
+	static safeParse(s: string): Big {
+		try {
+			return new Big(s);
+		} catch (e) {
+			return new Big('0');
+		}
+	}
 }

@@ -1,7 +1,9 @@
 
 import React, {useContext, useEffect,  useState } from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
-import { Modal, Button } from 'antd';
+import {
+  Modal,
+} from '@fluentui/react';
 //@ts-ignore
 import {WideTextField,RegularBtn} from 'component-library';
 

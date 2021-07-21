@@ -1,6 +1,5 @@
 import React from "react";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
-import IconCryptoTrx from "cryptocurrency-icons/svg/color/trx.svg";
 export const AmountInput = ({...rest}) => {
   return (
     <>
