@@ -140,8 +140,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	}
 
 	public async getAllCruciblesFromDb(network: Network): Promise<CrucibleInfo[]> {
-		ValidationUtils.isTrue(!!network, 'network is required');
-		const crucibles = await this.crucibleModel.find({network}).exec();
+		const crucibles = network ? await this.crucibleModel.find({}).exec() : await this.crucibleModel.find({network}).exec();
 		return crucibles.map(c => c.toJSON());
 	}
 

@@ -31,7 +31,7 @@ export class CrucibleClient extends ApiClient {
 		return crucible;
 	}
 
-	private async getAllCruciblesFromDb(dispatch: Dispatch<AnyAction>, network: string) 
+	async getAllCruciblesFromDb(dispatch: Dispatch<AnyAction>, network: string) 
 		:Promise<CrucibleInfo[]> {
 		const crucibles = await this.api({
 			command: 'getAllCruciblesFromDb',
@@ -61,6 +61,7 @@ export class CrucibleClient extends ApiClient {
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
 			const txId = requestId.split('|')[0];
 			console.log('Deposit generated tx id ', txId);
+			return txId;
 		} catch (e) {
 			console.error('deposit', e);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
@@ -83,6 +84,7 @@ export class CrucibleClient extends ApiClient {
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
 			const txId = requestId.split('|')[0];
 			console.log('Deposit generated tx id ', txId);
+			return txId;
 		} catch (e) {
 			console.error('deposit', e);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
