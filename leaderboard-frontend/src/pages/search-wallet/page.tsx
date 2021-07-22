@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SearchWalletView from "./view";
+import Loader from "react-loader-spinner";
+import axios from "axios";
 import { inject } from "types";
 import { SearchWalletUIProvider } from "./search-wallet-ui-context";
 import { LeaderboardClient } from "../../clients/LeaderboardClient";
@@ -7,7 +9,6 @@ import { useSelector } from "react-redux";
 import { LeaderboardAppState } from "../../common/LeaderboardAppState";
 import { formatData } from "../../utils/Formatter";
 import { LeaderboardData } from "../../types/LeaderboardTypes";
-import axios from "axios";
 const SearchWalletPage = () => {
   const [leaderboardData, setLeaderboardData] = useState<
     LeaderboardData[] | []
@@ -50,6 +51,7 @@ const SearchWalletPage = () => {
         </SearchWalletUIProvider>
       ) : (
         <div style={{ width: "100%", textAlign: "center", color: "white" }}>
+          <Loader type="Bars" color="#ddb469" height={100} width={100} />
           Loading
         </div>
       )}
