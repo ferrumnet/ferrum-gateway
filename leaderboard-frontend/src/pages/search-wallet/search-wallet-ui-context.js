@@ -4,6 +4,11 @@ import { initialFilter } from "./search-wallet-ui-helper";
 
 const SearchWalletUIContext = createContext();
 
+const formatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 export function useSearchWalletUIContext() {
   return useContext(SearchWalletUIContext);
 }
@@ -45,8 +50,7 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       cell: (row) => (
         <div data-tag="allowRowEvents">
           <div>
-            <span style={{ fontWeight: "bold" }}>{"$ "}</span>
-            <span>{row.usd_frm_and_frmx.toFixed(2)}</span>
+            <span>{formatter.format(row.usd_frm_and_frmx.toFixed(2))}</span>
           </div>
         </div>
       ),
@@ -56,11 +60,31 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       name: "FRM Holdings",
       selector: "frm_holiday",
       sortable: true,
+      cell: (row) => (
+        <div data-tag="allowRowEvents">
+          <div>
+            <span>
+              {formatter.format(row.frm_holiday.toFixed(2)).replaceAll("$", "")}
+            </span>
+          </div>
+        </div>
+      ),
     },
     {
       name: "FRMx Holdings",
       selector: "frmx_holiday",
       sortable: true,
+      cell: (row) => (
+        <div data-tag="allowRowEvents">
+          <div>
+            <span>
+              {formatter
+                .format(row.frmx_holiday.toFixed(2))
+                .replaceAll("$", "")}
+            </span>
+          </div>
+        </div>
+      ),
     },
   ];
 

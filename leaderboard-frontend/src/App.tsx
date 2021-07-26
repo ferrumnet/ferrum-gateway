@@ -11,7 +11,7 @@ import { BrowserRouter } from "react-router-dom";
 import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 
 const _module = new LeaderboardModule();
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "http://cc367daa2649.ngrok.io";
 const store = StoreBuilder.build(
   userReducer,
   dataReducer,

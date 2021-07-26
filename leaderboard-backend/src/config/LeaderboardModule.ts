@@ -3,6 +3,7 @@ import { MongooseConfig } from "aws-lambda-helper";
 import { LeaderBoardConfig, getEnv } from "../types/LeaderboardTypes";
 import { LeaderboardRequestProcessor } from "../request-processor/LeaderboardRequestProcessor";
 import { LeaderboardService } from "../service/LeaderboardService";
+require("dotenv").config();
 export class LeaderboardModule implements Module {
   async configAsync(container: Container) {
     console.log("LeaderboardModule Initializing");

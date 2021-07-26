@@ -45,7 +45,7 @@ export class LeaderboardService
             },
           ],
         }).exec();
-        console.log(res.length);
+        // console.log(res.length);
         // console.log(JSON.stringify(r));
         if (res) {
           return res.map((r) => r.toJSON());
