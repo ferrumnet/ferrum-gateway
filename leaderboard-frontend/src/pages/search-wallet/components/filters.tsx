@@ -42,61 +42,65 @@ const SearchWalletFilters = () => {
   }, [top, searchValue]);
 
   return (
-    <div className="filter-bar">
-      <div className="filter-btns">
-        <ButtonGroup>
-          <Button
-            className={top === 20 ? "active" : ""}
+    <div className="filter-bar row">
+      <div className="col-lg-8 col-md-6 col-sm-6 mt-3">
+        <div className="filter-btns ">
+          <ButtonGroup>
+            <Button
+              className={top === 20 ? "active" : ""}
+              onClick={() => {
+                setTop(20);
+              }}
+            >
+              Top 20
+            </Button>
+            <Button
+              className={top === 100 ? "active" : ""}
+              onClick={() => {
+                setTop(100);
+              }}
+            >
+              Top 100
+            </Button>
+            <Button
+              className={top === 250 ? "active" : ""}
+              onClick={() => {
+                setTop(250);
+              }}
+            >
+              Top 250
+            </Button>
+            <Button
+              className={top === 500 ? "active" : ""}
+              onClick={() => {
+                setTop(500);
+              }}
+            >
+              {" "}
+              Top 500
+            </Button>
+          </ButtonGroup>
+          <Link
+            to="/#"
             onClick={() => {
-              setTop(20);
+              setTop(0);
             }}
+            className="clear-filter"
           >
-            Top 20
-          </Button>
-          <Button
-            className={top === 100 ? "active" : ""}
-            onClick={() => {
-              setTop(100);
-            }}
-          >
-            Top 100
-          </Button>
-          <Button
-            className={top === 250 ? "active" : ""}
-            onClick={() => {
-              setTop(250);
-            }}
-          >
-            Top 250
-          </Button>
-          <Button
-            className={top === 500 ? "active" : ""}
-            onClick={() => {
-              setTop(500);
-            }}
-          >
-            {" "}
-            Top 500
-          </Button>
-        </ButtonGroup>
-        <Link
-          to="/#"
-          onClick={() => {
-            setTop(0);
-          }}
-          className="clear-filter"
-        >
-          Clear
-        </Link>
+            Clear
+          </Link>
+        </div>
       </div>
-      <Form.Control
-        type="email"
-        placeholder="Search Wallet"
-        value={searchValue}
-        onChange={(e) => {
-          setSearchValue(e.target.value);
-        }}
-      />
+      <div className="col-lg-4 col-md-6 col-sm-6 mt-3">
+        <Form.Control
+          type="email"
+          placeholder="Search Wallet"
+          value={searchValue}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+          }}
+        />
+      </div>
     </div>
   );
 };

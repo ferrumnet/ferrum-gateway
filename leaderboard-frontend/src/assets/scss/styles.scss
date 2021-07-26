@@ -11,7 +11,7 @@ body {
 }
 
 main {
-  margin: 2rem auto;
+  margin: 0rem auto;
 }
 
 header {
@@ -44,7 +44,7 @@ footer {
     margin-left: 1rem;
   }
   .form-control {
-    max-width: 300px;
+    // max-width: 300px;
     width: 100%;
     border: 1px solid $themePrimaryColor;
   }

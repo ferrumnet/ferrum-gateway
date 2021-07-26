@@ -42,6 +42,14 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
     {
       name: "USD of FRM and FRMx",
       selector: "usd_frm_and_frmx",
+      cell: (row) => (
+        <div data-tag="allowRowEvents">
+          <div>
+            <span style={{ fontWeight: "bold" }}>{"$ "}</span>
+            <span>{row.usd_frm_and_frmx.toFixed(2)}</span>
+          </div>
+        </div>
+      ),
       sortable: true,
     },
     {
@@ -61,6 +69,7 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
     queryParams,
     setQueryParamsBase,
     setQueryParams,
+    paginationRowsPerPageOptions: [20, 50, 100, 250, 500],
     columns,
   };
 

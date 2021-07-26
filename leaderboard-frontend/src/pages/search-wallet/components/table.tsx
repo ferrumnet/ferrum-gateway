@@ -29,6 +29,8 @@ const SearchWalletTable = () => {
       queryParams: searchWalletUIContext.queryParams,
       setQueryParams: searchWalletUIContext.setQueryParams,
       columns: searchWalletUIContext.columns,
+      paginationRowsPerPageOptions:
+        searchWalletUIContext.paginationRowsPerPageOptions,
     };
   }, [searchWalletUIContext]);
 
@@ -100,11 +102,14 @@ const SearchWalletTable = () => {
       pagination
       paginationServer
       paginationTotalRows={filteredData.total}
-      selectableRows
+      // selectableRows
       onChangeRowsPerPage={handleRowsPerPageChange}
       onChangePage={handlePageChange}
       onSort={handleSort}
       responsive={true}
+      paginationRowsPerPageOptions={
+        searchWalletUIProps.paginationRowsPerPageOptions
+      }
     />
   );
 };
