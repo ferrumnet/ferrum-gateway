@@ -47,7 +47,7 @@ const SearchWalletFilters = () => {
         <div className="filter-btns ">
           <ButtonGroup>
             <Button
-              className={top === 20 ? "active" : ""}
+              className={top === 20 ? "active mr-3" : "mr-3"}
               onClick={() => {
                 setTop(20);
               }}
@@ -55,7 +55,7 @@ const SearchWalletFilters = () => {
               Top 20
             </Button>
             <Button
-              className={top === 100 ? "active" : ""}
+              className={top === 100 ? "active mr-3" : "mr-3"}
               onClick={() => {
                 setTop(100);
               }}
@@ -63,7 +63,7 @@ const SearchWalletFilters = () => {
               Top 100
             </Button>
             <Button
-              className={top === 250 ? "active" : ""}
+              className={top === 250 ? "active mr-3" : " mr-3"}
               onClick={() => {
                 setTop(250);
               }}
@@ -71,7 +71,7 @@ const SearchWalletFilters = () => {
               Top 250
             </Button>
             <Button
-              className={top === 500 ? "active" : ""}
+              className={top === 500 ? "active " : ""}
               onClick={() => {
                 setTop(500);
               }}

@@ -24,6 +24,8 @@ export const formatData = (
   });
   console.log(frm.length);
   console.log(frmx.length);
+  console.log(frm);
+  console.log(frmx);
   frm.forEach((item) => {
     toReturn.push({
       rank: 0,

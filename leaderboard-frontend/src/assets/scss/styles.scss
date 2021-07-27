@@ -47,11 +47,13 @@ footer {
     // max-width: 300px;
     width: 100%;
     border: 1px solid $themePrimaryColor;
+    border-radius: 0 0 0 0 !important;
   }
 }
 
 .btn {
   background: $themePrimaryColor;
+  border-radius: 0 0 0 0 !important;
   border-color: $themeSecondaryColor;
   color: $dark;
   font-weight: 600;
@@ -59,7 +61,7 @@ footer {
 
 // REACT DATA TABLE -- START
 .rdt_Table {
-  border-radius: $border-radius-base $border-radius-base 0 0 !important;
+  border-radius: 0 0 0 0 !important;
   overflow: hidden;
   .rdt_TableHead {
     .rdt_TableCol {
