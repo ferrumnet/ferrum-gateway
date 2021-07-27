@@ -8,12 +8,14 @@ import { ChainEventBase, UserContractAllocation } from 'types';
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
+import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
     constructor(private uniBack: UnifyreBackendProxyService,
 			private commonTokenServices: CommonTokenServices,
-            private bridgeProcessor: BridgeRequestProcessor,// BridgeRequestProcessor,
+            private bridgeProcessor: BridgeRequestProcessor,
+            private leaderboardProcessor : LeaderboardRequestProcessor,// BridgeRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
@@ -65,7 +67,7 @@ export class HttpHandler implements LambdaHttpHandler {
 					body = await this.approveAllocationGetTransaction(req);
 					break;
                 default:
-                    let processor = this.bridgeProcessor.for(req.command);
+                    let processor = this.bridgeProcessor.for(req.command) || this.leaderboardProcessor.for(req.command);
                     if (!!processor) {
                         body = await processor(req,userId);
                     } else {

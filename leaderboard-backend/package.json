@@ -1,11 +1,12 @@
 {
-  "name": "gateway-backend",
+  "name": "leaderboard-backend",
   "version": "1.0.0",
-  "description": "Ferrum Gateway Backend",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "description": "Ferrum Leaderboard Backend",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "webpack",
+    "build": "tsc",
+    "dist": "webpack",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
     "deploy-prod": "TODO: Deploy to prod",
     "deploy": "./bin/deploy.sh"
@@ -34,23 +35,24 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "abi-decoder": "^2.4.0",
+    "abi-decoder": "^2.3.0",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
     "aws-sdk": "^2.572.0",
     "big.js": "^5.2.2",
-    "bridge-backend": "1.0.0",
-    "leaderboard-backend": "1.0.0",
     "cross-fetch": "^3.0.4",
     "dotenv": "^8.2.0",
     "eth-sig-util": "^3.0.1",
     "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "got": "^11.3.0",
+    "mongodb-client-encryption": "^1.2.5",
     "mongoose": "^5.7.7",
+    "node-hid": "^2.1.1",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
     "web3": "^1.2.9",
-	"common-backend": "1.0.0"
+	"common-backend": "1.0.0",
+	"types": "1.0.0"
   },
   "resolutions": {
     "got": "^11.3.0"
