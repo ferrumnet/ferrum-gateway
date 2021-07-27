@@ -12,12 +12,12 @@ export const NetworkSelector = ({
   disabled=false
 }) => {
   return (
-    <Card className="card-network card-sec">
+    <Card className="card-network card">
       <div className="icon-network icon-lg mb-3">
         <img src={icon} alt="loading"></img>
       </div>
-      <div className="d-flex align-items-center justify-content-between">
-        <small>{currentNetwork.display}</small>
+      <div className="d-flex align-items-center justify-content-between text-vary-color">
+        <small>{currentNetwork?.display}</small>
         {
           showDropdown &&
             <Dropdown disabled={disabled} >

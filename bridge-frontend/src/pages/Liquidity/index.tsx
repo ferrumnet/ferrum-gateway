@@ -5,12 +5,12 @@ import { useToasts } from 'react-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from './../../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
-import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT } from 'types';
+import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig } from 'types';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import { TextField} from 'office-ui-fabric-react';
 import { Big } from 'big.js';
 //@ts-ignore
-import {OutlinedBtn,AssetsSelector,supportedIcons,AmountInput} from 'component-library';
+import {OutlinedBtn,AssetsSelector,supportedIcons,networkImages,AmountInput} from 'component-library';
 import { AnyAction, Dispatch } from "redux";
 import { createSlice } from '@reduxjs/toolkit';
 import {
@@ -62,6 +62,8 @@ export interface liquidityPageProps{
     TotalAvailableLiquidity: string,
     allowanceRequired: boolean,
     reconnecting: boolean,
+    liquidityData: [string, string][],
+    AllowedNetworks:string[],
     contractAddress: string
 }
 
@@ -112,14 +114,18 @@ const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
     );
 }
 
-const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: AddressDetails[]) => {
+const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: AddressDetails[],
+    networkOptions?:NetworkDropdown[],
+    currencyPair?:any
+    ) => {
+    let details = addr?.find(e=>e.symbol === v);
     try{
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         let details = addr?.find(e=>e.symbol === v);
         const sc = inject<BridgeClient>(BridgeClient);
         if(details){
             await sc.getUserLiquidity(dispatch,details?.address, details?.currency);
-            await sc.getAvailableLiquidity(dispatch, details?.network, details?.currency);
+            await sc.getAvailableLiquidity(dispatch, details?.network, details?.currency||'')
         }
         dispatch(Actions.tokenSelected({value: v || {},details}))
     }catch(e) {
@@ -127,6 +133,12 @@ const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: Address
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
         }
     }finally {
+        const sc = inject<BridgeClient>(BridgeClient);
+        const Pairs = (currencyPair.filter((p:any) => p.sourceCurrency.includes(details?.currency.split(':')[1]) || p.targetCurrency.includes(details?.currency.split(':')[1]))||[])
+        .map((e:any) => e.targetNetwork);
+        const AllowedNetworks = Array.from(new Set(Pairs));
+        const networkOptions = Object.values(supportedNetworks).filter(n => AllowedNetworks.includes(n.key));
+        networkOptions?.forEach (async e => await sc.getAvailableLiquidity(dispatch, e.key, (`${e.key}:${details?.currency.split(':')[1]}`)||''))
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }      
 }
@@ -171,8 +183,10 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
     const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
     let address = addr[0] || {};
     const currentIdx = allNetworks.indexOf(address.network || 'N/A');
-    const currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
-    address = (addr.filter(e=> e.currency === currency) || [])[0] || {} as any;
+    const currNet = address.network;
+    let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+    address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address as any;
+    currency = address ? address.currency : addr[0].currency;
     const contractAddress = BRIDGE_CONTRACT[address.network];
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
 	const currentNetwork = supportedNetworks[address.network] || {};
@@ -181,8 +195,8 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
     const AllowedNetworks = Array.from(new Set(Pairs));
     const networkOptions = Object.values(supportedNetworks)
     .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true && AllowedNetworks.includes(n.key));
-    const targetNetworks = networkOptions
-		.filter(n => n.key !== (address.network || networkOptions[0]));
+    const liqArr = Object.entries(appState.data.state.bridgeLiquidity);
+    const liquidityData = ( liqArr.length > 0 && liqArr.filter((e:any) => e[0]?.split(':')[1] === currency?.split(':')[1])  || []);
     const TotalAvailableLiquidity = appState.data.state
 		.bridgeLiquidity[currency || 'N/A'] || '0';
     return {
@@ -197,6 +211,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
         amount: state.amount,
         networkOptions: networkOptions,
         addresses: addr,
+        AllowedNetworks,
         transactionId: state.transactionId,
         contractAddress: contractAddress,
         selectedToken: address.symbol,
@@ -206,6 +221,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
         destNetwork: state.destNetwork,
         baseNetwork: state.baseNetwork,
         availableLiquidity: state.availableLiquidity,
+        liquidityData,
         TotalAvailableLiquidity: TotalAvailableLiquidity,
         allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
         reconnecting: state.reconnecting
@@ -242,6 +258,8 @@ export const liquidityPageSlice = createSlice({
         userAddress: '',
         transactionId: '',
         TotalAvailableLiquidity: '0',
+        AllowedNetworks: [],
+        liquidityData: [],
         reconnecting: false
     } as liquidityPageProps,
     reducers: {
@@ -325,6 +343,7 @@ export function LiquidityPage() {
     const { addToast } = useToasts();
     const dispatch = useDispatch();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
+    const Pairs =  useSelector<BridgeAppState, BridgeTokenConfig[]>(state => state.data.state.currencyPairs);
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, liquidityPageProps>(state => stateToProps(state,userAccounts));
     const [refreshing,setRefreshing] = useState(false)
@@ -333,7 +352,7 @@ export function LiquidityPage() {
 
     useEffect(()=>{
 		if (connected && pageProps.network) {
-			tokenSelected(dispatch,pageProps.symbol,pageProps.addresses);
+			tokenSelected(dispatch,pageProps.symbol,pageProps.addresses,pageProps.networkOptions,Pairs);
 		}
 	}, [connected,pageProps.network,pageProps.userAddress])
     
@@ -369,7 +388,7 @@ export function LiquidityPage() {
 
     const handleRefresh = async (v:string) => {
         setRefreshing(true);
-        await tokenSelected(dispatch,v,pageProps.addresses);
+        await tokenSelected(dispatch,v,pageProps.addresses,pageProps.networkOptions,Pairs);
         setRefreshing(false);
     }
     
@@ -400,39 +419,39 @@ export function LiquidityPage() {
                     <div  style={styles.container}>
                     <div className="pad-main-body">
                             <div>
-                            <div className="text-sec text-left">Asset</div>
-                                <div>
-                                    <AssetsSelector 
-                                        assets={pageProps.addresses}
-                                        icons={supportedIcons}
-                                        onChange={(v:any)=> {dispatch(Actions.currencyChanged({currency: v.currency})); handleRefresh(v.symbol)}}
-                                        selectedToken={pageProps.symbol}
-                                    />
-                                </div>
-                            </div>
-                            <Gap size={"small"}/>
-                            <div>
-                                <div className="text-sec text-left">Current Network</div>
-                                <div className="content">
+                                <div className="text-sec text-left">Asset</div>
                                     <div>
-                                        <Dropdown className="assets-dropdown liquidity-dropdown">
-                                            <Dropdown.Toggle variant="pri" id="dropdown-basic">
-                                                <span>
-                                                    {pageProps.network}
-                                                </span>
-                                            </Dropdown.Toggle>
-                                            <Dropdown.Menu>
-                                                {pageProps.networkOptions?.map((asset, index) => (
-                                                    <Dropdown.Item eventKey={index} active={asset.key === pageProps.network} disabled={asset.key === pageProps.network} key={index} onClick={()=>{switchNetwork(dispatch,asset.key)}}>
-                                                        <span>
-                                                            <strong>{asset.key}</strong>
-                                                        </span>
-                                                    </Dropdown.Item>
-                                                ))}
-                                            </Dropdown.Menu>
-                                        </Dropdown>
+                                        <AssetsSelector 
+                                            assets={pageProps.addresses}
+                                            icons={supportedIcons}
+                                            onChange={(v:any)=> {dispatch(Actions.currencyChanged({currency: v.currency})); handleRefresh(v.symbol)}}
+                                            selectedToken={pageProps.symbol}
+                                        />
                                     </div>
                                 </div>
+                                <Gap size={"small"}/>
+                                <div>
+                                    <div className="text-sec text-left">Current Network</div>
+                                    <div className="content">
+                                        <div>
+                                            <Dropdown className="assets-dropdown liquidity-dropdown">
+                                                <Dropdown.Toggle variant="pri" id="dropdown-basic">
+                                                    <span>
+                                                        {pageProps.network}
+                                                    </span>
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu>
+                                                    {pageProps.networkOptions?.map((asset, index) => (
+                                                        <Dropdown.Item eventKey={index} active={asset.key === pageProps.network} disabled={asset.key === pageProps.network} key={index} onClick={()=>{switchNetwork(dispatch,asset.key)}}>
+                                                            <span>
+                                                                <strong>{asset.key}</strong>
+                                                            </span>
+                                                        </Dropdown.Item>
+                                                    ))}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
+                                    </div>
                             </div>
                             <Gap size={"small"}/>
                             <div>
@@ -488,7 +507,7 @@ export function LiquidityPage() {
                                 updater={e => updateEvent(
                                     dispatch, 
                                     e,
-                                    ()=>tokenSelected(dispatch,pageProps.selectedToken,pageProps.addresses)
+                                    ()=>tokenSelected(dispatch,pageProps.selectedToken,pageProps.addresses,pageProps.networkOptions,Pairs)
                                 )}>
                                     <LiquidityActionButton
                                         addLiquidity = {action}
@@ -503,6 +522,25 @@ export function LiquidityPage() {
                                     />
                             </ChainEventItem>
                         </div>                      
+                    </div>
+                    <div style={{"paddingLeft": "1.5rem"}}>
+                        <div>
+                            <div className="amount-rec-text text-left">
+                                {
+                                    pageProps.liquidityData.length > 0 && 
+                                    pageProps.liquidityData.map(
+                                        e => 
+                                        <small className="text-pri d-flex align-items-center">
+                                                Available Liquidity On {e[0].split(':')[0]} ≈ {formatter.format(e[1],true)}
+                                                <span className="icon-network icon-sm mx-2">
+                                                    <img src={networkImages[e[0].split(':')[0]]} alt="img"></img>
+                                                </span>
+                                        </small>
+                                    )
+                                }
+                            
+                            </div>
+                        </div>
                     </div>   
                 </div>  
                 </div>

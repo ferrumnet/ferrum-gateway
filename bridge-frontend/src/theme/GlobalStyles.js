@@ -1,15 +1,16 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle} from "styled-components";
 // import "../assets/scss/styles.scss";
 
 export const GlobalStyles = createGlobalStyle`
   body {
-    background: ${({ theme }) => theme.colors.body};
+    background-color: ${({ theme }) => theme.colors.body};
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
-    box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.4);
+    box-shadow:  ${({ theme }) => theme.useBgImage ? 'inset 0 0 0 2000px rgba(0,0,0,0.4)' : ''};
     font-size: 1em;
-    background-image: url(https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png);
+    background: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
+    background-image: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
     height: 100%;
     background-size: cover !important;
     background-position: center !important;
@@ -29,8 +30,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .site-badge-count-109 {
     .ant-badge-count{
-      background-color:  ${({ theme }) => theme.colors.inverse} !important;
-      color: ${({ theme }) => theme.colors.text} !important;
+      background-color:  ${({ theme }) => theme.colors.card.cardPri} !important;
+      color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
   .transparent {
@@ -72,11 +73,17 @@ export const GlobalStyles = createGlobalStyle`
     }
     &.btn-dull {
       background-color: ${({ theme }) => theme.colors.button.btnDull};
+      border-color: #00000029 !important;
+      border-style: solid !important;
+      border-width: thin !important;
     }
     &.btn-theme {
       background-color: ${({ theme }) => theme.colors.themeColor};
       color: ${({ theme }) => theme.colors.button.textPri};
     }
+  }
+  h2, h3, h4, h5 {
+    color: ${({ theme }) => theme.colors.mainHeaderColor};
   }
   .liquidity-dropdown{
     button {
@@ -115,10 +122,10 @@ export const GlobalStyles = createGlobalStyle`
   }
   .input-group {
     label {
-      color: ${({ theme }) => theme.colors.input.inputSec};
+      color: ${({ theme }) => theme.colors.inverse};
     }
     input {
-      color: ${({ theme }) => theme.colors.input.inputPri};
+      color: ${({ theme }) => theme.colors.inverse} !important;
       &:placeholder {
         color: ${({ theme }) => theme.colors.input.inputPri};
       }
@@ -131,9 +138,10 @@ export const GlobalStyles = createGlobalStyle`
     border-radius: 0px!important;
     background-color: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius + 2} !important;
-    box-shadow: -2px -1px 5px 2px rgb(0 0 0 / 26%);
+    border-color: ${({ theme }) => theme.colors.inverse};
+    box-shadow: ${({ theme }) => `-2px -1px 5px 2px ${theme.colors.inverse}25` };
     p {
-      color: ${({ theme }) => theme.colors.card.cardTextPri};
+      color: ${({ theme }) => theme.colors.card.text};
     }
     &.card-sec {
       background-color: ${({ theme }) => theme.colors.card.cardSec};
@@ -143,7 +151,7 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .text-vary-color: {
-    color: ${({ theme }) => theme.colors.inverse};
+    color: ${({ theme }) => theme.colors.button.text};
   }
   .text-pri {
     color: ${({ theme }) => theme.colors.textPri};
@@ -179,14 +187,14 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .ant-steps-icon{
-    color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    color: ${({ theme }) => theme.colors.inverse} !important;
     span{
-      color: ${({ theme }) => theme.colors.textPri} !important;
+      color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon {
-     background-color: #dbb46e;
+     background-color:  ${({ theme }) => theme.colors.button.btnPri};
     }
   }
   .anticon{

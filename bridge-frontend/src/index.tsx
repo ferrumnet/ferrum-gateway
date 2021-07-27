@@ -4,10 +4,17 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import * as themes from "./theme/schema.json";
-import { setAllThemes } from "./storageUtils/storage";
+import { setToLS,setAllThemes } from "./storageUtils/storage";
+import { getGroupIdFromHref } from './common/Utils';
 
 const Index = () => {
-  setAllThemes("all-themes", themes);
+  let groupId = getGroupIdFromHref();
+  if (!groupId) {
+    setAllThemes("all-themes", themes);
+  }else{
+    setAllThemes(`${groupId}-all-themes`,themes);
+  }
+  
   return <App />;
 };
 ReactDOM.render(

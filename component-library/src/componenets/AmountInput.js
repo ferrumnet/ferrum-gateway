@@ -5,7 +5,7 @@ export const AmountInput = ({...rest}) => {
   return (
     <>
       <div className="connect-amount">
-        <Form.Label className="text-sec" htmlFor="basic-url">
+        <Form.Label className="text-sec text-vary-color" htmlFor="basic-url">
           Amount
         </Form.Label>
         <div style={rest.groupAddonStyle}>
@@ -18,7 +18,7 @@ export const AmountInput = ({...rest}) => {
         </div>
       </div>
       <div className="amount-rec-text">
-        <small className="text-pri d-flex align-items-center">
+        <small className="text-pri d-flex align-items-center text-vary-color">
           You have ≈ {rest.balance} {rest.symbol}
             <span className="icon-network icon-sm mx-2">
               <img src={rest.icons[rest.symbol] || rest.icons['ETH'] } alt="loading"></img>
