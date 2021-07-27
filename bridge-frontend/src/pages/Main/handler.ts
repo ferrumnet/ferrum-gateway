@@ -91,7 +91,8 @@ export const onSwap = async (
        
         if( res?.status === 'success'){
 			y('Swap Successful, Kindly View Withdrawal Items for item checkout.');
-			dispatch(Actions.swapSuccess({message: res.status,swapId: res.txId, itemId: res.itemId }));
+			dispatch(Actions.swapSuccess({message: res.status,swapId: res.txId, itemId: res.itemId,
+                destNetwork:destnetwork,swapWithdrawCurrency:targetCurrency,destnetwork }));
 			return;
             // if(allowanceRequired){
             //     const allowance = await client.checkAllowance(dispatch,currency,'5', targetNet);

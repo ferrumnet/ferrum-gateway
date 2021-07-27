@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 import { setToLS, getFromLS } from "../storageUtils/storage";
 import _ from "lodash";
 
-export const useTheme = () => {
-  const themes = getFromLS("all-themes");
+export const useTheme = (group) => {
+  let themes = getFromLS("all-themes");
+
+  if(group?.data){
+    themes = getFromLS(`${group}-all-themes`);
+    setToLS(`all-themes`, themes);
+  }
+
   const [theme, setTheme] = useState(themes.data.light);
   const [themeLoaded, setThemeLoaded] = useState(false);
 
-  const setMode = (mode) => {
-    setToLS("theme", mode);
+  const setMode = (mode,group) => {
+    setToLS(group ? `${group}-theme` :"theme", mode);
     setTheme(mode);
   };
 
@@ -18,11 +24,11 @@ export const useTheme = () => {
   };
 
   useEffect(() => {
-    const localTheme = getFromLS("theme");
-    localTheme ? setTheme(localTheme) : setTheme(themes.data.light);
+    const localTheme = getFromLS(group ? `${group}-theme` :"theme");
+    setTheme(localTheme);
     setThemeLoaded(true);
     // eslint-disable-next-line
   }, []);
 
-  return { theme, themeLoaded, setMode, getFonts };
+  return { theme, themeLoaded,setTheme, setMode, getFonts };
 };

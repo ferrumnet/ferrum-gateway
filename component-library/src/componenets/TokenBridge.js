@@ -7,16 +7,16 @@ export const TokenBridge = ({ConnectBridge,...rest}) => {
     <>
       {
         !rest.connected ? (
-          <Card className="card-connect-wallet text-center">
+          <Card className="card-connect-wallet text-center text-vary-color">
             <small className="text-vary-color mb-5 head">
               Swap Assets Across <strong>Chains</strong>
               <hr className="mini-underline"></hr>
             </small>
-            <p className="max-w-400 mx-auto">
+            <p className="max-w-400 mx-auto text-vary-color">
               You can use this token bridge to swap {rest.projectTitle || 'Project'} tokens{" "}
               <strong>Across several blockchains.</strong>
             </p>
-            <p className="mt-4">
+            <p className="mt-4 text-vary-color">
               Follow the step by step guide to send your tokens across the bridge.
             </p>
             {rest.conBtn}

@@ -31,7 +31,7 @@ import { BridgeClient } from '../../clients/BridgeClient';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { addAction, CommonActions } from '../../common/Actions';
-import { Modal } from 'antd';
+
 
 const { Step } = Steps;
 
@@ -91,7 +91,7 @@ export const MainPageSlice = createSlice({
             state.amount= '';
             state.swapId= action.payload.swapId;
             state.itemId= action.payload.itemId;
-            state.swapWithdrawNetwork= state.destNetwork;
+            state.swapWithdrawNetwork = action.payload.destnetwork;
         },
         destNetworkChanged: (state,action) => {
             state.destNetwork = action.payload.value;
@@ -173,10 +173,12 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);    
     const addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
     let address = addr[0] || {} as any;
+    const currNet = address.network;
 	const currentIdx = allNetworks.indexOf(address.network || 'N/A');
 	// Select the first currency groupInfo for the selected network
-	const currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
-    address = (addr.filter(e=> e.currency === currency) || [])[0] || {} as any;
+	let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+    address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || {} as any;
+    currency = address.currency;
 	const currentNetwork = supportedNetworks[address.network] || {};
 
     const networkOptions = Object.values(supportedNetworks)
@@ -210,6 +212,7 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 		contractAddress,
 		symbol: active.symbol,
 		availableLiquidity,
+        swapWithdrawNetwork: state.swapWithdrawNetwork,
         isNetworkAllowed
     } as MainPageProps;
 }
@@ -251,36 +254,16 @@ export const ConnectBridge = () => {
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
 
-	const {destNetwork,network,currency,isNetworkAllowed} = pageProps;
+	const {destNetwork,network,currency,isNetworkAllowed,currentPair} = pageProps;
 
 	//TODO: Initialize this without useEffect
 	useEffect(()=>{
 		if (destNetwork) {
 			dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
 		}
-	}, [destNetwork,currency])
+	}, [destNetwork,currency,currentPair])
     
-    useEffect(()=>{
-		if (isNetworkAllowed) {
-            Modal.info({
-                title: 'The Current Network is not supproted',
-                content: (
-                  <div>
-                    <p style={{"marginBottom":"0.2rem"}}>We currently only support : </p>
-                    {
-                        Object.keys(supportedNetworks).map((e:any)=>
-                            <p style={{"marginBottom":"0.1rem"}}>{e}</p>
-                        )
-                    }
-                  </div>
-                ),
-            });		
-        }else{
-            Modal.destroyAll()
-        }
-	}, [isNetworkAllowed])
 
- 
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
@@ -293,7 +276,7 @@ export const ConnectBridge = () => {
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-					<AddTokenToMetamask currency={pageProps.currency} />,
+					<AddTokenToMetamask currency={pageProps.currency} tokenData={{address:pageProps.currency.split(':')[1],...propsGroupInfo.tokenData![pageProps.currency.split(':')[1]]}} />,
                     <Button key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));
@@ -366,7 +349,7 @@ export const ConnectBridge = () => {
                 :
                     <div className="text-left">
                     
-                        <label className="text-sec">Assets</label>
+                        <label className="text-sec text-vary-color">Assets</label>
 
                         <AssetsSelector 
                             assets={pageProps.allAddresses || []}
@@ -411,7 +394,7 @@ export const ConnectBridge = () => {
                             onWheel={ (event:any) => event.currentTarget.blur() }
                         />
                         <div style={styles.inputContainer} >
-                            <Form.Label className="text-sec" htmlFor="basic-url">
+                            <Form.Label className="text-sec text-vary-color" htmlFor="basic-url">
                                 Destination Address
                             </Form.Label>
                             <InputGroup className="mb-3 transparent text-sec disabled" placeholder={'Address on destination Network'}>
@@ -421,7 +404,7 @@ export const ConnectBridge = () => {
                                     value={pageProps.userAddress}/>
                             </InputGroup>
                             <div className="amount-rec-text">
-                                <small className="text-pri d-flex align-items-center">
+                                <small className="text-pri d-flex align-items-center text-vary-color">
                                     Available Liquidity On {pageProps.destNetwork} ≈ {pageProps.availableLiquidity}
                                     <span className="icon-network icon-sm mx-2">
                                         <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
@@ -457,23 +440,27 @@ export const ConnectBridge = () => {
                     </div>
                 )
             }
-			<SwapButton
-				onSwapClick={() => showConfirmModal()}                            
-					// ()=>
-					// onSwap(
-					// 	dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
-					// 	onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
-					// 	(v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
-					// )
-				approveDisabled={!pageProps.currency}
-				swapDisabled={!pageProps.currency || (Number(pageProps.amount) <= 0) 
-					|| !pageProps.tokenValid || swapping}
-				contractAddress={pageProps.contractAddress}
-				amount={pageProps.amount}
-				currency={pageProps.currency!}
-				userAddress={pageProps.userAddress}
-				pendingSwap={swapping}
-			/>
+            {
+                ((!swapSuccess)) &&
+                (   <SwapButton
+                        onSwapClick={() => showConfirmModal()}
+                            // ()=>
+                            // onSwap(
+                            // 	dispatch,'0.5',pageProps.addresses[0].balance,pageProps.currenciesDetails.sourceCurrency!,pageProps.destCurrency,
+                            // 	onMessage,onSuccessMessage,pageProps.allowanceRequired,showModal,pageProps.network,pageProps.destNetwork,
+                            // 	(v) => dispatch(Actions.setProgressStatus({status:v})),pageProps.availableLiquidity,pageProps.selectedToken,(propsGroupInfo.fee??0)
+                            // )
+                        approveDisabled={!pageProps.currency}
+                        swapDisabled={!pageProps.currency || (Number(pageProps.amount) <= 0) 
+                            || !pageProps.tokenValid || swapping}
+                        contractAddress={pageProps.contractAddress}
+                        amount={pageProps.amount}
+                        currency={pageProps.currency!}
+                        userAddress={pageProps.userAddress}
+                        pendingSwap={swapping}
+                    />
+                )
+            }
         </Card>
         </>
     );
@@ -704,7 +691,6 @@ const themedStyles = (theme: ThemeConstantProvider) => ({
         borderTop: '7px solid rgba(0, 0, 0, 0.06)'
     },
     sideInfo: {
-        boxShadow: '-1px 4px 6px -6px black',
         borderRadius: '12px',
         padding: '3rem 1.5rem',
         margin: '0px 0px 0px auto',

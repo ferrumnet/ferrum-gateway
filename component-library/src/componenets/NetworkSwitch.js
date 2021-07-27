@@ -20,18 +20,18 @@ export const NetworkSwitch = (
     <div className="network-swap">
       <div className="row align-items-center">
         <div className="col-lg-5 col-md-5 text-left">
-          <label className="text-sec d-block w-100">From</label>
+          <label className="text-sec d-block w-100 text-vary-color">From</label>
           {
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork.key]}
+              icon={images[currentNetwork?.key]}
               showDropdown={false}
               availableNetworks={[]}
             /> :
               <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork.key]}
+              icon={images[currentDestNetwork?.key]}
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
@@ -47,12 +47,12 @@ export const NetworkSwitch = (
           </Button>
         </div>
         <div className="col-lg-5 col-md-5">
-          <label className="text-sec d-block w-100">To</label>
+          <label className="text-sec d-block w-100 text-vary-color">To</label>
           {
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork.key]}
+              icon={images[currentDestNetwork?.key]}
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
@@ -60,7 +60,7 @@ export const NetworkSwitch = (
             /> :
              <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork.key]}
+              icon={images[currentNetwork?.key]}
               showDropdown={false}
               availableNetworks={[]}
             />
