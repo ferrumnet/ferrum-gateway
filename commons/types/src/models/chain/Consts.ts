@@ -33,8 +33,8 @@ Object.keys(_supportedNetworks).forEach(k => {
 		mainnet: m === 'mainnet'}
 })
 
-const chainContent = (chainId:string,chainName:string,name:string,
-    symbol:string,decimals:number,rpcUrls:string,blockExplorerUrls:string) => ({
+const chainContent = (chainId:string, chainName:string, name:string,
+    symbol:string, decimals:number, rpcUrls: string[], blockExplorerUrls: string[]) => ({
     "chainId": chainId,
     "chainName": chainName,
     "nativeCurrency":
@@ -43,8 +43,8 @@ const chainContent = (chainId:string,chainName:string,name:string,
             symbol: symbol,
             decimals: decimals
         },
-    "rpcUrls": [rpcUrls],
-    "blockExplorerUrls": [blockExplorerUrls],
+    "rpcUrls": rpcUrls,
+    "blockExplorerUrls": blockExplorerUrls,
 })
 
 export const TokenInfo = {
@@ -88,28 +88,26 @@ export const TokenInfo = {
 export const chainData = {
     'ETHEREUM': chainContent('0x1',
     'Ethereum Mainnet', 'ETH','ETH',
-    1,'https://mainnet.infura.io/v3/undefined/','https://etherscan.io/'),
+    1,['https://mainnet.infura.io/v3/'], ['https://etherscan.io/']),
     'RINKEBY': chainContent('0x4',
     'Rinkeby Test Network', 'ETH','ETH',
-    4,'https://rinkeby.infura.io/v3/undefined/','https://rinkeby.etherscan.io/'),
+    4,['https://rinkeby.infura.io/v3/'], ['https://rinkeby.etherscan.io/']),
     'BSC_TESTNET': chainContent('0x61',
     'BSC Testnet', 'BNB','BNB',
-    18,'https://data-seed-prebsc-1-s1.binance.org:8545/','https://explorer.binance.org/smart-testnet/'),
+    18,['https://data-seed-prebsc-1-s1.binance.org:8545/'],['https://explorer.binance.org/smart-testnet/']),
     'BSC': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
-    'POLYGON': chainContent('0x137',
-    'Polygon (Matic)', 'MATIC','MATIC',
-    18,'https://rpc-mainnet.maticvigil.com/ ',' https://explorer.matic.network/'),
+    18,['https://bsc-dataseed.binance.org/'],['https://bscscan.com/']),
+    'POLYGON': chainContent('0x89',
+    'Polygon (Matic)', 'MATIC','MATIC', 18,
+	['https://rpc-mainnet.maticvigil.com/'],['https://ploygonscan.com/']),
     'MUMBAI_TESTNET': chainContent('0x13881',
     'Matic (Mumbai) testnet', 'MATIC','MATIC',
-    18,'https://rpc-mumbai.maticvigil.com/','https://mumbai-explorer.matic.today/'),
+    18,['https://rpc-mumbai.maticvigil.com/'],['https://mumbai.polygonscan.com/']),
     'SOLANA': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
+    18, ['https://bsc-dataseed.binance.org/'],['https://bscscan.com/']),
 }
-
-
 
 export const FRMX: {[k: string]: [string, string]} = {
     'ETHEREUM': ['ETHEREUM:0xf6832EA221ebFDc2363729721A146E6745354b14', 'FRMX'],
