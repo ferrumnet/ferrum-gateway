@@ -12,7 +12,7 @@ import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
-import { onSwap, executeWithdraw,changeNetwork,} from './handler';
+import { onSwap, executeWithdraw,changeNetwork,updateData} from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
 import { WithdrawNoti } from '../../components/withdrawalNoti';
@@ -134,7 +134,7 @@ export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
 	async (payload: {destNetwork: string,sourceCurrency:string}, ctx) => {
 	try {
 		const client = inject<BridgeClient>(BridgeClient);
-        const currencyPair = ((ctx.getState() as BridgeAppState).ui.pairPage.currentPair)
+        await updateData(ctx.dispatch)
 		const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
 			.find(c => c.targetNetwork === payload.destNetwork && c.sourceCurrency === payload.sourceCurrency)?.targetCurrency;
 		if (targetCurrency) {
@@ -177,7 +177,7 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 	const currentIdx = allNetworks.indexOf(address.network || 'N/A');
 	// Select the first currency groupInfo for the selected network
 	let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
-    address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || {} as any;
+    address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address || {} as any;
     currency = address.currency;
 	const currentNetwork = supportedNetworks[address.network] || {};
 
@@ -258,10 +258,8 @@ export const ConnectBridge = () => {
 
 	//TODO: Initialize this without useEffect
 	useEffect(()=>{
-		if (destNetwork) {
-			dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
-		}
-	}, [destNetwork,currency,currentPair])
+		dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
+	}, [destNetwork,currency,network])
     
 
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
@@ -276,7 +274,8 @@ export const ConnectBridge = () => {
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-					<AddTokenToMetamask currency={pageProps.currency} tokenData={{address:pageProps.currency.split(':')[1],...propsGroupInfo.tokenData![pageProps.currency.split(':')[1]]}} />,
+                    <AddTokenToMetamask currency={pageProps.currency} tokenData={propsGroupInfo.tokenData} />
+                    ,
                     <Button key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));
