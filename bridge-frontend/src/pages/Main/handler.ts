@@ -6,6 +6,8 @@ import { Connect } from 'unifyre-extension-web3-retrofit';
 import { CommonActions,addAction } from './../../common/Actions';
 import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
+import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import { connectSlice } from "common-containers";
 
 // TODO: Move to a common project
 export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
@@ -116,18 +118,18 @@ export const onSwap = async (
     }
 }
 
-// export const updateData= async (dispatch:Dispatch<AnyAction>) => {
-//     try {
-//         const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
-//         const userProfile = await client.getUserProfile();
-//         const Actions = connectSlice.actions;
-//         dispatch(Actions.connectionSucceeded({userProfile}))
-//     } catch (e) {
-// 		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message }));
-//     }finally {
-//         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-//     }
-// }
+export const updateData= async (dispatch:Dispatch<AnyAction>) => {
+    try {
+        const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
+        const userProfile = await client.getUserProfile();
+        const Actions = connectSlice.actions;
+        dispatch(Actions.connectionSucceeded({userProfile}))
+    } catch (e) {
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message }));
+    }finally {
+        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+    }
+}
 
 export const resetNetworks = (activeNetworks:string[],network:string) =>{
    const index = activeNetworks.findIndex((e,index)=> (e === network));
