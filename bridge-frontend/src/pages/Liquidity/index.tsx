@@ -1,18 +1,16 @@
 import React, { useState,useContext, useEffect } from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
-import { useHistory } from 'react-router';
 import { useToasts } from 'react-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from './../../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
 import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig } from 'types';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { TextField} from 'office-ui-fabric-react';
 import { Big } from 'big.js';
 //@ts-ignore
-import {OutlinedBtn,AssetsSelector,supportedIcons,networkImages,AmountInput} from 'component-library';
+import { AssetsSelector,supportedIcons,networkImages,AmountInput } from 'component-library';
 import { AnyAction, Dispatch } from "redux";
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
     Gap
     // @ts-ignore
@@ -37,7 +35,6 @@ import { Dropdown } from "react-bootstrap";
 import { changeNetwork } from "./../Main/handler";
 import { LiquidityConfirmationModal } from './../../components/confirmationModal';
 import { useBoolean } from '@fluentui/react-hooks';
-import { addYears } from '@fluentui/react-northstar';
 
 export interface liquidityPageProps{
     network: string,
@@ -80,10 +77,8 @@ const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,balance:
             return
         }
     } catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-    }finally {
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
@@ -100,9 +95,7 @@ const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,balan
             success('Liquidity Removal Successfully processing',res?.txId)
         }
     } catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
@@ -114,34 +107,35 @@ const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
     );
 }
 
-const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: AddressDetails[],
-    networkOptions?:NetworkDropdown[],
-    currencyPair?:any
-    ) => {
-    let details = addr?.find(e=>e.symbol === v);
-    try{
-        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
-        let details = addr?.find(e=>e.symbol === v);
+const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (payload: { currency: string }, ctx) => {
+	const state = ctx.getState() as BridgeAppState;
+    try {
+        ctx.dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+		const addr = state.connection.account.user?.userId;
+		if (!addr) {
+			return;
+		}
         const sc = inject<BridgeClient>(BridgeClient);
-        if(details){
-            await sc.getUserLiquidity(dispatch,details?.address, details?.currency);
-            await sc.getAvailableLiquidity(dispatch, details?.network, details?.currency||'')
-        }
-        dispatch(Actions.tokenSelected({value: v || {},details}))
-    }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-    }finally {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const Pairs = (currencyPair.filter((p:any) => p.sourceCurrency.includes(details?.currency.split(':')[1]) || p.targetCurrency.includes(details?.currency.split(':')[1]))||[])
-        .map((e:any) => e.targetNetwork);
-        const AllowedNetworks = Array.from(new Set(Pairs));
-        const networkOptions = Object.values(supportedNetworks).filter(n => AllowedNetworks.includes(n.key));
-        networkOptions?.forEach (async e => await sc.getAvailableLiquidity(dispatch, e.key, (`${e.key}:${details?.currency.split(':')[1]}`)||''))
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
+
+		// Get available liquidity for all pairs of the selected currency
+		const allCurrencies = new Set<string>();
+		const pairs = state.data.state.currencyPairs.filter(cp =>
+			cp.sourceCurrency === payload.currency ||
+			cp.targetCurrency === payload.currency).forEach(cp => {
+				allCurrencies.add(cp.sourceCurrency);
+				allCurrencies.add(cp.targetCurrency);
+			});
+		for(const c of Array.from(allCurrencies)) {
+			await sc.getAvailableLiquidity(ctx.dispatch, addr, c);
+		}
+        ctx.dispatch(Actions.tokenSelected({value: payload.currency}));
+    } catch(e) {
+		ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally {
+        ctx.dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }      
-}
+});
 
 async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase, callback:() => void): Promise<ChainEventBase> {
 	try {
@@ -168,9 +162,7 @@ async function switchNetwork(dispatch: Dispatch<AnyAction>, e: string) {
         dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
         await changeNetwork(dispatch,e);
 	} catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
@@ -339,7 +331,6 @@ const Actions = liquidityPageSlice.actions;
 export function LiquidityPage() {
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);   
-    const histroy = useHistory();
     const { addToast } = useToasts();
     const dispatch = useDispatch();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
@@ -351,10 +342,10 @@ export function LiquidityPage() {
     const action = window.location.pathname.split('/')[3] === 'add';
 
     useEffect(()=>{
-		if (connected && pageProps.network) {
-			tokenSelected(dispatch,pageProps.symbol,pageProps.addresses,pageProps.networkOptions,Pairs);
+		if (pageProps.currency) {
+			dispatch(tokenSelectedThunk({currency: pageProps.currency}));
 		}
-	}, [connected,pageProps.network,pageProps.userAddress])
+	}, [pageProps.currency])
     
     console.log('LIQPRP',pageProps);
 
@@ -388,7 +379,7 @@ export function LiquidityPage() {
 
     const handleRefresh = async (v:string) => {
         setRefreshing(true);
-        await tokenSelected(dispatch,v,pageProps.addresses,pageProps.networkOptions,Pairs);
+		dispatch(tokenSelectedThunk({currency: pageProps.currency}));
         setRefreshing(false);
     }
     
@@ -507,7 +498,7 @@ export function LiquidityPage() {
                                 updater={e => updateEvent(
                                     dispatch, 
                                     e,
-                                    ()=>tokenSelected(dispatch,pageProps.selectedToken,pageProps.addresses,pageProps.networkOptions,Pairs)
+                                    () => dispatch(tokenSelectedThunk({currency: pageProps.currency}))
                                 )}>
                                     <LiquidityActionButton
                                         addLiquidity = {action}
