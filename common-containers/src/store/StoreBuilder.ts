@@ -7,6 +7,7 @@ import { initSlice, initThunk } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
 import logger from 'redux-logger';
 import { approvableButtonSlice } from '../chain/ApprovableButtonWrapper';
+import { PersistentState, PersistentStateMiddleware } from 'src/localStorage/PersistentState';
 
 export class StoreBuilder {
     static build<TUserState, TGlobalState extends AppInitializingState, TUiState>(
@@ -18,6 +19,7 @@ export class StoreBuilder {
     ) {
         const store = configureStore({
 			// middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+			middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(PersistentStateMiddleware),
 			devTools: process.env.NODE_ENV !== 'production',
             reducer: combineReducers({
                 connection: combineReducers({
@@ -33,6 +35,7 @@ export class StoreBuilder {
                 ui: uiReducer,
             })
         });
+		PersistentState.instance().dispatchAll(store.dispatch)
         store.dispatch(initThunk({module: initModule, apiBaseUrl}));
         return store;
     }

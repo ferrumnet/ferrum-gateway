@@ -16,3 +16,13 @@ export interface UserContractAllocation {
 	userAddress: string;
 	allocation: string;
 }
+
+export interface TokenDetails {
+	currency: string;
+	address: string;
+	chainId: number;
+	name: string;
+	symbol: string;
+	decimals: number;
+	logoURI: string;
+}

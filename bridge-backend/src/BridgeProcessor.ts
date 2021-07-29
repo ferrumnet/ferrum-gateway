@@ -1,16 +1,14 @@
-import { ChainClientFactory, SimpleTransferTransaction } from "ferrum-chain-clients";
+import { ChainClientFactory, ChainUtils, SimpleTransferTransaction } from "ferrum-chain-clients";
 import { Injectable, Logger, LoggerFactory, Network, ValidationUtils } from "ferrum-plumbing";
 import { BridgeModule } from "./BridgeModule";
 import { LambdaGlobalContext } from "aws-lambda-helper";
-import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
 import { PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { fixSig, produceSignatureWithdrawHash, randomSalt } from "./BridgeUtils";
+import { fixSig, produceSignatureWithdrawHash } from "./BridgeUtils";
 import { toRpcSig } from 'ethereumjs-util';
-import { SignedPairAddress } from "types";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from 'web3-tools';
@@ -26,7 +24,6 @@ export class BridgeProcessor implements Injectable {
         private svc: TokenBridgeService,
 		private bridgeContract: TokenBridgeContractClinet,
         private tokenConfig: BridgeConfigStorage,
-        private pairVerifyer: PairAddressSignatureVerifyre,
         private helper: EthereumSmartContractHelper,
         private privateKey: string,
         private processorAddress: string,
@@ -37,7 +34,7 @@ export class BridgeProcessor implements Injectable {
 
     __name__() { return 'BridgeProcessor'; }
 
-    async processCrossChain(network: Network) {
+    async processCrossChain(network: Network, noStop: boolean) {
         /**
          * Find all incoming transactions for the given network.
          * Get the sender details from mongo and verify the pair target.
@@ -63,7 +60,7 @@ export class BridgeProcessor implements Injectable {
                 const [existed, _] = await this.processSingleTransaction(tx);
                 if (existed) {
                     this.log.info(`Reached a transaction that was already processed: ${tx.transactionId}`);
-                    return;
+					if (!noStop) { return; }
                 }
             }
         } finally {
@@ -72,19 +69,25 @@ export class BridgeProcessor implements Injectable {
         }
     }
 
-    private async getAndValidatePairForTransaction(tx: SimpleTransferTransaction):
-        Promise<SignedPairAddress | undefined> {
-        const network = tx.network;
-        if (!(tx.fromItems || []).length) {
-            return undefined;
+    async processOneTx(network: Network, txId: string) {
+        /**
+         * Find all incoming transactions for the given network.
+         * Get the sender details from mongo and verify the pair target.
+         * Send tokens to their address.
+         */
+        const poolAddress = this.config.bridgeConfig.contractClient[network];
+        ValidationUtils.isTrue(!!poolAddress, `No payer for ${network} is configured`);
+        try {
+			const tx = await this.bridgeContract.getSwapEventByTxId(network, txId);
+			this.log.info(`Processing transaction ${tx.transactionId}`);
+			const [existed, _] = await this.processSingleTransaction(tx);
+			if (existed) {
+				this.log.info(`Reached a transaction that was already processed: ${tx.transactionId}`);
+			}
+        } finally {
+            await this.svc.close();
+            await this.tokenConfig.close();
         }
-        const userAddress = tx.fromItems[0].address;
-        const unverifiedPair = await this.svc.getUserPairedAddress(network, userAddress);
-        if (!unverifiedPair || !this.pairVerifyer.verify(unverifiedPair!)) {
-            this.log.info(`[${network}] Unverified pair ${unverifiedPair} related to the transaction ${tx.id}. Cannot process`);
-            return undefined;
-        }
-        return unverifiedPair;
     }
 
     private async processSingleTransaction(event: BridgeSwapEvent):
@@ -97,42 +100,22 @@ export class BridgeProcessor implements Injectable {
             } else {
             }
 
-            // const pair = await this.getAndValidatePairForTransaction(tx);
-            // if (!pair) {
-            //     this.log.info(`No pair for the transactino: ${tx.id}`);
-            //     return [false, undefined];
-            // }
-
             // Creating a new process option.
             // Find the relevant token config for the pair
             // Calculate the target amount
             const sourceNetwork = event.network;
-            // const sourceAddress = pair.pair.network1 === tx.network ? pair.pair.address1 :
-            //     pair.pair.network2 === tx.network ? pair.pair.address2 : undefined;
-            // const targetNetwork = pair.pair.network1 === tx.network ? pair.pair.network2 :
-            //     pair.pair.network1;
-            // const targetAddress = pair.pair.network1 === tx.network ? pair.pair.address2 :
-            //     pair.pair.address1;
             const sourceAddress = event.from;
             const targetAddress = event.targetAddress || event.from;
             const targetNetwork = event.targetNetwork;
-            //ValidationUtils.isTrue(!!sourceAddress, `Pairs (${pair}) source and destination don''t match transaction ${tx}`);
-            const sourcecurrency = `${sourceNetwork}:${event.token}`;
-            const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork,sourcecurrency);
-			const targetCurrency = `${targetNetwork}:${event.targetToken}`;
+            const sourcecurrency = `${sourceNetwork}:${ChainUtils.canonicalAddress(event.network, event.token)}`;
+            const conf = await this.tokenConfig.tokenConfig(sourceNetwork, targetNetwork, sourcecurrency);
+			const targetCurrency = `${targetNetwork}:${ChainUtils.canonicalAddress(event.targetNetwork as any, event.targetToken)}`;
             ValidationUtils.isTrue(!!conf &&
 				conf.sourceCurrency === sourcecurrency && conf.targetCurrency === targetCurrency,
 				`No token config between ${JSON.stringify(sourcecurrency)} networks (target ${targetCurrency})`);
 
             // const sourceAmount = await this.helper.amountToMachine(sourcecurrency, event.amount);
             const targetAmount = await this.helper.amountToMachine(targetCurrency, event.amount);
-            // let targetAmount = sourceAmount.minus(new Big(conf!.feeConstant || '0'));
-            // if (targetAmount.lt(new Big(0))) {
-            //     targetAmount = new Big(0);
-            // }
-
-            // ValidationUtils.isTrue(sourceAddress === tx.fromItems[0].address,
-            //     `UNEXPECTED ERROR: Source address is different from the transaction source ${tx.id}`);
 			const salt = Web3.utils.keccak256(event.transactionId.toLocaleLowerCase());
             const payBySig = await this.createSignedPayment(
                 targetNetwork, targetAddress, targetCurrency, targetAmount, salt
@@ -219,10 +202,20 @@ export class BridgeProcessor implements Injectable {
     }
 }
 
-export async function processOneWay(network: string) {
+async function prepProcess() {
     const c = await LambdaGlobalContext.container();
 	await c.registerModule(new CommonBackendModule());
     await c.registerModule(new BridgeModule());
-    const processor = c.get<BridgeProcessor>(BridgeProcessor);
-    await processor.processCrossChain(network as any);
+    return c.get<BridgeProcessor>(BridgeProcessor);
 }
+
+export async function processOneWay(network: string, noStop: boolean) {
+	const processor = await prepProcess();
+    await processor.processCrossChain(network as any, noStop);
+}
+
+export async function processOneTx(network: string, txId: string) {
+	const processor = await prepProcess();
+    await processor.processOneTx(network as any, txId);
+}
+

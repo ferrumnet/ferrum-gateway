@@ -83,6 +83,20 @@ export const TokenInfo = {
         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
         type: 'ERC20'
     },
+    "ETHEREUM:0xdc8af07a7861bedd104b8093ae3e9376fc8596d2" : {
+        tokenAddress: '0xdc8af07a7861bedd104b8093ae3e9376fc8596d2',
+        tokenSymbol: 'RVF',
+        tokenDecimals: 18,
+        tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
+        type: 'ERC20'
+    },
+    "POLYGON:0x2ce13e4199443fdfff531abb30c9b6594446bbc7" : {
+        tokenAddress: '0x2ce13e4199443fdfff531abb30c9b6594446bbc7',
+        tokenSymbol: 'RVF',
+        tokenDecimals: 18,
+        tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
+        type: 'ERC20'
+    },
 } as any
 
 export const chainData = {

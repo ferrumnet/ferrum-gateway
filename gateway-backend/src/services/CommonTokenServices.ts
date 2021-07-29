@@ -1,10 +1,11 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
+import { CurrencyListSvc } from "common-backend";
 import { Injectable } from "ferrum-plumbing";
-import { UserContractAllocation } from "types";
+import { TokenDetails, UserContractAllocation } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 
 export class CommonTokenServices implements Injectable {
-	constructor(private helper: EthereumSmartContractHelper) {}
+	constructor(private helper: EthereumSmartContractHelper, private tokenListSvc: CurrencyListSvc) {}
 	__name__() { return 'CommonTokenServices'; }
 
 	async allocation(userAddress: string, contractAddress: string, currency: string):
@@ -27,5 +28,9 @@ export class CommonTokenServices implements Injectable {
 			currency, userAddress,
 			amount, contractAddress, 'the given contract');
 		return tx;
+	}
+
+	async tokenList(): Promise<TokenDetails[]> {
+		return this.tokenListSvc.mergedList();
 	}
 }

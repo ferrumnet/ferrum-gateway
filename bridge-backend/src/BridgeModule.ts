@@ -54,7 +54,6 @@ export class BridgeModule implements Module {
 			c.get(TokenBridgeService),
 			c.get(TokenBridgeContractClinet),
             c.get(BridgeConfigStorage),
-			c.get(PairAddressSignatureVerifyre),
             c.get(EthereumSmartContractHelper),
             privateKey,
             processorAddress,

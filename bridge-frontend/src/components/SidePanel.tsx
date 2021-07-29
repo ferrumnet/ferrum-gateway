@@ -137,18 +137,18 @@ const executeWithrawItem = async (
         dis:()=>void,
         success:(v:string)=>void,
         error:(v:string)=>void,
-        popup: (v:string,tx:string,currency:string) => void
+        popup: (v:string, tx:string, currency:string) => void
     ) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
-        const res = await sc.withdraw(dispatch,item,network)
+        const res = await sc.withdraw(dispatch, item, network);
         dis();
         if(!!res && !!res[0]){
             dispatch(Actions.transactionExecuted({}));       
             success('Withdrawal was Successful and is processing...');
-            popup(network,res[1],item.receiveCurrency);
+            popup(network, res[1], item.sendCurrency);
             await sc.getUserWithdrawItems(dispatch,network);
             return;
         }
@@ -209,7 +209,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
 
-    const onWithdrawSuccessMessage = async (v:string,tx:string,currency:string) => {  
+    const onWithdrawSuccessMessage = async (v:string, tx:string, currency:string) => {  
         message.success({
             content: <Result
                 status="success"

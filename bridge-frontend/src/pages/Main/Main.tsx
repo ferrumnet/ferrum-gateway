@@ -261,7 +261,6 @@ export const ConnectBridge = () => {
 		dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
 	}, [destNetwork,currency,network])
     
-
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
