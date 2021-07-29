@@ -18,10 +18,9 @@ const _supportedNetworks: any = {
     'ETHEREUM': ['active', 'Ethereum', 'mainnet'],
     'RINKEBY': ['active', 'Rinkeby testnet', 'testnet'],
     'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
-    'BSC': ['active', 'BSC', 'mainnet'],
+    'BSC': ['inactive', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
-    'SOLANA': ['inactive', 'Solana', 'mainnet']
 };
 
 // TODO: Directly write the constants
@@ -34,8 +33,8 @@ Object.keys(_supportedNetworks).forEach(k => {
 		mainnet: m === 'mainnet'}
 })
 
-const chainContent = (chainId:string,chainName:string,name:string,
-    symbol:string,decimals:number,rpcUrls:string,blockExplorerUrls:string) => ({
+const chainContent = (chainId:string, chainName:string, name:string,
+    symbol:string, decimals:number, rpcUrls: string[], blockExplorerUrls: string[]) => ({
     "chainId": chainId,
     "chainName": chainName,
     "nativeCurrency":
@@ -44,8 +43,8 @@ const chainContent = (chainId:string,chainName:string,name:string,
             symbol: symbol,
             decimals: decimals
         },
-    "rpcUrls": [rpcUrls],
-    "blockExplorerUrls": [blockExplorerUrls],
+    "rpcUrls": rpcUrls,
+    "blockExplorerUrls": blockExplorerUrls,
 })
 
 export const TokenInfo = {
@@ -84,33 +83,45 @@ export const TokenInfo = {
         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
         type: 'ERC20'
     },
+    "ETHEREUM:0xdc8af07a7861bedd104b8093ae3e9376fc8596d2" : {
+        tokenAddress: '0xdc8af07a7861bedd104b8093ae3e9376fc8596d2',
+        tokenSymbol: 'RVF',
+        tokenDecimals: 18,
+        tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
+        type: 'ERC20'
+    },
+    "POLYGON:0x2ce13e4199443fdfff531abb30c9b6594446bbc7" : {
+        tokenAddress: '0x2ce13e4199443fdfff531abb30c9b6594446bbc7',
+        tokenSymbol: 'RVF',
+        tokenDecimals: 18,
+        tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
+        type: 'ERC20'
+    },
 } as any
 
 export const chainData = {
     'ETHEREUM': chainContent('0x1',
     'Ethereum Mainnet', 'ETH','ETH',
-    1,'https://mainnet.infura.io/v3/undefined/','https://etherscan.io/'),
+    1,['https://mainnet.infura.io/v3/'], ['https://etherscan.io/']),
     'RINKEBY': chainContent('0x4',
     'Rinkeby Test Network', 'ETH','ETH',
-    4,'https://rinkeby.infura.io/v3/undefined/','https://rinkeby.etherscan.io/'),
+    4,['https://rinkeby.infura.io/v3/'], ['https://rinkeby.etherscan.io/']),
     'BSC_TESTNET': chainContent('0x61',
     'BSC Testnet', 'BNB','BNB',
-    18,'https://data-seed-prebsc-1-s1.binance.org:8545/','https://explorer.binance.org/smart-testnet/'),
+    18,['https://data-seed-prebsc-1-s1.binance.org:8545/'],['https://explorer.binance.org/smart-testnet/']),
     'BSC': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
+    18,['https://bsc-dataseed.binance.org/'],['https://bscscan.com/']),
     'POLYGON': chainContent('0x89',
-    'Polugon (Matic)', 'MATIC','MATIC',
-    18,'https://bsc-dataseed.binance.org/','https://polygonscan.com/'),
+    'Polygon (Matic)', 'MATIC','MATIC', 18,
+	['https://rpc-mainnet.maticvigil.com/'],['https://ploygonscan.com/']),
     'MUMBAI_TESTNET': chainContent('0x13881',
     'Matic (Mumbai) testnet', 'MATIC','MATIC',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
+    18,['https://rpc-mumbai.maticvigil.com/'],['https://mumbai.polygonscan.com/']),
     'SOLANA': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
-    18,'https://bsc-dataseed.binance.org/','https://bscscan.com/'),
+    18, ['https://bsc-dataseed.binance.org/'],['https://bscscan.com/']),
 }
-
-
 
 export const FRMX: {[k: string]: [string, string]} = {
     'ETHEREUM': ['ETHEREUM:0xf6832EA221ebFDc2363729721A146E6745354b14', 'FRMX'],

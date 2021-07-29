@@ -29,7 +29,7 @@ import { MainPageSlice } from './../pages/Main/Main';
 const { Step } = Steps;
 
 // TODO: Update the user profile and allow balance re-fetch without changing the connection
-const updateData= async (dispatch:Dispatch<AnyAction>) => {
+export const updateData= async (dispatch:Dispatch<AnyAction>) => {
   try {
       const client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
       const userProfile = await client.getUserProfile();
@@ -167,7 +167,7 @@ export function SwapModal (props: {
                     <div className={styles.textStyles}>
                       {pageProps.step === 2 ? 'Your Claim item is being processed' : pageProps.step > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
                       {pageProps.step === 2 && <p onClick={()=>handleCheckItem()}
-                        className={styles.cursorStyles}
+                        className={`${styles.cursorStyles} text-vary-color`}
                       > Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }
                     </div>
                   </ChainEventItem>

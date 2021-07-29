@@ -66,6 +66,9 @@ export class HttpHandler implements LambdaHttpHandler {
                     ValidationUtils.isTrue(!!userId, 'User must be signed in');
 					body = await this.approveAllocationGetTransaction(req);
 					break;
+				case 'tokenList':
+					body = await this.commonTokenServices.tokenList();
+					break;
                 default:
                     let processor = this.bridgeProcessor.for(req.command) || this.leaderboardProcessor.for(req.command);
                     if (!!processor) {

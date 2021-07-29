@@ -20,6 +20,7 @@ export class BridgeModule implements Module {
     let conf: BridgeProcessorConfig = {} as any;
     const region = CommonBackendModule.awsRegion();
 
+
     if (confArn) {
       conf = await new SecretsProvider(region, confArn).get();
     } else {
