@@ -39,11 +39,21 @@
     {
       "name": "staking-backend",
       "path": "../staking-backend"
+    },
+    {
+      "name": "leaderboard-frontend",
+      "path": "../leaderboard-frontend"
+    },
+    {
+      "name": "leaderboard-backend",
+      "path": "../leaderboard-backend"
     }
   ],
   "settings": {
     "files.exclude": {
       "node_modules/": true,
+      "leaderboard-frontend/":true,
+      "leaderboard-backend/":true,
       "staking-frontend/": true,
       "staking-backend/": true,
       "bridge-frontend/": true,

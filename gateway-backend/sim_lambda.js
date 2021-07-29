@@ -1,8 +1,6 @@
-
-var r = require('ts-node').register();
-var {handler} = require('./src/index');
-var {SimulateLamdba} = require("aws-lambda-helper");
-require('dotenv').config()
+var r = require("ts-node").register();
+var { handler } = require("./src/index");
+var { SimulateLamdba } = require("aws-lambda-helper");
 
 SimulateLamdba.run(8080, handler);
-console.log('running on 8080.....');
+console.log("running on 8080.....");
