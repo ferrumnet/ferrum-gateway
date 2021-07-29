@@ -1,11 +1,12 @@
 import { Accounts, LeaderboardData } from "../types/LeaderboardTypes";
 import { orderBy } from "lodash";
+import Big from "big.js";
 export const formatData = (
   accounts: Accounts[],
   frmUSD: number,
   frmxUSD: number
 ): LeaderboardData[] => {
-  console.log(accounts.length);
+  // console.log(accounts.length);
   let toReturn: LeaderboardData[] = [];
   let frm: Accounts[] = [];
   let frmx: Accounts[] = [];
@@ -22,17 +23,19 @@ export const formatData = (
       frmx.push(element);
     }
   });
-  console.log(frm.length);
-  console.log(frmx.length);
-  console.log(frm);
-  console.log(frmx);
+  // console.log(frm.length);
+  // console.log(frmx.length);
+  // console.log(frm);
+  // console.log(frmx);
+
   frm.forEach((item) => {
+    let balance = new Big(item.address.balance);
     toReturn.push({
       rank: 0,
       address: item.address.address,
-      balance: +item.address.balance / 1000000,
-      usd_frm_and_frmx: (+item.address.balance / 1000000) * frmUSD,
-      frm_holiday: +item.address.balance / 1000000,
+      balance: +balance.div(1000000).toFixed(2),
+      usd_frm_and_frmx: +balance.div(1000000).mul(frmUSD).toFixed(2),
+      frm_holiday: +balance.div(1000000).toFixed(2),
       frmx_holiday: 0,
     });
   });
@@ -42,19 +45,31 @@ export const formatData = (
       (tItem) => tItem.address === item.address.address
     );
     if (xItem >= 0 && xItem !== undefined) {
-      toReturn[xItem].balance += +item.address.balance / 1000000000000000000;
-      toReturn[xItem].frmx_holiday =
-        +item.address.balance / 1000000000000000000;
-      toReturn[xItem].usd_frm_and_frmx =
-        toReturn[xItem].frm_holiday + toReturn[xItem].frmx_holiday * frmxUSD;
+      let oldBalance = new Big(toReturn[xItem].balance);
+      let newBalance = new Big(item.address.balance);
+
+      toReturn[xItem].balance = +newBalance
+        .div(1000000000000000000)
+        .add(oldBalance)
+        .toFixed(2);
+      toReturn[xItem].frmx_holiday = +newBalance
+        .div(1000000000000000000)
+        .toFixed(2);
+      toReturn[xItem].usd_frm_and_frmx = +new Big(toReturn[xItem].frm_holiday)
+        .add(new Big(toReturn[xItem].frmx_holiday).mul(frmxUSD))
+        .toFixed(2);
     } else {
       toReturn.push({
         rank: 0,
         address: item.address.address,
-        balance: +item.address.balance / 1000000000000000000,
-        usd_frm_and_frmx: +item.address.balance / 1000000000000000000,
+        balance: +new Big(item.address.balance)
+          .div(1000000000000000000)
+          .toFixed(2),
+        usd_frm_and_frmx: +new Big(item.address.balance)
+          .div(1000000000000000000)
+          .toFixed(2),
         frm_holiday: 0,
-        frmx_holiday: +item.address.balance / 1000000000000000000,
+        frmx_holiday: +new Big(item.address.balance).div(1000000000000000000),
       });
     }
   });

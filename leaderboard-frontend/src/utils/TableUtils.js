@@ -14,7 +14,7 @@ export default class TableUtils {
     // console.log("start index : ", (pageNo - 1) * perPage);
     // console.log("end index : ");
     // console.log(_entities);
-    console.log(_queryParams);
+    // console.log(_queryParams);
     const {
       pageNumber,
       pageSize,
@@ -24,9 +24,9 @@ export default class TableUtils {
       filter: { walletAddress },
     } = _queryParams;
 
-    console.log(walletAddress);
+    // console.log(walletAddress);
     let entitiesResult = [...orderBy([..._entities], sortField, sortOrder)];
-    console.log("after order : ", entitiesResult);
+    // console.log("after order : ", entitiesResult);
     if (walletAddress) {
       entitiesResult = entitiesResult.filter(
         (item) => item.address === walletAddress
@@ -47,7 +47,7 @@ export default class TableUtils {
           (pageNumber - 1) * pageSize + pageSize
         )
       : [];
-    console.log("after paginations : ", entitiesResult);
+    // console.log("after paginations : ", entitiesResult);
 
     return { total, entitiesResult };
   }
