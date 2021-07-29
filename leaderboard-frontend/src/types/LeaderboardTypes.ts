@@ -2,7 +2,7 @@ export interface Address {
   address: String;
   network: String;
   currency: String;
-  balance: String;
+  balance: number;
   readableBalance: number;
 }
 
@@ -14,7 +14,7 @@ export interface LeaderboardData {
   rank: number;
   balance: number;
   address: String;
-  usd_frm_and_frmx;
-  frm_holiday;
-  frmx_holiday;
+  usd_frm_and_frmx: number;
+  frm_holiday: number;
+  frmx_holiday: number;
 }

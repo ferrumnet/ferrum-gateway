@@ -28,7 +28,7 @@ const SearchWalletPage = () => {
             "https://api.coingecko.com/api/v3/simple/price?ids=frmx-token%2Cferrum-network&vs_currencies=USD"
           )
           .then((response) => {
-            console.log(response);
+            // console.log(response);
             const formatedData = formatData(
               result,
               response.data["ferrum-network"].usd,
