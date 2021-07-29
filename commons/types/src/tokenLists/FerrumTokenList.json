@@ -1,0 +1,20 @@
+{
+	"name": "1inch",
+	"timestamp": "2021-07-28T18:24:17+00:00",
+	"version": {
+		"major": 1,
+		"minor": 0,
+		"patch": 0
+	},
+	"keywords": ["ferrum", "unifyre", "default", "list"],
+	"tokens": [
+		{
+		"address": "0x2ce13e4199443fdfff531abb30c9b6594446bbc7",
+		"chainId": 137,
+		"name": "Rocket Vault (PoS) (RVF)",
+		"symbol": "RVF",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/rocketvault_32.png"
+		}
+	]
+}

@@ -10,4 +10,5 @@ export interface GroupInfo {
     footerHtml?: string;
     mainLogo?: string;
 	bridgeCurrencies: string[];
+    bridgeTheme:  {[k: string]: string}
 }

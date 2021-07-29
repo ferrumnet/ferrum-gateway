@@ -137,18 +137,18 @@ const executeWithrawItem = async (
         dis:()=>void,
         success:(v:string)=>void,
         error:(v:string)=>void,
-        popup: (v:string,tx:string) => void
+        popup: (v:string, tx:string, currency:string) => void
     ) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const [connect,sc] = inject2<Connect,BridgeClient>(Connect,BridgeClient);
         const network = connect.network() as any;
-        const res = await sc.withdraw(dispatch,item,network)
+        const res = await sc.withdraw(dispatch, item, network);
         dis();
         if(!!res && !!res[0]){
             dispatch(Actions.transactionExecuted({}));       
             success('Withdrawal was Successful and is processing...');
-            popup(network,res[1]);
+            popup(network, res[1], item.sendCurrency);
             await sc.getUserWithdrawItems(dispatch,network);
             return;
         }
@@ -183,6 +183,8 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
+    const groupInfo = useSelector<BridgeAppState, any>(appS => !!appS.data.state.groupInfo);
+
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
 		appS => appS.data.state.balanceItems);
@@ -207,7 +209,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
 
-    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+    const onWithdrawSuccessMessage = async (v:string, tx:string, currency:string) => {  
         message.success({
             content: <Result
                 status="success"
@@ -219,7 +221,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-					<AddTokenToMetamask currency={pageProps.currency} /> ,
+					<AddTokenToMetamask currency={currency} tokenData={groupInfo.tokenData}/>,
                     <p>
                       <Button key="buy" onClick={()=>{
                           message.destroy('withdr');

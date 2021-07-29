@@ -2,7 +2,7 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plu
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError, ChainEventBase, UserContractAllocation } from "types";
+import { logError, ChainEventBase, UserContractAllocation, TokenDetails } from "types";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
@@ -74,6 +74,15 @@ export class ApiClient implements Injectable {
 
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
 		return requestId.split('|')[0]; // Convert the requestId to transction Id. TODO: Do this a better way
+	}
+
+	async tokenList(): Promise<TokenDetails[]> {
+		try {
+			return await this.api({command: 'tokenList', data: {}, params: [] } as JsonRpcRequest);
+		} catch (e) {
+			console.error('Error getting tokenList ', e);
+			return [];
+		}
 	}
 
     async api(req: JsonRpcRequest): Promise<any> {

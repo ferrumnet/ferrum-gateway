@@ -26,6 +26,7 @@ import { useHistory } from 'react-router';
 import { SidePane } from './../../components/SidePanel';
 import { changeNetwork } from "./../Main/handler"
 import { ConnectBridge,SideBarContainer } from "./../Main/Main";
+import { LiquidityPage } from "./../Liquidity";
 import { WaitingComponent } from '../../components/WebWaiting';
 import { MessageBar, MessageBarType } from '@fluentui/react';
 import { GlobalStyles } from "./../../theme/GlobalStyles";
@@ -33,7 +34,10 @@ import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { History } from 'history';
-
+import { Switch, Route } from 'react-router-dom';
+import { setAllThemes,setToLS,removeFromLS } from "./../../storageUtils/storage";
+import * as defaultTheme from"./../../theme/schema.json";
+;
 interface DashboardState {
     initialized: boolean,
     isHome: boolean,
@@ -149,6 +153,16 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
+            if(groupInfo!.bridgeTheme){
+                setToLS('all-themes',groupInfo!.bridgeTheme);
+                setToLS(`${groupId}-all-themes`,groupInfo!.bridgeTheme);
+                //@ts-ignore
+                setToLS('theme',groupInfo!.bridgeTheme.data.light);
+                //@ts-ignore
+                setToLS(`${groupId}-theme`,groupInfo!.bridgeTheme.data.light)
+            }else{
+                setAllThemes("all-themes", defaultTheme);
+            }
 			await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies)
 			if ((groupInfo.bridgeCurrencies || []).length) {
 				const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
@@ -224,6 +238,8 @@ function ErrorBar(props: {error: string}) {
 // Author Abdul Ahad
 export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
     const [open,setOpen] = useState(false);
+    const [isLight,setIsLight] = useState(false);
+
     const history = useHistory();
     const inlineTheme = useContext(ThemeContext);   
     const styles = themedStyles(inlineTheme);
@@ -240,13 +256,14 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const groupInfo = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
     const switchRequest = useSelector<BridgeAppState, boolean>(state => state.ui.pairPage.isNetworkReverse);
     const network = useSelector<BridgeAppState, string>(state => state.ui.pairPage.destNetwork);
-    const PairPageProps = useSelector<BridgeAppState, any>(state => state.ui.pairPage);
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
     const titleText = document.getElementById("title"); // Accessing favicon element
+    const { setMode,setTheme } = newThemeInitialization(groupInfo.groupId);
+
     //@ts-ignore
-    favicon.href = groupInfo.themeVariables?.mainLogo;
+    favicon.href = groupInfo.themeVariables?.faviconImg||groupInfo.themeVariables?.mainLogo;
     //@ts-ignore
     titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
 
@@ -266,6 +283,15 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
         </>
     );
 
+
+    useEffect(() => {
+        if(groupInfo!.bridgeTheme){
+            setTheme(groupInfo!.bridgeTheme.data.light);
+            props.setter(groupInfo!.bridgeTheme.data.light);
+            setMode(groupInfo!.bridgeTheme.data.light,groupInfo.groupId);
+        }
+    },[groupInfo!.bridgeTheme]);
+
     const SwitchBtn = (
         <>
             {
@@ -283,8 +309,13 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                 ConnectButton={ConBot}
                 WithdrawlsButton={bridgeItems} 
                 SwitchNetworkButton={SwitchBtn} 
-                ThemeSelector={()=><ThemeSelector setter={props.setter} 
-                newTheme={props.newTheme}/>}
+                ThemeSelector={
+                    ()=><ThemeSelector setter={props.setter} 
+                    newTheme={props.newTheme}
+                    setIsLight={()=>setIsLight(!isLight)}
+                    group={groupInfo.groupId}
+                    isLight={isLight}/>
+                }
                 logo={groupInfo.themeVariables?.mainLogo}
                 altText={groupInfo.projectTitle}
             />
@@ -298,28 +329,35 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
            <AppContainer>
                <ContentContainer> 
                     <div className="landing-page">
-                        <div className="steps-wrapper">
-                            <div className="row">
-                                <div className="col-lg-4 col-md-4 mb-3">
-                                    <SideBarContainer
-                                    />
+                        <Switch>
+                            <Route path='/:gid/liquidity/:action'>
+                                <LiquidityPage/>
+                            </Route>
+                            <Route path='/:gid/'>
+                                <div className="steps-wrapper">
+                                    <div className="row">
+                                        <div className="col-lg-4 col-md-4 mb-3">
+                                            <SideBarContainer
+                                            />
+                                        </div>
+                                        <div className="col-lg-8 col-md-8">
+                                            <TokenBridge
+                                                connected={connected}
+                                                conBtn={ConBot}
+                                                connect={onBridgeLoad}
+                                                ConnectBridge={ConnectBridge}
+                                                newTheme={props.newTheme}
+                                                projectTitle={groupInfo.projectTitle}
+                                            />
+                                        </div>
+                                        <SidePane
+                                            isOpen={open||panelOpen}
+                                            dismissPanel={handleDismiss}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="col-lg-8 col-md-8">
-                                    <TokenBridge
-                                        connected={connected}
-                                        conBtn={ConBot}
-                                        connect={onBridgeLoad}
-                                        ConnectBridge={ConnectBridge}
-                                        newTheme={props.newTheme}
-                                        projectTitle={groupInfo.projectTitle}
-                                    />
-                                </div>
-                                <SidePane
-                                    isOpen={open||panelOpen}
-                                    dismissPanel={handleDismiss}
-                                />
-                            </div>
-                        </div>
+                            </Route>
+                        </Switch>   
                         <WaitingComponent/>
                     </div>
                 </ContentContainer>
@@ -336,15 +374,12 @@ export function Dashboard(props:ThemeProps) {
     const themes = _loadTheme(themeVariables, stateData.customTheme);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
-    const { theme, themeLoaded, getFonts } = newThemeInitialization();
+    const groupInfoData = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
+    const { theme, setTheme } = newThemeInitialization(groupInfoData.groupId ? groupInfoData.groupId :  null);
     const [selectedTheme, setSelectedTheme] = useState(theme);
     const [newTheme] = useState();
 	const history = useHistory();
 
-    useEffect(() => {
-      setSelectedTheme(theme);
-      // eslint-disable-next-line
-    }, [themeLoaded]);
 
     const handleCon = async () => {
         await onBridgeLoad(dispatch, history).catch(console.error)

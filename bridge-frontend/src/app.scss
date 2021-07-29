@@ -68,6 +68,15 @@ option{
     }
 }
 
+input[type="number"]::-webkit-outer-spin-button, 
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 @media (max-width: 1100px){
 
     .swap{
@@ -218,7 +227,7 @@ option{
         }
 
         .liqu-details{
-            width: 70%;
+            width: 100%;
             display: block;
             justify-content: center;
             text-align: center;
@@ -231,8 +240,12 @@ option{
                 max-width: inherit;
 
                 .value{
-                    font-size: 1.7rem;
+                    font-size: 1.3rem;
                     height: 35px;
+                }
+
+                p{
+                    font-size: 0.5rem;
                 }
             }
 
@@ -249,10 +262,10 @@ option{
 .liqu-details{
     margin: 0px auto !important;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-content: center;
     align-items: center;
-    width: 45%;
+    width: 100%;
     color: #ffffff;
     margin-top: 0px;
 
@@ -272,13 +285,25 @@ option{
         max-width: 50%;
         overflow: hidden;
         text-overflow: ellipsis;
-        
+        text-align: center;
+
+        p{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            svg{
+                font-size: 10px;
+                line-height: 2px;
+            }
+        }
+
         .value{
             background-color: #25282d00;
             border: none;
             color: #ffffff;
             text-align: center;
-            font-size: 50px;
+            font-size: 40px;
             font-weight: bold;
             height: 55px;
             margin: 0px;
@@ -294,6 +319,7 @@ option{
         p{
             text-align: center;
             text-overflow: ellipsis;
+            font-size: 12px;
         }
     }
     .ms-TextField-fieldGroup{
@@ -629,14 +655,11 @@ option{
     }
 }
 .pad-main-body{
-    padding-left: 3rem;
+    padding-left: 1.5rem;
     padding-right: 1.5rem;
     padding-top: 2rem;
     margin: 0px auto;
-    width: 50%;
-
-  
-
+    
     &.verify{
         justify-content: space-around;
         display: flex;
@@ -690,23 +713,28 @@ option{
         border-color: #ceaa69;
         background-color: transparent;
     }
-
+    .ms-TextField-wrapper{
+        border-radius: 1px;
+    }
     .ms-TextField-fieldGroup{
-        border-color: #ceaa69;
         background-color: transparent;
-        border-radius: 5px;
+        border-radius: 1px;
         padding: 10px;
-        height: 40px;
+        height: auto;
         font-weight: bold;
-
+        border: 1px solid #ced4da;
         input{
             background-color: transparent;
+            font-size: 0.9rem;
+            height: 1.7rem;
+            border-radius: 1px;
         }
     }
 
     .fieldGroup-54{
         width: 80%;
         height: 3.2em;
+        
         border-color: #ceaa69;
     }
 }

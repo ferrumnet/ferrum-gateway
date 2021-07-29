@@ -1,30 +1,40 @@
 import React, { useState,useContext, useEffect } from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
-import { useHistory } from 'react-router';
 import { useToasts } from 'react-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
-import { Divider } from '@fluentui/react-northstar'
 import { BridgeAppState } from './../../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
-import { SignedPairAddress,inject, PairedAddress } from 'types';
+import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig } from 'types';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { TextField} from 'office-ui-fabric-react';
+import { Big } from 'big.js';
 //@ts-ignore
-import {Page,OutlinedBtn} from 'component-library';
+import { AssetsSelector,supportedIcons,networkImages,AmountInput } from 'component-library';
 import { AnyAction, Dispatch } from "redux";
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
     Gap
     // @ts-ignore
 } from 'desktop-components-library';
 import { ValidationUtils } from "ferrum-plumbing";
-import { Utils } from 'types';
+import { Utils,supportedNetworks,NetworkDropdown,ChainEventBase, ChainEventStatus } from 'types';
 import { message, Result } from 'antd';
 import { formatter } from './../../common/Utils';
 import { ReloadOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { addAction, CommonActions } from "./../../common/Actions";
+import { Card } from "react-bootstrap";
+import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
+import { LiquidityActionButton } from './liquidityActionButton';
+import { updateData } from './../../components/swapModal';
+import { Button } from "react-bootstrap";
+import { ChainEventItem, } from 'common-containers';
+import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
+import { UnifyreExtensionKitClient } from 'unifyre-extension-sdk';
+import { Dropdown } from "react-bootstrap";
+import { changeNetwork } from "./../Main/handler";
+import { LiquidityConfirmationModal } from './../../components/confirmationModal';
+import { useBoolean } from '@fluentui/react-hooks';
 
 export interface liquidityPageProps{
     network: string,
@@ -38,79 +48,54 @@ export interface liquidityPageProps{
     destAddress: string,
     destNetwork: string,
     baseNetwork: string,
+    balance:string,
+    transactionId: string,
+    networkOptions?: NetworkDropdown[];
     destSignature: string,
     selectedToken: string,
+    userAddress: string,
     addresses: AddressDetails[],
     availableLiquidity: string,
+    TotalAvailableLiquidity: string,
     allowanceRequired: boolean,
-    reconnecting: boolean
+    reconnecting: boolean,
+    liquidityData: [string, string][],
+    AllowedNetworks:string[],
+    contractAddress: string
 }
 
-const onConnect = async (dispatch:Dispatch<AnyAction>,network: string,targetCur: string) => {
-    try {
-
-        const sc = inject<BridgeClient>(BridgeClient);
-        // const currenciesList = await sc.getSourceCurrencies(dispatch,network,'');
-        // if(currenciesList.length > 0){
-        //     const allowance = await sc.checkAllowance(dispatch,targetCur,'5', targetCur);
-        //     dispatch(Actions.checkAllowance({value: allowance}));       
-        // }
-        const res  = await sc.signInToServer(dispatch);
-        return res;
-    } catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-    }
-};
-
-const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCurrency: string,success: (v:string,tx:string)=>void,allowanceRequired:boolean) => {
+const addLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,balance:string,targetCurrency: string,success: (v:string,tx:string)=>void,allowanceRequired:boolean) => {
     try {
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);
+        ValidationUtils.isTrue(!(Number(balance)<Number(amount)),'You do Not have Enough Liquidity Available')
         ValidationUtils.isTrue(!!targetCurrency,'targetCurrency is required')
         const res = await client.addLiquidity(dispatch, targetCurrency, amount);
         if(res){
-            if(allowanceRequired){
-                dispatch(Actions.approvalSuccess({ }));
-				// TODO: User the allowable button
-                // const allowance = await client.checkAllowance(dispatch,targetCurrency,'5', targetCurrency);
-                // if(allowance){
-                //     success('Approval Successful, You can now go on to add you liquidity.','');
-                //     dispatch(Actions.checkAllowance({value: false}))
-                // }
-                
-            }else{
-                success('Liquidity Added Successfully and processing',res.txId);
-                dispatch(Actions.addLiquiditySuccess({}))
-                return
-            }
+            success('Liquidity Added Successfully and processing',res.txId);
+            dispatch(Actions.addLiquiditySuccess({txId: res.txId}))
+            return
         }
     } catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
-    }finally {
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
 };
 
-const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,targetCurrency: string,success: (v:string,tx:string)=>void) => {
+const removeLiquidity = async (dispatch:Dispatch<AnyAction>,amount: string,balance:string,targetCurrency: string,success: (v:string,tx:string)=>void) => {
     try {
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);
+        ValidationUtils.isTrue(!(Number(balance)<Number(amount)),'You do Not have Enough Liquidity Available')
         ValidationUtils.isTrue(!!targetCurrency,'targetCurrency is required')
         const res = await client.removeLiquidity(dispatch, targetCurrency, amount);
         if(res?.status){
-            dispatch(Actions.removeLiquiditySuccess({}))
+            dispatch(Actions.removeLiquiditySuccess({txId: res.txId}))
             success('Liquidity Removal Successfully processing',res?.txId)
         }
     } catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
     }
@@ -122,31 +107,92 @@ const amountChanged = (dispatch:Dispatch<AnyAction>,v?: string) => {
     );
 }
 
-const tokenSelected = async (dispatch:Dispatch<AnyAction>,v?: any,addr?: AddressDetails[]) => {
-    try{
-        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
-        let details = addr?.find(e=>e.symbol === v);
+const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (payload: { currency: string }, ctx) => {
+	const state = ctx.getState() as BridgeAppState;
+    try {
+        ctx.dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+		const addr = state.connection.account.user?.userId;
+		if (!addr) {
+			return;
+		}
         const sc = inject<BridgeClient>(BridgeClient);
-        if(details){
-            await sc.getUserLiquidity(dispatch,details?.address, details?.currency);
-        }
-        dispatch(Actions.tokenSelected({value: v || {},details}))
-    }catch(e) {
-        if(!!e.message){
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: e.message || '' }));
-        }
+		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
+
+		// Get available liquidity for all pairs of the selected currency
+		const allCurrencies = new Set<string>();
+		const pairs = state.data.state.currencyPairs.filter(cp =>
+			cp.sourceCurrency === payload.currency ||
+			cp.targetCurrency === payload.currency).forEach(cp => {
+				allCurrencies.add(cp.sourceCurrency);
+				allCurrencies.add(cp.targetCurrency);
+			});
+		for(const c of Array.from(allCurrencies)) {
+			await sc.getAvailableLiquidity(ctx.dispatch, addr, c);
+		}
+        ctx.dispatch(Actions.tokenSelected({value: payload.currency}));
+    } catch(e) {
+		ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally {
+        ctx.dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
+    }      
+});
+
+async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase, callback:() => void): Promise<ChainEventBase> {
+	try {
+		const connect = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionKitClient);
+		const t = await connect.getTransaction(e.id);
+		console.log('Checking the transloota ', t)
+		if (t &&t.blockNumber) {
+			console.log('Translo iso componte ', t)
+            updateData(dispatch);
+            callback();
+			return {...e, status: 'completed'}; // TODO: Check for failed
+		}
+		console.log('Noting inderezding ', e)
+		return {...e, status: 'pending'};
+	} catch(ex) {
+		console.error('Button.updateEvent', ex, e);
+		return {...e, status: 'failed'};
+	}
+}
+
+async function switchNetwork(dispatch: Dispatch<AnyAction>, e: string) {
+	try {
+        dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
+        dispatch(addAction(CommonActions.WAITING, { source: 'loadGroupInfo' }));
+        await changeNetwork(dispatch,e);
+	} catch(e) {
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
     }finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'loadGroupInfo' }));
-    }      
-}
+    }
+}  
 
 function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): liquidityPageProps {
     const state = (appState.ui.liquidityPage || {}) as liquidityPageProps;
-    const accounts = userAccounts.user.accountGroups;
+	const bridgeCurrencies = appState.data.state.groupInfo?.bridgeCurrencies || [] as any;
+	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);
     const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
-    const address = addr[0] || {};
-
+    let address = addr[0] || {};
+    const currentIdx = allNetworks.indexOf(address.network || 'N/A');
+    const currNet = address.network;
+    let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+    address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address as any;
+    currency = address ? address.currency : addr[0].currency;
+    const contractAddress = BRIDGE_CONTRACT[address.network];
+    const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
+	const currentNetwork = supportedNetworks[address.network] || {};
+    const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])
+    .map(e => e.targetNetwork);
+    const AllowedNetworks = Array.from(new Set(Pairs));
+    const networkOptions = Object.values(supportedNetworks)
+    .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true && AllowedNetworks.includes(n.key));
+    const liqArr = Object.entries(appState.data.state.bridgeLiquidity);
+    const liquidityData = ( liqArr.length > 0 && liqArr.filter((e:any) => e[0]?.split(':')[1] === currency?.split(':')[1])  || []);
+    const TotalAvailableLiquidity = appState.data.state
+		.bridgeLiquidity[currency || 'N/A'] || '0';
     return {
+        
         symbol: address.symbol,
         network: address.network,
         baseAddress: state.baseAddress,
@@ -155,14 +201,21 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
         destSignature: state.destSignature,
         balance: address.balance,
         amount: state.amount,
+        networkOptions: networkOptions,
         addresses: addr,
-        selectedToken: state.selectedToken,
+        AllowedNetworks,
+        transactionId: state.transactionId,
+        contractAddress: contractAddress,
+        selectedToken: address.symbol,
         currency: address.currency,
+        userAddress: address.address,
         pairedAddress: state.pairedAddress,
         destNetwork: state.destNetwork,
         baseNetwork: state.baseNetwork,
         availableLiquidity: state.availableLiquidity,
-        allowanceRequired: state.allowanceRequired,
+        liquidityData,
+        TotalAvailableLiquidity: TotalAvailableLiquidity,
+        allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
         reconnecting: state.reconnecting
     } as liquidityPageProps;
 };
@@ -193,9 +246,18 @@ export const liquidityPageSlice = createSlice({
         groupId: '',
         swapId: '',
         itemId: '',
+        contractAddress: '',
+        userAddress: '',
+        transactionId: '',
+        TotalAvailableLiquidity: '0',
+        AllowedNetworks: [],
+        liquidityData: [],
         reconnecting: false
     } as liquidityPageProps,
     reducers: {
+        currencyChanged: (state, action) => {
+			state.currency = action.payload.currency;
+		},
         signFirstPairAddress: (state,action) => {
 
         },
@@ -238,11 +300,16 @@ export const liquidityPageSlice = createSlice({
 
         },
         addLiquiditySuccess: (state,action) => {
-            state.amount= '0'
+            state.amount= '0';
+            state.transactionId= action.payload.txId
         },
         removeLiquiditySuccess: (state,action) => {
-            state.amount= '0'
+            state.amount= '0';
+            state.transactionId= action.payload.txId
         },
+        setMax: (state,action) => {
+            state.amount = action.payload.balance
+        }
     },
     extraReducers: builder => {
         builder.addCase('connect/reconnected', (state, action) => {
@@ -262,27 +329,42 @@ export const liquidityPageSlice = createSlice({
 const Actions = liquidityPageSlice.actions;
 
 export function LiquidityPage() {
-    const [action,setAction] = useState(true)
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);   
-    const histroy = useHistory();
     const { addToast } = useToasts();
     const dispatch = useDispatch();
     const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
+    const Pairs =  useSelector<BridgeAppState, BridgeTokenConfig[]>(state => state.data.state.currencyPairs);
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, liquidityPageProps>(state => stateToProps(state,userAccounts));
     const [refreshing,setRefreshing] = useState(false)
+    const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
+    const action = window.location.pathname.split('/')[3] === 'add';
+
+    useEffect(()=>{
+		if (pageProps.currency) {
+			dispatch(tokenSelectedThunk({currency: pageProps.currency}));
+		}
+	}, [pageProps.currency])
+    
+    console.log('LIQPRP',pageProps);
 
     const onSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             content: <Result
                 status="success"
-                title="Your Transaction was successful"
+                title="Your Transaction is Processing"
                 subTitle={v}
                 extra={[
                     <>
                         <div> View Transaction Status </div>
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                        <p>
+                            <Button key="buy" onClick={()=>{
+                                    message.destroy('withdraw');
+                            }}>Close</Button>
+                        </p>
+                       
                     </>
                 ]}
             />,
@@ -290,120 +372,100 @@ export function LiquidityPage() {
             style: {
               marginTop: '20vh',
             },
+            duration: 0,
+            key: 'withdraw'
         }, 20);  
     };
 
-    const handleRefresh = async () => {
+    const handleRefresh = async (v:string) => {
         setRefreshing(true);
-        await tokenSelected(dispatch,pageProps.selectedToken,pageProps.addresses);
+		dispatch(tokenSelectedThunk({currency: pageProps.currency}));
         setRefreshing(false);
     }
     
     return (
-        <div className="page_cont">
-            <div className="centered-body liquidity1" style={styles.maincontainer} >
-            <div>
+        <div className="centered-body liquidity1" style={styles.maincontainer} >
+            <LiquidityConfirmationModal
+                isModalOpen={isConfirmModalOpen}
+                amount={pageProps.amount}
+                sourceNetwork={pageProps.network}
+                token={pageProps.symbol}
+                total={pageProps.amount}
+                liquidity={pageProps.availableLiquidity}
+                processLiqAction={action ?
+                    () => addLiquidity(dispatch,pageProps.amount,pageProps.balance,pageProps.currency,onSuccessMessage,pageProps.allowanceRequired)
+                    : () => removeLiquidity(dispatch,pageProps.amount,pageProps.availableLiquidity,pageProps.currency,onSuccessMessage)
+                }
+                setIsModalClose={hideConfirmModal}
+                action={action?'Added':'Removed'}
+            />
+            <Card className="text-center">
+                <div>
                     <div className="body-not-centered swap liquidity">
-                        <div className="header title">  
-                            <div style={{...styles.textStyles}}>
+                        <small className="text-vary-color mb-5 head">
                                 Manage Liquidity
-                                <Divider/>
-                            </div>
-                            <div>
-                                <div className="space-out">
-                                    <>
-                                        <select style={{...styles.textStyles,...styles.optionColor}} name="token" id="token" className="content token-select" disabled={pageProps.addresses.length === 0} onChange={(e)=>tokenSelected(dispatch,e.target.value,pageProps.addresses)}>
-                                            <option style={{...styles.textStyles,...styles.optionColor}} value={''}>Select Token</option>
-                                            
-                                            {
-                                                pageProps.addresses.length > 0 ?
-                                                pageProps.addresses.map((e:any)=>
-                                                        <option style={{...styles.textStyles,...styles.optionColor}} value={e.symbol}>{e.symbol}</option>
-                                                    )
-                                                : <option style={{...styles.textStyles,...styles.optionColor}} value={'Not Available'}>Not Available</option>
-                                            }
-                                        </select>
-                                    </>
-                                </div>
-                            </div>
-                        </div>
+                                <hr className="mini-underline"></hr>
+                        </small>
                     </div>
                     <div  style={styles.container}>
-                    <div className="pad-main-body" >
-                        <div className="space-out liquidity-tabs">
-                            <span className={action ? 'emphasize' : undefined }  style={{...styles.textStyles}} onClick={()=>setAction(!action)}>Add Liquidity</span>
-                            <div className="vert-divider"></div>
-                            <span className={action ? undefined : 'emphasize' } style={{...styles.textStyles}} onClick={()=>setAction(!action)}>Remove Liquidity</span>
-                        </div>
+                    <div className="pad-main-body">
+                            <div>
+                                <div className="text-sec text-left">Asset</div>
+                                    <div>
+                                        <AssetsSelector 
+                                            assets={pageProps.addresses}
+                                            icons={supportedIcons}
+                                            onChange={(v:any)=> {dispatch(Actions.currencyChanged({currency: v.currency})); handleRefresh(v.symbol)}}
+                                            selectedToken={pageProps.symbol}
+                                        />
+                                    </div>
+                                </div>
+                                <Gap size={"small"}/>
+                                <div>
+                                    <div className="text-sec text-left">Current Network</div>
+                                    <div className="content">
+                                        <div>
+                                            <Dropdown className="assets-dropdown liquidity-dropdown">
+                                                <Dropdown.Toggle variant="pri" id="dropdown-basic">
+                                                    <span>
+                                                        {pageProps.network}
+                                                    </span>
+                                                </Dropdown.Toggle>
+                                                <Dropdown.Menu>
+                                                    {pageProps.networkOptions?.map((asset, index) => (
+                                                        <Dropdown.Item eventKey={index} active={asset.key === pageProps.network} disabled={asset.key === pageProps.network} key={index} onClick={()=>{switchNetwork(dispatch,asset.key)}}>
+                                                            <span>
+                                                                <strong>{asset.key}</strong>
+                                                            </span>
+                                                        </Dropdown.Item>
+                                                    ))}
+                                                </Dropdown.Menu>
+                                            </Dropdown>
+                                        </div>
+                                    </div>
+                            </div>
+                            <Gap size={"small"}/>
+                            <div>
+                                <div className="content text-left">
+                                    <div>
+                                        <AmountInput
+                                            symbol={pageProps.symbol}
+                                            amount={pageProps.amount}
+                                            value={pageProps.amount}
+                                            fee={0}
+                                            icons={supportedIcons}
+                                            addonStyle={styles.addon}
+                                            groupAddonStyle={styles.groupAddon}
+                                            balance={pageProps.balance}
+                                            setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
+                                            onChange={ (v:any) => amountChanged(dispatch,v.target.value)}
+                                            onWheel={ (event:any) => event.currentTarget.blur() }
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="content notif">{ !pageProps.network ? 'Kindly Reconnect' : undefined}</div>
                     </div>
-                    {
-                        action &&
-                            <div className="pad-main-body">
-                                    <div>
-                                        <div className="header">Current Network</div>
-                                        <div className="content">
-                                            <div>
-                                                <TextField
-                                                    placeholder={'Current Network'}
-                                                    value={pageProps.network}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <Gap size={"small"}/>
-                                    <div>
-                                        <div className="header">Amount of Liquidity to Add</div>
-                                        <div className="content">
-                                            <div>
-                                                <TextField
-                                                    placeholder={'Amount'}
-                                                    value={pageProps.amount}
-                                                    onChange={(e,v)=>amountChanged(dispatch,v)}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="content notif">{ !pageProps.network ? 'Kindly Reconnect' : undefined}</div>
-                                    <div className="content notif">{ (pageProps.network && !pageProps.selectedToken) ? 'Kindly Select a netwrok token' : undefined}</div>
-                                    { pageProps.selectedToken && <div style={{...styles.textStyles}} onClick={()=>handleRefresh()}> Refresh Balance Data <ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`,width: '20px'}} spin={refreshing}/> </div> }
-                                    <Gap size={"small"}/>                                 
-                            </div>
-                    }
-                    {
-                        !action &&
-                            <div className="pad-main-body">
-                                    <div>
-                                        <div className="header">Current Network</div>
-                                        <div className="content">
-                                            <div>
-                                                <TextField
-                                                    placeholder={'Current Network'}
-                                                    value={pageProps.network}
-                                                    disabled={true}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <Gap size={"small"}/>
-                                    <div>
-                                        <div className="header">Amount of Liquidity to Remove</div>
-                                        <div className="content">
-                                            <div>
-                                                <TextField
-                                                    placeholder={'Enter Amount'}
-                                                    value={pageProps.amount}
-                                                    onChange={(e,v)=>amountChanged(dispatch,v)}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="content">{ !pageProps.network ? 'Kindly Reconnect' : undefined}</div>
-                                    <div className="content">{ (pageProps.network && !pageProps.selectedToken) ? 'Kindly Select a netwrok token' : undefined}</div>
-                                    { pageProps.selectedToken && <div style={{...styles.textStyles}} onClick={()=>handleRefresh()}> Refresh Balance Data <ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`,width: '20px'}} spin={refreshing}/> </div> }
-                                    <Gap size={"small"}/>
-                            </div>
-                    }
                     <div className="liqu-details">
                         <div className="my-liqu-details">
                             <p className="value">
@@ -412,25 +474,68 @@ export function LiquidityPage() {
                             </p>
                             
                             <p>
-                                Your Liquidity Balance
+                                Your Liquidity Balance <ReloadOutlined onClick={()=>handleRefresh(pageProps.symbol)} style={{width: '20px'}} spin={refreshing}/>
                             </p>
                         </div>
+                        <div className="my-liqu-details">
+                            <p className="value">
+                                {formatter.format(pageProps.TotalAvailableLiquidity,true)}
+                                <span>{pageProps.symbol}</span>
+                            </p>
+                            
+                            <p>
+                                Total {pageProps.symbol} Liquidity on {pageProps.network}
+                            </p>
+                        </div>                  
+                    </div> 
+                    <div className="liqu-details">
                         <div style={styles.btnCont}>
-                            <OutlinedBtn
-                                text= {action ? (pageProps.allowanceRequired ? 'Approve' : 'Add Liquidity') : 'Remove Liquidity'}
-                                onClick={
-                                    () => action ? 
-                                    addLiquidity(dispatch,pageProps.amount,pageProps.currency,onSuccessMessage,pageProps.allowanceRequired)
-                                    : removeLiquidity(dispatch,pageProps.amount,pageProps.currency,onSuccessMessage)
-                                }
-                                disabled={!pageProps.selectedToken || (Number(pageProps.amount) <= 0) || pageProps.allowanceRequired}
-                            /> 
+                            <ChainEventItem
+                                id={pageProps.transactionId}
+                                network={pageProps.network as any}
+                                initialStatus={'pending'}
+                                eventType={'transaction'}
+                                updater={e => updateEvent(
+                                    dispatch, 
+                                    e,
+                                    () => dispatch(tokenSelectedThunk({currency: pageProps.currency}))
+                                )}>
+                                    <LiquidityActionButton
+                                        addLiquidity = {action}
+                                        onManageLiquidityClick = {showConfirmModal}
+                                        contractAddress={pageProps.contractAddress}
+                                        amount={pageProps.amount}
+                                        currency={pageProps.currency!}
+                                        userAddress={pageProps.userAddress}
+                                        isAmountEntered= {(Number(pageProps.amount) <= 0)}
+                                        isTokenSelected= {!pageProps.selectedToken }
+                                        allowanceRequired={pageProps.allowanceRequired}
+                                    />
+                            </ChainEventItem>
                         </div>                      
-                    </div>   
                     </div>
-                  
-            </div>
-        </div>
+                    <div style={{"paddingLeft": "1.5rem"}}>
+                        <div>
+                            <div className="amount-rec-text text-left">
+                                {
+                                    pageProps.liquidityData.length > 0 && 
+                                    pageProps.liquidityData.map(
+                                        e => 
+                                        <small className="text-pri d-flex align-items-center">
+                                                Available Liquidity On {e[0].split(':')[0]} ≈ {formatter.format(e[1],true)}
+                                                <span className="icon-network icon-sm mx-2">
+                                                    <img src={networkImages[e[0].split(':')[0]]} alt="img"></img>
+                                                </span>
+                                        </small>
+                                    )
+                                }
+                            
+                            </div>
+                        </div>
+                    </div>   
+                </div>  
+                </div>
+            </Card>
         </div>
     )
 }
@@ -439,14 +544,29 @@ export function LiquidityPage() {
 //@ts-ignore
 const themedStyles = (theme) => ({
     container: {
-        width: '75%',
+        width: '100%',
         margin: '0px auto'
     },
     maincontainer: {
-        width: '90%'
+        width: '70%',
+        margin: '0px auto'
     },
     btnCont: {
         width: '40%'
+    },
+    groupAddon: {
+        display: "flex",
+        position: "relative" as "relative"
+    },
+    addon: {
+        position: "absolute" as "absolute",
+        right: '5%',
+        display: "flex",
+        height: "40%",
+        alignItems: "center" as "center",
+        cursor: "pointer",
+        top: "15px",
+        padding: "10px"
     },
     btnStyle:  {
         root: [

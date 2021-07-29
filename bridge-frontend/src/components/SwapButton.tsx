@@ -1,6 +1,7 @@
 import React, {useContext} from 'react';
 import { IApprovableButtonWrapperViewProps, ApprovableButtonWrapper } from 'common-containers';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
+import { LoadingOutlined } from '@ant-design/icons';
 
 export interface SwapButtonProps {
 	contractAddress: string;
@@ -22,7 +23,15 @@ export function SwapButtonView(props: SwapButtonProps&IApprovableButtonWrapperVi
 	const btnContent = props.isApprovalMode ? (<>
 					<i className="mdi mdi-lock-open-outline"></i>
 						{'APPROVE'}
-						{props.pendingApproval ? (<b>...</b>) : ''}
+						{props.pendingApproval ? 
+							(
+								<span
+									style={{"display":"flex","alignItems":"center","fontSize":"20px",padding:"0px 10px"}}
+								>
+									<LoadingOutlined/> 
+								</span>
+							) : ''
+						}
 					</>
 					) : (<>
                         <i className="mdi mdi-swap-horizontal-bold"></i>

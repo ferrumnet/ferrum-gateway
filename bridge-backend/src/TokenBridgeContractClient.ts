@@ -1,12 +1,13 @@
 import {abi as bridgeAbi} from './resources/BridgePool.json';
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
-import abiDecoder from 'abi-decoder';
-import { HexString, Injectable, LocalCache, ValidationUtils } from 'ferrum-plumbing';
+import { HexString, Injectable, LocalCache, Network, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeSwapEvent } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
-import { ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
+import { ChainUtils, ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
+import Web3 from 'web3';
+import { Eth } from 'web3-eth';
 
 const GLOB_CACHE = new LocalCache();
 const Helper = EthereumSmartContractHelper;
@@ -20,11 +21,11 @@ Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK)
 	.forEach(k => NetworkNameByChainId[ETHEREUM_CHAIN_ID_FOR_NETWORK[k]] = k);
 
 export class TokenBridgeContractClinet implements Injectable {
+	private bridgeSwapInputs = bridgeAbi.find(abi => abi.name === 'BridgeSwap' && abi.type === 'event');
     constructor(
         private helper: EthereumSmartContractHelper,
         private contractAddress: {[network: string]: string},
     ) {
-        abiDecoder.addABI(bridgeAbi);
     }
 
     __name__() { return 'TokenBridgeContractClinet'; }
@@ -38,7 +39,7 @@ export class TokenBridgeContractClinet implements Injectable {
         hash: string, salt: string, signature: string, expectedAddress: string) {
         const [network, token] = EthereumSmartContractHelper.parseCurrency(targetCurrency);
         const amountInt = await this.helper.amountToMachine(targetCurrency, amount);
-        console.log('Pre Result of withdrawSignedVerify', {targetCurrency, payee, amount, hash, salt, signature},this.instance(network).methods,this.instance(network));
+        // console.log('Pre Result of withdrawSignedVerify', {targetCurrency, payee, amount, hash, salt, signature},this.instance(network).methods,this.instance(network));
         // const res = await this.instance(network).methods.withdrawSigned(token, payee, amountInt,
         //     salt, signature).call();
         // console.log('Result of withdrawSignedVerify', res);
@@ -46,6 +47,35 @@ export class TokenBridgeContractClinet implements Injectable {
         // ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
         //     `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
     }
+
+	async getSwapEventByTxId(network: string, txId: string): Promise<BridgeSwapEvent> {
+        const address = this.contractAddress[network];
+		const web3 = (await this.helper.web3(network)) as Eth;
+		const tx = await web3.getTransactionReceipt(txId);
+		ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as Network, address, tx.to),
+			'Transaction is not against the bridge contract');
+		const swapLog = tx.logs[tx.logs.length - 1]; // Last log is the Bridge swap
+		const decoded = web3.abi.decodeLog(this.bridgeSwapInputs.inputs, swapLog.data, swapLog.topics);
+		return this.parseSwapEvent(network, decoded);
+	}
+
+	private async parseSwapEvent(network: string, e: any): Promise<BridgeSwapEvent> {
+		const decoded = e.returnValues;
+		const currency = `${network}:${decoded.token.toLowerCase()}`;
+		const targetNetworkName = Networks.forChainId(decoded.targetNetwork);
+		ValidationUtils.isTrue(network !==
+			targetNetworkName.id, 'to and from network are same!');
+		return {
+			network,
+			transactionId: e.transactionHash,
+			from: decoded.from?.toLowerCase(),
+			amount: await this.helper.amountToHuman(currency, decoded.amount),
+			targetAddress: decoded.targetAddrdess?.toLowerCase(), // I know, but typo is correct
+			targetNetwork: targetNetworkName.id,
+			targetToken: decoded.targetToken?.toLowerCase(),
+			token: decoded.token?.toLowerCase(),
+		} as BridgeSwapEvent;
+	}
 
 	async getSwapEvents(network: string): Promise<BridgeSwapEvent[]> {
         const address = this.contractAddress[network];
@@ -58,22 +88,8 @@ export class TokenBridgeContractClinet implements Injectable {
 		const logs: BridgeSwapEvent[] = [];
 		for (const e of events) {
 			try {
-				// const abi = await BridgeSwapEventAbi();
-				const decoded = e.returnValues;
-				const currency = `${network}:${decoded.token.toLowerCase()}`;
-				const targetNetworkName = Networks.forChainId(decoded.targetNetwork);
-				ValidationUtils.isTrue(network !==
-					targetNetworkName.id, 'to and from network are same!');
-				logs.push({
-					network,
-					transactionId: e.transactionHash,
-					from: decoded.from?.toLowerCase(),
-					amount: await this.helper.amountToHuman(currency, decoded.amount),
-					targetAddress: decoded.targetAddrdess?.toLowerCase(), // I know, but typo is correct
-					targetNetwork: targetNetworkName.id,
-					targetToken: decoded.targetToken?.toLowerCase(),
-					token: decoded.token?.toLowerCase(),
-				} as BridgeSwapEvent);
+				const event = await this.parseSwapEvent(network, e);
+				logs.push(event);
 			} catch (er) {
 				console.error('Error decoding log event: ', e, '-', er);
 			}

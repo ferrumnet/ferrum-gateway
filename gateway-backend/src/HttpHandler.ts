@@ -9,6 +9,7 @@ import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcesso
 import { CrucibleRequestProcessor } from "crucible-backend/src/CrucibleRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
+import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
@@ -16,6 +17,7 @@ export class HttpHandler implements LambdaHttpHandler {
 			private commonTokenServices: CommonTokenServices,
             private bridgeProcessor: BridgeRequestProcessor,
             private crucibleProcessor: CrucibleRequestProcessor,
+            private leaderboardProcessor : LeaderboardRequestProcessor,// BridgeRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
         ) {
         // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
@@ -66,8 +68,11 @@ export class HttpHandler implements LambdaHttpHandler {
                     ValidationUtils.isTrue(!!userId, 'User must be signed in');
 					body = await this.approveAllocationGetTransaction(req);
 					break;
+				case 'tokenList':
+					body = await this.commonTokenServices.tokenList();
+					break;
                 default:
-                    let processor = this.bridgeProcessor.for(req.command);
+                    let processor = this.bridgeProcessor.for(req.command) || this.leaderboardProcessor.for(req.command);
                     if (!!processor) {
                         body = await processor(req,userId);
                     } else {

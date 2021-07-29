@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap");
+@import "./variables";
+
+body {
+  font-family: "Roboto", sans-serif;
+  background: $dark;
+}
+
+.container {
+  max-width: 1500px;
+}
+
+main {
+  margin: 0rem auto;
+}
+
+header {
+  background: $dark;
+  nav {
+    justify-content: center;
+  }
+}
+
+footer {
+  background: $dark;
+  color: $light;
+  text-align: center;
+  padding: 1rem 0;
+  a {
+    color: $themePrimaryColor;
+    &:hover {
+      color: $themeSecondaryColor;
+    }
+  }
+}
+
+.filter-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacer;
+  .clear-filter {
+    color: $themePrimaryColor;
+    font-weight: 600;
+    margin-left: 1rem;
+  }
+  .form-control {
+    // max-width: 300px;
+    width: 100%;
+    border: 1px solid $themePrimaryColor;
+    border-radius: 0 0 0 0 !important;
+  }
+}
+
+.btn {
+  background: $themePrimaryColor;
+  border-radius: 0 0 0 0 !important;
+  border-color: $themeSecondaryColor;
+  color: $dark;
+  font-weight: 600;
+}
+
+// REACT DATA TABLE -- START
+.rdt_Table {
+  border-radius: 0 0 0 0 !important;
+  overflow: hidden;
+  .rdt_TableHead {
+    .rdt_TableCol {
+      background: $themePrimaryColor;
+      color: $dark;
+      font-size: 1rem;
+      div {
+        font-weight: 600;
+      }
+    }
+  }
+}
+.rdt_Pagination {
+  border-radius: 0 0 $border-radius-base $border-radius-base !important;
+  overflow: hidden;
+  span {
+    color: $themePrimaryColor;
+  }
+}
+
+// REACT DATA TABLE -- END

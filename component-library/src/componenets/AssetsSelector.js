@@ -26,7 +26,7 @@ const CustomMenu = React.forwardRef(
         className={className}
         aria-labelledby={labeledBy}
       >
-        <InputGroup className="search-filter mb-3">
+        {/* <InputGroup className="search-filter mb-3">
           <InputGroup.Prepend>
             <InputGroup.Text id="basic-addon1">
               <i className="mdi mdi-magnify"></i>
@@ -38,7 +38,7 @@ const CustomMenu = React.forwardRef(
             onChange={(e) => setValue(e.target.value)}
             value={value}
           />
-        </InputGroup>
+        </InputGroup> */}
         <ul className="list-unstyled">
           {React.Children.toArray(children).filter(
             (child) =>
@@ -51,37 +51,39 @@ const CustomMenu = React.forwardRef(
 );
 
 export const AssetsSelector = ({
-  assets = [],
+  assets,
   icons = {},
   selectedToken,
   onChange
 }) => {
-	console.log('SELTOK ', {icons, selectedToken})
+	console.log('SELTOK ', {icons, selectedToken,assets})
   return (
     <Dropdown className="assets-dropdown">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
         <span>
           <img 
             style={{"width": "35px"}}
-            src={icons[selectedToken]} alt="loading"></img> {selectedToken}
+            src={icons[selectedToken] || icons['ETH']} alt="loading"></img> {selectedToken}
         </span>
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>
-      {/* <Dropdown.Menu as={CustomMenu}>
-        {assets?.map((asset, index) => (
-          <Dropdown.Item eventKey={index} active={index === 0} key={index} onClick={()=>onChange(asset)}>
-            <div className="network-detail">
-              <div className="icon-network icon-lg">
-                <img src={icons[asset]} alt="loading"></img>
+      {assets.length > 1 &&
+        <Dropdown.Menu as={CustomMenu}>
+          {assets?.map((asset, index) => (
+            <Dropdown.Item eventKey={index} active={asset.symbol === selectedToken} key={index} onClick={()=>onChange(asset)}>
+              <div className="network-detail">
+                <div className="icon-network icon-lg">
+                  {/* <img src={icons[asset]} alt="loading"></img> */}
+                </div>
+                <span>
+                  <strong>{asset.symbol}</strong>
+                  <small>{asset.network}</small>
+                </span>
               </div>
-              <span>
-                <strong>{asset}</strong>
-                <small>{asset}</small>
-              </span>
-            </div>
-          </Dropdown.Item>
-        ))}
-      </Dropdown.Menu> */}
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      }
     </Dropdown>
   );
 };

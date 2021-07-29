@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import _ from "lodash";
-import { useTheme } from "./theme/useTheme";
+import { useTheme,theme } from "./theme/useTheme";
 import { getFromLS } from "./storageUtils/storage";
 // import { Form } from "react-bootstrap";
+import { CgSun } from "react-icons/cg";
+import { HiMoon } from "react-icons/hi";
 
-const ThemedButton = styled.button`
-  border: 0;
-  font-size: 14px;
-  border-radius: 4px;
-  margin-right: 5px;
-  cursor: pointer;
-`;
 
 // eslint-disable-next-line
 export default (props) => {
   const themesFromStore = getFromLS("all-themes");
   const [data, setData] = useState(themesFromStore.data);
   const [themes, setThemes] = useState([]);
-  const { setMode } = useTheme();
+  const { setMode } = useTheme(props.group);
+  const Icon = !props.isLight ? <HiMoon color={'black'} size={20} /> : <CgSun size={20} color={'#dab46e'} />;
 
   const themeSwitcher = (selectedTheme) => {
-    setMode(selectedTheme);
+    setMode(selectedTheme,props.group);
     props.setter(selectedTheme);
   };
 
@@ -41,33 +36,47 @@ export default (props) => {
     setData(updated);
   };
 
-  const ThemeCard = (props) => {
+  const ThemeCard = (props) => {    
     return (
       <>
         {/* <strong className="text-sec">Select Theme:</strong> */}
-        <ThemedButton
-          className="btn btn-theme"
-          onClick={(theme) => themeSwitcher(props.theme)}
-          style={{
-            backgroundColor: `${
-              data[_.camelCase(props.theme.name)].colors.body
-            }`,
-            color: `${data[_.camelCase(props.theme.name)].colors.button.text}`,
-            fontFamily: `${data[_.camelCase(props.theme.name)].font}`,
-          }}
-        >
-          {/* {props.theme.name} */}
-        </ThemedButton>
+        {
+          props.theme.name === 'Light' && <HiMoon 
+            size={20}
+            className="btn btn-theme"
+            onClick={(theme) => { themeSwitcher(props.theme);}}
+           
+          >
+            {/* {props.theme.name} */}
+          </HiMoon>
+        }
+        {
+          props.theme.name !== 'Light' && <CgSun 
+            size={20}
+            color={'black'}
+            onClick={(theme) => { themeSwitcher(props.theme);}}
+          >
+            {/* {props.theme.name} */}
+          </CgSun>
+        }
       </>
     );
   };
 
+  const handleSwitch = (theme) => {
+    props.setIsLight(!props.isLight);
+    setTimeout(()=>{
+      setMode(props.isLight ? theme['light'] : theme['dark'],props.group);
+      props.setter(props.isLight ? theme['light'] : theme['dark']);
+    }
+    ,500)
+  }
+
   return (
     <div className="d-flex align-items-center">
-      {themes.length > 0 &&
-        themes.map((theme) => (
-          <ThemeCard theme={data[theme]} key={data[theme].id} />
-        ))}
+        <div onClick={()=>handleSwitch(data)}>
+          {Icon}
+        </div>
     </div>
   );
 };

@@ -3,6 +3,7 @@
       "light" : {
         "id": "themeLight",
         "name": "Light",
+        "useBgImage": false,
         "colors": {
           "body": "#f1f1f1",
           "text": "#dbb46e",
@@ -22,6 +23,7 @@
       "dark" : {
         "id": "themeDark",
         "name": "Dark",
+        "useBgImage": false,
         "colors": {
           "body": "#1e2026",
           "text": "#ffffff",

@@ -1,20 +1,34 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createNextState, createSlice } from "@reduxjs/toolkit";
 import { Module } from "ferrum-plumbing";
 import { AppInitializingState } from "../store/AppState";
-import { IocModule } from "types/dist";
+import { IocModule, TokenDetails } from "types/dist";
 import { CommonModule } from "./Module";
+import { ApiClient } from "src/clients/ApiClient";
 
 const FLAG = { init: false };
 
-export const initThunk = createAsyncThunk('init/init', async (payload: {module: Module, apiBaseUrl: string}) => {
+export const initThunk = createAsyncThunk('init/init', async (
+		payload: {module: Module, apiBaseUrl: string}, ctx) => {
     if (FLAG.init) { console.log('ALREADY INIT'); return; }
     FLAG.init = true;
     const container = await IocModule.init();
-    console.log('INITIALIZING MODULU')
     await container.registerModule(new CommonModule(payload.apiBaseUrl));
     await container.registerModule(payload.module);
-    console.log('INITIALIZED MODULU')
+	const api = container.get<ApiClient>(ApiClient);
+	api.tokenList().then(list => ctx.dispatch(tokenListSlice.actions.listLoaded({ list})))
     return 'SUCCESS';
+});
+
+export const tokenListSlice = createSlice({
+	name: 'tokenList',
+	initialState: {
+		list: [],
+	} as { list: TokenDetails[] },
+	reducers: {
+		listLoaded: (state, action) => {
+			state.list = action.payload.list;
+		}
+	}
 });
 
 export const initSlice = createSlice({

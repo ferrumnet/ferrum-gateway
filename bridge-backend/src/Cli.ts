@@ -1,14 +1,23 @@
 import { ValidationUtils } from "ferrum-plumbing";
 import { argv } from "process";
-import { processOneWay } from "./BridgeProcessor";
+import { processOneTx, processOneWay } from "./BridgeProcessor";
 console.log('Starting ');
-// const net = argv[2];
+const net = argv[2];
 // const net = 'RINKEBY';
 // const net = 'MUMBAI_TESTNET';
 // const net = 'BSC_TESTNET';
-const net = 'POLYGON';
+// const net = 'POLYGON';
 if (!net) {
     console.log('Syntax error: include network as an argument');
 } else {
-    processOneWay(net).catch(console.error);
+	const txId = argv[3];
+	if (!!txId) {
+		if (txId === '--all') {
+    		processOneWay(net, true).catch(console.error);
+		} else {
+    		processOneTx(net, txId).catch(console.error);
+		}
+	} else {
+    	processOneWay(net, false).catch(console.error);
+	}
 }

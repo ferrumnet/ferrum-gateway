@@ -10,9 +10,6 @@ import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 import { BrowserRouter as Router } from "react-router-dom";
 import { ToastProvider, useToasts } from "react-toast-notifications";
 import { GlobalStyles } from "./theme/GlobalStyles";
-import { useTheme } from "./theme/useTheme";
-import { ThemeProvider } from "styled-components";
-import { getEnv } from 'types';
 
 const _module = new BridgeModule();
 const BASE_URL = "http://localhost:8080";
@@ -25,28 +22,17 @@ const store = StoreBuilder.build(
 );
 require('dotenv').config()
 
-function App() {
-  const { theme, themeLoaded, getFonts } = useTheme();
-  const [selectedTheme, setSelectedTheme] = useState(theme);
-  const [newTheme] = useState();
-  useEffect(() => {
-    setSelectedTheme(theme);
-    // eslint-disable-next-line
-  }, [themeLoaded]);
-
-  console.log(selectedTheme)
+function App() { 
 
   return (
     <StoreBuilder.Provider store={store}>
-      <ThemeProvider theme={selectedTheme}>
         <GlobalStyles/>
         <ToastProvider>
           <Router>
-            <Dashboard setter={(value :any)=>setSelectedTheme(value)} newTheme={newTheme}/>
+            <Dashboard />
           </Router>
         </ToastProvider>
      
-      </ThemeProvider>
     </StoreBuilder.Provider>
   );
 }

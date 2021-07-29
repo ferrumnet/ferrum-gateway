@@ -54,30 +54,13 @@ export function ConfirmationModal (props: {
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
   const titleId = useId('title');
-
-  useEffect(
-    ()=>{
-      
-    }
-  ,[])
-    
-  const handleCheckItem = async () => {
-    setRefreshing(true)
-    
-    setRefreshing(false)
-  }
-
-  
-  const handleReset = () => {
-   
-  }
   
   return (
     <div>    
       <Modal
         titleAriaId={titleId}
         isOpen={props.isModalOpen}
-        onDismiss={handleReset}
+        onDismiss={()=>{}}
         isBlocking={false}
         containerClassName={styles.container}
         isClickableOutsideFocusTrap={false}
@@ -164,6 +147,106 @@ export function ConfirmationModal (props: {
   );
 };
 
+export function LiquidityConfirmationModal (props: {
+  isModalOpen: boolean,
+  amount: string,
+  sourceNetwork: string,
+  token:string,
+  total: string,
+  action:string,
+  liquidity:string,
+  processLiqAction: ()=> void,
+  setIsModalClose: () => void
+}) {
+console.log('CONFIRMMI MODALO', {
+  props
+})
+const theme = useContext(ThemeContext);
+const styles = themedStyles(theme);    
+const [refreshing,setRefreshing] = useState(false)
+const titleId = useId('title');
+
+return (
+  <div>    
+    <Modal
+      titleAriaId={titleId}
+      isOpen={props.isModalOpen}
+      onDismiss={()=>{}}
+      isBlocking={false}
+      containerClassName={styles.container}
+      isClickableOutsideFocusTrap={false}
+      responsiveMode={ResponsiveMode.medium}
+    >
+      <div className={styles.header}>
+          <h5 className="text-inverse text-center">
+            Confirm
+            <Divider
+              style={{"margin":"12px 0px"}}
+            />
+          </h5>
+      </div>
+      <div className={styles.body}>
+          <div className={styles.itemList}>
+            <div className={styles.tabbedBtn}>
+              <div className={styles.centered}>
+                <div className={styles.headerAmount}>{props.amount} {props.token}</div>
+              </div>
+              <span>
+                <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+              </span>
+              <div className={styles.centered}>
+                <img 
+                  style={{"maxWidth":"32px"}}
+                  src={
+                  //@ts-ignore
+                  images[props.sourceNetwork]} alt="loading"></img>
+                <p>{props.sourceNetwork}</p>
+              </div>
+            </div>
+          </div>
+          <div className={styles.itemList}>
+              <div className={styles.listLabel2}>Asset</div>
+              <div className={styles.listItem2}>{props.token}</div>
+          </div>
+          <div className={styles.itemList}>
+              <div className={styles.listLabel2}>Current Destination Liquidity</div>
+              <div className={styles.listItem2}>{props.liquidity}</div>
+          </div>
+          <div className={styles.itemList}>
+              <div className={styles.listLabel2}>Liquidity to be {props.action}</div>
+              <div className={styles.listItem2}>{(Number(props.total))} {props.token}</div>
+          </div>
+          {/* <div className={styles.btnList}>
+              <Alert
+                  message="Additional note about notification and withdrawals. More informational notes before swap." type="info" showIcon
+              />
+          </div> */}
+          <div className={styles.btnList2}>
+              <RegularBtn text={'Confirm'}
+                  propStyle={{
+                      padding: '25px 10%',
+                      borderRadius: '5px',
+                      marginBottom: '5px',
+                      minWidth: '45%'
+                  }}
+                  onClick={()=>{props.processLiqAction();props.setIsModalClose()}}
+              />
+              <RegularBtn text={'Cancel'}
+                  propStyle={{
+                      padding: '25px 10%',
+                      borderRadius: '5px',
+                      marginBottom: '5px',
+                      minWidth: '45%'
+                  }}
+                  onClick={()=>props.setIsModalClose()}
+              />
+          </div>
+      </div>
+    </Modal>
+  </div>
+);
+};
+
 const cancelIcon: IIconProps = { iconName: 'Cancel' };
 
 //@ts-ignore
@@ -217,6 +300,17 @@ const themedStyles = (theme) => mergeStyleSets({
   listLabel: {
     textAlign: "start" as "start",
     width: '40%',
+    fontWeight: 600
+
+  },
+  listItem2: {
+    textAlign: 'end' as 'end',
+    width: '40%',
+    fontWeight: 600
+  },
+  listLabel2: {
+    textAlign: "start" as "start",
+    width: '60%',
     fontWeight: 600
 
   },

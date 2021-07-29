@@ -1,5 +1,5 @@
 import { AddressDetails, AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
-import { ChainEventBase, ChainEventStatus } from 'types';
+import { ChainEventBase, ChainEventStatus, TokenDetails } from 'types';
 
 export const dummyAppUserProfile = {
     id: '',
@@ -47,6 +47,7 @@ export interface AppState<TUserState, TGlobalState, TUiState> {
         state: TGlobalState;
         watchEvents: { [k: string]: ChainEventBase };
 		approval: ApprovalState;
+		tokenList: { list: TokenDetails[] };
     };
     ui: TUiState;
 }
