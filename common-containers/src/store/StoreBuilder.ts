@@ -3,7 +3,7 @@ import { Module } from 'ferrum-plumbing';
 import { Provider } from 'react-redux'
 import { chainEventsSlice } from '../chain/ChainEventItem';
 import { connectSlice } from '../connect/ConnectButtonWrapper';
-import { initSlice, initThunk } from '../init/Initializer';
+import { initSlice, initThunk, tokenListSlice } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
 import logger from 'redux-logger';
 import { approvableButtonSlice } from '../chain/ApprovableButtonWrapper';
@@ -31,6 +31,7 @@ export class StoreBuilder {
                     state: dataReducer,
                     watchEvents: chainEventsSlice.reducer,
 					approval: approvableButtonSlice.reducer,
+					tokenList: tokenListSlice.reducer,
                 }),
                 ui: uiReducer,
             })
