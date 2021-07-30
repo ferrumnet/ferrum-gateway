@@ -4,7 +4,7 @@ import { Dropdown, InputGroup, FormControl } from "react-bootstrap";
 import "../../assets/scss/_dropdowns.scss";
 const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
   <button
-    className="btn btn-dull btn-asset"
+    className="btn btn-dull btn-asset btn-pri "
     ref={ref}
     onClick={(e) => {
       e.preventDefault();
@@ -58,7 +58,7 @@ export const AssetsSelector = ({
 }) => {
 	console.log('SELTOK ', {icons, selectedToken,assets})
   return (
-    <Dropdown className="assets-dropdown">
+    <Dropdown className="assets-dropdown ">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
         <span>
           <img 
@@ -68,7 +68,7 @@ export const AssetsSelector = ({
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>
       {assets.length > 1 &&
-        <Dropdown.Menu as={CustomMenu}>
+        <Dropdown.Menu as={CustomMenu}  className={ `cardTheme`}>
           {assets?.map((asset, index) => (
             <Dropdown.Item eventKey={index} active={asset.symbol === selectedToken} key={index} onClick={()=>onChange(asset)}>
               <div className="network-detail">

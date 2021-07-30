@@ -39,6 +39,7 @@ export function RegularBtn({ onClick=()=>{},disabled,text,propStyle,props }) {
             text={text}
             onClick={onClick} 
             disabled={disabled} 
+            className={'btnTheme'}
         />
     );
 }

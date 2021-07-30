@@ -165,7 +165,7 @@ export function SwapModal (props: {
                       updater={updateSecondStage}
                   >
                     <div className={styles.textStyles}>
-                      {pageProps.step === 2 ? 'Your Claim item is being processed' : pageProps.step > 2 ? 'Claim Item Processed' : 'Awating Network Transaction'}
+                      {pageProps.step === 2 ? 'Your Claim item is being processed' : pageProps.step > 2 ? 'Claim Item Processed' : 'Awaiting Network Transaction'}
                       {pageProps.step === 2 && <p onClick={()=>handleCheckItem()}
                         className={`${styles.cursorStyles} text-vary-color`}
                       > Refresh Status < ReloadOutlined style={{color: `${theme.get(Theme.Colors.textColor)}`}} spin={refreshing}/></p> }

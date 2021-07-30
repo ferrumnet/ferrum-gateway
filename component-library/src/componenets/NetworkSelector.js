@@ -12,19 +12,18 @@ export const NetworkSelector = ({
   disabled=false
 }) => {
   return (
-    <Card className="card-network card">
+    <Card className="card-network card-sec">
       <div className="icon-network icon-lg mb-3">
         <img src={icon} alt="loading"></img>
       </div>
       <div className="d-flex align-items-center justify-content-between text-vary-color">
         <small>{currentNetwork?.display}</small>
         {
-          showDropdown &&
-            <Dropdown disabled={disabled} >
+            <Dropdown disabled={disabled} className={ `cardTheme ${!showDropdown && 'opaque'}`}>
               <Dropdown.Toggle variant="pri" id="dropdown-basic" disabled={disabled}>
                 <i className="mdi mdi-chevron-down" disabled={disabled}></i>
               </Dropdown.Toggle>
-              <Dropdown.Menu variant="dark">
+              <Dropdown.Menu variant="dark" className={ `cardTheme`}>
                 {availableNetworks?.map((network, index) => (
                   <Dropdown.Item key={"av" + index} 
                     disabled={network.key === currentNetwork.key}

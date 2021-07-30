@@ -25,7 +25,7 @@ export const WithdrawNoti = (props:
 
   return (
     <>
-      <Modal title={<div style={{...styles.centered}}>Congrats You have connected to {props.network}</div>} visible={props.isModalVisible} footer={null}>
+      <Modal closeIcon={<></>} className={'cardTheme'} title={<div style={{...styles.centered}}>Congrats You have connected to {props.network}</div>} visible={props.isModalVisible} footer={null}>
         <div>
             <p  style={{...styles.centered}}>It looks like you have {props.numberOfWithdrawals} pending withdrawals on {props.network}.</p>
             <p  style={{...styles.centered}}>Choose the withdrawal network in MetaMask and withdraw your Tokens</p>
@@ -53,7 +53,6 @@ const themedStyles = (theme) => ({
     centered: {
         justifyContent: 'center',
         display: 'flex',
-        fontWeight: 700,
         textAlign: 'center' as "center"
     },
     btnStyle: {

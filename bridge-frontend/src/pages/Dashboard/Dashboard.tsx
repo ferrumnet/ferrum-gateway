@@ -30,14 +30,14 @@ import { LiquidityPage } from "./../Liquidity";
 import { WaitingComponent } from '../../components/WebWaiting';
 import { MessageBar, MessageBarType } from '@fluentui/react';
 import { GlobalStyles } from "./../../theme/GlobalStyles";
-import { useTheme as newThemeInitialization } from "./../../theme/useTheme";
+import { useTheme as newThemeInitialization,themeMapper } from "./../../theme/useTheme";
 import { ThemeProvider } from "styled-components";
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { History } from 'history';
 import { Switch, Route } from 'react-router-dom';
-import { setAllThemes,setToLS,removeFromLS } from "./../../storageUtils/storage";
+import { setAllThemes,setToLS,removeFromLS,getFromLS} from "./../../storageUtils/storage";
 import * as defaultTheme from"./../../theme/schema.json";
-;
+
 interface DashboardState {
     initialized: boolean,
     isHome: boolean,
@@ -153,13 +153,14 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
-            if(groupInfo!.bridgeTheme){
-                setToLS('all-themes',groupInfo!.bridgeTheme);
-                setToLS(`${groupId}-all-themes`,groupInfo!.bridgeTheme);
+            const mappedBridgeTheme = themeMapper(groupInfo.themeVariables)   
+            if(groupInfo){
+                setToLS('all-themes',{...mappedBridgeTheme});
+                setToLS(`${groupId}-all-themes`,{...mappedBridgeTheme});
                 //@ts-ignore
-                setToLS('theme',groupInfo!.bridgeTheme.data.light);
+                setToLS('theme',{...mappedBridgeTheme.data.light});
                 //@ts-ignore
-                setToLS(`${groupId}-theme`,groupInfo!.bridgeTheme.data.light)
+                setToLS(`${groupId}-theme`,{...mappedBridgeTheme.data.light})
             }else{
                 setAllThemes("all-themes", defaultTheme);
             }
@@ -228,6 +229,7 @@ function ErrorBar(props: {error: string}) {
                 dismissButtonAriaLabel="Close"
                 truncated={true}
                 overflowButtonAriaLabel="See more"
+                className={"alertFailColor"}
             >
                 {props.error}
             </MessageBar>
@@ -260,7 +262,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
     const titleText = document.getElementById("title"); // Accessing favicon element
-    const { setMode,setTheme } = newThemeInitialization(groupInfo.groupId);
+    const { setMode,setTheme,theme} = newThemeInitialization(groupInfo.groupId);
 
     //@ts-ignore
     favicon.href = groupInfo.themeVariables?.faviconImg||groupInfo.themeVariables?.mainLogo;
@@ -285,12 +287,15 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
 
 
     useEffect(() => {
-        if(groupInfo!.bridgeTheme){
-            setTheme(groupInfo!.bridgeTheme.data.light);
-            props.setter(groupInfo!.bridgeTheme.data.light);
-            setMode(groupInfo!.bridgeTheme.data.light,groupInfo.groupId);
+        if(groupInfo!.groupId){
+            const theme = getFromLS(`${groupInfo!.groupId}-all-themes`);
+            if(theme?.data){
+                setMode(theme.data.light)
+                props.setter(theme.data.light);
+            }
+           
         }
-    },[groupInfo!.bridgeTheme]);
+    },[groupInfo.groupId]);
 
     const SwitchBtn = (
         <>
