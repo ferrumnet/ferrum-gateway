@@ -3,7 +3,7 @@ import { Module } from "ferrum-plumbing";
 import { AppInitializingState } from "../store/AppState";
 import { IocModule, TokenDetails } from "types/dist";
 import { CommonModule } from "./Module";
-import { ApiClient } from "src/clients/ApiClient";
+import { ApiClient } from "../clients/ApiClient";
 
 const FLAG = { init: false };
 

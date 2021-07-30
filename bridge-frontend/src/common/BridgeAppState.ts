@@ -6,6 +6,7 @@ import {swapPageProps} from './../pages/Swap';
 import {liquidityPageProps} from './../pages/Liquidity';
 import { SidePanelProps} from '../components/SidePanel';
 import { BridgeTokenConfig } from 'types';
+import { CrossSwapState } from '../pages/CrossSwap/CrossSwap';
 
 
 export interface AppUiState {
@@ -14,6 +15,7 @@ export interface AppUiState {
     swapPage: swapPageProps;
     liquidityPage: liquidityPageProps;
     sidePanel: SidePanelProps;
+	crossSwap: CrossSwapState;
 };
 
 export interface AppUserState {

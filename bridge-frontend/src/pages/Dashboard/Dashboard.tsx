@@ -37,6 +37,7 @@ import { History } from 'history';
 import { Switch, Route } from 'react-router-dom';
 import { setAllThemes,setToLS,removeFromLS } from "./../../storageUtils/storage";
 import * as defaultTheme from"./../../theme/schema.json";
+import { CrossSwap } from '../CrossSwap/CrossSwap';
 ;
 interface DashboardState {
     initialized: boolean,
@@ -333,6 +334,9 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                             <Route path='/:gid/liquidity/:action'>
                                 <LiquidityPage/>
                             </Route>
+							<Route path='/:gird/cswap'>
+								<CrossSwap />
+							</Route>
                             <Route path='/:gid/'>
                                 <div className="steps-wrapper">
                                     <div className="row">

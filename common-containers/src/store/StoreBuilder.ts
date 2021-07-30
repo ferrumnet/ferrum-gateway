@@ -7,7 +7,7 @@ import { initSlice, initThunk, tokenListSlice } from '../init/Initializer';
 import { AppInitializingState } from './AppState';
 import logger from 'redux-logger';
 import { approvableButtonSlice } from '../chain/ApprovableButtonWrapper';
-import { PersistentState, PersistentStateMiddleware } from 'src/localStorage/PersistentState';
+import { PersistentState, PersistentStateMiddleware } from '../localStorage/PersistentState';
 
 export class StoreBuilder {
     static build<TUserState, TGlobalState extends AppInitializingState, TUiState>(

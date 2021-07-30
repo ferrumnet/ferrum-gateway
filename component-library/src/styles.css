@@ -15,6 +15,10 @@
   flex: 1;
 }
 
+.row-centered {
+	justify-content: center;
+}
+
 .top-row {
   display: block;
   flex: 1;
