@@ -6,6 +6,7 @@ import { HttpHandler } from "./HttpHandler";
 import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { CrucibleRequestProcessor } from "bridge-backend/src/CrucibleRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
 import { CommonBackendModule, CurrencyListSvc } from "common-backend";
@@ -25,9 +26,11 @@ export class GatewayModule implements Module {
           c.get(CommonTokenServices),
           c.get(BridgeRequestProcessor),
           c.get(LeaderboardRequestProcessor),
+		  c.get(CrucibleRequestProcessor),
           c.get("MultiChainConfig")
         )
     );
+	container.registerSingleton(CurrencyListSvc, () => new CurrencyListSvc());
     container.registerSingleton(
       CommonTokenServices,
       (c) => new CommonTokenServices(c.get(EthereumSmartContractHelper), c.get(CurrencyListSvc)));

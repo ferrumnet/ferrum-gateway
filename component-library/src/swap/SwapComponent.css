@@ -1,0 +1,12 @@
+
+.swap-component-container {
+	min-width: 300px;
+	max-width: 500px;
+	padding: 30px;
+	border-radius: 15px;
+	background-color: blueviolet;
+	border-color: black;
+	border-width: 3px;
+	border-style: solid;
+	color: white;
+}

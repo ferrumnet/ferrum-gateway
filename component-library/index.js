@@ -24,3 +24,5 @@ export * from "./src/componenets/AssetsSelector";
 export * from "./src/images";
 
 export * from './src/chain/AddTokenToMetamask';
+
+export * from './src/swap/SwapComponent';

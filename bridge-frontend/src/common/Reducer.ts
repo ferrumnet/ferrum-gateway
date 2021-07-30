@@ -11,6 +11,7 @@ import { SidePanelSlice } from '../components/SidePanel';
 import { CommonActions } from './Actions';
 import { TokenBridgeClientActions } from "../clients/BridgeClient";
 import { UserBridgeWithdrawableBalanceItem } from "types";
+import { crossSwapSlice } from "../pages/CrossSwap/CrossSwap";
 // Each UI component or page will manage its own slice of state. We purposefully 
 // make thiss of type 'any' to avoid a centralized typing for UI state. 
 // However the data and user state which will be shared by various selectors
@@ -21,7 +22,8 @@ export const uiReducer = combineReducers({
     pairPage: MainPageSlice.reducer,
     swapPage: swapageSlice.reducer,
     liquidityPage: liquidityPageSlice.reducer,
-    sidePanel: SidePanelSlice.reducer
+    sidePanel: SidePanelSlice.reducer,
+	crossSwap: crossSwapSlice.reducer,
 });
 
 export function userReducer(

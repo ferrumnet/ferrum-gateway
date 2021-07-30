@@ -72,7 +72,6 @@
     "@types/react-router": "^5.1.13",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
-    "babel-loader": "8.1.0",
     "customize-cra": "^1.0.0",
     "react-app-rewired": "^2.1.8",
     "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git"
