@@ -259,10 +259,11 @@ export const ConnectBridge = () => {
 	//TODO: Initialize this without useEffect
 	useEffect(()=>{
 		dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
-	}, [destNetwork,currency,network])
+	}, [destNetwork,currency,network,currentPair])
     
     const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
         message.success({
+            icon: <></>,
             content: <Result
                 status="success"
                 title="Withdrawal Transaction Processing"
@@ -275,7 +276,7 @@ export const ConnectBridge = () => {
                     <p></p>,
                     <AddTokenToMetamask currency={pageProps.currency} tokenData={propsGroupInfo.tokenData} />
                     ,
-                    <Button key="buy" onClick={()=>{
+                    <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));
                         dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
@@ -289,8 +290,8 @@ export const ConnectBridge = () => {
               marginTop: '20vh',
             },
             duration: 0,
-            key: 'withdr'
-        }, 0);  
+            key: 'withdr',
+        }, 0, );  
     };
 
     const onMessage = async (v:string) => {    
@@ -339,7 +340,7 @@ export const ConnectBridge = () => {
         
         <Card className="text-center">
             <small className="text-vary-color mb-5 head">
-                    Swap Token Across <strong>chains</strong>
+                    Swap tokens across chains
                     <hr className="mini-underline"></hr>
             </small>
             {   isNetworkAllowed ? 
@@ -425,7 +426,7 @@ export const ConnectBridge = () => {
 									onWithdrawSuccessMessage,
 									onMessage,(v)=> dispatch(Actions.setProgressStatus({status:v})))}
                             disabled={swapping || ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY'||'ETHEREUM')) } 
-                            className="btn-pri action btn-icon btn-connect mt-4"
+                            className="btn btn-pri action btn-icon btn-connect mt-4"
                         >
                         <i className="mdi mdi-arrow-collapse"></i>{(pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network' : 'Withdraw'}
                         </Button>

@@ -2,7 +2,16 @@ import { createGlobalStyle} from "styled-components";
 // import "../assets/scss/styles.scss";
 
 export const GlobalStyles = createGlobalStyle`
-  body {
+  body{
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  div{
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .bodyText {
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  #root {
     background-color: ${({ theme }) => theme.colors.body};
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
@@ -11,19 +20,19 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 1em;
     background: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
     background-image: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
-    height: 100%;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
+    min-height: 100vh;
   }
   .head{
-    font-size: 13px
+    font-size: 13px;
   }
   h2,h3,h4,h5 {
     color: ${({ theme }) => theme.colors.text};
   }
   .navbar {
-    background: ${({ theme }) => theme.colors.headercolor};
+    background-color: ${({ theme }) => theme.colors.navbar};
   }
   .ant-alert-description: {
     font-size: 11px
@@ -46,16 +55,51 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.link.textPri};
     cursor: pointer;
   }
+  .btnTheme {
+    background: ${({ theme }) => theme.colors.button.btnPri} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+    border-width: 0;
+    &:focus,
+    &:active,
+    &:hover
+    {
+      background: ${({ theme }) => theme.colors.button.btnActiveColor || 
+      theme.colors.button.themePrimary} !important;
+    }
+  }
+  button {
+    .ant-btn {
+      .btnTheme {
+        .btn-pri {
+          
+          color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+        }
+      }
+    }
+  }
+  .clsBtn{
+    width: 200px !important;
+    height: 50px !important;
+  }
   .btn {  
-    border-radius:  ${({ theme }) =>
-      theme.colors.button.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+    padding: ${({ theme }) => theme.colors.button.btnPadding || 'auto'} !important;
+    color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+    &:focus,
+    &:active,
+    &:hover
+    {
+      background: ${({ theme }) => theme.colors.button.btnActiveColor || 
+      theme.colors.button.themePrimary} !important;
+      color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
+
+    }
     &.action {
-      padding: 12px 35px;
       margin-top: 0px;
       margin-bottom: 10px;
     }
     &.liqaction {
-      padding: 20px 35px;
+      padding: 17px 18px !important;
       margin-top: 0px;
       margin-bottom: 25px;
 
@@ -65,7 +109,10 @@ export const GlobalStyles = createGlobalStyle`
     }
     &.btn-pri {
       background-color: ${({ theme }) => theme.colors.button.btnPri};
-      color: ${({ theme }) => theme.colors.button.textPri};
+      background: ${({ theme }) => theme.colors.button.btnPri ||  'auto'};
+      color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+      background-size: ${({theme})=>theme.colors.button.backgroundSize || 'auto'}
+      border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
     }
     &.btn-sec {
       background-color: ${({ theme }) => theme.colors.button.btnSec};
@@ -134,12 +181,67 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
   }
-  .card {
-    border-radius: 0px!important;
-    background-color: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius + 2} !important;
+  .opaque{
+    opacity: 0;
+  }
+  .dropdown {
+    .dropdown-menu{
+      a.active:after{
+        color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'};
+      }
+    }
+  }
+  .cardTheme {
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
-    box-shadow: ${({ theme }) => `-2px -1px 5px 2px ${theme.colors.inverse}25` };
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+  }
+  .cardSecTheme{
+    background-color: ${({ theme }) => theme.colors.card.cardSec};
+  }
+  .ant-modal-content{
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+  }
+  .ant-modal-header{
+    border-bottom: 0 !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    padding-top: 40px;
+    background-color: ${({ theme }) => theme.colors.card.cardPri};
+  }
+  .ant-drawer-header{
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    border-bottom: 0 !important;
+  }
+  .ant-drawer-content{
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+  }
+  p{
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .web3modal-provider-container{
+    background-color: ${({ theme }) => theme.colors.card.cardSec} !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-color: ${({ theme }) => theme.colors.inverse};
+  }
+  .web3modal-provider-wrapper{
+    border: none !important 
+  }
+  .web3modal-modal-card{
+    padding: 20px !important;
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-color: ${({ theme }) => theme.colors.inverse};
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
+    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+  }
+  .card {
+    background-color: ${({ theme }) => theme.colors.card.cardPri};
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-color: ${({ theme }) => theme.colors.inverse};
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
     p {
       color: ${({ theme }) => theme.colors.card.text};
     }
@@ -149,6 +251,9 @@ export const GlobalStyles = createGlobalStyle`
         color: ${({ theme }) => theme.colors.card.cardTextPri};
       }
     }
+  }
+  .alertFailColor {
+    background-color: rgb(165 0 15) !Important;
   }
   .text-vary-color: {
     color: ${({ theme }) => theme.colors.button.text};
@@ -186,15 +291,46 @@ export const GlobalStyles = createGlobalStyle`
   .ant-steps-item-title{
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
+  .ant-alert-title {
+    color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    border: none;
+  }
+  .react-toast-notifications__container{
+    .css-19n335a-ToastContainer {
+      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+      color: ${({ theme }) => theme.colors.inverse} !important;
+    }
+  }
+  color: ${({ theme }) => theme.colors.inverse} !important;
+  .react-toast-notifications__toast__content.{
+    css-18gu508-Content{
+      background-color: rgb(165 0 15) !Important;
+    }
+  }
+  .ant-alert-warning{
+    color: ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+    border: none;
+    background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+  }
   .ant-steps-icon{
     color: ${({ theme }) => theme.colors.inverse} !important;
     span{
       color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
+  .ant-steps-item-process {
+    .ant-steps-item-icon {
+      background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+    }
+  }
+  .ant-message-notice-content{
+    background-color: ${({ theme }) => theme.colors.card.cardPri};
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-color: ${({ theme }) => theme.colors.inverse};
+  }
   .ant-steps-item-wait {
     .ant-steps-item-icon {
-     background-color:  ${({ theme }) => theme.colors.button.btnPri};
+     background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
     }
   }
   .anticon{
@@ -204,6 +340,10 @@ export const GlobalStyles = createGlobalStyle`
         color: ${({ theme }) => theme.colors.card.cardPri} !important;
       }
     }
+  }
+  .ant-alert-error{
+    background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+    border: none;
   }
   .ant-steps-item-description{
     color: ${({ theme }) => theme.colors.inverse} !important;
@@ -215,10 +355,43 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
   }
+  .react-toast-notifications__toast--error{
+    .react-toast-notifications__toast__content{
+      background-color: rgb(165 0 15) !Important;
+    }
+
+    .react-toast-notifications__toast__dismiss-button {
+      background-color: rgb(165 0 15) !Important;
+      opacity: 1
+    }
+  }
+  // todo: clean up selectors
+  .react-toast-notifications__toast--success{
+    .react-toast-notifications__toast__content{
+      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+    }
+
+    .react-toast-notifications__toast__dismiss-button {
+      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+      opacity: 1
+    }
+  }
+  .ant-steps-item-description >* span {
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .finishThemed{
+    // background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .waitThemed{
+    border-radius: 50px;
+    background-color: ${({ theme }) => theme.colors.stepsWaitBackgroundColor || '#168416'};
+    color: ${({ theme }) => theme.colors.inverse} !important;
+  }
   .ant-steps-item-finish {
     .ant-steps-item-icon{
-      background-color: #168416;
-      border-color: #168416;
+      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'} !important;
+      border-color: ${({ theme }) => theme.colors.stepsFinishBorderColor ||  '#168416'};
     }
   }
   .ant-steps-item-finish > {

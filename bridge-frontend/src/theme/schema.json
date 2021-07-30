@@ -16,6 +16,7 @@
         "text": "#dbb46e",
         "inverse":  "#ffffff",
         "textSec": "#afafaf",
+        "navbar": "transparent",
         "card": {
           "cardPri": "rgba(0,0,0,0.9)",
           "cardTextPri": "#f3f3f3",
@@ -53,6 +54,7 @@
       "BgImage": "https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png",
       "colors": {
         "body": "#000000",
+        "navbar": "transparent",
         "mainHeaderColor": "white",
         "themeColor": "#dab46e",
         "headercolor": "#272a33",

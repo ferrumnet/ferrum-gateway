@@ -351,6 +351,7 @@ export function LiquidityPage() {
 
     const onSuccessMessage = async (v:string,tx:string) => {  
         message.success({
+            icon: <></>,
             content: <Result
                 status="success"
                 title="Your Transaction is Processing"
@@ -360,7 +361,7 @@ export function LiquidityPage() {
                         <div> View Transaction Status </div>
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                         <p>
-                            <Button key="buy" onClick={()=>{
+                            <Button className={'btn-pri'} key="buy" onClick={()=>{
                                     message.destroy('withdraw');
                             }}>Close</Button>
                         </p>
@@ -426,8 +427,8 @@ export function LiquidityPage() {
                                     <div className="content">
                                         <div>
                                             <Dropdown className="assets-dropdown liquidity-dropdown">
-                                                <Dropdown.Toggle variant="pri" id="dropdown-basic">
-                                                    <span>
+                                                <Dropdown.Toggle variant="pri" id="dropdown-basic" className={''}>
+                                                    <span className={'bodyText'}>
                                                         {pageProps.network}
                                                     </span>
                                                 </Dropdown.Toggle>

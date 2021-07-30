@@ -211,6 +211,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     const onWithdrawSuccessMessage = async (v:string, tx:string, currency:string) => {  
         message.success({
+            icon: <></>,
             content: <Result
                 status="success"
                 title="Withdrawal Transaction Processing"
@@ -223,7 +224,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                     <p></p>,
 					<AddTokenToMetamask currency={currency} tokenData={groupInfo.tokenData}/>,
                     <p>
-                      <Button key="buy" onClick={()=>{
+                      <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                           message.destroy('withdr');
                           getData(dispatch);
                           dispatch(MainPageAction.resetSwap({}));
@@ -270,9 +271,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 style={{"width":'30px'}} src={stakeImg}
                                                 alt="token"
                                                 /> */}
-                                                {e.used === 'completed' && <CheckCircleTwoTone twoToneColor="#52c41a" style={{ fontSize: '20px'}} />}
+                                                {e.used === 'completed' && <CheckCircleTwoTone className={'finishThemed'} style={{ fontSize: '20px'}} />}
                                                 {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
-                                                {e.used === '' && <PlusOutlined style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === '' && <PlusOutlined className={'waitThemed'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>

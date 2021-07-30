@@ -62,7 +62,7 @@ export function ConfirmationModal (props: {
         isOpen={props.isModalOpen}
         onDismiss={()=>{}}
         isBlocking={false}
-        containerClassName={styles.container}
+        containerClassName={`${styles.container} cardTheme`}
         isClickableOutsideFocusTrap={false}
         responsiveMode={ResponsiveMode.medium}
       >
@@ -78,7 +78,7 @@ export function ConfirmationModal (props: {
         <div className={styles.body}>
             <div className={styles.headerAmount}>{props.amount} {props.token}</div>
             <div className={styles.itemList}>
-              <div className={styles.tabbedBtn}>
+              <div className={`${styles.tabbedBtn} cardSecTheme`}>
                 <div className={styles.centered}>
                   <img 
                     style={{"maxWidth":"32px"}}
@@ -173,7 +173,7 @@ return (
       isOpen={props.isModalOpen}
       onDismiss={()=>{}}
       isBlocking={false}
-      containerClassName={styles.container}
+      containerClassName={`${styles.container} cardTheme`}
       isClickableOutsideFocusTrap={false}
       responsiveMode={ResponsiveMode.medium}
     >
@@ -187,7 +187,7 @@ return (
       </div>
       <div className={styles.body}>
           <div className={styles.itemList}>
-            <div className={styles.tabbedBtn}>
+            <div className={`${styles.tabbedBtn} cardSecTheme`}>
               <div className={styles.centered}>
                 <div className={styles.headerAmount}>{props.amount} {props.token}</div>
               </div>
