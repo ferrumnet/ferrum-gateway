@@ -8,7 +8,7 @@ import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFu
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { CommonBackendModule } from "common-backend";
+import { CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
@@ -30,8 +30,8 @@ export class GatewayModule implements Module {
     );
     container.registerSingleton(
       CommonTokenServices,
-      (c) => new CommonTokenServices(c.get(EthereumSmartContractHelper))
-    );
+      (c) => new CommonTokenServices(c.get(EthereumSmartContractHelper), c.get(CurrencyListSvc)));
+	container.registerSingleton(CurrencyListSvc, () => new CurrencyListSvc());
     // Registering other modules at the end, in case they had to initialize database...
     await container.registerModule(new BridgeModule());
     await container.registerModule(new LeaderboardModule());
