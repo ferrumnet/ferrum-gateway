@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Row } from '../PageLayout';
+import { InputField  } from '../TextField';
 
 export function TokenSelector({
 	tokenList, selectedToken, onCurrencySelected,
@@ -13,22 +15,27 @@ export function TokenSelector({
 			.slice(0, 10);
 		return (
 			<>
-			<input type="text" value={search} onchange={e => setSearch(e.target.value)} />
-			{list.map(l => (
-				<>
+			<Row>
+				<InputField
+					type="text" value={search} onChange={e => setSearch(e.target.value)} />
+			</Row>
+			{list.map((l, i) => (
+				<Row key={i}>
 				<a onClick={() => { setSearchOpen(false); onCurrencySelected(l.currency)}}>
 					<img width="30" heighy="30" src={l.logoURI} /> {l.symbol} - {l.name} 
-				</a> <br />
-				</>
+				</a>
+				</Row>
 			))}
 			</>
 		);
 	} else {
 		return (
 			<>
-			<img width="30" height="30" src={selectedToken?.logoURI} />
-			<a onClick={() => setSearchOpen(true)}> {selectedToken?.symbol} - 
-				{selectedToken?.name} </a>
+			<Row>
+				<img width="30" height="30" src={selectedToken?.logoURI} />
+				<a onClick={() => setSearchOpen(true)}> {selectedToken?.symbol} - 
+					{selectedToken?.name || 'Select a token...'} </a>
+			</Row>
 			</>
 		);
 	}

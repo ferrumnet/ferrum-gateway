@@ -51,6 +51,9 @@ export const crossSwapSlice = createSlice({
 				state.toCurrency = '';
 			}
 		},
+		fromCurrencyChanged: (state, action) => {
+			state.fromCurrency = action.payload.value;
+		},
 		toCurrencyChanged: (state, action) => {
 			state.toCurrency = action.payload.value;
 		},
@@ -72,6 +75,8 @@ export function CrossSwap() {
 			amountOut={'0'}
 			fromNetwork={props.fromNetwork}
 			fromCurrency={props.fromCurrency}
+			onFromCurrencyCanged={value =>
+				dispatch(crossSwapSlice.actions.fromCurrencyChanged({value}))}
 			fromPath={[]}
 			fromSwapFee={'0'}
 			onToNetworkChanged={value => 
@@ -80,7 +85,7 @@ export function CrossSwap() {
 			toNetworkOptions={[]}
 			toCurrency={props.toCurrency}
 			onToCurrencyCanged={value =>
-				dispatch(crossSwapSlice.actions.toNetworkChanged({value}))}
+				dispatch(crossSwapSlice.actions.toCurrencyChanged({value}))}
 			toPath={[]}
 			tokenList={props.tokenList}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TokenDetails } from 'types';
+import { supportedNetworks, TokenDetails } from 'types';
 import {
 	SwapComponent,
 	// @ts-ignore
@@ -9,6 +9,7 @@ export interface CrossChainSwapProps {
 	tokenList: TokenDetails[];
 	fromNetwork: string;
 	fromCurrency: string;
+	onFromCurrencyCanged: (cur: string) => void;
 	toNetwork: string;
 	toCurrency: string;
 	onToCurrencyCanged: (cur: string) => void;
@@ -28,11 +29,18 @@ export interface CrossChainSwapProps {
 }
 
 export function CrossChainSwap(props: CrossChainSwapProps) {
+	console.log('CrossChainSwap', {...props, tokenList: []})
 	return (
 		<>
 		<div className="cswap-container">
 			<SwapComponent
+				networks={Object.keys(supportedNetworks)}
 				fromNetwork={props.fromNetwork}
+				fromToken={props.tokenList.find(t => t.currency === props.fromCurrency)}
+				tokenList={props.tokenList}
+				onFromCurrencySelected={props.onFromCurrencyCanged}
+				toToken={props.tokenList.find(t => t.currency === props.toCurrency)}
+				onToCurrencySelected={props.onToCurrencyCanged}
 			/>
 		</div>
 		</>

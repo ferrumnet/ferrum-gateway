@@ -31,4 +31,4 @@ export const crucibleInfoSchema = new Schema<Document & CrucibleInfo> ({
 });
 
 export const CrucibleInfoModel = (c: Connection) =>
-    c.model<StoredAllocationCsv&Document>('crucibleInfo', crucibleInfoSchema);
+    c.model<CrucibleInfo&Document>('crucibleInfo', crucibleInfoSchema);

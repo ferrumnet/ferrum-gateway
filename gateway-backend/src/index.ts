@@ -5,14 +5,14 @@ import {
 import { HttpHandler } from "./HttpHandler";
 import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
-import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
-import { CrucibleRequestProcessor } from "bridge-backend/src/CrucibleRequestProcessor";
+// import { CrucibleRequestProcessor } from "cr-backend/src/CrucibleRequestProcessor";
 import { BridgeModule } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
 import { CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
+import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 require('dotenv').config()
 export class GatewayModule implements Module {
   async configAsync(container: Container) {
@@ -26,7 +26,7 @@ export class GatewayModule implements Module {
           c.get(CommonTokenServices),
           c.get(BridgeRequestProcessor),
           c.get(LeaderboardRequestProcessor),
-		  c.get(CrucibleRequestProcessor),
+		  {} as any, //c.get(CrucibleRequestProcessor),
           c.get("MultiChainConfig")
         )
     );

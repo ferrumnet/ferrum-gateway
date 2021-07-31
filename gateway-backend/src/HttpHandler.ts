@@ -5,11 +5,11 @@ import {
     ValidationUtils
 } from "ferrum-plumbing";
 import { ChainEventBase, UserContractAllocation } from 'types';
-import { BridgeRequestProcessor } from "bridge-backend/dist/BridgeRequestProcessor";
-import { CrucibleRequestProcessor } from "crucible-backend/dist/CrucibleRequestProcessor";
 import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
-import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
+import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
+import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
+import { CrucibleRequestProcessor } from 'crucible-backend/dist/src/CrucibleRequestProcessor';
 
 export class HttpHandler implements LambdaHttpHandler {
     // private adminHash: string;
@@ -32,7 +32,6 @@ export class HttpHandler implements LambdaHttpHandler {
         }
         const jwtToken = pre.authToken;
         const userId = jwtToken ? (await this.uniBack.signInUsingToken(jwtToken)) : undefined;
-        try {
             switch (req.command) {
                 case 'signInUsingAddress':
                     let {userAddress} = req.data;

@@ -29,6 +29,7 @@ export interface UserContractAllocation {
 	userAddress: string;
 	currency: string;
 	allocation: string;
+	expirySeconds: number;
 }
 
 export interface TokenDetails {
