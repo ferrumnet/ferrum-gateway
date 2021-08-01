@@ -61,15 +61,25 @@ footer {
 
 // REACT DATA TABLE -- START
 .rdt_Table {
-  border-radius: 0 0 0 0 !important;
+  border-radius: $border-radius-base $border-radius-base 0 0 !important;
   overflow: hidden;
+  background: $tableColor !important;
+  font-size: 1rem;
   .rdt_TableHead {
     .rdt_TableCol {
-      background: $themePrimaryColor;
-      color: $dark;
-      font-size: 1rem;
+      background: $tableColor !important;
+      color: $light;
       div {
         font-weight: 600;
+      }
+    }
+  }
+
+  .rdt_TableBody {
+    padding: 0 1rem;
+    .rdt_TableRow {
+      .rdt_TableCell {
+        background: $tableColor;
       }
     }
   }
@@ -77,8 +87,19 @@ footer {
 .rdt_Pagination {
   border-radius: 0 0 $border-radius-base $border-radius-base !important;
   overflow: hidden;
+  background: $tableColor !important;
+  select {
+    border: 1px solid $themePrimaryColor;
+    border-radius: $border-radius-base;
+  }
   span {
-    color: $themePrimaryColor;
+    color: #535355;
+  }
+  div {
+    &:last-child {
+      order: -1;
+      margin-right: auto;
+    }
   }
 }
 
