@@ -8,19 +8,6 @@ import { setToLS,setAllThemes,getFromLS } from "./storageUtils/storage";
 import { getGroupIdFromHref } from './common/Utils';
 
 const Index = () => {
-  let groupId = getGroupIdFromHref();
-  if(groupId){
-    const theme = getFromLS(`${groupId}-all-themes`)
-    if(!theme){
-      setToLS(`${groupId}-all-themes`,themes);
-      setToLS(`${groupId}-theme`,themes);
-    }else{
-      setAllThemes(`all-themes`,themes);
-    }
-  }else{
-    setAllThemes(`all-themes`,themes);
-  }
- 
   return <App />;
 };
 ReactDOM.render(

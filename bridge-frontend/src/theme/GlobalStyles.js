@@ -81,6 +81,9 @@ export const GlobalStyles = createGlobalStyle`
     width: 200px !important;
     height: 50px !important;
   }
+  .listTheme{
+    border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
+  }
   .btn {  
     border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || 'auto'} !important;
@@ -97,6 +100,7 @@ export const GlobalStyles = createGlobalStyle`
     &.action {
       margin-top: 0px;
       margin-bottom: 10px;
+      padding: 0.8rem;
     }
     &.liqaction {
       padding: 17px 18px !important;
