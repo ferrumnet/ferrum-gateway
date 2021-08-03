@@ -30,6 +30,7 @@ export interface CrossChainSwapProps {
 	toPath: string[];
 	slippage: string;
 	onSlippageChanged: (slippage: string) => void;
+	error?: string;
 }
 
 export function CrossChainSwap(props: CrossChainSwapProps) {
@@ -49,12 +50,17 @@ export function CrossChainSwap(props: CrossChainSwapProps) {
 				toToken={props.tokenList.find(t => t.currency === props.toCurrency)}
 				onToCurrencySelected={props.onToCurrencyCanged}
 			>
+				{props.error && (
+					<Row centered>
+						<span>{props.error}</span>
+					</Row>
+				)}
 				<Row>
                     <SwapButton
                         onSwapClick={() => showConfirmModal()}
                         approveDisabled={!props.fromCurrency}
                         swapDisabled={!props.fromCurrency || (Number(props.amountIn) <= 0) 
-                            || !tokenValid}
+                            || !tokenValid || !!props.error}
                         contractAddress={props.contractAddress}
                         amount={props.amountIn || '0'}
                         currency={props.fromCurrency}

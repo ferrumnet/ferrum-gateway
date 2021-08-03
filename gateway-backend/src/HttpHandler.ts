@@ -16,7 +16,6 @@ export class HttpHandler implements LambdaHttpHandler {
     constructor(private uniBack: UnifyreBackendProxyService,
 			private commonTokenServices: CommonTokenServices,
             private bridgeProcessor: BridgeRequestProcessor,
-            private crucibleProcessor: CrucibleRequestProcessor,
             private leaderboardProcessor : LeaderboardRequestProcessor,// BridgeRequestProcessor,
             private crucibleProcessor: CrucibleRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
@@ -73,24 +72,19 @@ export class HttpHandler implements LambdaHttpHandler {
 					body = await this.commonTokenServices.tokenList();
 					break;
                 default:
-                    let processor = this.bridgeProcessor.for(req.command) || this.leaderboardProcessor.for(req.command);
+                    let processor = this.bridgeProcessor.for(req.command) || this.leaderboardProcessor.for(req.command) || this.crucibleProcessor(req.command);
                     if (!!processor) {
                         body = await processor(req,userId);
                     } else {
-                    	processor = this.crucibleProcessor.for(req.command);
-						if (!!processor) {
-                        	body = await processor(req,userId);
-						} else {
-							return {
-								body: JSON.stringify({error: 'bad request'}),
-								headers: {
-									'Access-Control-Allow-Origin': '*',
-									'Content-Type': 'application/json',
-								},
-								isBase64Encoded: false,
-								statusCode: 401 as any,
-							} as LambdaHttpResponse;
-						}
+						return {
+							body: JSON.stringify({error: 'bad request'}),
+							headers: {
+								'Access-Control-Allow-Origin': '*',
+								'Content-Type': 'application/json',
+							},
+							isBase64Encoded: false,
+							statusCode: 401 as any,
+						} as LambdaHttpResponse;
                     }
             }
             return {

@@ -169,6 +169,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
 			if ((groupInfo.bridgeCurrencies || []).length) {
 				const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
 				cl.set(groupInfo.bridgeCurrencies);
+				console.log('Setting currencies to ', groupInfo.bridgeCurrencies);
 				try {
 					const userProfile = await web3client.getUserProfile();
             		dispatch(connectSlice.actions.connectionSucceeded({userProfile}));

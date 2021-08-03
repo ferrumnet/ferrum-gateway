@@ -104,7 +104,8 @@ export class BridgeModule implements Module {
 			c.get(EthereumSmartContractHelper),
 			c.get(BridgeConfigStorage),
 			DEFAULT_SWAP_PROTOCOLS),
-	)
+	);
+	container.registerSingleton(OneInchClient, c => new OneInchClient(c.get(EthereumSmartContractHelper)));
     container.registerSingleton(
       BridgeRequestProcessor,
       (c) =>

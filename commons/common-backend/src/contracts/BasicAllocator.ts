@@ -1,5 +1,5 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { HexString, ValidationUtils } from "ferrum-plumbing";
+import { HexString, Injectable, ValidationUtils } from "ferrum-plumbing";
 import { AllocationSignature, UserContractAllocation } from "types";
 import { AllocatableContract } from "./AllocatableContract";
 
@@ -31,12 +31,14 @@ function parseAllocation(allocStr: string) {
 /**
  * Runs allocations based on a csv string.
  */
-export class BasicAllocator {
+export class BasicAllocator implements Injectable {
 	static EXPIRY_BUFFER_SEC = 300;
 	constructor(
 		private contract: AllocatableContract,
 		private helper: EthereumSmartContractHelper,
 	) {}
+
+	__name__() { return 'BasicAllocator'; }
 
 	async parse(allocCsv: string): Promise<UserContractAllocation[]> {
 		return allocCsv.split('\n').map(parseAllocation).filter(Boolean);

@@ -27,7 +27,7 @@ export class CrossSwapClient implements Injectable {
 		const [fromNetwork,] = Utils.parseCurrency(fromCurrency);
 		const [toNetwork,] = Utils.parseCurrency(toCurrency);
 
-		const throughCurrencies = [FRM[fromNetwork]];
+		const throughCurrencies = [FRM[fromNetwork][0]];
 		const fromProtocols = DEFAULT_SWAP_PROTOCOLS[fromNetwork];
 		const toProtocols = DEFAULT_SWAP_PROTOCOLS[toNetwork];
 		return await this.api.api({

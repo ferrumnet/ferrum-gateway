@@ -66,7 +66,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         this.registerProcessor('getLiquidity',
             req => this.getLiquidity(req));
 
-		this.registerProcessor('CrossChainQuote',
+		this.registerProcessor('crossChainQuote',
 			req => this.crossChainQuote(req));
     }
 
