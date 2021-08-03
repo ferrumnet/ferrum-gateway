@@ -195,9 +195,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     
     useEffect(() => {
         if(connected && groupId){
-            if(appInitialized && !pageProps.dataLoaded){
-               handleSync()
-            }
+            handleSync()
         }
     }, [connected, groupId]);
 
@@ -272,7 +270,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 alt="token"
                                                 /> */}
                                                 {e.used === 'completed' && <CheckCircleTwoTone className={'finishThemed'} style={{ fontSize: '20px'}} />}
-                                                {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === 'pending' && <SyncOutlined spin className={'bodyText'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
                                                 {e.used === '' && <PlusOutlined className={'waitThemed'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 

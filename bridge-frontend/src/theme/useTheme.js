@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { setToLS, getFromLS } from "../storageUtils/storage";
+import * as DefaultTheme from "./schema.json";
+
+import { useDispatch, useSelector } from 'react-redux';
 import _ from "lodash";
 
 export const themeMapper = (themeVariable) => {
@@ -32,9 +35,9 @@ export const themeMapper = (themeVariable) => {
             "cardSec": themeVariable?.cardSec || "#272a33",
             "cardTextSec": "#ffffff",
             "borderRadius": themeVariable?.cardBorderRadius || "0",
-            "boxShadow": themeVariable?.cardBoxShadow || "0px -1px 4px 0px",
+            "boxShadow": themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
             //todo: check for other uses of this or remove
-            "box-shadow": themeVariable?.cardBoxShadow || "0px -1px 4px 0px"
+            "box-shadow": themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px"
           },
           "borderColor": "#828282",
           "button": {
@@ -117,20 +120,22 @@ export const themeMapper = (themeVariable) => {
 }
 
 export const useTheme = (group) => {
-  let themes = getFromLS("all-themes");
-
-  if(group?.data){
-    themes = getFromLS(`${group}-all-themes`);
-    setToLS(`all-themes`, themes);
-  }
-
-  const [theme, setTheme] = useState(themes.data.light);
   const [themeLoaded, setThemeLoaded] = useState(false);
+  let groupInfoData = useSelector(appS => appS.data.state.groupInfo);
+  let themes = groupInfoData.groupId ? themeMapper(groupInfoData.themeVariables) : getFromLS("all-themes");
+  const [theme, setTheme] = useState(themes ? themes.data.light : DefaultTheme.data.light);
 
   const setMode = (mode,group) => {
-    setToLS(group ? `${group}-theme` :"theme", mode);
+    setToLS(group ? `${group}-theme` : "theme", mode);
     setTheme(mode);
   };
+
+  const loadTheme = () => {
+    themes = themeMapper(groupInfoData.themeVariables);
+    setTheme(themes ? themes.data.light : DefaultTheme.data.light);
+    setThemeLoaded(true);
+    return themes.data.light
+  }
 
   const getFonts = () => {
     const allFonts = _.values(_.mapValues(themes.data, "font"));
@@ -138,11 +143,10 @@ export const useTheme = (group) => {
   };
 
   useEffect(() => {
-    const localTheme = getFromLS(group ? `${group}-theme` :"theme");
-    setTheme(localTheme);
+    setTheme(themes ? themes.data.light : DefaultTheme.data.light);
     setThemeLoaded(true);
     // eslint-disable-next-line
-  }, []);
+  }, [group]);
 
-  return { theme, themeLoaded,setTheme, setMode, getFonts };
+  return { theme, themeLoaded,setTheme, setMode, getFonts,loadTheme };
 };
