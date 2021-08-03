@@ -25,6 +25,7 @@ export class GatewayModule implements Module {
           c.get(UnifyreBackendProxyService),
           c.get(CommonTokenServices),
           c.get(BridgeRequestProcessor),
+		  c.get(CrucibleRequestProcessor),
           c.get(LeaderboardRequestProcessor),
 		  {} as any, //c.get(CrucibleRequestProcessor),
           c.get("MultiChainConfig")

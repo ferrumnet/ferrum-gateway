@@ -39,6 +39,7 @@
     "aws-sdk": "^2.572.0",
     "big.js": "^5.2.2",
     "bridge-backend": "1.0.0",
+    "crucible-backend": "1.0.0",
     "leaderboard-backend": "1.0.0",
     "crucible-backend": "1.0.0",
     "cross-fetch": "^3.0.4",

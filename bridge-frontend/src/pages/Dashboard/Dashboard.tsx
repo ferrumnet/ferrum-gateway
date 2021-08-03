@@ -37,7 +37,6 @@ import { History } from 'history';
 import { Switch, Route } from 'react-router-dom';
 import { setAllThemes,setToLS,removeFromLS,getFromLS} from "./../../storageUtils/storage";
 import * as defaultTheme from"./../../theme/schema.json";
-
 import { CrossSwap } from '../CrossSwap/CrossSwap';
 ;
 interface DashboardState {

@@ -16,6 +16,7 @@ export class HttpHandler implements LambdaHttpHandler {
     constructor(private uniBack: UnifyreBackendProxyService,
 			private commonTokenServices: CommonTokenServices,
             private bridgeProcessor: BridgeRequestProcessor,
+            private crucibleProcessor: CrucibleRequestProcessor,
             private leaderboardProcessor : LeaderboardRequestProcessor,// BridgeRequestProcessor,
             private crucibleProcessor: CrucibleRequestProcessor,
 			private newtworkConfig: MultiChainConfig,
