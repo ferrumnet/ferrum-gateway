@@ -119,14 +119,14 @@ export const TokenInfo = {
         type: 'ERC20'
     },
     "ETHEREUM:0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787" : {
-        tokenAddress: '0xe1de1dc4de074e9c8bbf5e2d66cfdb4f0b2cb61a',
+        tokenAddress: '0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787',
         tokenSymbol: 'PAID',
         tokenDecimals: 18,
         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
         type: 'ERC20'
     },
-    "BSC:0x532197ec38756b9956190b845d99b4b0a88e4ca9" : {
-        tokenAddress: '0x532197ec38756b9956190b845d99b4b0a88e4ca9',
+    "BSC:0xad86d0e9764ba90ddd68747d64bffbd79879a238" : {
+        tokenAddress: '0xad86d0e9764ba90ddd68747d64bffbd79879a238',
         tokenSymbol: 'PAID',
         tokenDecimals: 18,
         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
