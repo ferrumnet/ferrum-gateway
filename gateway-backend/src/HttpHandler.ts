@@ -32,6 +32,7 @@ export class HttpHandler implements LambdaHttpHandler {
         }
         const jwtToken = pre.authToken;
         const userId = jwtToken ? (await this.uniBack.signInUsingToken(jwtToken)) : undefined;
+        try {
             switch (req.command) {
                 case 'signInUsingAddress':
                     let {userAddress} = req.data;

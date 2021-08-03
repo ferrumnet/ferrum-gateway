@@ -227,6 +227,10 @@ export interface BridgeTokenConfig {
   fee: string;
 }
 
+export interface NetworkedConfig<T> {
+  [network: string]: T;
+}
+
 export interface NetworkRelatedConfig {
   [network: string]: string;
 }

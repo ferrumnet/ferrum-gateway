@@ -1,4 +1,6 @@
 
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'POLYGON', 'MUMBAI_TESTNET'];
+
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
     'RINKEBY': ['RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','RINKEBY'],
@@ -22,6 +24,7 @@ const _supportedNetworks: any = {
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
 };
+
 
 // TODO: Directly write the constants
 export const supportedNetworks: { [k: string]: NetworkDropdown } = {}
@@ -119,14 +122,14 @@ export const TokenInfo = {
         type: 'ERC20'
     },
     "ETHEREUM:0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787" : {
-        tokenAddress: '0xe1de1dc4de074e9c8bbf5e2d66cfdb4f0b2cb61a',
+        tokenAddress: '0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787',
         tokenSymbol: 'PAID',
         tokenDecimals: 18,
         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
         type: 'ERC20'
     },
-    "BSC:0x532197ec38756b9956190b845d99b4b0a88e4ca9" : {
-        tokenAddress: '0x532197ec38756b9956190b845d99b4b0a88e4ca9',
+    "BSC:0xad86d0e9764ba90ddd68747d64bffbd79879a238" : {
+        tokenAddress: '0xad86d0e9764ba90ddd68747d64bffbd79879a238',
         tokenSymbol: 'PAID',
         tokenDecimals: 18,
         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',

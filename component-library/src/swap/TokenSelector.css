@@ -1,0 +1,21 @@
+
+.token-selector-main-line {
+	width: 100%;
+	padding-top: 8px;
+}
+
+.token-selector-main-line img {
+	margin-right: 8px;
+}
+
+.token-selector-drop-down {
+	width: 100%;
+	padding-top: 8px;
+	display: flex;
+	flex-direction: column;
+}
+
+.token-selector-drop-down-item {
+	padding: 4px;
+}
+

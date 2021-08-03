@@ -10,6 +10,9 @@ import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { CommonBackendModule, decryptKey } from "common-backend";
+import { CrossSwapService } from "./crossSwap/CrossSwapService";
+import { OneInchClient } from "./crossSwap/OneInchClient";
+import { DEFAULT_SWAP_PROTOCOLS } from "types";
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
 
@@ -37,7 +40,7 @@ export class BridgeModule implements Module {
             RINKEBY:
               env("TOKEN_BRDIGE_CONTRACT_RINKEBY") || GLOBAL_BRIDGE_CONTRACT,
             BSC:
-              env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
+              env("TOKEN_BRDIGE_CONTRACT_BSC") ||
               GLOBAL_BRIDGE_CONTRACT,
             BSC_TESTNET:
               env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
@@ -94,12 +97,21 @@ export class BridgeModule implements Module {
       BridgeConfigStorage,
       () => new BridgeConfigStorage()
     );
+	container.registerSingleton(
+		CrossSwapService,
+		c => new CrossSwapService(
+			c.get(OneInchClient),
+			c.get(EthereumSmartContractHelper),
+			c.get(BridgeConfigStorage),
+			DEFAULT_SWAP_PROTOCOLS),
+	)
     container.registerSingleton(
       BridgeRequestProcessor,
       (c) =>
         new BridgeRequestProcessor(
           c.get(TokenBridgeService),
-          c.get(BridgeConfigStorage)
+          c.get(BridgeConfigStorage),
+		  c.get(CrossSwapService)
         )
     );
     container.registerSingleton(

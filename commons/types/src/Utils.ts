@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { Big } from 'big.js';
+import { Networks } from 'ferrum-plumbing';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -116,6 +117,23 @@ export class Utils {
         const pars = cur.split(':', 2);
         return [pars[0], pars[1]];
     }
+
+	static isCurrencyValid(cur: string): boolean {
+		if (!cur) { return false; }
+		const [network, token] = Utils.parseCurrency(cur);
+		if (!token) { return false; }
+		if (!network) { return false; }
+		if (!token.startsWith('0x')) {
+			return false;
+		}
+		if (token.length != 42) {
+			return false;
+		}
+		if (!Networks.CHAINS_BY_ID.get(network)) {
+			return false;
+		}
+		return true;
+	}
 }
 
 export class BigUtils {

@@ -5,6 +5,8 @@ import fetch from 'cross-fetch';
 
 const CURRENCY_LISTS = [
 	'https://tokens.coingecko.com/uniswap/all.json',
+	'https://tokens.pancakeswap.finance/pancakeswap-extended.json',
+	'https://unpkg.com/quickswap-default-token-list@1.0.82/build/quickswap-default.tokenlist.json',
 ];
 const DAY = 24 * 3600;
 

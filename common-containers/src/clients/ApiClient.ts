@@ -109,7 +109,7 @@ export class ApiClient implements Injectable {
                 status: res.status, statusText: res.statusText, error}), new Error());
             throw new Error(jerror?.error ? jerror.error : error);
         } catch (e) {
-            logError('Error calling api with ' + JSON.stringify(req), e);
+            logError('Error calling api with ' + JSON.stringify(req), (e as Error));
             throw e;
         }
     }

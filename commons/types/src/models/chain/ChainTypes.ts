@@ -40,7 +40,6 @@ export interface TokenDetails {
 	symbol: string;
 	decimals: number;
 	logoURI: string;
-	expirySeconds: number;
 }
 
 export interface StoredAllocationCsv {

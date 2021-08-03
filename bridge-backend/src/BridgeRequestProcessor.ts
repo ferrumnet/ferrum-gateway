@@ -2,11 +2,13 @@ import { HttpRequestProcessor,HttpRequestData } from "types";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from './BridgeConfigStorage';
+import { CrossSwapService } from "./crossSwap/CrossSwapService";
 
 export class BridgeRequestProcessor extends HttpRequestProcessor implements Injectable {
     constructor(
         private svc: TokenBridgeService,
-        private bgs: BridgeConfigStorage
+        private bgs: BridgeConfigStorage,
+		private crossSwap: CrossSwapService,
     ){
         super()
 
@@ -64,6 +66,8 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         this.registerProcessor('getLiquidity',
             req => this.getLiquidity(req));
 
+		this.registerProcessor('CrossChainQuote',
+			req => this.crossChainQuote(req));
     }
 
     __name__() { return 'BridgeRequestProcessor'; }
@@ -198,4 +202,17 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         ValidationUtils.isTrue(!!userId, 'user must be signed in');
         return this.svc.swapGetTransaction(userId, currency, amount, targetCurrency);
     }
+
+	async crossChainQuote(req: HttpRequestData) {
+		const {
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			fromProtocols,
+			toProtocols,
+		} = req.data;
+		return this.crossSwap.crossChainQuote(fromCurrency, toCurrency,
+			throughCurrencies, amountIn, fromProtocols, toProtocols);
+	}
 }

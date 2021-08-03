@@ -1,11 +1,15 @@
 import React from 'react';
-import { supportedNetworks, TokenDetails } from 'types';
+import { Networks } from 'ferrum-plumbing';
+import { supportedNetworks, TokenDetails, Utils } from 'types';
 import {
-	SwapComponent,
+	SwapComponent, Row,
 	// @ts-ignore
 } from 'component-library';
+import { SwapButton } from '../SwapButton';
 
 export interface CrossChainSwapProps {
+	userAddress: string;
+	contractAddress: string;
 	tokenList: TokenDetails[];
 	fromNetwork: string;
 	fromCurrency: string;
@@ -29,19 +33,36 @@ export interface CrossChainSwapProps {
 }
 
 export function CrossChainSwap(props: CrossChainSwapProps) {
-	console.log('CrossChainSwap', {...props, tokenList: []})
+	const allNetworks = props.fromNetwork ? Object.keys(supportedNetworks).filter(k => Networks.for(props.fromNetwork).testnet === Networks.for(k).testnet) : [];
+	const tokenValid = Utils.isCurrencyValid(props.fromCurrency) && Utils.isCurrencyValid(props.toCurrency);
+	const showConfirmModal = () => {};
 	return (
 		<>
 		<div className="cswap-container">
 			<SwapComponent
-				networks={Object.keys(supportedNetworks)}
+				networks={allNetworks}
 				fromNetwork={props.fromNetwork}
 				fromToken={props.tokenList.find(t => t.currency === props.fromCurrency)}
 				tokenList={props.tokenList}
 				onFromCurrencySelected={props.onFromCurrencyCanged}
+				onFromAmountChanged={props.onAmountInChanged}
 				toToken={props.tokenList.find(t => t.currency === props.toCurrency)}
 				onToCurrencySelected={props.onToCurrencyCanged}
-			/>
+			>
+				<Row>
+                    <SwapButton
+                        onSwapClick={() => showConfirmModal()}
+                        approveDisabled={!props.fromCurrency}
+                        swapDisabled={!props.fromCurrency || (Number(props.amountIn) <= 0) 
+                            || !tokenValid}
+                        contractAddress={props.contractAddress}
+                        amount={props.amountIn || '0'}
+                        currency={props.fromCurrency}
+                        userAddress={props.userAddress}
+                        pendingSwap={false}
+                    />
+				</Row>
+			</SwapComponent>
 		</div>
 		</>
 	);
