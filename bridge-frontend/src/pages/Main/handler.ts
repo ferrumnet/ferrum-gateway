@@ -31,6 +31,20 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
     }
 }
 
+
+export const moveArrayItemForward = (arr:any[],params:string) : any => {
+    const Item = params && arr.filter(item => (item.currency.split(':')[1]) === params  || (item.symbol=== params))[0];
+    if (!Item) return
+    const orderedItem = arr.filter(item => ((item.currency.split(':')[1]) !== params)  && (item.symbol != params));
+    (params && Item) && orderedItem?.unshift(Item);
+    return (orderedItem) && orderedItem
+}
+
+export const checkIfParamsExists = (arr:any[],params:string,prop:string) : any => {
+    const Item = (arr.filter(item => item[prop] === params) || [])[0];
+    return Item
+}
+
 export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
     success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {

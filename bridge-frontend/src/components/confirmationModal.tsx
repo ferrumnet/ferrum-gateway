@@ -64,9 +64,9 @@ export function ConfirmationModal (props: {
         isBlocking={false}
         containerClassName={`${styles.container} cardTheme`}
         isClickableOutsideFocusTrap={false}
-        responsiveMode={ResponsiveMode.medium}
+        responsiveMode={ResponsiveMode.small}
       >
-        <div className={styles.header}>
+        <div className={`${styles.header}`}>
             <h5 className="text-vary-color text-center">
               Confirm
               <Divider
@@ -100,19 +100,19 @@ export function ConfirmationModal (props: {
                 </div>
               </div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Asset</div>
                 <div className={styles.listItem}>{props.token}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Destination</div>
                 <div className={styles.listItem}>{shorten(props.destination)}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Fee ({props.fee}%)</div>
                 <div className={styles.listItem}>{((Number(props.fee)/100)*Number(props.total))} {props.token}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>You will receive</div>
                 <div className={styles.listItem}>{(Number(props.total) - ((Number(props.fee)/100)*Number(props.total)))} {props.token}</div>
             </div>
@@ -186,7 +186,7 @@ return (
           </h5>
       </div>
       <div className={styles.body}>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
             <div className={`${styles.tabbedBtn} cardSecTheme`}>
               <div className={styles.centered}>
                 <div className={styles.headerAmount}>{props.amount} {props.token}</div>
@@ -204,15 +204,15 @@ return (
               </div>
             </div>
           </div>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
               <div className={styles.listLabel2}>Asset</div>
               <div className={styles.listItem2}>{props.token}</div>
           </div>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
               <div className={styles.listLabel2}>Current Destination Liquidity</div>
               <div className={styles.listItem2}>{props.liquidity}</div>
           </div>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
               <div className={styles.listLabel2}>Liquidity to be {props.action}</div>
               <div className={styles.listItem2}>{(Number(props.total))} {props.token}</div>
           </div>

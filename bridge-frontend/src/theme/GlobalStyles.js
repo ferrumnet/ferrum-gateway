@@ -81,6 +81,9 @@ export const GlobalStyles = createGlobalStyle`
     width: 200px !important;
     height: 50px !important;
   }
+  .listTheme{
+    border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
+  }
   .btn {  
     border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || 'auto'} !important;
@@ -97,6 +100,7 @@ export const GlobalStyles = createGlobalStyle`
     &.action {
       margin-top: 0px;
       margin-bottom: 10px;
+      padding: 0.8rem;
     }
     &.liqaction {
       padding: 17px 18px !important;
@@ -407,6 +411,33 @@ export const GlobalStyles = createGlobalStyle`
   }
   .text-vary-color{
     color: ${({ theme }) => theme.colors.inverse} !important;
+  }
+  .top-banner{
+    .ant-alert-icon {
+      color: ${({ theme }) => theme.colors.topBannerIconColor || 'black'} !important;
+      margin: 3px;
+      margin-right: 10px;
+    }
+
+    &.ant-alert-warning {
+      background-color: ${({ theme }) => theme.colors.topBannerBgColor} !important;
+      padding: 10px 15px 15px 24px !important;
+      
+    }
+    .ant-alert-description{
+      line-height: 1 !important;
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+    }
+
+    .anticon-close{
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+    }
+
+    .ant-alert-message {
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+      line-height: 1;
+    }
+    
   }
   .modal {
     .modal-content {

@@ -750,6 +750,36 @@ input[type="number"] {
     text-transform: capitalize;
 }
 
+.drawer{
+    .ant-drawer-content-wrapper{
+        width: 520px !important;;
+    }
+
+}
+
+@media (max-width: 450px) {
+    .ms-Modal-scrollableContent{
+      width: 90%; 
+      margin: 0px auto;
+    }
+
+    .ant-message-notice-content {
+        width: 90%; 
+    }
+
+    .ant-result-extra{
+        overflow: hidden;
+    }
+
+        .drawer{
+            .ant-drawer-content-wrapper{
+                width: 90% !important;
+            }
+
+        }
+    
+}
+
 @media (max-width: 1100px) {
     .main-header{
         text-align: center;

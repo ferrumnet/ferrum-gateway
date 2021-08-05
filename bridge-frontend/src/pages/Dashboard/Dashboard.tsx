@@ -37,6 +37,7 @@ import { History } from 'history';
 import { Switch, Route } from 'react-router-dom';
 import { setAllThemes,setToLS,removeFromLS,getFromLS} from "./../../storageUtils/storage";
 import * as defaultTheme from"./../../theme/schema.json";
+import { Alert } from 'antd';
 
 interface DashboardState {
     initialized: boolean,
@@ -153,7 +154,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             return;
         }else{
             await loadThemeForGroup(groupInfo.themeVariables);
-            const mappedBridgeTheme = themeMapper(groupInfo.themeVariables)   
+            const mappedBridgeTheme = themeMapper(groupInfo.themeVariables)
             if(groupInfo){
                 setToLS('all-themes',{...mappedBridgeTheme});
                 setToLS(`${groupId}-all-themes`,{...mappedBridgeTheme});
@@ -262,7 +263,6 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
     const titleText = document.getElementById("title"); // Accessing favicon element
-    const { setMode,setTheme,theme} = newThemeInitialization(groupInfo.groupId);
 
     //@ts-ignore
     favicon.href = groupInfo.themeVariables?.faviconImg||groupInfo.themeVariables?.mainLogo;
@@ -285,18 +285,6 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
         </>
     );
 
-
-    useEffect(() => {
-        if(groupInfo!.groupId){
-            const theme = getFromLS(`${groupInfo!.groupId}-all-themes`);
-            if(theme?.data){
-                setMode(theme.data.light)
-                props.setter(theme.data.light);
-            }
-           
-        }
-    },[groupInfo.groupId]);
-
     const SwitchBtn = (
         <>
             {
@@ -310,6 +298,18 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     
     return (
         <>
+            <>
+            {
+                groupInfo.themeVariables?.bannerMainMessage &&
+                <Alert
+                    className="top-banner"
+                    message={groupInfo.themeVariables?.bannerMainMessage}
+                    description={groupInfo.themeVariables?.bannerSubMessage}
+                    banner
+                    closable
+                />
+            } 
+            </>
             <Header  
                 ConnectButton={ConBot}
                 WithdrawlsButton={bridgeItems} 
@@ -342,8 +342,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                                 <div className="steps-wrapper">
                                     <div className="row">
                                         <div className="col-lg-4 col-md-4 mb-3">
-                                            <SideBarContainer
-                                            />
+                                            <SideBarContainer/>
                                         </div>
                                         <div className="col-lg-8 col-md-8">
                                             <TokenBridge
@@ -380,16 +379,22 @@ export function Dashboard(props:ThemeProps) {
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
     const groupInfoData = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
-    const { theme, setTheme } = newThemeInitialization(groupInfoData.groupId ? groupInfoData.groupId :  null);
+    let { theme, setTheme,loadTheme } = newThemeInitialization(groupInfoData.groupId ? groupInfoData.groupId :  null);
     const [selectedTheme, setSelectedTheme] = useState(theme);
     const [newTheme] = useState();
 	const history = useHistory();
 
-
     const handleCon = async () => {
         await onBridgeLoad(dispatch, history).catch(console.error)
-
     }
+
+    useEffect(() => {
+        if(groupInfoData.groupId){
+            const theme  = loadTheme();
+            setSelectedTheme(theme)
+        }
+    },[groupInfoData.groupId]);
+
     useEffect(() => {
         if(!appInitialized){
             intializing(dispatch)
