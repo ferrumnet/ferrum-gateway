@@ -412,6 +412,33 @@ export const GlobalStyles = createGlobalStyle`
   .text-vary-color{
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
+  .top-banner{
+    .ant-alert-icon {
+      color: ${({ theme }) => theme.colors.topBannerIconColor || 'black'} !important;
+      margin: 3px;
+      margin-right: 10px;
+    }
+
+    &.ant-alert-warning {
+      background-color: ${({ theme }) => theme.colors.topBannerBgColor} !important;
+      padding: 10px 15px 15px 24px !important;
+      
+    }
+    .ant-alert-description{
+      line-height: 1 !important;
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+    }
+
+    .anticon-close{
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+    }
+
+    .ant-alert-message {
+      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+      line-height: 1;
+    }
+    
+  }
   .modal {
     .modal-content {
       background-color: ${({ theme }) => theme.colors.themePrimary};

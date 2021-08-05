@@ -64,7 +64,7 @@ export function ConfirmationModal (props: {
         isBlocking={false}
         containerClassName={`${styles.container} cardTheme`}
         isClickableOutsideFocusTrap={false}
-        responsiveMode={ResponsiveMode.medium}
+        responsiveMode={ResponsiveMode.small}
       >
         <div className={`${styles.header}`}>
             <h5 className="text-vary-color text-center">
