@@ -66,12 +66,23 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         this.registerProcessor('getLiquidity',
             req => this.getLiquidity(req));
 
+		this.registerProcessor('allProtocols',
+			req => this.allProtocols(req));
+
 		this.registerProcessor('crossChainQuote',
 			req => this.crossChainQuote(req));
+
+		this.registerProcessor('swapCrossGetTransaction',
+			(req, userId) => this.swapCrossGetTransaction(req, userId));
+
+		this.registerProcessor('registerSwapCross',
+			(req, userId) => this.registerSwapCross(req, userId));
+
+		this.registerProcessor('withdrawAndSwapGetTransaction',
+			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
     }
 
     __name__() { return 'BridgeRequestProcessor'; }
-
   
     async removeLiquidityIfPossibleGetTransaction(req: HttpRequestData, userId: string) {
         const {
@@ -214,5 +225,67 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
 		} = req.data;
 		return this.crossSwap.crossChainQuote(fromCurrency, toCurrency,
 			throughCurrencies, amountIn, fromProtocols, toProtocols);
+	}
+
+	async allProtocols(req: HttpRequestData) {
+		return this.crossSwap.allProtocols();
+	}
+
+	async swapCrossGetTransaction(req: HttpRequestData, userId: string) {
+		const {
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			slippage,
+			fromProtocols,
+			toProtocols,
+		} = req.data;
+		return this.crossSwap.swapCross(
+			userId,
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			slippage,
+			fromProtocols,
+			toProtocols,);
+	}
+
+	async registerSwapCross(req: HttpRequestData, userId: string) {
+		const {
+			network,
+			transactionId,
+			fromCurrency,
+			toCurrency,
+			amountIn,
+			throughCurrency,
+			fromProtocol,
+			toProtocol,
+		} = req.data;
+		return this.crossSwap.registerSwapCross(
+			userId,
+			network,
+			transactionId,
+			fromCurrency,
+			toCurrency,
+			amountIn,
+			throughCurrency,
+			fromProtocol,
+			toProtocol,);
+	}
+
+	async withdrawAndSwapGetTransaction(req: HttpRequestData, userId: string) {
+		const {
+			swapNetwork,
+			swapTransactionId,
+			slippage,
+		} = req.data;
+		return this.crossSwap.withdrawAndSwap(
+			userId,
+			swapNetwork,
+			swapTransactionId,
+			slippage,
+		);
 	}
 }

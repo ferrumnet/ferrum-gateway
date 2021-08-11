@@ -1,31 +1,27 @@
 import {abi as bridgeAbi} from './resources/BridgePool.json';
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
-import { HexString, Injectable, LocalCache, Network, ValidationUtils } from 'ferrum-plumbing';
+import { Injectable, LocalCache, Network, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
-import { CHAIN_ID_FOR_NETWORK, UserBridgeWithdrawableBalanceItem } from 'types';
-import { BridgeSwapEvent } from './common/TokenBridgeTypes';
+import { UserBridgeWithdrawableBalanceItem } from 'types';
+import { BridgeSwapEvent, BridgeTransaction } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
 import { ChainUtils, ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 
-const GLOB_CACHE = new LocalCache();
 const Helper = EthereumSmartContractHelper;
-async function BridgeSwapEventAbi() {
-	return GLOB_CACHE.getAsync('fun.BridgeSwapEventAbi',
-		async () => bridgeAbi.find(i => i.type === 'event' && i.name === 'BridgeSwap').inputs);
-}
-
 const NetworkNameByChainId: {[k:number]: string} = {};
 Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK)
 	.forEach(k => NetworkNameByChainId[ETHEREUM_CHAIN_ID_FOR_NETWORK[k]] = k);
 
 export class TokenBridgeContractClinet implements Injectable {
 	private bridgeSwapInputs = bridgeAbi.find(abi => abi.name === 'BridgeSwap' && abi.type === 'event');
+	private topics: {[key: string]: { name: string, inputs: any[] }} = {}
     constructor(
         private helper: EthereumSmartContractHelper,
         private contractAddress: {[network: string]: string},
     ) {
+		this.initializeTopics();
     }
 
     __name__() { return 'TokenBridgeContractClinet'; }
@@ -34,6 +30,15 @@ export class TokenBridgeContractClinet implements Injectable {
         ValidationUtils.isTrue(!!address, `No address for network ${network}`)
         return this.bridgePool(network, address);
     }
+
+	private initializeTopics() {
+		bridgeAbi.filter(abi => abi.type === 'event').forEach(abi => {
+			const signature = abi.name + "(" +
+				(abi.inputs || []).map(input => input.type).join(",") + ")";
+			var hash = Web3.utils.sha3(signature);
+			this.topics[hash] = { name: abi.name, inputs: abi.inputs };
+		});
+	}
 
     async withdrawSignedVerify(targetCurrency: string, payee: string, amount: string,
         hash: string, salt: string, signature: string, expectedAddress: string) {
@@ -47,7 +52,7 @@ export class TokenBridgeContractClinet implements Injectable {
         // ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
         //     `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
     }
-
+	
 	async getSwapEventByTxId(network: string, txId: string): Promise<BridgeSwapEvent> {
         const address = this.contractAddress[network];
 		const web3 = (await this.helper.web3(network)) as Eth;
@@ -58,6 +63,43 @@ export class TokenBridgeContractClinet implements Injectable {
 		ValidationUtils.isTrue(!!swapLog, 'No swap log found on tx ' + txId)
 		const decoded = web3.abi.decodeLog(this.bridgeSwapInputs.inputs, swapLog.data, swapLog.topics.slice(1));
 		return this.parseSwapEvent(network, { returnValues: decoded, transactionHash: txId });
+	}
+	
+	async parseTransaction(network: string, txId: string): Promise<BridgeTransaction> {
+        const address = this.contractAddress[network];
+		const web3 = (await this.helper.web3(network)) as Eth;
+		const tx = await web3.getTransactionReceipt(txId);
+		const rv: BridgeTransaction = {
+			network,
+			transactionId: txId,
+			failed: false,
+			type: 'unknown',
+		};
+		if (!tx.status) {
+			rv.failed = true;
+			return rv;
+		}
+		// Make sure this is a tx sent to the bridge
+		ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as Network, address, tx.to),
+			'Transaction is not against the bridge contract');
+		const logs = tx.logs.filter(l =>
+				ChainUtils.addressesAreEqual(network as Network, address, l.address));
+		for(const l of logs) {
+			const logAbi = this.topics[l.topics[0]];
+			ValidationUtils.isTrue(!!logAbi,
+				`Transaction has an event that cannot be understod ${txId}: ${l.topics[0]}`);
+			const decoded = web3.abi.decodeLog(logAbi.inputs, l.data, l.topics.slice(1));
+			switch(logAbi.name) {
+				case 'swap':
+					rv.type = 'swap';
+					// rv.event = await this.parseSwapEvent(network,
+					// 	{ returnValues: decoded, transactionHash: txId });
+					break;
+				default:
+					ValidationUtils.isTrue(false, `Unextpected event ${logAbi.name}: ${txId}`);
+			}
+		}
+		return rv;
 	}
 
 	private async parseSwapEvent(network: string, e: any): Promise<BridgeSwapEvent> {
@@ -80,12 +122,15 @@ export class TokenBridgeContractClinet implements Injectable {
 
 	async getSwapEvents(network: string): Promise<BridgeSwapEvent[]> {
         const address = this.contractAddress[network];
-        ValidationUtils.isTrue(!!address, `No address for network ${network}`)
+        ValidationUtils.isTrue(!!address, `No address for network ${network}`);
 		const web3 = await this.helper.web3(network);
 		const block = await web3.getBlockNumber();
+		const firstBlock = process.env.BLOCK_LOOK_BACK ?
+			Number(process.env.BLOCK_LOOK_BACK) :
+			(network === 'MUMBAI_TESTNET' ? 990 : 1000);
 		const events = await this.bridgePool(network, address)
 			.getPastEvents('BridgeSwap', {fromBlock:
-				block - (network === 'MUMBAI_TESTNET' ? 990 : 1000)});
+				block - firstBlock});
 		const logs: BridgeSwapEvent[] = [];
 		for (const e of events) {
 			try {

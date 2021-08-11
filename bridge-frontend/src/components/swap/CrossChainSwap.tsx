@@ -16,13 +16,15 @@ export interface CrossChainSwapProps {
 	onFromCurrencyCanged: (cur: string) => void;
 	toNetwork: string;
 	toCurrency: string;
+	toSymbol: string;
+	toAmount: string;
 	onToCurrencyCanged: (cur: string) => void;
 	toNetworkOptions: string[];
 	onToNetworkChanged: (net: string) => void;
 	amountIn: string;
 	onAmountInChanged: (amount: string) => void;
-	amountOut: string;
 	crossFee: string;
+	crossFeeSymbol: string;
 	fromSwapFee: string;
 	toSwapFee: string;
 	totalFee: string;
@@ -30,6 +32,7 @@ export interface CrossChainSwapProps {
 	toPath: string[];
 	slippage: string;
 	onSlippageChanged: (slippage: string) => void;
+	onSwapClicked: () => void;
 	error?: string;
 }
 
@@ -50,6 +53,19 @@ export function CrossChainSwap(props: CrossChainSwapProps) {
 				toToken={props.tokenList.find(t => t.currency === props.toCurrency)}
 				onToCurrencySelected={props.onToCurrencyCanged}
 			>
+				<Row centered>
+					<span>Cross-chain fee</span> <br/>
+					<span>{props.totalFee} { (props.toPath || [])[0] || ''}
+						{props.crossFeeSymbol}
+					</span>
+				</Row>
+				<Row >
+					<h3>Receive</h3>
+				</Row>
+				<Row >
+					<h3>{props.toAmount} {props.toSymbol}
+					</h3>
+				</Row>
 				{props.error && (
 					<Row centered>
 						<span>{props.error}</span>
@@ -57,7 +73,7 @@ export function CrossChainSwap(props: CrossChainSwapProps) {
 				)}
 				<Row>
                     <SwapButton
-                        onSwapClick={() => showConfirmModal()}
+                        onSwapClick={props.onSwapClicked}
                         approveDisabled={!props.fromCurrency}
                         swapDisabled={!props.fromCurrency || (Number(props.amountIn) <= 0) 
                             || !tokenValid || !!props.error}

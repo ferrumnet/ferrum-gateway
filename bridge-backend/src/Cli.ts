@@ -3,8 +3,8 @@ import { argv } from "process";
 import { processOneTx, processOneWay } from "./BridgeProcessor";
 console.log('Starting ');
 
-argv[2] = 'ETHEREUM';
-argv[3] = '0xdb38951e24ea6d9ea4cf419e447de8a60f85173cf1cbff2a93da3ad0736e9447';
+// argv[2] = 'BSC';
+// argv[3] = '--all';
 
 const net = argv[2];
 // const net = 'RINKEBY';

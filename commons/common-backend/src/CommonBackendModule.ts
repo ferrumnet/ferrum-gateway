@@ -4,6 +4,7 @@ import { EthereumSmartContractHelper, Web3ProviderConfig } from "aws-lambda-help
 import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
 import { AwsEnvs, KmsCryptor, SecretsProvider, UnifyreBackendProxyModule } from "aws-lambda-helper";
 import { KMS } from 'aws-sdk';
+import { CurrencyListSvc } from "./CurrencyListSvc";
 
 export class CommonBackendModule implements Module {
 	static awsRegion(): string {
@@ -34,6 +35,8 @@ export class CommonBackendModule implements Module {
 			'POLYGON': netConfig.web3ProviderPolygon,
 			'MUMBAI_TESTNET': netConfig.web3ProviderMumbaiTestnet,
 			} as Web3ProviderConfig;
+		container.registerSingleton(CurrencyListSvc,
+			c => new CurrencyListSvc(c.get(EthereumSmartContractHelper)));
         container.registerSingleton(EthereumSmartContractHelper,
             () => new EthereumSmartContractHelper(networkProviders));
         container.register('JsonStorage', () => new Object());

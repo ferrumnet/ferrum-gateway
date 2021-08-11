@@ -9,12 +9,24 @@ import { BridgeProcessor } from "./BridgeProcessor";
 import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { CommonBackendModule, decryptKey } from "common-backend";
+import { CommonBackendModule, CurrencyListSvc, decryptKey } from "common-backend";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
-import { DEFAULT_SWAP_PROTOCOLS } from "types";
+import { BridgeV12Contracts, BRIDGE_NETWORKS, DEFAULT_SWAP_PROTOCOLS, NetworkedConfig, SwapProtocol } from "types";
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
+
+function networkEnvConfig<T>(prefix: string, fun: (v: string) => T): NetworkedConfig<T>|undefined {
+	const rv: NetworkedConfig<T> = {};
+	let anyValue: boolean = false;
+	BRIDGE_NETWORKS.forEach(net => {
+		const env = process.env[prefix + '_' + net] || process.env[prefix + '_DEFAULT'] || '';
+		const value = fun(env);
+		rv[net] = value;
+		anyValue = anyValue || !!value;
+	});
+	return  anyValue ? rv : undefined;
+}
 
 export class BridgeModule implements Module {
   async configAsync(container: Container) {
@@ -34,24 +46,15 @@ export class BridgeModule implements Module {
         addressManagerEndpoint: getEnv("ADDRESS_MANAGER_ENDPOINT"),
         addressManagerSecret: getEnv("ADDRESS_MANAGER_SECRET"),
         bridgeConfig: {
-          contractClient: {
-            ETHEREUM:
-              env("TOKEN_BRDIGE_CONTRACT_ETHEREUM") || GLOBAL_BRIDGE_CONTRACT,
-            RINKEBY:
-              env("TOKEN_BRDIGE_CONTRACT_RINKEBY") || GLOBAL_BRIDGE_CONTRACT,
-            BSC:
-              env("TOKEN_BRDIGE_CONTRACT_BSC") ||
-              GLOBAL_BRIDGE_CONTRACT,
-            BSC_TESTNET:
-              env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
-              GLOBAL_BRIDGE_CONTRACT,
-            POLYGON:
-              env("TOKEN_BRDIGE_CONTRACT_POLYGON") || GLOBAL_BRIDGE_CONTRACT,
-            MUMBAI_TESTNET:
-              env("TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET") ||
-              GLOBAL_BRIDGE_CONTRACT,
-          },
+          contractClient: networkEnvConfig<string>('TOKEN_BRDIGE_CONTRACT', v => v)
         },
+		bridgeV12Config: networkEnvConfig<BridgeV12Contracts>(
+			'TOKEN_BRIDGE_V12_CONTRACT',
+			v => {
+				const [bridge, router, staking] = v.split(',');
+				return {bridge, router, staking} as BridgeV12Contracts;
+			}),
+		swapProtocols: networkEnvConfig<SwapProtocol[]>('SWAP_PROTOCOLS', v => v.split(',')),
       } as BridgeProcessorConfig;
     }
 
@@ -101,9 +104,12 @@ export class BridgeModule implements Module {
 		CrossSwapService,
 		c => new CrossSwapService(
 			c.get(OneInchClient),
+			c.get(CurrencyListSvc),
 			c.get(EthereumSmartContractHelper),
 			c.get(BridgeConfigStorage),
-			DEFAULT_SWAP_PROTOCOLS),
+			c.get(TokenBridgeService),
+			conf.swapProtocols || DEFAULT_SWAP_PROTOCOLS,
+			conf.bridgeV12Config,),
 	);
 	container.registerSingleton(OneInchClient, c => new OneInchClient(c.get(EthereumSmartContractHelper)));
     container.registerSingleton(

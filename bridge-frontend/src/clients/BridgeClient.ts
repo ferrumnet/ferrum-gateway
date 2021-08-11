@@ -186,7 +186,7 @@ export class BridgeClient implements Injectable {
         dispatch: Dispatch<AnyAction>,
         w: UserBridgeWithdrawableBalanceItem,
         network:Network
-        ) {
+        ): Promise<[string, string]> {
         dispatch(addAction(CommonActions.WAITING, { source: 'withdraw' }));
         try {
             ValidationUtils.isTrue(network === w.sendNetwork, 
@@ -203,7 +203,7 @@ export class BridgeClient implements Injectable {
             }
             const txIds = (response.response || []).map(r => r.transactionId);
             dispatch(addAction(CommonActions.WAITING, { source: 'withdrawableBalanceItemAddTransaction' }));
-            await this.withdrawableBalanceItemUpdateTransaction(dispatch, w.receiveTransactionId, txIds[0]);
+            await this.withdrawableBalanceItemAddTransaction(dispatch, w.receiveTransactionId, txIds[0]);
             return ['success',txIds[0]];
         } catch(e) {
             dispatch(addAction(CommonActions.ERROR_OCCURED, {
@@ -228,7 +228,7 @@ export class BridgeClient implements Injectable {
         return withdrawableBalanceItem;
     }
 
-    public async withdrawableBalanceItemUpdateTransaction(dispatch: Dispatch<AnyAction>,
+    public async withdrawableBalanceItemAddTransaction(dispatch: Dispatch<AnyAction>,
         id: string,
         transactionId: string) {
         try {

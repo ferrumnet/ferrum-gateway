@@ -1,4 +1,4 @@
-import { ChainClientFactory, ChainUtils, SimpleTransferTransaction } from "ferrum-chain-clients";
+import { ChainClientFactory, ChainUtils, } from "ferrum-chain-clients";
 import { Injectable, Logger, LoggerFactory, Network, ValidationUtils } from "ferrum-plumbing";
 import { BridgeModule } from "./BridgeModule";
 import { LambdaGlobalContext } from "aws-lambda-helper";

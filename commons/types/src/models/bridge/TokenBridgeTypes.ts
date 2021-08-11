@@ -71,6 +71,7 @@ export interface UserBridgeWithdrawableBalanceItem {
   sendCurrency: string;
   sendAmount: string;
   payBySig: PayBySignatureData;
+  sendToCurrency?: string;
 
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];

@@ -13,6 +13,11 @@ import { GroupInfoModel } from './common/TokenBridgeTypes';
 
 const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
 
+function isTimedOut(timestamp: number) {
+	if (!timestamp) { return false; }
+	return timestamp < Date.now() - QUICK_TIMEOUT_MILLIS;
+}
+
 export class TokenBridgeService extends MongooseConnection implements Injectable {
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
     private groupInfoModel: Model<GroupInfo & Document> | undefined;
@@ -145,7 +150,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const pendingTxs = (item.useTransactions || []).filter(t => t.status === 'pending');
         console.log('PENDING TXS', pendingTxs);
-		if (!pendingTxs.length && item.used === 'pending') {
+		if (!pendingTxs.length && item.used === 'pending' && isTimedOut(item.timestamp)) {
 			item.used = 'failed';
 		}
         for (const tx of pendingTxs) {
@@ -157,7 +162,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
             }else if(txStatus === 'successful'){
                 item.used = 'completed'
             }else{
-				if (tx.timestamp < Date.now() - QUICK_TIMEOUT_MILLIS) {
+				if (isTimedOut(tx.timestamp)) {
 					item.used = 'failed';
 				} else {
                 	item.used = 'pending'
@@ -173,30 +178,13 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const txItem = (item.useTransactions || []).find(t => t.id === tid);
         if (!!txItem) {
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txItem.timestamp || Date.now());
-            txItem.status = txStatus;
-            console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
-            if(txStatus === ('timedout' || 'failed')){
-                item.used = 'failed';
-            }else if(txStatus === 'successful'){
-                item.used = 'completed'
-            }else{
-                item.used = 'pending'
-            }
+			console.warn(`Trying to uodate a withdraw item, but tx (${tid}) was already added: ${JSON.stringify(item)}`)
         } else {
             const txTime = Date.now();
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime || Date.now());
             item.useTransactions = item.useTransactions || [];
-            item.useTransactions.push({id: tid, status: txStatus, timestamp: txTime});
-            if(txStatus === ('timedout' || 'failed')){
-                item.used = 'failed';
-            }else if(txStatus === 'successful'){
-                item.used = 'completed'
-            }else{
-                item.used = 'pending'
-            }
+            item.useTransactions.push({id: tid, status: 'pending', timestamp: txTime});
+        	return await this.updateWithdrawItem(item);
         }
-        return await this.updateWithdrawItem(item);
     }
 
     async getSwapTransactionStatus(tid: string,sendNetwork: string,timestamp:number) {

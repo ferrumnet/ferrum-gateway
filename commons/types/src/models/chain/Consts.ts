@@ -177,3 +177,9 @@ export const ETH: {[k: string]: [string, string]} = {
 export const CRUCIBLE_ROUTER: {[k: string]: string} = {
 	'ETHEREUM': '',
 }
+
+export const SWAP_PROTOCOL_ROUTERS: {[k: string]: string} = {
+	'RINKEBY:UNISWAP_V2': '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+	'ETHEREUM:UNISWAP_V2': '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+	'BSC_TESTNET_CAKE': '0x9ac64cc6e4415144c455bd8e4837fea55603e5c3',
+};

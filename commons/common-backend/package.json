@@ -17,9 +17,9 @@
   "author": "naiem@ferrum.network",
   "license": "MIT",
   "dependencies": {
-    "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
-    "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git"
+    "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git",
+    "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

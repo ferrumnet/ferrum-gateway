@@ -45,6 +45,23 @@ export interface SwapQuote {
 	bridge?: CrossChainBridgeQuote;
 }
 
+export interface CrossSwapRequestStatus {
+	status: '' | 'signed' | 'executed';
+}
+
+export interface CrossSwapRequest {
+	userAddress: string;
+	network: string;
+	transactionId: string;
+	fromCurrency: string;
+	toCurrency: string;
+	amountIn: string;
+	throughCurrency: string;
+	fromProtocol: SwapProtocol;
+	toProtocol: SwapProtocol;
+	status?: CrossSwapRequestStatus;
+}
+
 export interface SwapProtocolsPerNetwork {
 	[key: string]: string[];
 }
@@ -59,9 +76,15 @@ export const SupportedSwapProtocols: SwapProtocolsPerNetwork = {
 };
 
 export interface CrossChainBridgeQuote {
-	fromCurrency: string;
-	toCurrency: string;
+	from: TokenDetails;
+	to: TokenDetails;
 	amountIn: string;
 	amountOut: string;
 	fee: string;
+}
+
+export interface BridgeV12Contracts {
+	bridge: string;
+	router: string;
+	staking: string;
 }

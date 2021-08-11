@@ -136,6 +136,8 @@ export class Utils {
 	}
 }
 
+export class ParseBigError extends Error { }
+
 export class BigUtils {
 	static truthy(b?: Big): boolean {
 		return !!b && !(new Big(0).eq(b));
@@ -146,6 +148,14 @@ export class BigUtils {
 			return new Big(s);
 		} catch (e) {
 			return new Big('0');
+		}
+	}
+
+	static parseOrThrow(s: string, varName: string): Big {
+		try {
+			return new Big(s);
+		} catch (e) {
+			throw new ParseBigError(`Error parsing ${varName}. "${s}" is not a valid number`);
 		}
 	}
 }

@@ -15,6 +15,14 @@
 		"symbol": "RVF",
 		"decimals": 18,
 		"logoURI": "https://etherscan.io/token/images/rocketvault_32.png"
+		},
+		{
+		"address": "0xd99bafe5031cc8b345cb2e8c80135991f12d7130",
+		"chainId": 137,
+		"name": "Ferrum Network Token",
+		"symbol": "FRM",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/ferrumnetworktoken_32.png"
 		}
 	]
 }
