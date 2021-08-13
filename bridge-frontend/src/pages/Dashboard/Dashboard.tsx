@@ -37,6 +37,7 @@ import { History } from 'history';
 import { Switch, Route } from 'react-router-dom';
 import { setAllThemes,setToLS,removeFromLS,getFromLS} from "./../../storageUtils/storage";
 import * as defaultTheme from"./../../theme/schema.json";
+import { Alert } from 'antd';
 
 interface DashboardState {
     initialized: boolean,
@@ -301,8 +302,18 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
     
     return (
         <>
-        
-        
+           <>
+            {
+                groupInfo.themeVariables?.bannerMainMessage &&
+                <Alert
+                    className="top-banner"
+                    message={groupInfo.themeVariables?.bannerMainMessage}
+                    description={groupInfo.themeVariables?.bannerSubMessage}
+                    banner
+                    closable
+                />
+            } 
+            </>
             <Header  
                 ConnectButton={ConBot}
                 WithdrawlsButton={bridgeItems} 

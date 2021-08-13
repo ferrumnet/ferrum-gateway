@@ -69,6 +69,7 @@ footer {
     .rdt_TableCol {
       background: $tableColor !important;
       color: $light;
+      // padding: 0 calc(1rem + 0.25rem);
       div {
         font-weight: 600;
       }
@@ -76,11 +77,51 @@ footer {
   }
 
   .rdt_TableBody {
-    padding: 0 1rem;
     .rdt_TableRow {
       .rdt_TableCell {
         background: $tableColor;
+        position: relative;
+        &:first-child {
+          // padding-left: 1.5rem;
+          div {
+            width: 2rem;
+            text-align: center;
+            &:before {
+              content: "";
+              width: 1rem;
+              height: 1rem;
+              background: $tableColor;
+              position: absolute;
+              left: 0;
+              bottom: -0.5rem;
+              z-index: 1;
+            }
+          }
+        }
+        &:last-child {
+          &:before {
+            content: "";
+            width: 1rem;
+            height: 1rem;
+            background: $tableColor;
+            position: absolute;
+            right: 0;
+            bottom: -0.5rem;
+            z-index: 1;
+          }
+        }
       }
+    }
+  }
+  .col-mobile {
+    display: none;
+  }
+  @media screen and (max-width: 991px) {
+    .col-web {
+      display: none;
+    }
+    .col-mobile {
+      display: block;
     }
   }
 }

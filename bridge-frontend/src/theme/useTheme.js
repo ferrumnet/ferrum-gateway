@@ -29,6 +29,9 @@ export const themeMapper = (themeVariable) => {
           "stepsWaitBorderColor": themeVariable?.stepsWaitColor,
           "stepsFinishBackgroundColor": themeVariable?.stepsBgColor,
           "stepsFinishBorderColor": themeVariable?.stepsBorderColor,
+          "topBannerTextColor": themeVariable?.topBannerTextColor,
+          "topBannerBgColor": themeVariable?.topBannerBgColor,
+          "topBannerIconColor": themeVariable?.topBannerIconColor,
           "card": {
             "cardPri": themeVariable?.cardBgColor || themeVariable?.neutralDark,
             "cardTextPri": "#f3f3f3",

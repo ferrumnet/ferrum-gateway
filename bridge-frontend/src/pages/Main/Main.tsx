@@ -6,20 +6,19 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { supportedNetworks, NetworkDropdown, UserBridgeWithdrawableBalanceItem,
-BridgeTokenConfig, BRIDGE_CONTRACT, inject } from 'types';
+BridgeTokenConfig, BRIDGE_CONTRACT, inject, Utils } from 'types';
 import {IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
-import { onSwap, executeWithdraw,changeNetwork,updateData} from './handler';
+import { onSwap, executeWithdraw,changeNetwork,updateData,moveArrayItemForward,checkIfParamsExists} from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
 import { WithdrawNoti } from '../../components/withdrawalNoti';
 import { LoadingOutlined } from '@ant-design/icons';
 import { openPanelHandler } from './../Swap';
 import { message, Result } from 'antd';
-import { Utils } from 'types';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import {SidePanelSlice} from './../../components/SidePanel';
@@ -31,6 +30,7 @@ import { BridgeClient } from '../../clients/BridgeClient';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { addAction, CommonActions } from '../../common/Actions';
+import { useHistory } from 'react-router';
 
 
 const { Step } = Steps;
@@ -79,7 +79,10 @@ export const MainPageSlice = createSlice({
     } as MainPageState,
     reducers: {
 		currencyChanged: (state, action) => {
-			state.currency = action.payload.currency;
+            let base = Utils.getQueryparams();
+            const isParamPresent = !!base.symbol || !!base.currency;
+            isParamPresent && action.payload.history.replace('/frm');
+            state.currency = action.payload.currency;
 		},
         reconnected: (state,action) => {
             state.reconnecting = false;
@@ -170,13 +173,17 @@ export const Actions = MainPageSlice.actions;
 function stateToProps(appState: BridgeAppState): MainPageProps {
     const state = appState.ui.pairPage;
 	const bridgeCurrencies = appState.data.state.groupInfo?.bridgeCurrencies || [] as any;
-	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);    
-    const addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
+	const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);   
+    const params = Utils.getQueryparam('currency') || Utils.getQueryparam('symbol');
+    let addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
+    const Item = params && moveArrayItemForward(addr,params);
+    addr = Item ? Item : addr;
     let address = addr[0] || {} as any;
     const currNet = address.network;
 	const currentIdx = allNetworks.indexOf(address.network || 'N/A');
 	// Select the first currency groupInfo for the selected network
 	let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
+    currency = Item?.length > 0 ? Item[0].currency : currency;
     address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address || {} as any;
     currency = address.currency;
 	const currentNetwork = supportedNetworks[address.network] || {};
@@ -240,6 +247,7 @@ export const ConnectBridge = () => {
     // const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state));
+    const tokenList = useSelector<BridgeAppState, any>(appS => appS.data.tokenList.list);
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
@@ -247,7 +255,8 @@ export const ConnectBridge = () => {
     const withdrawals =  useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
 		state => state.data.state.balanceItems);
     let unUsedItems = withdrawals.filter(e=>((e.used === '') && (e.sendNetwork === pageProps.network))).length;
-    
+    const history = useHistory();
+
     useEffect(()=>{
         if((unUsedItems > 0 && !pageProps.withdrawSuccess)){
             setIsNotiModalVisible(true)
@@ -276,6 +285,7 @@ export const ConnectBridge = () => {
                     <p></p>,
                     <AddTokenToMetamask currency={pageProps.currency} tokenData={propsGroupInfo.tokenData} />
                     ,
+                    <p></p>,
                     <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));
@@ -343,7 +353,7 @@ export const ConnectBridge = () => {
                     Swap tokens across chains
                     <hr className="mini-underline"></hr>
             </small>
-            {   isNetworkAllowed ? 
+            {   (!network && isNetworkAllowed) ? 
                     <div>Current Network Not Supported</div>
                 :
                     <div className="text-left">
@@ -353,7 +363,7 @@ export const ConnectBridge = () => {
                         <AssetsSelector 
                             assets={pageProps.allAddresses || []}
                             icons={supportedIcons}
-                            onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency}))}
+                            onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency,history}))}
                             selectedToken={pageProps.symbol}
                         />
                         <NetworkSwitch 
