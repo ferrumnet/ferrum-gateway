@@ -68,7 +68,7 @@ export function ConnectBar(props: ConnectBarProps) {
         <>
             <TopBar
                 left={<img alt="Ferrum Network"
-                    src="https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"/>}
+                    src={props?.additionalOptions?.logo ? props?.additionalOptions?.logo : "https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"}/>}
                 actionItems={
                 <> 
                    

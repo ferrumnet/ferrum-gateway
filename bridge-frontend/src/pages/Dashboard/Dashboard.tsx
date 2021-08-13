@@ -240,6 +240,7 @@ function ErrorBar(props: {error: string}) {
 
 // Author Abdul Ahad
 export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperDispatch) {
+   
     const [open,setOpen] = useState(false);
     const [isLight,setIsLight] = useState(false);
 
@@ -295,10 +296,13 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
             }
         </>
     )
+
+    
+
     
     return (
         <>
-            <>
+           <>
             {
                 groupInfo.themeVariables?.bannerMainMessage &&
                 <Alert
@@ -321,7 +325,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                     group={groupInfo.groupId}
                     isLight={isLight}/>
                 }
-                logo={groupInfo.themeVariables?.mainLogo}
+                logo={props?.tempTheme?.logo ? props?.tempTheme?.logo :  groupInfo.themeVariables?.mainLogo}
                 altText={groupInfo.projectTitle}
             />
             <div className="mt-4 d-flex justify-content-center text-center">
@@ -409,14 +413,15 @@ export function Dashboard(props:ThemeProps) {
 
     if (appInitialized && !stateData.initializeError) {
         return (
-            <ThemeProvider theme={selectedTheme}>
+            <ThemeProvider theme={{...selectedTheme,...props.themeConfig}}>
                 <GlobalStyles/>
                 <AppWraper
                     theme={themes}
                     setter={(value :any)=>setSelectedTheme(value)}
                     newTheme={newTheme}
+                    tempTheme={props.themeConfig}
                 >
-
+                    
                 </AppWraper> 
             </ThemeProvider>
         )

@@ -3,23 +3,23 @@ import { createGlobalStyle} from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
   body{
-    color: ${({ theme }) => theme.colors.inverse} !important;
+    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   div{
-    color: ${({ theme }) => theme.colors.inverse} !important;
+    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   .bodyText {
-    color: ${({ theme }) => theme.colors.inverse} !important;
+    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   #root {
-    background-color: ${({ theme }) => theme.colors.body};
+    background-color: ${({ theme }) => theme.backgroud ? theme.backgroud : theme.colors.body};
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
     box-shadow:  ${({ theme }) => theme.useBgImage ? 'inset 0 0 0 2000px rgba(0,0,0,0.4)' : ''};
     font-size: 1em;
-    background: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
-    background-image: ${({ theme }) => theme.useBgImage ? `url(${theme.BgImage})` : ''};
+    background: ${({ theme }) => theme.backgroundImage ? `url(${theme.backgroundImage})` : theme.useBgImage ? `url(${theme.BgImage})` : ''};
+    background-image: ${({ theme }) => theme.backgroundImage ? `url(${theme.backgroundImage})` :theme.useBgImage ? `url(${theme.BgImage})` : ''};
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
@@ -29,7 +29,7 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 13px;
   }
   h2,h3,h4,h5 {
-    color: ${({ theme }) => theme.colors.text};
+    color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.text};
   }
   .navbar {
     background-color: ${({ theme }) => theme.colors.navbar};
@@ -72,7 +72,7 @@ export const GlobalStyles = createGlobalStyle`
       .btnTheme {
         .btn-pri {
           
-          color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+          color: ${({ theme }) => theme.secondary ? theme.secondary :theme.colors.button.btnTextPriColor} !important;
         }
       }
     }
@@ -85,7 +85,7 @@ export const GlobalStyles = createGlobalStyle`
     border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
   }
   .btn {  
-    border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || 'auto'} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
     &:focus,
@@ -112,15 +112,15 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
     &.btn-pri {
-      background-color: ${({ theme }) => theme.colors.button.btnPri};
-      background: ${({ theme }) => theme.colors.button.btnPri ||  'auto'};
-      color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+      background-color: ${({ theme }) => theme.primary ? theme.primary :theme.colors.button.btnPri};
+      background: ${({ theme }) =>theme.primary ? theme.primary : theme.colors.button.btnPri ||  'auto'};
+      color: ${({ theme }) => theme.secondary ? theme.secondary :theme.colors.button.btnTextPriColor} !important;
       background-size: ${({theme})=>theme.colors.button.backgroundSize || 'auto'}
-      border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
     }
     &.btn-sec {
-      background-color: ${({ theme }) => theme.colors.button.btnSec};
-      color: ${({ theme }) => theme.colors.button.textSec};
+      background-color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.button.btnSec};
+      color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.button.textSec};
     }
     &.btn-dull {
       background-color: ${({ theme }) => theme.colors.button.btnDull};
@@ -134,7 +134,7 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   h2, h3, h4, h5 {
-    color: ${({ theme }) => theme.colors.mainHeaderColor};
+    color: ${({ theme }) => theme.primary  ? theme.primary : theme.colors.mainHeaderColor};
   }
   .liquidity-dropdown{
     button {
@@ -242,17 +242,17 @@ export const GlobalStyles = createGlobalStyle`
     background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .card {
-    background-color: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    background-color: ${({ theme }) => theme.backgroud ? theme.backgroud : theme.colors.card.cardPri};
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.borderRadius  || '0' + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
     p {
-      color: ${({ theme }) => theme.colors.card.text};
+      color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.card.text};
     }
     &.card-sec {
       background-color: ${({ theme }) => theme.colors.card.cardSec};
       p {
-        color: ${({ theme }) => theme.colors.card.cardTextPri};
+        color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.card.cardTextPri};
       }
     }
   }
@@ -263,7 +263,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.button.text};
   }
   .text-pri {
-    color: ${({ theme }) => theme.colors.textPri};
+    color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.textPri};
   }
   .text-sec {
     color: ${({ theme }) => theme.colors.textSec};
@@ -324,7 +324,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-steps-item-process {
     .ant-steps-item-icon {
-      background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+      background-color:  ${({ theme }) => theme.primary ? theme.primary : theme.colors.stepsWaitBackgroundColor} !important;
     }
   }
   .ant-message-notice-content{
@@ -334,7 +334,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon {
-     background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+     background-color:  ${({ theme }) => theme.primary ? theme.primary : theme.colors.stepsWaitBackgroundColor} !important;
     }
   }
   .anticon{
@@ -449,5 +449,41 @@ export const GlobalStyles = createGlobalStyle`
         border: 0;
       }
     }
+  }
+  .web3modal-provider-name{
+    color: ${({ theme }) => theme.primary ?  theme.primary : ""} !important;
+  }
+
+  .web3modal-provider-description{
+    color: ${({ theme }) => theme.secondary ?  theme.secondary : ""} !important;
+  }
+
+  .web3modal-provider-container{
+    background: ${({ theme }) => theme.backgroud ?  theme.backgroud : ""} !important;
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius :  ""}px !important;
+  }
+
+  .web3modal-modal-card{
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius : 0}px !important;
+  }
+
+  .theme-builder-dlg{
+    .modal-content{
+      .modal-header{
+        .h4{
+          color:black !important;
+        }
+      }
+      background-color: white;
+      .full-row{
+        label{
+          color:black;
+        }
+        input{
+          margin-left:10px;
+        }
+      }
+    }
+    
   }
 `;
