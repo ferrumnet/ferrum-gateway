@@ -43,6 +43,16 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       name: "Wallet Address",
       selector: "address",
       sortable: true,
+      cell: (row) => (
+        <div data-tag="allowRowEvents">
+          <div className="col-web">
+            <span>{row.address}</span>
+          </div>
+          <div className="col-mobile">
+            <span>{shorten(row.address)}</span>
+          </div>
+        </div>
+      ),
     },
     {
       name: "USD of FRM and FRMx",
@@ -102,4 +112,9 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       {children}
     </SearchWalletUIContext.Provider>
   );
+}
+
+function shorten(addr) {
+  if (!addr) return '';
+  return addr.substr(0, 6) + '...' + addr.substr(addr.length - 4);
 }
