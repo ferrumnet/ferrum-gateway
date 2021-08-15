@@ -1,0 +1,35 @@
+.theme-builder-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: white;
+
+  svg{
+    border-radius: 5px;
+    background: black;
+    path{
+      fill:white;
+    }
+  }
+}
+
+.theme-builder-dlg{
+  .modal-content{
+    .modal-header{
+      .h4{
+        color:black !important;
+      }
+    }
+    background-color: white;
+    div{
+      label{
+        color:black;
+      }
+      input{
+        margin-left:10px;
+      }
+    }
+  }
+}

@@ -84,6 +84,7 @@ const SearchWalletFilters = () => {
             to="/#"
             onClick={() => {
               setTop(0);
+              setSearchValue("");
             }}
             className="clear-filter"
           >
