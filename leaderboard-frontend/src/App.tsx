@@ -11,7 +11,7 @@ import { BrowserRouter } from "react-router-dom";
 import { dataReducer, uiReducer, userReducer } from "./common/Reducer";
 
 const _module = new LeaderboardModule();
-const BASE_URL = "https://9521fjt0y3.execute-api.us-east-1.amazonaws.com/default/gateway-backend";
+const BASE_URL = "https://0tuzdel09c.execute-api.us-east-1.amazonaws.com/default/leaderboard-backend-prod";
 const store = StoreBuilder.build(
   userReducer,
   dataReducer,
