@@ -260,10 +260,12 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
 			toCurrency,
 			amountIn,
 			throughCurrency,
+			targetThroughCurrency,
 			fromProtocol,
 			toProtocol,
 		} = req.data;
 		return this.crossSwap.registerSwapCross(
+			userId,
 			userId,
 			network,
 			transactionId,
@@ -271,6 +273,7 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
 			toCurrency,
 			amountIn,
 			throughCurrency,
+			targetThroughCurrency,
 			fromProtocol,
 			toProtocol,);
 	}

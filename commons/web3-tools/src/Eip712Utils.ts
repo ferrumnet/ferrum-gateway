@@ -3,6 +3,9 @@ import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 // @ts-ignore
 import {ecsign, toRpcSig} from 'ethereumjs-util';
+import { ethers } from 'ethers';
+
+const abi = ethers.utils.defaultAbiCoder;
 
 export interface Eip712Params {
     contractName: string;
@@ -73,4 +76,8 @@ export async function signWithPrivateKey(
 		Buffer.from(hash!.replace('0x',''), 'hex'),
 		Buffer.from(privateKey.replace('0x',''), 'hex'),);
 	return fixSig(toRpcSig(sigP2.v, sigP2.r, sigP2.s));
+}
+
+export function multiSigToBytes(signatures: string[]) {
+	return abi.encode(['bytes[]'], [signatures]);
 }

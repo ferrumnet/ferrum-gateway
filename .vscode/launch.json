@@ -11,11 +11,14 @@
 			"skipFiles": [
 				"<node_internals>/**"
 			],
-			"program": "${workspaceFolder}/bridge-backend/src/Cli.ts",
+			"program": "${workspaceFolder}/bridge-backend/src/node/Server.ts",
             "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],
+			"env": {
+				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/node_config_json.env"
+			},
             "envFile": "${workspaceFolder}/bridge-backend/test2.env"
 		}
 	]

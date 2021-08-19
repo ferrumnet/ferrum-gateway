@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import { Network } from 'ferrum-plumbing';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChainEventBase, inject, inject3, Utils } from 'types';
+import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, Utils } from 'types';
 import {
     Accordion,
     AccordionItem,
@@ -23,7 +23,6 @@ import { CheckCircleTwoTone,PlusOutlined,CloseCircleOutlined } from '@ant-design
 import {
     SyncOutlined,
   } from '@ant-design/icons';
-import { CommonActions,addAction } from './../common/Actions';
 import { Drawer, Button } from 'antd';
 import { message, Result } from 'antd';
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
@@ -40,7 +39,7 @@ interface WithdrawSuccessMessage {
 	currency: string;
 }
 
-interface SidePanelProps {
+export interface SidePanelProps {
     Network: string;
 	step: number;
     reconnecting?: boolean;
@@ -53,6 +52,45 @@ interface SidePanelProps {
 	errorMessage?: string;
 	successMessage?: string;
 	withdrawSuccessMessage?: WithdrawSuccessMessage;
+}
+
+const executeWithrawItem = createAsyncThunk('sidePanel/executeWithdraw', 
+	async (payload: {
+        item: UserBridgeWithdrawableBalanceItem,
+		slippage: string,
+	}, ctx) => {
+		try {
+			const {item, slippage} = payload;
+			const [sc, csc] = inject2<BridgeClient, CrossSwapClient>(BridgeClient, CrossSwapClient);
+			let res: [string, string] = ['', ''];
+			if (item.payBySig.contractVersion === BridgeContractVersions.V1_2) {
+				console.log('Running withdrawAndSwap for V12', csc);
+				res = await csc.withdrawAndSwap(ctx.dispatch, item, slippage);
+			} else {
+				res = await sc.withdraw(ctx.dispatch, item, item.sendNetwork as Network);
+			}
+			if (!!res && !!res[0]) {
+				ctx.dispatch(Actions.transactionExecuted({
+					message: 'Withdrawal was Successful and is processing...',
+				}));
+				ctx.dispatch(sidePanelSlice.actions.showWithdrawPopup({
+					txId: res[0],
+					currency: item.sendCurrency,
+					network: item.sendNetwork,
+				} as WithdrawSuccessMessage));
+				await sc.getUserWithdrawItems(ctx.dispatch, item.sendNetwork as Network);
+			}
+		} catch (e) {
+			console.error('Error when calling executeWithrawItem: ', e as Error);
+			throw e;
+		}
+	}
+);
+
+function withdrawItemInitialStatus(item: UserBridgeWithdrawableBalanceItem): ChainEventStatus {
+	// Returning fake withdraw item of "none" when there is no use transaction
+	// to avoid pinging backend unnecessarily
+	return item.used || (!!(item.useTransactions || []).length ? '' : 'none' as any)
 }
 
 export const sidePanelSlice = createSlice({
@@ -108,10 +146,10 @@ export const sidePanelSlice = createSlice({
             //@ts-ignore
             state.availableLiquidity= action.payload.liquidity;
         });
-		builder.addCase(executeWithrawItem.fulfilled.name, (state, action) => {
+		builder.addCase(executeWithrawItem.fulfilled, (state, action) => {
 			state.successMessage = 'Withdraw item was successfully submitted';
 		});
-		builder.addCase(executeWithrawItem.rejected.name, (state, action) => {
+		builder.addCase(executeWithrawItem.rejected, (state, action) => {
 			state.errorMessage = (action as any).error?.message || 'Error submitting withdrawal';
 		});
     }
@@ -160,36 +198,9 @@ const getData= async (dispatch:Dispatch<AnyAction>) => {
     }
 }
 
-const executeWithrawItem = createAsyncThunk('sidePanel/executeWithdraw', 
-	async (payload: {
-        item: UserBridgeWithdrawableBalanceItem,
-		slippage: string,
-	}, ctx) => {
-		const {item, slippage} = payload;
-        const [connect,sc, csc] = inject3<Connect, BridgeClient, CrossSwapClient>(
-			Connect, BridgeClient, CrossSwapClient);
-		let res: [string, string] = ['', ''];
-		if (!!item.sendToCurrency && item.sendToCurrency !== item.sendCurrency) {
-        	res = await csc.withdrawAndSwap(ctx.dispatch, item, slippage);
-		} else {
-        	res = await sc.withdraw(ctx.dispatch, item, item.sendNetwork as Network);
-		}
-        if (!!res && !!res[0]) {
-            ctx.dispatch(Actions.transactionExecuted({
-				message: 'Withdrawal was Successful and is processing...',
-			}));
-			ctx.dispatch(sidePanelSlice.actions.showWithdrawPopup({
-				txId: res[0],
-				currency: item.sendCurrency,
-				network: item.sendNetwork,
-			} as WithdrawSuccessMessage));
-            await sc.getUserWithdrawItems(ctx.dispatch, item.sendNetwork as Network);
-        }
-	}
-);
-
 async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
     try {
+		console.log('Updating item ', item);
         const c = inject<BridgeClient>(BridgeClient);
         const res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
@@ -223,17 +234,22 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     useEffect(() => {
         if(connected && groupId){
             if(appInitialized && !pageProps.dataLoaded){
+				console.log('Synching withdraw')
                handleSync()
             }
         }
     }, [connected, groupId]);
 
 	useEffect(() => {
-        addToast(errorMessage, { appearance: 'error',autoDismiss: true })        
+		if (errorMessage) {
+        	addToast(errorMessage, { appearance: 'error',autoDismiss: true })        
+		}
 	}, [errorMessage]);
 
 	useEffect(() => {
-        addToast(successMessage, { appearance: 'success',autoDismiss: true })        
+		if (successMessage) {
+        	addToast(successMessage, { appearance: 'success',autoDismiss: true })        
+		}
 	}, [successMessage]);
 
 	useEffect(() => {
@@ -293,7 +309,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <ChainEventItem
                             id={e.receiveTransactionId}
                             network={e.receiveNetwork as Network}
-                            initialStatus={e.used}
+                            initialStatus={withdrawItemInitialStatus(e)}
                             eventType={'WITHDRAW_ITEM'}
                             updater={updateWithdrawItem}
                         >
@@ -343,7 +359,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                             {
                                                 (!e.used) && <ButtonLoader 
                                                     completed={false} 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage})}
+                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
                                                     disabled={false}
                                                     text={'Withdraw Item'}
                                                 />
@@ -351,7 +367,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                             {
                                                 e.used === 'failed' && 
                                                 <ButtonLoader 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage})}
+                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
                                                     disabled={false} 
                                                     completed={false} 
                                                     text={'Retry Withdrawal'}

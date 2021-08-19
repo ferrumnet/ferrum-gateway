@@ -45,21 +45,26 @@ export interface SwapQuote {
 	bridge?: CrossChainBridgeQuote;
 }
 
+export type CrossSwapStatus = 'none' | 'signed' | 'executed';
+
 export interface CrossSwapRequestStatus {
-	status: '' | 'signed' | 'executed';
+	status: CrossSwapStatus;
 }
 
 export interface CrossSwapRequest {
+	creationTime: number;
 	userAddress: string;
+	targetAddress: string;
 	network: string;
 	transactionId: string;
 	fromCurrency: string;
 	toCurrency: string;
 	amountIn: string;
 	throughCurrency: string;
+	targetThroughCurrency: string;
 	fromProtocol: SwapProtocol;
 	toProtocol: SwapProtocol;
-	status?: CrossSwapRequestStatus;
+	status: CrossSwapRequestStatus;
 }
 
 export interface SwapProtocolsPerNetwork {

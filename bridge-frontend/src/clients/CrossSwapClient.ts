@@ -1,7 +1,8 @@
 import { ApiClient } from 'common-containers';
 import { Injectable, ValidationUtils, Network } from 'ferrum-plumbing';
 import { AnyAction, Dispatch } from 'redux';
-import { FRM, DEFAULT_SWAP_PROTOCOLS, Utils, SwapQuote, UserBridgeWithdrawableBalanceItem } from 'types';
+import { FRM, DEFAULT_SWAP_PROTOCOLS, Utils, SwapQuote,
+	UserBridgeWithdrawableBalanceItem } from 'types';
 import { addAction, CommonActions } from '../common/Actions';
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { BridgeClient } from './BridgeClient';
@@ -64,14 +65,19 @@ export class CrossSwapClient implements Injectable {
 		dispatch: Dispatch<AnyAction>,
 		fromCurrency: string,
 		toCurrency: string,
+		throughCurrency: string,
+		targetThroughCurrency: string,
 		amountIn: string,
 		slippage: string,
 		) {
-		ValidationUtils.allRequired(['fromCurrency', 'toCurrency', 'amountIn', 'slippage'], {fromCurrency, toCurrency, amountIn, slippage});
+		ValidationUtils.allRequired(['fromCurrency', 'toCurrency', 'amountIn', 'slippage',
+			throughCurrency, targetThroughCurrency,
+			], {fromCurrency, toCurrency, amountIn, slippage,
+				throughCurrency, targetThroughCurrency});
 		const network = this.api.getNetwork();
+		const [toNetwork,] = Utils.parseCurrency(toCurrency);
 		const fromProtocol = DEFAULT_SWAP_PROTOCOLS[network][0];
-		const toProtocol = DEFAULT_SWAP_PROTOCOLS[network][0];
-		const throughCurrency = FRM[network][0];
+		const toProtocol = DEFAULT_SWAP_PROTOCOLS[toNetwork][0];
 		const req = await this.api.api({ command: 'swapCrossGetTransaction', data: {
 			fromCurrency,
 			toCurrency,
@@ -99,6 +105,7 @@ export class CrossSwapClient implements Injectable {
 			toCurrency,
 			amountIn,
 			throughCurrency,
+			targetThroughCurrency,
 			fromProtocol,
 			toProtocol,
 			}, params: []});
@@ -115,13 +122,13 @@ export class CrossSwapClient implements Injectable {
 		const swapNetwork = w.receiveNetwork;
 		const swapTransactionId = w.receiveTransactionId;
 		const network = this.api.getNetwork();
-		ValidationUtils.isTrue(network === w.receiveNetwork,
-			`Invalid network. Expected ${w.receiveNetwork}, but got ${network}`);
+		ValidationUtils.isTrue(network === w.sendNetwork,
+			`Invalid network. Expected ${w.sendNetwork}, but got ${network}`);
 		const res = await this.api.api({ command: 'withdrawAndSwapGetTransaction', data: {
 			swapNetwork, swapTransactionId, slippage, }, params: []});
 		ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
 		const requestId = await this.client.sendTransactionAsync(this.api.getNetwork() as Network, [res],
-			{});
+			{ });
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
 		const response = await this.client.getSendTransactionResponse(requestId);
 		if (response.rejected) {

@@ -123,6 +123,11 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint32",
+        name: "sourceChainId",
+        type: "uint32",
+      },
+      {
         internalType: "bytes32",
         name: "txId",
         type: "bytes32",
@@ -176,6 +181,11 @@ const _abi = [
         name: "targetAddress",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "originToken",
+        type: "address",
+      },
     ],
     name: "swap",
     outputs: [
@@ -204,6 +214,16 @@ const _abi = [
         internalType: "uint256",
         name: "amount",
         type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "swapToToken",
+        type: "address",
+      },
+      {
+        internalType: "uint32",
+        name: "sourceChainId",
+        type: "uint32",
       },
       {
         internalType: "bytes32",

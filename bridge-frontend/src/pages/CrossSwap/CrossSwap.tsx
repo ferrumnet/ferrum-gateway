@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressForUser } from 'common-containers';
 import { useDispatch, useSelector } from 'react-redux';
-import { BRIDGE_NETWORKS, inject, supportedNetworks, SwapQuote, TokenDetails, Utils } from 'types';
+import { BRIDGE_NETWORKS, inject, NetworkedConfig, supportedNetworks, SwapQuote, TokenDetails, Utils } from 'types';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { CrossChainSwap } from '../../components/swap/CrossChainSwap';
 import { CrossSwapClient } from '../../clients/CrossSwapClient';
 
-const ROUTER_CONTRACT_ADDRESS = '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877';
+const ROUTER_CONTRACT_ADDRESS: NetworkedConfig<string> = {
+	'RINKEBY': '0x13000855b0277a2a01e6b6f6a25920b5bd454b79',
+}
 
 export interface CrossSwapState {
 	fromCurrency: string;
@@ -44,18 +46,21 @@ const swap = createAsyncThunk('crossSwap/swap',
 		toCurrency: string,
 		amountIn: string,
 		slippage: string,
+		quote: SwapQuote,
 	}, ctx) => {
 		const client = inject<CrossSwapClient>(CrossSwapClient);
-		const txId = await client.swapCross(ctx.dispatch,
+		await client.swapCross(ctx.dispatch,
 			payload.fromCurrency,
 			payload.toCurrency,
+			payload.quote.bridge?.from?.currency!,
+			payload.quote.bridge?.to?.currency!,
 			payload.amountIn,
 			payload.slippage);
 		// TODO: Monitor the tx.
 	}
 );
 
-const quote = createAsyncThunk('crossSwap/type',
+const quote = createAsyncThunk('crossSwap/quote',
 	async (payload: {
 			fromNetwork: string, fromCurrency: string,
 			toCurrency: string, amountIn: string, }, ctx) => {
@@ -140,7 +145,7 @@ export function CrossSwap() {
 		<h1>Swap cross chain</h1>
 		<CrossChainSwap
 			userAddress={props.userAddress}
-			contractAddress={ROUTER_CONTRACT_ADDRESS}
+			contractAddress={ROUTER_CONTRACT_ADDRESS[fromNetwork]}
 			amountIn={props.amountIn}
 			onAmountInChanged={value => dispatch(crossSwapSlice.actions.amountInChanged({value}))}
 			toAmount={props.quote?.toTokenAmount}
@@ -148,7 +153,8 @@ export function CrossSwap() {
 			fromCurrency={props.fromCurrency}
 			onFromCurrencyCanged={value =>
 				dispatch(crossSwapSlice.actions.fromCurrencyChanged({value}))}
-			fromPath={(props.quote.protocols || [] as any).filter(p => p.network === fromNetwork).map(p => p.toCurrency)}
+			fromPath={(props.quote.protocols || [] as any)
+				.filter(p => p.network === fromNetwork).map(p => p.toCurrency)}
 			fromSwapFee={props.quote?.bridge?.fee || '0'}
 			onToNetworkChanged={value => 
 				dispatch(crossSwapSlice.actions.toNetworkChanged({value}))}
@@ -158,7 +164,8 @@ export function CrossSwap() {
 			toSymbol={props.quote?.toToken?.symbol}
 			onToCurrencyCanged={value =>
 				dispatch(crossSwapSlice.actions.toCurrencyChanged({value}))}
-			toPath={(props.quote.protocols || [] as any).filter(p => p.network === props.toNetwork).map(p => p.toCurrency)}
+			toPath={(props.quote.protocols || [] as any)
+				.filter(p => p.network === props.toNetwork).map(p => p.toCurrency)}
 			tokenList={props.tokenList}
 
 			crossFee={props.quote?.bridge?.fee || '0'}
@@ -169,7 +176,9 @@ export function CrossSwap() {
 			slippage={props.slippage}
 			onSlippageChanged={value =>
 				dispatch(crossSwapSlice.actions.slippageChanged({value}))}
-			onSwapClicked={() => dispatch(swap({fromCurrency, toCurrency, amountIn, slippage: props.slippage}))}
+			onSwapClicked={() => dispatch(swap({
+				fromCurrency, toCurrency, amountIn, slippage: props.slippage,
+				quote: props.quote}))}
 			error={props.calculatingError}
 		/>
 		</>

@@ -162,7 +162,10 @@ export class TokenBridgeContractClinet implements Injectable {
         console.log(`About to withdrawSigned`, w);
         const address = this.contractAddress[w.sendNetwork];
         const p = this.instance(w.sendNetwork).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
-            w.payBySig.amount, w.payBySig.salt, w.payBySig.signature);
+            w.payBySig.amount,
+			(w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
+			(w.payBySig as any).signature || w.payBySig.signatures[0]
+			);
         const gas = await this.estimateGasOrDefault(p, from, undefined as any);
         const nonce = await this.helper.web3(w.sendNetwork).getTransactionCount(from, 'pending');
         return Helper.callRequest(address,

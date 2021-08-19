@@ -5,8 +5,14 @@ import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
 import { AwsEnvs, KmsCryptor, SecretsProvider, UnifyreBackendProxyModule } from "aws-lambda-helper";
 import { KMS } from 'aws-sdk';
 import { CurrencyListSvc } from "./CurrencyListSvc";
+import { UniswapV2Client } from "./uniswapv2/UniswapV2Client";
 
 export class CommonBackendModule implements Module {
+	constructor(
+		private chainConfig?: MultiChainConfig
+	) {
+	}
+
 	static awsRegion(): string {
         return process.env.AWS_REGION || process.env[AwsEnvs.AWS_DEFAULT_REGION] || 'us-east-2';
 	}
@@ -14,7 +20,7 @@ export class CommonBackendModule implements Module {
 	async configAsync(container: Container): Promise<void> {
         const region = CommonBackendModule.awsRegion();
 		const chainConfArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + 'CHAIN_CONFIG'];
-		const netConfig: MultiChainConfig = !!chainConfArn ?
+		const netConfig: MultiChainConfig = this.chainConfig || (!!chainConfArn ?
 			await new SecretsProvider(region, chainConfArn).get() : 
 			({
 				web3Provider: getEnv('WEB3_PROVIDER_ETHEREUM'),
@@ -23,7 +29,7 @@ export class CommonBackendModule implements Module {
 				web3ProviderBscTestnet: getEnv('WEB3_PROVIDER_BSC_TESTNET'),
 				web3ProviderPolygon: getEnv('WEB3_PROVIDER_POLYGON'),
 				web3ProviderMumbaiTestnet: getEnv('WEB3_PROVIDER_MUMBAI_TESTNET'),
-			} as any as MultiChainConfig);
+			} as any as MultiChainConfig));
 	
         container.register('MultiChainConfig', () => netConfig);
         container.registerModule(new ChainClientsModule());
@@ -39,6 +45,8 @@ export class CommonBackendModule implements Module {
 			c => new CurrencyListSvc(c.get(EthereumSmartContractHelper)));
         container.registerSingleton(EthereumSmartContractHelper,
             () => new EthereumSmartContractHelper(networkProviders));
+		container.register(UniswapV2Client,
+			c => new UniswapV2Client(c.get(EthereumSmartContractHelper)));
         container.register('JsonStorage', () => new Object());
         container.registerSingleton("LambdaSqsHandler",
             () => new Object());

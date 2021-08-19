@@ -5,6 +5,9 @@ import {
   DomainSeparator,
   Eip712TypeDefinition,
 } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
+import { CrossSwapRequest } from "../crossSwap/CrossSwapTypes";
+
+// TODO: Remove mongoose types out of this repo
 
 export interface RequestMayNeedApprove {
   isApprove: boolean;
@@ -45,13 +48,24 @@ export const CHAIN_ID_FOR_NETWORK = {
   MUMBAI_TESTNET: 80001,
 } as any;
 
+export interface MultiSigSignature {
+  creationTime: number;
+  creator: string;
+  signature: string;
+}
+
 export interface PayBySignatureData {
   token: string;
   payee: string;
   amount: string;
-  salt: string;
-  signature: string;
+  toToken: string;
+  sourceChainId: number;
+  swapTxId: string;
+  contractName: string;
+  contractVersion: string;
+  contractAddress: string;
   hash: string;
+  signatures: MultiSigSignature[];
 }
 
 // Every transaction sent by user using a paired address to the bridge contract,
@@ -71,7 +85,8 @@ export interface UserBridgeWithdrawableBalanceItem {
   sendCurrency: string;
   sendAmount: string;
   payBySig: PayBySignatureData;
-  sendToCurrency?: string;
+  originCurrency: string;
+  sendToCurrency: string;
 
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];
@@ -84,20 +99,27 @@ export interface UserBridgeLiquidityItem {
   liquidity: string;
 }
 
-//@ts-ignore
-const payBySignatureDataSchema: Schema = new Schema<
-  PayBySignatureData & Document
->({
+const signatureSchema = new Schema<MultiSigSignature & Document>({
+  creationTime: Number,
+  creator: String,
+  signature: String,
+});
+
+const payBySignatureDataSchema = new Schema<PayBySignatureData & Document>({
   token: String,
   payee: String,
   amount: String,
-  salt: String,
-  signature: String,
+  toToken: String,
+  sourceChainId: Number,
+  swapTxId: String,
+  contractName: String,
+  contractVersion: String,
+  contractAddress: String,
   hash: String,
+  signatures: [signatureSchema],
 });
 
-//@ts-ignore
-const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
+const userBridgeWithdrawableBalanceItemSchema = new Schema<
   UserBridgeWithdrawableBalanceItem & Document
 >({
   id: String, // same as signedWithdrawHash

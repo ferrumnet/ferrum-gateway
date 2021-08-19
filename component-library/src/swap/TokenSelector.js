@@ -9,11 +9,19 @@ export function TokenSelector({
 	const [searchOpen, setSearchOpen] = useState(false);
 	const [search, setSearch] = useState('');
 	if (searchOpen) {
-		const list = (tokenList || []).filter(tl => 
+		const topList = (tokenList || []).filter(tl => 
+			(tl?.name || '').toLowerCase() === search.toLowerCase() ||
+			(tl?.symbol || '').toLowerCase() === search.toLowerCase() ||
+			(tl?.address || '').toLowerCase() === search.toLowerCase())
+			.slice(0, 3);
+		const bottomList = (tokenList || []).filter(tl => 
 			(tl?.name || '').toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
 			(tl?.symbol || '').toLowerCase().indexOf(search.toLowerCase()) >= 0 ||
 			(tl?.address || '').toLowerCase().indexOf(search.toLowerCase()) >= 0)
 			.slice(0, 10);
+		const list = topList.concat(
+			bottomList.filter(t =>
+				!topList.find(tl => tl.address === t.address)));
 		return (
 			<>
 			<div className="token-selector-drop-down">

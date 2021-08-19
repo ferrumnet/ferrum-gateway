@@ -42,19 +42,19 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     "removeFromQuorumGovernance(address,bytes32,bytes)": FunctionFragment;
     "removeLiquidity(address,address,uint256,uint256,address)": FunctionFragment;
     "removeLiquidityIfPossible(address,address,uint256)": FunctionFragment;
-    "removeLiquiditySigned(address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "removeLiquiditySigned(address,address,uint256,uint32,bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "router()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setFeeDistributor(address)": FunctionFragment;
     "setRouter(address)": FunctionFragment;
     "setWithdrawConfig(address,uint64,uint16,bool,uint16,bytes)": FunctionFragment;
-    "swap(address,address,uint256,address,address,address)": FunctionFragment;
+    "swap(address,address,uint256,address,address,address,address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
     "withdrawConfigs(address)": FunctionFragment;
-    "withdrawSigned(address,address,uint256,bytes32,bytes)": FunctionFragment;
-    "withdrawSignedVerify(address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "withdrawSigned(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
+    "withdrawSignedVerify(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -128,7 +128,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "removeLiquiditySigned",
-    values: [string, string, BigNumberish, BytesLike, BytesLike]
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -154,7 +154,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "swap",
-    values: [string, string, BigNumberish, string, string, string]
+    values: [string, string, BigNumberish, string, string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -170,11 +170,27 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSigned",
-    values: [string, string, BigNumberish, BytesLike, BytesLike]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      string,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSignedVerify",
-    values: [string, string, BigNumberish, BytesLike, BytesLike]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      string,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -285,7 +301,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     "AdminSet(address)": EventFragment;
     "BridgeLiquidityAdded(address,address,uint256)": EventFragment;
     "BridgeLiquidityRemoved(address,address,uint256,uint256,address,uint256)": EventFragment;
-    "BridgeSwap(address,address,uint256,address,address,address,uint256)": EventFragment;
+    "BridgeSwap(address,address,address,uint256,address,address,address,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "TransferBySignature(address,address,uint256,uint256)": EventFragment;
   };
@@ -468,6 +484,7 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -511,6 +528,7 @@ export class BridgePoolV12 extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -536,6 +554,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -545,6 +565,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -677,6 +699,7 @@ export class BridgePoolV12 extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
+    sourceChainId: BigNumberish,
     txId: BytesLike,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -720,6 +743,7 @@ export class BridgePoolV12 extends BaseContract {
     targetToken: string,
     swapTargetTokenTo: string,
     targetAddress: string,
+    originToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -745,6 +769,8 @@ export class BridgePoolV12 extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
+    swapToToken: string,
+    sourceChainId: BigNumberish,
     swapTxId: BytesLike,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -754,6 +780,8 @@ export class BridgePoolV12 extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
+    swapToToken: string,
+    sourceChainId: BigNumberish,
     swapTxId: BytesLike,
     multiSignature: BytesLike,
     overrides?: CallOverrides
@@ -886,6 +914,7 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -921,6 +950,7 @@ export class BridgePoolV12 extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -946,6 +976,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -955,6 +987,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -995,16 +1029,18 @@ export class BridgePoolV12 extends BaseContract {
     BridgeSwap(
       from?: null,
       token?: string | null,
+      originToken?: null,
       targetNetwork?: null,
       targetToken?: null,
       swapTargetTokenTo?: null,
       targetAddrdess?: null,
       amount?: null
     ): TypedEventFilter<
-      [string, string, BigNumber, string, string, string, BigNumber],
+      [string, string, string, BigNumber, string, string, string, BigNumber],
       {
         from: string;
         token: string;
+        originToken: string;
         targetNetwork: BigNumber;
         targetToken: string;
         swapTargetTokenTo: string;
@@ -1144,6 +1180,7 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1187,6 +1224,7 @@ export class BridgePoolV12 extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1206,6 +1244,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1215,6 +1255,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -1340,6 +1382,7 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1383,6 +1426,7 @@ export class BridgePoolV12 extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1405,6 +1449,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1414,6 +1460,8 @@ export class BridgePoolV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides

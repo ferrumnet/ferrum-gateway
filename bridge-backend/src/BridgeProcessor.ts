@@ -4,7 +4,7 @@ import { BridgeModule } from "./BridgeModule";
 import { LambdaGlobalContext } from "aws-lambda-helper";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
-import { PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
+import { BridgeContractVersions, PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { fixSig, produceSignatureWithdrawHash } from "./BridgeUtils";
@@ -121,7 +121,7 @@ export class BridgeProcessor implements Injectable {
                 targetNetwork, targetAddress, targetCurrency, targetAmount, salt
             );
             processed = {
-                id: payBySig.hash, // same as signedWithdrawHash
+                id: event.transactionId,
                 timestamp: new Date().valueOf(),
                 receiveNetwork: conf!.sourceNetwork,
                 receiveCurrency: conf!.sourceCurrency,
@@ -142,8 +142,8 @@ export class BridgeProcessor implements Injectable {
             await this.svc.withdrawSignedVerify(conf!.targetCurrency, targetAddress,
                 targetAmount,
                 payBySig.hash,
-                payBySig.salt,
-                payBySig.signature,
+                payBySig.swapTxId,
+                payBySig.signatures[0].signature,
                 this.processorAddress);
             await this.svc.newWithdrawItem(processed);
             return [true, processed];
@@ -170,7 +170,7 @@ export class BridgeProcessor implements Injectable {
 
 		const params = {
 			contractName: 'FERRUM_TOKEN_BRIDGE_POOL',
-			contractVersion: '0.0.3',
+			contractVersion: BridgeContractVersions.V1_0,
 			method: 'WithdrawSigned',
 			args: [
 				{ type: 'address', name: 'token', value: address },
@@ -195,8 +195,11 @@ export class BridgeProcessor implements Injectable {
         //@ts-ignore
         const rpcSig = fixSig(toRpcSig(baseV, Buffer.from(sigP.r, 'hex'),Buffer.from(sigP.s, 'hex'), 1));
 
-        payBySig.signature = rpcSig;
-        ValidationUtils.isTrue(!!payBySig.signature, `Error generating signature for ${(
+		if (!payBySig.signatures) {
+			payBySig.signatures = [];
+		}
+        payBySig.signatures.push({ creationTime: Date.now(), signature: rpcSig, creator: this.processorAddress });
+        ValidationUtils.isTrue(!!payBySig.signatures[0].signature, `Error generating signature for ${(
             { network, address, currency, amountStr })}`);
         return payBySig;
     }

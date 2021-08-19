@@ -21,7 +21,11 @@ export class Utils {
     }
 
     static getQueryparam(param: string): string | undefined {
-        const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));
+        return Utils._getQueryparam(href(), param);
+    }
+
+    static _getQueryparam(href: string, param: string): string | undefined {
+        const queryParams = (href.split('?')[1] || '').split('&').map(p => p.split('='));
         return (queryParams.find(p => p[0] === param) || [])[1];
     }
 
@@ -116,6 +120,11 @@ export class Utils {
     static parseCurrency(cur: string): [string, string] {
         const pars = cur.split(':', 2);
         return [pars[0], pars[1]];
+    }
+
+    static toCurrency(network: string, address: string): string | undefined {
+		if (!network || !address) return undefined;
+        return `${network.toUpperCase()}:${address.toLowerCase()}`
     }
 
 	static isCurrencyValid(cur: string): boolean {

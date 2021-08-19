@@ -17,8 +17,11 @@ export interface BridgeSwapEvent {
 	transactionId: string;
 	from: string;
 	token: string;
+	originToken: string;
 	targetNetwork: string;
 	targetToken: string;
+	swapTargetTokenTo: string;
+	senderAddress: string;
 	targetAddress: string;
 	amount: string;
 }
@@ -51,9 +54,11 @@ const crossSwapRequestSchema: Schema = new Schema<Document&CrossSwapRequest>({
 	toCurrency: String,
 	amountIn: String,
 	throughCurrency: String,
+	targetThroughCurrency: String,
 	fromProtocol: String,
 	toProtocol: String,
 	status: new Schema({ status: String }),
 });
 
-export const CrossSwapRequestModel = (c: Connection) => c.model<CrossSwapRequest&Document>('crossSwapRequest', crossSwapRequestSchema);
+export const CrossSwapRequestModel = (c: Connection) =>
+c.model<CrossSwapRequest&Document>('crossSwapRequest', crossSwapRequestSchema);

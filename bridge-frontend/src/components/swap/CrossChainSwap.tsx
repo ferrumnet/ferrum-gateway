@@ -37,7 +37,10 @@ export interface CrossChainSwapProps {
 }
 
 export function CrossChainSwap(props: CrossChainSwapProps) {
-	const allNetworks = props.fromNetwork ? Object.keys(supportedNetworks).filter(k => Networks.for(props.fromNetwork).testnet === Networks.for(k).testnet) : [];
+	const allNetworks = props.fromNetwork ? Object.keys(supportedNetworks)
+		.filter(k =>
+			Networks.for(props.fromNetwork).testnet === Networks.for(k).testnet
+			) : [];
 	const tokenValid = Utils.isCurrencyValid(props.fromCurrency) && Utils.isCurrencyValid(props.toCurrency);
 	const showConfirmModal = () => {};
 	return (
@@ -74,7 +77,7 @@ export function CrossChainSwap(props: CrossChainSwapProps) {
 				<Row>
                     <SwapButton
                         onSwapClick={props.onSwapClicked}
-                        approveDisabled={!props.fromCurrency}
+                        approveDisabled={!tokenValid || !props.fromCurrency}
                         swapDisabled={!props.fromCurrency || (Number(props.amountIn) <= 0) 
                             || !tokenValid || !!props.error}
                         contractAddress={props.contractAddress}

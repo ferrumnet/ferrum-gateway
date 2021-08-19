@@ -211,6 +211,7 @@ export class BridgeClient implements Injectable {
             dispatch(addAction(Actions.BRIDGE_SWAP_FAILED, {
                 message: (e as Error).message || '' }));
                 console.error('withdraw', e);
+			return ['', ''];
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }

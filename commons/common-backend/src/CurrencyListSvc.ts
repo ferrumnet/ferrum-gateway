@@ -26,7 +26,7 @@ export class CurrencyListSvc implements Injectable {
 			listsOfLists.forEach(list => {
 				lists = lists.concat(list);
 			});
-			lists = lists.concat(tokens);
+			lists = lists.concat(tokens as any);
 			lists.forEach(l => {
 				try {
 					const network = Networks.forChainId(l.chainId).id;

@@ -22,7 +22,9 @@ export function SwapComponent({
 	const [toNetwork, setToNetwork] = useState(toNetworks[0] || '');
 	const fromNetworkId = fromNetwork ? Networks.for(fromNetwork).chainId : 0;
 	const toNetworkId = toNetwork ? Networks.for(toNetwork).chainId : 0;
-	const fromNetworkName = !!fromNetworkId ? Networks.forChainId(fromNetworkId).displayName : '';
+	console.log('TO NETWORK ISO ', toNetworkId)
+	const fromNetworkName = !!fromNetworkId ?
+		Networks.forChainId(fromNetworkId).displayName : '';
 	return (
 		<div className="swap-component-container">
 			<Row centered>

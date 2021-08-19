@@ -1,7 +1,9 @@
-import { Injectable, LocalCache, Networks, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, LocalCache, Network, Networks, ValidationUtils,
+	Fetcher, FetcherError, LoggerFactory, } from "ferrum-plumbing";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Fetcher, FetcherError } from 'common-backend';
-import { TokenDetails, SwapProtocol, SwapQuote, SwapQuoteProtocol, SwapProtocolInfo, TESTNET_PROTOCOLS } from "types";
+import { TokenDetails, SwapProtocol, SwapQuote, SwapQuoteProtocol,
+	SwapProtocolInfo, TESTNET_PROTOCOLS, ONE_INCH_ETH, WETH } from "types";
+import { ChainUtils } from "ferrum-chain-clients";
 
 interface OneInchQuoteRequest {
 	"fromToken": {
@@ -34,6 +36,14 @@ interface OneInchQuoteRequest {
 const QUOTE_API_BASE = 'https://api.1inch.exchange/v3.0/{CHAIN_ID}/quote';
 const PROTOCOLS_API_BASE = 'https://api.1inch.exchange/v3.0/{CHAIN_ID}/protocols/images';
 
+function normalizeToken(net: string, address: string) {
+	if (!address || !net) { return ''; }
+	address = ChainUtils.canonicalAddress(net as Network, address);
+	const rv = `${net}:${address}`;
+	return rv === ONE_INCH_ETH ? WETH[net] : rv;
+}
+
+
 function _protocol(nodes: any[]): any[] {
 	const rv = [];
 	for(const node of nodes) {
@@ -65,6 +75,7 @@ export class OneInchClient implements Injectable {
 	private cache = new LocalCache();
 	constructor(
 		private helper: EthereumSmartContractHelper,
+		private logFac: LoggerFactory,
 	) { }
 
 	__name__() { return 'OneInchClient'; }
@@ -93,7 +104,7 @@ export class OneInchClient implements Injectable {
 		try {
 			const url = `${QUOTE_API_BASE.replace('{CHAIN_ID}', chainId)}?fromTokenAddress=${fromToken}` + 
 				`&toTokenAddress=${toToken}&amount=${amountInBig}&protocols=${protocols.join(',')}`;
-			let res: OneInchQuoteRequest = await new Fetcher().fetch<OneInchQuoteRequest>(
+			let res: OneInchQuoteRequest = await new Fetcher(this.logFac).fetch<OneInchQuoteRequest>(
 				url, { headers: {'Content-Type': 'application/json'}, });
 			console.log('CALLING ', url)
 			ValidationUtils.isTrue(!!res?.fromToken?.address, 'Could not get quote');
@@ -124,11 +135,11 @@ export class OneInchClient implements Injectable {
 				fromTokenAmount: await this.helper.amountToHuman(resFromCurrency, res.fromTokenAmount),
 				toTokenAmount: await this.helper.amountToHuman(resToCurrency, res.toTokenAmount),
 				protocols: res.protocols.map(p => ({
-					fromCurrency: `${fromNet}:${(p.fromTokenAddress || '').toLowerCase()}`,
+					fromCurrency: normalizeToken(fromNet, p.fromTokenAddress),
 					network: fromNet,
 					part: p.part,
 					protocol: `${fromNet}:${p.name}`,
-					toCurrency: `${toNet}:${(p.toTokenAddress || '').toLowerCase()}`,
+					toCurrency: normalizeToken(toNet, p.toTokenAddress),
 					protocolInfo: protocolList.find(prot => prot.id === p.name),
 				} as SwapQuoteProtocol)),
 			} as SwapQuote;
@@ -151,7 +162,7 @@ export class OneInchClient implements Injectable {
 			const net = Networks.for(network);
 			if (net.testnet) { return TESTNET_PROTOCOLS[network]; }
 			const chainId = net.chainId.toString();
-			const res = await new Fetcher().fetch<{protocols: SwapProtocolInfo[]}>(
+			const res = await new Fetcher(this.logFac).fetch<{protocols: SwapProtocolInfo[]}>(
 				`${PROTOCOLS_API_BASE.replace('{CHAIN_ID}', chainId)}`, {
 				headers: {'Content-Type': 'application/json'},
 			});

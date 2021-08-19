@@ -22,7 +22,7 @@ import { message, Result } from 'antd';
 import { Utils } from 'types';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
-import {SidePanelSlice} from './../../components/SidePanel';
+import { sidePanelSlice } from './../../components/SidePanel';
 import { SwapButton } from '../../components/SwapButton';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
@@ -279,7 +279,7 @@ export const ConnectBridge = () => {
                     <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                         message.destroy('withdr');
                         dispatch(Actions.resetSwap({}));
-                        dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
+                        dispatch(sidePanelSlice.actions.moveToNext({step: 1}));
                         dispatch(Actions.setProgressStatus({status:1}))
                         dispatch(Actions.activeWithdrawSuccess({value: false}))
                     }}>Close</Button>

@@ -25,9 +25,9 @@ interface IBridgePoolInterface extends ethers.utils.Interface {
     "liquidity(address,address)": FunctionFragment;
     "removeLiquidity(address,address,uint256,uint256,address)": FunctionFragment;
     "removeLiquidityIfPossible(address,address,uint256)": FunctionFragment;
-    "removeLiquiditySigned(address,address,uint256,bytes32,bytes)": FunctionFragment;
-    "swap(address,address,uint256,address,address,address)": FunctionFragment;
-    "withdrawSigned(address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "removeLiquiditySigned(address,address,uint256,uint32,bytes32,bytes)": FunctionFragment;
+    "swap(address,address,uint256,address,address,address,address)": FunctionFragment;
+    "withdrawSigned(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -48,15 +48,23 @@ interface IBridgePoolInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "removeLiquiditySigned",
-    values: [string, string, BigNumberish, BytesLike, BytesLike]
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "swap",
-    values: [string, string, BigNumberish, string, string, string]
+    values: [string, string, BigNumberish, string, string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSigned",
-    values: [string, string, BigNumberish, BytesLike, BytesLike]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      string,
+      BigNumberish,
+      BytesLike,
+      BytesLike
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -161,6 +169,7 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -173,6 +182,7 @@ export class IBridgePool extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -180,6 +190,8 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -218,6 +230,7 @@ export class IBridgePool extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
+    sourceChainId: BigNumberish,
     txId: BytesLike,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -230,6 +243,7 @@ export class IBridgePool extends BaseContract {
     targetToken: string,
     swapTargetTokenTo: string,
     targetAddress: string,
+    originToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -237,6 +251,8 @@ export class IBridgePool extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
+    swapToToken: string,
+    sourceChainId: BigNumberish,
     swapTxId: BytesLike,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -275,6 +291,7 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -287,6 +304,7 @@ export class IBridgePool extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -294,6 +312,8 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -335,6 +355,7 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -347,6 +368,7 @@ export class IBridgePool extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -354,6 +376,8 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -393,6 +417,7 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      sourceChainId: BigNumberish,
       txId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -405,6 +430,7 @@ export class IBridgePool extends BaseContract {
       targetToken: string,
       swapTargetTokenTo: string,
       targetAddress: string,
+      originToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -412,6 +438,8 @@ export class IBridgePool extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
+      swapToToken: string,
+      sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }

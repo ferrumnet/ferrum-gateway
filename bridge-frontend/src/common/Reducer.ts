@@ -6,7 +6,7 @@ import { AppGlobalState, AppUserState} from "./BridgeAppState";
 import { MainPageSlice } from '../pages/Main/Main';
 import { swapageSlice} from '../pages/Swap';
 import { liquidityPageSlice } from '../pages/Liquidity';
-import { SidePanelSlice } from '../components/SidePanel';
+import { sidePanelSlice } from '../components/SidePanel';
 
 import { CommonActions } from './Actions';
 import { TokenBridgeClientActions } from "../clients/BridgeClient";
@@ -22,7 +22,7 @@ export const uiReducer = combineReducers({
     pairPage: MainPageSlice.reducer,
     swapPage: swapageSlice.reducer,
     liquidityPage: liquidityPageSlice.reducer,
-    sidePanel: SidePanelSlice.reducer,
+    sidePanel: sidePanelSlice.reducer,
 	crossSwap: crossSwapSlice.reducer,
 });
 

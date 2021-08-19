@@ -26,7 +26,6 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
     constructor(
         private helper: EthereumSmartContractHelper,
         private contract: TokenBridgeContractClinet,
-        private verifyer: PairAddressSignatureVerifyre,
     ) {
         super();
     }
@@ -153,6 +152,10 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
 		if (!pendingTxs.length && item.used === 'pending' && isTimedOut(item.timestamp)) {
 			item.used = 'failed';
 		}
+		if (!pendingTxs.length && !!(item.useTransactions || []).length) {
+			const completed = item.useTransactions.find(i => i.status === 'completed');
+			item.used = completed ? 'completed' : 'failed';
+		}
         for (const tx of pendingTxs) {
             const txStatus = await this.helper.getTransactionStatus(item.sendNetwork, tx.id, tx.timestamp || Date.now());
             tx.status = txStatus;
@@ -237,6 +240,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         return;
     }
 
+	// TODO: Deprecate
     async updateUserPairedAddress(pair: SignedPairAddress) {
         this.verifyInit();
         ValidationUtils.isTrue(!!pair.pair, 'Invalid pair (empty)');
@@ -247,11 +251,11 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         pair.pair.address2 = ChainUtils.canonicalAddress(pair.pair.network2 as Network, pair.pair.address2);
         if (pair.signature1) {
             //Verify signature
-            ValidationUtils.isTrue(!!this.verifyer.verify1(pair), 'Invalid signature 1');
+            // ValidationUtils.isTrue(!!this.verifyer.verify1(pair), 'Invalid signature 1');
         }
         if (pair.signature2) {
             //Verify signature
-            ValidationUtils.isTrue(!!this.verifyer.verify2(pair), 'Invalid signature 2');
+            // ValidationUtils.isTrue(!!this.verifyer.verify2(pair), 'Invalid signature 2');
         }
         const res = await this.signedPairAddressModel!.updateOne(
             {'pair.address1': pair.pair.address1}, {'$set': {...pair}}, {upsert: true});
