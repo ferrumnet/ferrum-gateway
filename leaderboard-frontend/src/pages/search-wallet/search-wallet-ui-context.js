@@ -46,7 +46,7 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       cell: (row) => (
         <div data-tag="allowRowEvents">
           <div className="col-web">
-            <span>{row.address}</span>
+            <span>{shorten(row.address)}</span>
           </div>
           <div className="col-mobile">
             <span>{shorten(row.address)}</span>
@@ -55,7 +55,7 @@ export function SearchWalletUIProvider({ leaderboardData, children }) {
       ),
     },
     {
-      name: "USD of FRM and FRMx",
+      name: "USD value of FRM and FRMX",
       selector: "usd_frm_and_frmx",
       cell: (row) => (
         <div data-tag="allowRowEvents">

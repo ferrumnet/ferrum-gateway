@@ -29,7 +29,7 @@ export default class TableUtils {
     // console.log("after order : ", entitiesResult);
     if (walletAddress) {
       entitiesResult = entitiesResult.filter(
-        (item) => item.address === walletAddress
+        (item) => item.address.toLowerCase() === walletAddress.toLowerCase()
       );
       // console.log("after search : ", entitiesResult);
     }
@@ -43,9 +43,9 @@ export default class TableUtils {
     }
     entitiesResult = entitiesResult?.length
       ? entitiesResult.slice(
-          (pageNumber - 1) * pageSize,
-          (pageNumber - 1) * pageSize + pageSize
-        )
+        (pageNumber - 1) * pageSize,
+        (pageNumber - 1) * pageSize + pageSize
+      )
       : [];
     // console.log("after paginations : ", entitiesResult);
 

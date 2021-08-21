@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <>
       <footer>
-        Copyright © 2021 <Link to="/">Leaderboard</Link> All rights reserved
+        Copyright © 2021 <Link to={{ pathname: "https://ferrum.network/" }} target="_blank" >Ferrum</Link> All rights reserved
       </footer>
     </>
   );
