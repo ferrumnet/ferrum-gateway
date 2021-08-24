@@ -311,8 +311,8 @@ export const ThemeBuilder = ({ config, onChange }) => {
               <h5>
                 <span>Card Design:</span>
 
-                <div class="card w-50">
-                  <span class="card-text">Card Text Color</span>
+                <div class="card w-50 p-2">
+                  <span>Card Text Color</span>
                 </div>
               </h5>
               <div className="radio-group">
