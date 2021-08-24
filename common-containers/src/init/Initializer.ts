@@ -15,7 +15,7 @@ export const initThunk = createAsyncThunk('init/init', async (
     await container.registerModule(new CommonModule(payload.apiBaseUrl));
     await container.registerModule(payload.module);
 	const api = container.get<ApiClient>(ApiClient);
-	// api.tokenList().then(list => ctx.dispatch(tokenListSlice.actions.listLoaded({ list})))
+	api.tokenList().then(list => ctx.dispatch(tokenListSlice.actions.listLoaded({ list})))
     return 'SUCCESS';
 });
 
