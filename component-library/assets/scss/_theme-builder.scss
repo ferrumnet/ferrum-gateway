@@ -33,7 +33,9 @@ $DrawerSize: 450px;
       overflow-x: hidden;
       $pickerSize: 3rem;
       .modal-header {
-        color: #fff;
+        .close {
+          color: #fff;
+        }
       }
       section {
         padding: 1rem;

@@ -6,10 +6,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) =>
       theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
-  div{
-    color: ${({ theme }) =>
-      theme.secondary ? theme.secondary : theme.colors.inverse} !important;
-  }
+  
   .bodyText {
     color: ${({ theme }) =>
       theme.secondary ? theme.secondary : theme.colors.inverse} !important;
@@ -539,7 +536,6 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   .theme-builder-dlg{
-
     .modal-content{
       background-color: ${({ theme }) =>
         theme.backgroud ? theme.backgroud : theme.colors.body};
