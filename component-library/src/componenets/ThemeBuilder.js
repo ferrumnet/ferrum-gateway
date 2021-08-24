@@ -47,8 +47,8 @@ export const ThemeBuilder = ({ config, onChange }) => {
           setOpenThemeBuilder(false);
         }}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Theme Builder</Modal.Title>
+        <Modal.Header closeButton className="pt-2 pb-0">
+          <h4 className="m-0">Theme Builder</h4>
         </Modal.Header>
         <Modal.Body>
           <ColorPicker

@@ -539,19 +539,19 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   .theme-builder-dlg{
+
     .modal-content{
+      background-color: ${({ theme }) =>
+        theme.backgroud ? theme.backgroud : theme.colors.body};
+      label {
+        color: ${({ theme }) => theme.colors.inverse} !important;
+      }
+      .form-control {
+        color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
+      }
       .modal-header{
         .h4{
           color:black !important;
-        }
-      }
-      background-color: white;
-      .full-row{
-        label{
-          color:black;
-        }
-        input{
-          margin-left:10px;
         }
       }
       .btn-group {
