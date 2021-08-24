@@ -1,25 +1,40 @@
-import { createGlobalStyle} from "styled-components";
+import { createGlobalStyle } from "styled-components";
 // import "../assets/scss/styles.scss";
 
 export const GlobalStyles = createGlobalStyle`
   body{
-    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
+    color: ${({ theme }) =>
+      theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   div{
-    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
+    color: ${({ theme }) =>
+      theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   .bodyText {
-    color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.inverse} !important;
+    color: ${({ theme }) =>
+      theme.secondary ? theme.secondary : theme.colors.inverse} !important;
   }
   #root {
-    background-color: ${({ theme }) => theme.backgroud ? theme.backgroud : theme.colors.body};
+    background-color: ${({ theme }) =>
+      theme.backgroud ? theme.backgroud : theme.colors.body};
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
-    box-shadow:  ${({ theme }) => theme.useBgImage ? 'inset 0 0 0 2000px rgba(0,0,0,0.4)' : ''};
+    box-shadow:  ${({ theme }) =>
+      theme.useBgImage ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
     font-size: 1em;
-    background: ${({ theme }) => theme.backgroundImage ? `url(${theme.backgroundImage})` : theme.useBgImage ? `url(${theme.BgImage})` : ''};
-    background-image: ${({ theme }) => theme.backgroundImage ? `url(${theme.backgroundImage})` :theme.useBgImage ? `url(${theme.BgImage})` : ''};
+    background: ${({ theme }) =>
+      theme.backgroundImage
+        ? `url(${theme.backgroundImage})`
+        : theme.useBgImage
+        ? `url(${theme.BgImage})`
+        : ""};
+    background-image: ${({ theme }) =>
+      theme.backgroundImage
+        ? `url(${theme.backgroundImage})`
+        : theme.useBgImage
+        ? `url(${theme.BgImage})`
+        : ""};
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
@@ -29,7 +44,8 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 13px;
   }
   h2,h3,h4,h5 {
-    color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.text};
+    color: ${({ theme }) =>
+      theme.primary ? theme.primary : theme.colors.text};
   }
   .navbar {
     background-color: ${({ theme }) => theme.colors.navbar};
@@ -57,14 +73,16 @@ export const GlobalStyles = createGlobalStyle`
   }
   .btnTheme {
     background: ${({ theme }) => theme.colors.button.btnPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.button.borderRadius} !important;
     border-width: 0;
     &:focus,
     &:active,
     &:hover
     {
-      background: ${({ theme }) => theme.colors.button.btnActiveColor || 
-      theme.colors.button.themePrimary} !important;
+      background: ${({ theme }) =>
+        theme.colors.button.btnActiveColor ||
+        theme.colors.button.themePrimary} !important;
     }
   }
   button {
@@ -72,7 +90,10 @@ export const GlobalStyles = createGlobalStyle`
       .btnTheme {
         .btn-pri {
           
-          color: ${({ theme }) => theme.secondary ? theme.secondary :theme.colors.button.btnTextPriColor} !important;
+          color: ${({ theme }) =>
+            theme.secondary
+              ? theme.secondary
+              : theme.colors.button.btnTextPriColor} !important;
         }
       }
     }
@@ -85,15 +106,20 @@ export const GlobalStyles = createGlobalStyle`
     border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
   }
   .btn {  
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
-    padding: ${({ theme }) => theme.colors.button.btnPadding || 'auto'} !important;
+    border-radius:  ${({ theme }) =>
+      theme.radius
+        ? theme.radius
+        : theme.colors.button.borderRadius} !important;
+    padding: ${({ theme }) =>
+      theme.colors.button.btnPadding || "auto"} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
     &:focus,
     &:active,
     &:hover
     {
-      background: ${({ theme }) => theme.colors.button.btnActiveColor || 
-      theme.colors.button.themePrimary} !important;
+      background: ${({ theme }) =>
+        theme.colors.button.btnActiveColor ||
+        theme.colors.button.themePrimary} !important;
       color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
 
     }
@@ -112,15 +138,26 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
     &.btn-pri {
-      background-color: ${({ theme }) => theme.primary ? theme.primary :theme.colors.button.btnPri};
-      background: ${({ theme }) =>theme.primary ? theme.primary : theme.colors.button.btnPri ||  'auto'};
-      color: ${({ theme }) => theme.secondary ? theme.secondary :theme.colors.button.btnTextPriColor} !important;
-      background-size: ${({theme})=>theme.colors.button.backgroundSize || 'auto'}
-      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
+      background-color: ${({ theme }) =>
+        theme.primary ? theme.primary : theme.colors.button.btnPri};
+      background: ${({ theme }) =>
+        theme.primary ? theme.primary : theme.colors.button.btnPri || "auto"};
+      color: ${({ theme }) =>
+        theme.secondary
+          ? theme.secondary
+          : theme.colors.button.btnTextPriColor} !important;
+      background-size: ${({ theme }) =>
+        theme.colors.button.backgroundSize || "auto"}
+      border-radius:  ${({ theme }) =>
+        theme.radius
+          ? theme.radius
+          : theme.colors.button.borderRadius} !important;
     }
     &.btn-sec {
-      background-color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.button.btnSec};
-      color: ${({ theme }) => theme.secondary ? theme.secondary : theme.colors.button.textSec};
+      background-color: ${({ theme }) =>
+        theme.primary ? theme.primary : theme.colors.button.btnSec};
+      color: ${({ theme }) =>
+        theme.secondary ? theme.secondary : theme.colors.button.textSec};
     }
     &.btn-dull {
       background-color: ${({ theme }) => theme.colors.button.btnDull};
@@ -134,7 +171,8 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   h2, h3, h4, h5 {
-    color: ${({ theme }) => theme.primary  ? theme.primary : theme.colors.mainHeaderColor};
+    color: ${({ theme }) =>
+      theme.primary ? theme.primary : theme.colors.mainHeaderColor};
   }
   .liquidity-dropdown{
     button {
@@ -191,15 +229,17 @@ export const GlobalStyles = createGlobalStyle`
   .dropdown {
     .dropdown-menu{
       a.active:after{
-        color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'};
+        color: ${({ theme }) =>
+          theme.colors.stepsFinishBackgroundColor || "#168416"};
       }
     }
   }
   .cardTheme {
     background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
-    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .cardSecTheme{
@@ -210,7 +250,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-modal-header{
     border-bottom: 0 !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.card.borderRadius || "0" + 2} !important;
     padding-top: 40px;
     background-color: ${({ theme }) => theme.colors.card.cardPri};
   }
@@ -227,7 +268,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .web3modal-provider-container{
     background-color: ${({ theme }) => theme.colors.card.cardSec} !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
   }
   .web3modal-provider-wrapper{
@@ -236,23 +278,30 @@ export const GlobalStyles = createGlobalStyle`
   .web3modal-modal-card{
     padding: 20px !important;
     background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
-    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .card {
-    background-color: ${({ theme }) => theme.backgroud ? theme.backgroud : theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.borderRadius  || '0' + 2} !important;
+    background-color: ${({ theme }) =>
+      theme.backgroud ? theme.backgroud : theme.colors.card.cardPri};
+    border-radius:  ${({ theme }) =>
+      theme.radius
+        ? theme.radius
+        : theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
-    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}` };
+    box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     p {
-      color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.card.text};
+      color: ${({ theme }) =>
+        theme.primary ? theme.primary : theme.colors.card.text};
     }
     &.card-sec {
       background-color: ${({ theme }) => theme.colors.card.cardSec};
       p {
-        color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.card.cardTextPri};
+        color: ${({ theme }) =>
+          theme.primary ? theme.primary : theme.colors.card.cardTextPri};
       }
     }
   }
@@ -263,7 +312,8 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.button.text};
   }
   .text-pri {
-    color: ${({ theme }) => theme.primary ? theme.primary : theme.colors.textPri};
+    color: ${({ theme }) =>
+      theme.primary ? theme.primary : theme.colors.textPri};
   }
   .text-sec {
     color: ${({ theme }) => theme.colors.textSec};
@@ -301,7 +351,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .react-toast-notifications__container{
     .css-19n335a-ToastContainer {
-      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+      background-color: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"}; 
       color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
@@ -314,7 +365,8 @@ export const GlobalStyles = createGlobalStyle`
   .ant-alert-warning{
     color: ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
     border: none;
-    background-color:  ${({ theme }) => theme.colors.stepsWaitBackgroundColor} !important;
+    background-color:  ${({ theme }) =>
+      theme.colors.stepsWaitBackgroundColor} !important;
   }
   .ant-steps-icon{
     color: ${({ theme }) => theme.colors.inverse} !important;
@@ -324,17 +376,24 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-steps-item-process {
     .ant-steps-item-icon {
-      background-color:  ${({ theme }) => theme.primary ? theme.primary : theme.colors.stepsWaitBackgroundColor} !important;
+      background-color:  ${({ theme }) =>
+        theme.primary
+          ? theme.primary
+          : theme.colors.stepsWaitBackgroundColor} !important;
     }
   }
   .ant-message-notice-content{
     background-color: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius  || '0' + 2} !important;
+    border-radius:  ${({ theme }) =>
+      theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon {
-     background-color:  ${({ theme }) => theme.primary ? theme.primary : theme.colors.stepsWaitBackgroundColor} !important;
+     background-color:  ${({ theme }) =>
+       theme.primary
+         ? theme.primary
+         : theme.colors.stepsWaitBackgroundColor} !important;
     }
   }
   .anticon{
@@ -346,7 +405,8 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .ant-alert-error{
-    background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+    background-color: ${({ theme }) =>
+      theme.colors.stepsFinishBackgroundColor || "#168416"}; 
     border: none;
   }
   .ant-steps-item-description{
@@ -372,11 +432,13 @@ export const GlobalStyles = createGlobalStyle`
   // todo: clean up selectors
   .react-toast-notifications__toast--success{
     .react-toast-notifications__toast__content{
-      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+      background-color: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"}; 
     }
 
     .react-toast-notifications__toast__dismiss-button {
-      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+      background-color: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"}; 
       opacity: 1
     }
   }
@@ -384,18 +446,22 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .finishThemed{
-    // background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'}; 
+    // background-color: ${({ theme }) =>
+      theme.colors.stepsFinishBackgroundColor || "#168416"}; 
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .waitThemed{
     border-radius: 50px;
-    background-color: ${({ theme }) => theme.colors.stepsWaitBackgroundColor || '#168416'};
+    background-color: ${({ theme }) =>
+      theme.colors.stepsWaitBackgroundColor || "#168416"};
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .ant-steps-item-finish {
     .ant-steps-item-icon{
-      background-color: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || '#168416'} !important;
-      border-color: ${({ theme }) => theme.colors.stepsFinishBorderColor ||  '#168416'};
+      background-color: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"} !important;
+      border-color: ${({ theme }) =>
+        theme.colors.stepsFinishBorderColor || "#168416"};
     }
   }
   .ant-steps-item-finish > {
@@ -414,13 +480,15 @@ export const GlobalStyles = createGlobalStyle`
   }
   .top-banner{
     .ant-alert-icon {
-      color: ${({ theme }) => theme.colors.topBannerIconColor || 'black'} !important;
+      color: ${({ theme }) =>
+        theme.colors.topBannerIconColor || "black"} !important;
       margin: 3px;
       margin-right: 10px;
     }
 
     &.ant-alert-warning {
-      background-color: ${({ theme }) => theme.colors.topBannerBgColor} !important;
+      background-color: ${({ theme }) =>
+        theme.colors.topBannerBgColor} !important;
       padding: 10px 15px 15px 24px !important;
       
     }
@@ -437,7 +505,6 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
       line-height: 1;
     }
-    
   }
   .modal {
     .modal-content {
@@ -451,20 +518,24 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .web3modal-provider-name{
-    color: ${({ theme }) => theme.primary ?  theme.primary : ""} !important;
+    color: ${({ theme }) => (theme.primary ? theme.primary : "")} !important;
   }
 
   .web3modal-provider-description{
-    color: ${({ theme }) => theme.secondary ?  theme.secondary : ""} !important;
+    color: ${({ theme }) =>
+      theme.secondary ? theme.secondary : ""} !important;
   }
 
   .web3modal-provider-container{
-    background: ${({ theme }) => theme.backgroud ?  theme.backgroud : ""} !important;
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius :  ""}px !important;
+    background: ${({ theme }) =>
+      theme.backgroud ? theme.backgroud : ""} !important;
+    border-radius:  ${({ theme }) =>
+      theme.radius ? theme.radius : ""}px !important;
   }
 
   .web3modal-modal-card{
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : 0}px !important;
+    border-radius:  ${({ theme }) =>
+      theme.radius ? theme.radius : 0}px !important;
   }
 
   .theme-builder-dlg{
@@ -481,6 +552,20 @@ export const GlobalStyles = createGlobalStyle`
         }
         input{
           margin-left:10px;
+        }
+      }
+      .btn-group {
+        .btn {
+          border-radius: ${({ theme }) =>
+            theme.radius ? theme.radius : 0}px !important;
+        }
+      }
+      .ui-color-picker {
+        .input-field {
+          input {
+            border-radius: ${({ theme }) =>
+              theme.radius ? theme.radius : 0}px !important;
+          }
         }
       }
     }

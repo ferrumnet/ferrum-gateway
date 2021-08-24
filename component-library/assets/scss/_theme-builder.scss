@@ -4,31 +4,31 @@
   bottom: 10px;
   border-radius: 5px;
   padding: 5px;
-  background-color: white;
+  // background-color: white;
 
-  svg{
+  svg {
     border-radius: 5px;
     background: black;
-    path{
-      fill:white;
+    path {
+      fill: white;
     }
   }
 }
 
-.theme-builder-dlg{
-  .modal-content{
-    .modal-header{
-      .h4{
-        color:black !important;
+.theme-builder-dlg {
+  .modal-content {
+    .modal-header {
+      .h4 {
+        color: black !important;
       }
     }
     background-color: white;
-    div{
-      label{
-        color:black;
+    div {
+      label {
+        color: black;
       }
-      input{
-        margin-left:10px;
+      input {
+        margin-left: 10px;
       }
     }
   }
