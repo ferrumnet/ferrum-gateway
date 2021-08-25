@@ -41,9 +41,9 @@ function App() {
             <Dashboard themeConfig={themeConfig}/>
           </Router>
         </ToastProvider>
-        <ThemeBuilder config={themeConfig} onChange={(value:any)=>{
+        {/* <ThemeBuilder config={themeConfig} onChange={(value:any)=>{
             setThemeConfig({...value})
-        }}/>
+        }}/> */}
     </StoreBuilder.Provider>
   );
 }

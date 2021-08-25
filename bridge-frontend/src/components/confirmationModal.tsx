@@ -47,9 +47,6 @@ export function ConfirmationModal (props: {
     processSwap: ()=> Promise<void>,
     setIsModalClose: () => void
 }) {
-	console.log('CONFIRMMI MODALO', {
-		props
-	})
   const theme = useContext(ThemeContext);
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
@@ -158,9 +155,6 @@ export function LiquidityConfirmationModal (props: {
   processLiqAction: ()=> void,
   setIsModalClose: () => void
 }) {
-console.log('CONFIRMMI MODALO', {
-  props
-})
 const theme = useContext(ThemeContext);
 const styles = themedStyles(theme);    
 const [refreshing,setRefreshing] = useState(false)

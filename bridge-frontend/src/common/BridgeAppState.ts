@@ -1,5 +1,5 @@
 import { AppInitializingState, AppState,AppAccountState } from 'common-containers';
-import { GatewayProject, GatewayStakings, GroupInfo, UserBridgeWithdrawableBalanceItem, UserProjectAllocation, UserProjects } from 'types';
+import { GatewayProject, GatewayStakings, GroupInfo, TokenDetails, UserBridgeWithdrawableBalanceItem, UserProjectAllocation, UserProjects } from 'types';
 import {DashboardProps} from './../pages/Dashboard/Dashboard';
 import {MainPageState} from './../pages/Main/Main';
 import {swapPageProps} from './../pages/Swap';
@@ -22,6 +22,8 @@ export interface AppUserState {
     AppAccountState: AppAccountState
 }
 
+export type FilteredTokenDetails = { [k: string]: TokenDetails };
+
 export interface AppGlobalState extends AppInitializingState {
 	balanceItems: UserBridgeWithdrawableBalanceItem[],
     allProjects: GatewayProject[],
@@ -29,6 +31,7 @@ export interface AppGlobalState extends AppInitializingState {
     groupInfo: GroupInfo,
 	currencyPairs: BridgeTokenConfig[],
 	bridgeLiquidity: {[k: string]: string},
+	filteredAssets: FilteredTokenDetails,
     error: '',
 }
 

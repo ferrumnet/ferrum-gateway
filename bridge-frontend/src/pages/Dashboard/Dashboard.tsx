@@ -6,15 +6,15 @@ import { Page,Row,Header,CnctButton,WithdrawlsButton,
 // @ts-ignore
 } from 'component-library';
 import ThemeSelector from "../../ThemeSelector"
-import { BridgeAppState } from '../../common/BridgeAppState';
+import { BridgeAppState, FilteredTokenDetails } from '../../common/BridgeAppState';
 import { useDispatch, useSelector } from 'react-redux';
 import './../../app.scss'
-import { createSlice,AnyAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { AnyAction, Dispatch } from "redux";
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
 import { Theme,ThemeContext, ThemeConstantProvider,WebdefaultLightThemeConstantsBuilder} from 'unifyre-react-helper';
 import { inject, inject2, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
-import { Dispatch } from "redux";
 import { getGroupIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
 import { CommonActions,addAction } from './../../common/Actions';
@@ -134,6 +134,20 @@ export const DashboardSlice = createSlice({
     },
 });
 
+const updateFilteredTokenList = createAsyncThunk('dashboard/FilterTokens',
+	async (payload: { currencies: string[] }, ctx) => {
+		// TODO: Move this to a reducer to speed up rendering
+		const assets: FilteredTokenDetails = {};
+		const state = ctx.getState() as BridgeAppState;
+		const gid = new Set<string>(payload.currencies);
+		state.data.tokenList.list.forEach(tl => {
+			if (gid.has(tl.currency)) {
+				assets[tl.currency] = tl;
+			}
+		});
+		ctx.dispatch(addAction(CommonActions.FILTERED_TOKEN_LIST_UPDATED, assets));
+	});
+
 const Actions = DashboardSlice.actions;
 
 export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: History) {
@@ -167,6 +181,8 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             }
 			await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies)
 			if ((groupInfo.bridgeCurrencies || []).length) {
+				// Update the filtered token list
+				dispatch(updateFilteredTokenList({currencies: groupInfo.bridgeCurrencies}) as any);
 				const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
 				cl.set(groupInfo.bridgeCurrencies);
 				try {
@@ -189,7 +205,6 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
 const intializing = (dispatch: Dispatch<AnyAction>) => {
     dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
 }
-
 
 function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): DashboardContentProps {
     const state = (appState.ui.dashboard || {}) as DashboardState;
