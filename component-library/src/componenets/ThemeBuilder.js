@@ -39,14 +39,26 @@ export const ThemeBuilder = ({ config, onChange }) => {
   console.log(themeConfig);
   const savehandler = () => {
     let theme = {
+      BgImage: themeConfig.bgImg,
+      mainLogo: themeConfig.mainLogo,
       colors: {
         mainHeaderColor: themeConfig?.headingColor?.style,
+        stepsFinishBackgroundColor: themeConfig?.stepsBgColor?.style,
+        stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
+        stepsProgressBackgroundColor: themeConfig?.stepsProgressBgColor?.style,
       },
       button: {
         btnPri: themeConfig?.btnBgColor?.style,
+        btnTextPriColor: themeConfig?.btnTextPriColor?.style,
+        btnTextSecColor: themeConfig?.btnTextSecColor?.style,
+        btnActiveColor: themeConfig?.btnActiveColor?.style,
+      },
+      card: {
+        cardBgColor: themeConfig?.cardBgColor?.style,
+        cardSec: themeConfig?.cardSec?.style,
       },
     };
-    setThemeConfig({ ...themeConfig });
+    onChange({ ...theme });
   };
 
   return (
@@ -94,9 +106,9 @@ export const ThemeBuilder = ({ config, onChange }) => {
                 <label htmlFor="btn_bg_color">Background Image :</label>
                 <input
                   type="text"
-                  id="backgroundImage"
-                  name="backgroundImage"
-                  value={themeConfig.backgroundImage}
+                  id="bgImg"
+                  name="bgImg"
+                  value={themeConfig.bgImg}
                   onChange={handleThemeConfigChange}
                   className="form-control"
                 />
@@ -105,9 +117,9 @@ export const ThemeBuilder = ({ config, onChange }) => {
                 <label htmlFor="btn_bg_color">Logo :</label>
                 <input
                   type="text"
-                  id="logo"
-                  name="logo"
-                  value={themeConfig.logo}
+                  id="mainLogo"
+                  name="mainLogo"
+                  value={themeConfig.mainLogo}
                   onChange={handleThemeConfigChange}
                   className="form-control"
                 />

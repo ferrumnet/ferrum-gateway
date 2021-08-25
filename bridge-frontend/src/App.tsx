@@ -41,7 +41,7 @@ function App() {
     stepsBgColor: "", //"#19792f",
     stepsBorderColor: "", //"#19792f",
     stepsWaitBgColor: "", //"rgb(219, 72, 59)",
-
+    stepsProgressBgColor: "", 
     cardBgColor: "", //"#0A0738",
     cardSec: "", //"#110252",
 

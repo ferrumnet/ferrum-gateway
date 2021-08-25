@@ -48,7 +48,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .site-badge-count-109 {
     .ant-badge-count{
-      background-color:  ${({ theme }) => theme.colors.card.cardPri} !important;
+      background:  ${({ theme }) => theme.colors.card.cardPri} !important;
       color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
@@ -225,33 +225,33 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .cardTheme {
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
     border-radius:  ${({ theme }) =>
       theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .cardSecTheme{
     background-color: ${({ theme }) => theme.colors.card.cardSec};
   }
   .ant-modal-content{
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .ant-modal-header{
     border-bottom: 0 !important;
     border-radius:  ${({ theme }) =>
       theme.colors.card.borderRadius || "0" + 2} !important;
     padding-top: 40px;
-    background-color: ${({ theme }) => theme.colors.card.cardPri};
+    background: ${({ theme }) => theme.colors.card.cardPri};
   }
   .ant-drawer-header{
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
     border-bottom: 0 !important;
   }
   .ant-drawer-content{
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   p{
     color: ${({ theme }) => theme.colors.inverse} !important;
@@ -267,15 +267,15 @@ export const GlobalStyles = createGlobalStyle`
   }
   .web3modal-modal-card{
     padding: 20px !important;
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
     border-radius:  ${({ theme }) =>
       theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
-    background-color: ${({ theme }) => theme.colors.card.cardPri} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .card {
-    background-color: ${({ theme }) => theme.colors.card.cardPri};
+    background: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) =>
       theme.radius
         ? theme.radius
@@ -362,20 +362,20 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-steps-item-process {
     .ant-steps-item-icon {
-      background-color:  ${({ theme }) =>
-        theme.colors.stepsWaitBackgroundColor} !important;
+      background:  ${({ theme }) =>
+        theme.colors.stepsWaitBackgroundColor};
     }
   }
   .ant-message-notice-content{
-    background-color: ${({ theme }) => theme.colors.card.cardPri};
+    background: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) =>
       theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon {
-     background-color:  ${({ theme }) =>
-       theme.colors.stepsWaitBackgroundColor} !important;
+     background:  ${({ theme }) =>
+       theme.colors.stepsWaitBackgroundColor};
     }
   }
   .anticon{
@@ -440,23 +440,13 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-steps-item-finish {
     .ant-steps-item-icon{
-      background-color: ${({ theme }) =>
-        theme.colors.stepsFinishBackgroundColor || "#168416"} !important;
+      background: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"};
       border-color: ${({ theme }) =>
         theme.colors.stepsFinishBorderColor || "#168416"};
     }
   }
-  .ant-steps-item-finish > {
-    .ant-steps-item-icon{
-      background-color: #168416;
-      border-color: #168416;
-    }
-    .ant-steps-item-container > {
-      .ant-steps-item-tail::after {
-        background-color: #168416
-      }
-    } 
-  }
+
   .text-vary-color{
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
