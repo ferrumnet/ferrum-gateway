@@ -136,7 +136,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
 
             <section className="theme-bulider-component">
-              <h5 className="mb-0">
+              <h4 className="mb-0 display-12 font-weight-bold" style={themeConfig.headingColor ? { color: `${themeConfig.headingColor.style} ` } : {}}>
                 <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
@@ -154,13 +154,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   </label>
                 </div>
                 Heading Preview
-              </h5>
+              </h4>
             </section>
 
             <section className="theme-bulider-component">
               <h5>
                 Button Design:
-                <button className="btn btn-pri float-right">
+                <button className="btn btn-pri float-right" style={themeConfig.btnBgColor || themeConfig.btnTextColor || themeConfig.btnTextPriColor || themeConfig.btnTextSecColor || themeConfig.btnActiveColor ? {} : {}}>
                   Button Design
                 </button>
               </h5>
