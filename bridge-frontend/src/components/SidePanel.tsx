@@ -182,7 +182,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => stateToProps(state,userAccounts));
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
-    const assets = useSelector<BridgeAppState, any>(appS => !!appS.data.state.filteredAssets);
+    const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
 
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(

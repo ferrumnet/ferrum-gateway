@@ -60,7 +60,7 @@ export const AssetsSelector = ({
   const asset = assets[selectedCurrency] || {};
   const assetList = (Object.values(assets) || []).filter(a =>
 	a.currency.startsWith(network + ':'));
-// console.log('ASSETS', {assetList, asset, selectedCurrency, defaultLogo})
+// console.log('ASSETS', {assetList, asset, selectedCurrency, defaultLogo, network, assets})
   return (
     <Dropdown className="assets-dropdown ">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
