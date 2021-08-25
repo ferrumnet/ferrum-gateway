@@ -49,6 +49,11 @@ export class BridgeProcessor implements Injectable {
             console.log(relevantTokens.map((j:any) => j.sourceCurrency),'soucre currencies')
 			// todo: get event logs
             const incoming = await this.bridgeContract.getSwapEvents(network);
+			// 
+			// const fromDb = await this.getTxIdsFromDb(network)
+			// -- filter: for non processed
+			// for each fromDb, get the event from chain.
+	
             console.log('Got icoming txs:', {...incoming})
             if (!incoming || !incoming.length) {
                 this.log.info('No recent transaction for address ' + network + ':' + poolAddress);
