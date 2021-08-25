@@ -5,6 +5,7 @@ import "../../assets/scss/_theme-builder.scss";
 
 import { ColorPicker } from "react-color-gradient-picker";
 import "react-color-gradient-picker/dist/index.css";
+import { Steps } from 'antd';
 
 export const ThemeBuilder = ({ config, onChange }) => {
   const [openThemeBuilder, setOpenThemeBuilder] = useState(false);
@@ -66,39 +67,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
           />
           <div className="theme-builder-form">
             <section className="theme-bulider-component global">
-              <div className="input-group">
-                <label htmlFor="primary">Primary:</label>
-                <input
-                  type="color"
-                  id="primary"
-                  name="primary"
-                  value={themeConfig.primary}
-                  onChange={handleThemeConfigChange}
-                  className="form-control"
-                />
-              </div>
-              <div className="input-group">
-                <label htmlFor="secondary">Secondary Color:</label>
-                <input
-                  type="color"
-                  id="secondary"
-                  name="colorSelect"
-                  value={themeConfig.secondary}
-                  onChange={handleThemeConfigChange}
-                  className="form-control"
-                />
-              </div>
-              <div className="input-group">
-                <label htmlFor="backgroud">Backgroud Color:</label>
-                <input
-                  type="color"
-                  id="backgroud"
-                  name="backgroud"
-                  value={themeConfig.backgroud}
-                  onChange={handleThemeConfigChange}
-                  className="form-control"
-                />
-              </div>
+
               <div className="input-group">
                 <label htmlFor="btn_bg_color">Radius :</label>
                 <input
@@ -136,7 +105,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
 
             <section className="theme-bulider-component">
-              <h4 className="mb-0 display-12 font-weight-bold" style={themeConfig.headingColor ? { color: `${themeConfig.headingColor.style} ` } : {}}>
+              <h5 className="mb-0 display-12 font-weight-bold" style={themeConfig.headingColor ? { color: `${themeConfig.headingColor.style} ` } : {}}>
                 <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
@@ -154,13 +123,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   </label>
                 </div>
                 Heading Preview
-              </h4>
+              </h5>
             </section>
 
             <section className="theme-bulider-component">
-              <h5>
-                Button Design:
-                <button className="btn btn-pri float-right" style={themeConfig.btnBgColor || themeConfig.btnTextColor || themeConfig.btnTextPriColor || themeConfig.btnTextSecColor || themeConfig.btnActiveColor ? {} : {}}>
+              <h5 style={{ color: "white" }}>
+                Button Default:
+                <button className="btn btn-pri float-right" style={themeConfig.btnBgColor || themeConfig.btnTextPriColor ? { background: themeConfig.btnBgColor ? `${themeConfig.btnBgColor.style}` : undefined, color: themeConfig.btnTextPriColor ? themeConfig.btnTextPriColor.style : undefined } : {}}>
                   Button Design
                 </button>
               </h5>
@@ -181,7 +150,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     btnBgColor
                   </label>
                 </div>
-                <div class="custom-control custom-radio custom-control-inline">
+                {/* <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
                     id="btnTextColor"
@@ -196,7 +165,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   <label class="custom-control-label" for="btnTextColor">
                     btnTextColor
                   </label>
-                </div>
+                </div> */}
                 <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
@@ -211,6 +180,34 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   />
                   <label class="custom-control-label" for="btnTextPriColor">
                     btnTextPriColor
+                  </label>
+                </div>
+
+              </div>
+            </section>
+
+            <section className="theme-bulider-component">
+              <h5 style={{ color: "white" }}>
+                Button Active Design:
+                <button className="btn btn-pri float-right" style={themeConfig.btnTextSecColor || themeConfig.btnActiveColor ? { background: themeConfig.btnActiveColor ? `${themeConfig.btnActiveColor.style}` : undefined, color: themeConfig.btnTextSecColor ? themeConfig.btnTextSecColor.style : undefined } : {}}>
+                  Button Active
+                </button>
+              </h5>
+              <div className="radio-group">
+                <div class="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="btnActiveColor"
+                    name="customRadioInline"
+                    class="custom-control-input"
+                    checked={fieldName === "btnActiveColor" ? true : false}
+                    onChange={() => {
+                      setFieldName("btnActiveColor");
+                      setIsGradient(true);
+                    }}
+                  />
+                  <label class="custom-control-label" for="btnActiveColor">
+                    btnActiveColor
                   </label>
                 </div>
                 <div class="custom-control custom-radio custom-control-inline">
@@ -229,22 +226,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     btnTextSecColor
                   </label>
                 </div>
-                <div class="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    id="btnActiveColor"
-                    name="customRadioInline"
-                    class="custom-control-input"
-                    checked={fieldName === "btnActiveColor" ? true : false}
-                    onChange={() => {
-                      setFieldName("btnActiveColor");
-                      setIsGradient(true);
-                    }}
-                  />
-                  <label class="custom-control-label" for="btnActiveColor">
-                    btnActiveColor
-                  </label>
-                </div>
+
               </div>
             </section>
 
@@ -255,7 +237,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   <span class="ant-steps-icon">1</span>
                 </div>
               </h5>
-              <div className="radio-group">
+              <div className="radio-group" style={themeConfig.stepsBgColor || themeConfig.stepsBorderColor || themeConfig.stepsBorderColor ? {} : {}} >
                 <div class="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
