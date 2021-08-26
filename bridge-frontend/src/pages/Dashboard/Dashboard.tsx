@@ -325,7 +325,7 @@ export function AppWraper(props: ReponsivePageWrapperProps&ReponsivePageWrapperD
                     group={groupInfo.groupId}
                     isLight={isLight}/>
                 }
-                logo={props?.tempTheme?.logo ? props?.tempTheme?.logo :  groupInfo.themeVariables?.mainLogo}
+                logo={props?.tempTheme?.mainLogo ? props?.tempTheme?.mainLogo :  groupInfo.themeVariables?.mainLogo}
                 altText={groupInfo.projectTitle}
             />
             <div className="mt-4 d-flex justify-content-center text-center">
@@ -379,7 +379,7 @@ export function Dashboard(props:ThemeProps) {
     const themeVariables = useTheme();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const stateData = useSelector<BridgeAppState, DashboardContentProps>(appS => stateToProps(appS,userAccounts));
-    const themes = _loadTheme(themeVariables, stateData.customTheme);
+    const themes = _loadTheme(themeVariables, {...stateData.customTheme});
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.init.initError);
     const appInitialized = useSelector<BridgeAppState, any>(appS => appS.data.init.initialized);
     const groupInfoData = useSelector<BridgeAppState, any>(appS => appS.data.state.groupInfo);
@@ -412,8 +412,40 @@ export function Dashboard(props:ThemeProps) {
     },[appInitialized]);
 
     if (appInitialized && !stateData.initializeError) {
+        console.log(selectedTheme);
+        console.log(props.themeConfig.colors)
         return (
-            <ThemeProvider theme={{...selectedTheme,...props.themeConfig}}>
+            <ThemeProvider theme={
+                {...selectedTheme,
+                BgImage:props.themeConfig?.BgImage? 
+                    props.themeConfig?.BgImage : selectedTheme.BgImage ,
+                mainLogo:props.themeConfig.mainLogo,
+                colors:{
+                    ...selectedTheme.colors,
+                    mainHeaderColor : props.themeConfig?.colors?.mainHeaderColor ?props.themeConfig?.colors?.mainHeaderColor : selectedTheme.colors.mainHeaderColor,
+                    stepsFinishBackgroundColor : props.themeConfig?.colors?.stepsFinishBackgroundColor ?props.themeConfig?.colors?.stepsFinishBackgroundColor : selectedTheme.colors.stepsFinishBackgroundColor,
+                    stepsWaitBackgroundColor: props.themeConfig?.colors?.stepsWaitBackgroundColor ?props.themeConfig?.colors?.stepsWaitBackgroundColor : selectedTheme.colors.stepsWaitBackgroundColor,
+                    stepsProgressBackgroundColor : props.themeConfig?.colors?.stepsProgressBackgroundColor ?props.themeConfig?.colors?.stepsProgressBackgroundColor : selectedTheme.colors.stepsProgressBackgroundColor,
+                    button:props.themeConfig.button ?
+                     {...selectedTheme.colors.button,...props.themeConfig.button} : selectedTheme.colors.button,
+                     card:props.themeConfig.card ?
+                        {...selectedTheme.colors.card,
+                            cardPri :
+                            props.themeConfig.card.cardPri ?
+                            props.themeConfig.card.cardPri : selectedTheme.colors.card.cardPri,
+                            cardTextPri :
+                            props.themeConfig.card.cardTextPri ? 
+                            props.themeConfig.card.cardTextPri : selectedTheme.colors.card.cardTextPri,
+                            cardSec : 
+                            props.themeConfig.card.cardSec ? 
+                            props.themeConfig.card.cardSec : selectedTheme.colors.card.cardSec,
+                            cardTextSec :
+                            props.themeConfig.card.cardTextSec ? 
+                            props.themeConfig.card.cardTextSec : selectedTheme.colors.card.cardTextSec,
+                        } : selectedTheme.colors.card
+                    }
+                }
+            }>
                 <GlobalStyles/>
                 <AppWraper
                     theme={themes}

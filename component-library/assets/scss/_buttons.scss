@@ -4,11 +4,11 @@
   border: none !important;
   box-shadow: none;
   font-weight: 500 !important;
+  align-items: center;
   i {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     line-height: 1;
-    margin-right: 0.25rem;
-    vertical-align: -2px;
+    margin-right: 0.5rem;
   }
   &:hover {
     color: $dark !important;
