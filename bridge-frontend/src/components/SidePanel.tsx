@@ -180,10 +180,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const dispatch = useDispatch();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => stateToProps(state,userAccounts));
-    const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
-    const groupInfo = useSelector<BridgeAppState, any>(appS => !!appS.data.state.groupInfo);
+    const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
 
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
@@ -220,7 +219,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
                     </>,
                     <p></p>,
-					<AddTokenToMetamask currency={currency} tokenData={groupInfo.tokenData}/>,
+					<AddTokenToMetamask tokenData={assets[currency]}/>,
                     <p>
                       <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                           message.destroy('withdr');

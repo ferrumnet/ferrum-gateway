@@ -46,7 +46,8 @@ export const checkIfParamsExists = (arr:any[],params:string,prop:string) : any =
 }
 
 export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
-    success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
+    success:(network:string, tx:string, txCurrency: string) => void,
+	error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const sc = inject<BridgeClient>(BridgeClient);
@@ -55,11 +56,12 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
         dispatch(Actions.activeWithdrawSuccess({value: true}))
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items && items.withdrawableBalanceItems.length > 0){
-            const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item);
-            if(findMatch.length > 0){
-                const res:any = await sc.withdraw(dispatch,findMatch[0],network);
+            const findMatch = items.withdrawableBalanceItems.find(e =>
+					e.receiveTransactionId === item);
+            if(!!findMatch) {
+                const res = await sc.withdraw(dispatch, findMatch, network);
                 if(!!res && !!res[0]){
-                    success(network,res[1]);
+                    success(network, res[1], findMatch!.sendCurrency);
                     dispatch(Actions.resetSwap({}))
                     setStatus(1)
                     await sc.getUserWithdrawItems(dispatch,network);

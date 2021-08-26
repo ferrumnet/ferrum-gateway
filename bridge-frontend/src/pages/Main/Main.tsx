@@ -6,7 +6,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { supportedNetworks, NetworkDropdown, UserBridgeWithdrawableBalanceItem,
-BridgeTokenConfig, BRIDGE_CONTRACT, inject, Utils } from 'types';
+BridgeTokenConfig, BRIDGE_CONTRACT, inject, Utils, TokenDetails } from 'types';
 import {IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
@@ -23,7 +23,6 @@ import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import {SidePanelSlice} from './../../components/SidePanel';
 import { SwapButton } from '../../components/SwapButton';
-import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
 import { Big } from 'big.js';
 import { BridgeClient } from '../../clients/BridgeClient';
@@ -31,7 +30,6 @@ import { BridgeClient } from '../../clients/BridgeClient';
 import { AddTokenToMetamask } from 'component-library';
 import { addAction, CommonActions } from '../../common/Actions';
 import { useHistory } from 'react-router';
-
 
 const { Step } = Steps;
 
@@ -162,7 +160,6 @@ interface MainPageProps extends MainPageState {
 	networkOptions: NetworkDropdown[];
 	targetNetworks: NetworkDropdown[];
 	currentPair: BridgeTokenConfig;
-	allAddresses: AddressDetails[];
 	allowanceRequired: boolean;
 	contractAddress: string;
     isNetworkAllowed: boolean;
@@ -204,6 +201,7 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 		.bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';
     const active = ((addr.filter(e=> e.currency === currency) || [])[0] || {})
     const isNetworkAllowed = !((networkOptions.map(a => a?.key)||[]).includes(currentNetwork.key))
+
     return {
         ...state,
         userAddress: address.address,
@@ -214,13 +212,12 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 		destNetwork,
 		currentPair,
 		balance: address.balance,
-		allAddresses: addr,
 		allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
 		contractAddress,
 		symbol: active.symbol,
 		availableLiquidity,
         swapWithdrawNetwork: state.swapWithdrawNetwork,
-        isNetworkAllowed
+        isNetworkAllowed,
     } as MainPageProps;
 }
 
@@ -245,9 +242,8 @@ export const ConnectBridge = () => {
     const { addToast } = useToasts();
     // const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     // const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
-    const propsGroupInfo =  useSelector<BridgeAppState, any>(state => state.data.state.groupInfo);
     const pageProps =  useSelector<BridgeAppState, MainPageProps>(state => stateToProps(state));
-    const tokenList = useSelector<BridgeAppState, any>(appS => appS.data.tokenList.list);
+    const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
     const [isNotiModalVisible, setIsNotiModalVisible] = useState(false);
     const swapping = ((pageProps.swapId!='') && pageProps.progressStatus < 3);
@@ -270,21 +266,21 @@ export const ConnectBridge = () => {
 		dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
 	}, [destNetwork,currency,network,currentPair])
     
-    const onWithdrawSuccessMessage = async (v:string,tx:string) => {  
+    const onWithdrawSuccessMessage = async (txNet:string, tx:string, txCur: string) => {  
         message.success({
             icon: <></>,
             content: <Result
                 status="success"
                 title="Withdrawal Transaction Processing"
-                subTitle={v}
+                subTitle={txNet}
                 extra={[
                     <>
                         <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                        <a onClick={() => window.open(Utils.linkForTransaction(txNet,tx), '_blank')}>
+							{tx}</a>
                     </>,
                     <p></p>,
-                    <AddTokenToMetamask currency={pageProps.currency} tokenData={propsGroupInfo.tokenData} />
-                    ,
+                    <AddTokenToMetamask tokenData={assets[txCur]} />,
                     <p></p>,
                     <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
                         message.destroy('withdr');
@@ -311,8 +307,6 @@ export const ConnectBridge = () => {
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
-
-	console.log('PROPOP TULO', pageProps)
 
     return (
         <>
@@ -361,10 +355,11 @@ export const ConnectBridge = () => {
                         <label className="text-sec text-vary-color">Assets</label>
 
                         <AssetsSelector 
-                            assets={pageProps.allAddresses || []}
-                            icons={supportedIcons}
+                            assets={assets}
+							network={pageProps.network}
+							defaultLogo={networkImages[pageProps.network]}
                             onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency,history}))}
-                            selectedToken={pageProps.symbol}
+                            selectedCurrency={pageProps.currency}
                         />
                         <NetworkSwitch 
                             availableNetworks={pageProps.targetNetworks}

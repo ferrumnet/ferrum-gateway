@@ -1,9 +1,9 @@
 import { Injectable, LocalCache, Networks } from "ferrum-plumbing";
 import { TokenDetails } from "types";
-import { tokens } from 'types/dist/tokenLists/FerrumTokenList';
 import fetch from 'cross-fetch';
 
 const CURRENCY_LISTS = [
+	'https://raw.githubusercontent.com/ferrumnet/ferrum-token-list/main/FerrumTokenList.json',
 	'https://tokens.coingecko.com/uniswap/all.json',
 ];
 const DAY = 24 * 3600;
@@ -21,7 +21,6 @@ export class CurrencyListSvc implements Injectable {
 			listsOfLists.forEach(list => {
 				lists = lists.concat(list);
 			});
-			lists = lists.concat(tokens);
 			lists.forEach(l => {
 				try {
 					const network = Networks.forChainId(l.chainId).id;
