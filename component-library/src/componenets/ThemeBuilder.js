@@ -36,7 +36,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
       [e.target.name]: e.target.name === "radius" ? +value : value,
     });
   };
-  console.log(themeConfig);
+
   const savehandler = () => {
     let theme = {
       BgImage: themeConfig.bgImg,
@@ -61,11 +61,30 @@ export const ThemeBuilder = ({ config, onChange }) => {
     onChange({ ...theme });
   };
 
+  const exportHandler = () => {
+    const exportJson = {
+      bgImg: themeConfig.bgImg,
+      mainLogo: themeConfig.mainLogo,
+      headingColor: themeConfig?.headingColor?.style,
+      stepsBgColor: themeConfig?.stepsBgColor?.style,
+      stepsWaitBgColor: themeConfig?.stepsWaitBgColor?.style,
+      stepsProgressBgColor: themeConfig?.stepsProgressBgColor?.style,
+      btnBgColor: themeConfig?.btnBgColor?.style,
+      btnTextPriColor: themeConfig?.btnTextPriColor?.style,
+      btnTextSecColor: themeConfig?.btnTextSecColor?.style,
+      btnActiveColor: themeConfig?.btnActiveColor?.style,
+      cardBgColor: themeConfig?.cardBgColor?.style,
+      cardSec: themeConfig?.cardSec?.style,
+    }
+
+    alert(JSON.stringify(exportJson));
+  }
+
   return (
     <>
       <Modal
         className="theme-builder-dlg"
-        contentClassName="card p-0"
+        contentClassName="p-0"
         show={openThemeBuilder}
         onHide={() => {
           setOpenThemeBuilder(false);
@@ -164,13 +183,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnBgColor || themeConfig.btnTextPriColor
                         ? {
-                            background: themeConfig.btnBgColor
-                              ? `${themeConfig.btnBgColor.style}`
-                              : undefined,
-                            color: themeConfig.btnTextPriColor
-                              ? themeConfig.btnTextPriColor.style
-                              : undefined,
-                          }
+                          background: themeConfig.btnBgColor
+                            ? `${themeConfig.btnBgColor.style}`
+                            : undefined,
+                          color: themeConfig.btnTextPriColor
+                            ? themeConfig.btnTextPriColor.style
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -236,13 +255,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnTextSecColor || themeConfig.btnActiveColor
                         ? {
-                            background: themeConfig.btnActiveColor
-                              ? `${themeConfig.btnActiveColor.style}`
-                              : undefined,
-                            color: themeConfig.btnTextSecColor
-                              ? themeConfig.btnTextSecColor.style
-                              : undefined,
-                          }
+                          background: themeConfig.btnActiveColor
+                            ? `${themeConfig.btnActiveColor.style}`
+                            : undefined,
+                          color: themeConfig.btnTextSecColor
+                            ? themeConfig.btnTextSecColor.style
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -293,7 +312,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
 
             <section className="theme-bulider-component">
-              <h5>Steps Design:</h5>
+              <h5 style={{ color: "white" }}>Steps Design:</h5>
               <div className="row">
                 <div className="col-6">
                   <div className="ant-steps ant-steps-vertical">
@@ -305,13 +324,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsBgColor
                               ? {
-                                  background: themeConfig.stepsBgColor
-                                    ? `${themeConfig.stepsBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsBorderColor
-                                    ? `${themeConfig.stepsBorderColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsBgColor
+                                  ? `${themeConfig.stepsBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsBorderColor
+                                  ? `${themeConfig.stepsBorderColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -403,13 +422,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsWaitBgColor
                               ? {
-                                  background: themeConfig.stepsWaitBgColor
-                                    ? `${themeConfig.stepsWaitBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsWaitBgColor
-                                    ? `${themeConfig.stepsWaitBgColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsWaitBgColor
+                                  ? `${themeConfig.stepsWaitBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsWaitBgColor
+                                  ? `${themeConfig.stepsWaitBgColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -458,13 +477,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsProgressBgColor
                               ? {
-                                  background: themeConfig.stepsProgressBgColor
-                                    ? `${themeConfig.stepsProgressBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsProgressBgColor
-                                    ? `${themeConfig.stepsProgressBgColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsProgressBgColor
+                                  ? `${themeConfig.stepsProgressBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsProgressBgColor
+                                  ? `${themeConfig.stepsProgressBgColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -524,7 +543,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
 
             <section className="theme-bulider-component">
-              <h5>
+              <h5 style={{ color: "white" }}>
                 <span>Card Design:</span>
 
                 <div
@@ -532,13 +551,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   style={
                     themeConfig.cardBgColor
                       ? {
-                          background: themeConfig.cardBgColor
-                            ? `${themeConfig.cardBgColor.style}`
-                            : undefined,
-                          color: themeConfig.cardSec
-                            ? `${themeConfig.cardSec.style}`
-                            : undefined,
-                        }
+                        background: themeConfig.cardBgColor
+                          ? `${themeConfig.cardBgColor.style}`
+                          : undefined,
+                        color: themeConfig.cardSec
+                          ? `${themeConfig.cardSec.style}`
+                          : undefined,
+                      }
                       : {}
                   }
                 >
@@ -582,8 +601,11 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
             <div className="btn-bar text-center p-3">
               <button className="btn btn-danger mr-2 ">Set Default</button>
-              <button className="btn btn-success" onClick={savehandler}>
-                Save
+              <button className="btn btn-success mr-2" onClick={savehandler}>
+                Apply
+              </button>
+              <button className="btn btn-success" onClick={exportHandler}>
+                Export
               </button>
             </div>
           </div>
