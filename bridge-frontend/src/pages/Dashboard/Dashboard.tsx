@@ -429,8 +429,20 @@ export function Dashboard(props:ThemeProps) {
                     button:props.themeConfig.button ?
                      {...selectedTheme.colors.button,...props.themeConfig.button} : selectedTheme.colors.button,
                      card:props.themeConfig.card ?
-                     {...selectedTheme.colors.card,cardPri : props.themeConfig.card.cardPri ? props.themeConfig.card.cardPri : selectedTheme.colors.card.cardPri, cardSec : props.themeConfig.card.cardSec ? props.themeConfig.card.cardSec :
-                        selectedTheme.colors.card.cardSec } : selectedTheme.colors.card
+                        {...selectedTheme.colors.card,
+                            cardPri :
+                            props.themeConfig.card.cardPri ?
+                            props.themeConfig.card.cardPri : selectedTheme.colors.card.cardPri,
+                            cardTextPri :
+                            props.themeConfig.card.cardTextPri ? 
+                            props.themeConfig.card.cardTextPri : selectedTheme.colors.card.cardTextPri,
+                            cardSec : 
+                            props.themeConfig.card.cardSec ? 
+                            props.themeConfig.card.cardSec : selectedTheme.colors.card.cardSec,
+                            cardTextSec :
+                            props.themeConfig.card.cardTextSec ? 
+                            props.themeConfig.card.cardTextSec : selectedTheme.colors.card.cardTextSec,
+                        } : selectedTheme.colors.card
                     }
                 }
             }>

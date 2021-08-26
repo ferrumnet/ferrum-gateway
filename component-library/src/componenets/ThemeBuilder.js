@@ -209,13 +209,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnBgColor || themeConfig.btnTextPriColor
                         ? {
-                            background: themeConfig.btnBgColor
-                              ? `${themeConfig.btnBgColor.style}`
-                              : undefined,
-                            color: themeConfig.btnTextPriColor
-                              ? themeConfig.btnTextPriColor.style
-                              : undefined,
-                          }
+                          background: themeConfig.btnBgColor
+                            ? `${themeConfig.btnBgColor.style}`
+                            : undefined,
+                          color: themeConfig.btnTextPriColor
+                            ? themeConfig.btnTextPriColor.style
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -281,13 +281,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnTextSecColor || themeConfig.btnActiveColor
                         ? {
-                            background: themeConfig.btnActiveColor
-                              ? `${themeConfig.btnActiveColor.style}`
-                              : undefined,
-                            color: themeConfig.btnTextSecColor
-                              ? themeConfig.btnTextSecColor.style
-                              : undefined,
-                          }
+                          background: themeConfig.btnActiveColor
+                            ? `${themeConfig.btnActiveColor.style}`
+                            : undefined,
+                          color: themeConfig.btnTextSecColor
+                            ? themeConfig.btnTextSecColor.style
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -350,13 +350,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsFinishBgColor
                               ? {
-                                  background: themeConfig.stepsFinishBgColor
-                                    ? `${themeConfig.stepsFinishBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsFinishBorderColor
-                                    ? `${themeConfig.stepsFinishBorderColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsFinishBgColor
+                                  ? `${themeConfig.stepsFinishBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsFinishBorderColor
+                                  ? `${themeConfig.stepsFinishBorderColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -441,13 +441,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsWaitBgColor
                               ? {
-                                  background: themeConfig.stepsWaitBgColor
-                                    ? `${themeConfig.stepsWaitBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsWaitBgColor
-                                    ? `${themeConfig.stepsWaitBgColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsWaitBgColor
+                                  ? `${themeConfig.stepsWaitBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsWaitBgColor
+                                  ? `${themeConfig.stepsWaitBgColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -496,13 +496,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsProgressBgColor
                               ? {
-                                  background: themeConfig.stepsProgressBgColor
-                                    ? `${themeConfig.stepsProgressBgColor.style}`
-                                    : undefined,
-                                  borderColor: themeConfig.stepsProgressBgColor
-                                    ? `${themeConfig.stepsProgressBgColor.style}`
-                                    : undefined,
-                                }
+                                background: themeConfig.stepsProgressBgColor
+                                  ? `${themeConfig.stepsProgressBgColor.style}`
+                                  : undefined,
+                                borderColor: themeConfig.stepsProgressBgColor
+                                  ? `${themeConfig.stepsProgressBgColor.style}`
+                                  : undefined,
+                              }
                               : {}
                           }
                         >
@@ -580,15 +580,15 @@ export const ThemeBuilder = ({ config, onChange }) => {
               <div className="input-group">
                 <label htmlFor="cardBorderRadius">cardBorderRadius</label>
                 <input
-                type="number"
-                    min="0"
-                    id="cardBorderRadius"
-                    name="cardBorderRadius"
-                    value={themeConfig.cardBorderRadius}
-                    onChange={handleThemeConfigChange}
-                    className="form-control"
-                    />
-              </div> 
+                  type="number"
+                  min="0"
+                  id="cardBorderRadius"
+                  name="cardBorderRadius"
+                  value={themeConfig.cardBorderRadius}
+                  onChange={handleThemeConfigChange}
+                  className="form-control"
+                />
+              </div>
               <div className="row">
                 <div className="col-6">
                   <div
@@ -596,13 +596,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.cardPri
                         ? {
-                            background: themeConfig.cardPri
-                              ? `${themeConfig.cardPri.style}`
-                              : undefined,
-                            color: themeConfig.cardTextPri
-                              ? `${themeConfig.cardTextPri.style}`
-                              : undefined,
-                          }
+                          background: themeConfig.cardPri
+                            ? `${themeConfig.cardPri.style}`
+                            : undefined,
+                          color: themeConfig.cardTextPri
+                            ? `${themeConfig.cardTextPri.style}`
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -649,13 +649,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.cardSec
                         ? {
-                            background: themeConfig.cardSec
-                              ? `${themeConfig.cardSec.style}`
-                              : undefined,
-                            color: themeConfig.cardTextSec
-                              ? `${themeConfig.cardTextSec.style}`
-                              : undefined,
-                          }
+                          background: themeConfig.cardSec
+                            ? `${themeConfig.cardSec.style}`
+                            : undefined,
+                          color: themeConfig.cardTextSec
+                            ? `${themeConfig.cardTextSec.style}`
+                            : undefined,
+                        }
                         : {}
                     }
                   >
@@ -687,7 +687,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         checked={fieldName === "cardTextSec" ? true : false}
                         onChange={() => {
                           setFieldName("cardTextSec");
-                          setIsGradient(true);
+                          setIsGradient(false);
                         }}
                       />
                       <label className="custom-control-label" for="cardTextSec">
