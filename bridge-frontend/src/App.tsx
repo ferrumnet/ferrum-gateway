@@ -32,27 +32,33 @@ function App() {
   // const [themeConfig,setThemeConfig] = useState({primary:"",secondary:"",backgroud:"",radius:0,backgroundImage:"",logo:""});
   const [themeConfig, setThemeConfig] = useState({
     headingColor: "", //"#fff",
+
+    // btnBackgroundSize: "", //"100%",
+    btnPadding: "", //"10px 15px",
+    btnBorderRadius: "", //"40px",
     btnBgColor: "", //"linear-gradient(to right, #da1e5e 0%, #f69322 50%, #da1e5e 100%)",
     btnTextColor: "", //"rgb(17, 17, 17)",
     btnTextPriColor: "", //"#fff",
     btnTextSecColor: "", //"#fff",
     btnActiveColor: "", //"linear-gradient(to right, #F69321 0%, #F69321 50%, #da1e5e 100%)",
-
-    stepsBgColor: "", //"#19792f",
-    stepsBorderColor: "", //"#19792f",
+    
+    stepsFinishBgColor: "", //"rgb(219, 72, 59)",
+    stepsFinishBorderColor: "", //"rgb(219, 72, 59)",
     stepsWaitBgColor: "", //"rgb(219, 72, 59)",
-    stepsProgressBgColor: "", 
-    cardBgColor: "", //"#0A0738",
-    cardSec: "", //"#110252",
+    stepsWaitBorderColor: "", //"rgb(219, 72, 59)",
+    stepsProcessBgColor: "", //"rgb(219, 72, 59)",
+    stepsProcessBorderColor: "",
 
-    btnBackgroundSize: "", //"100%",
-    btnPadding: "", //"10px 15px",
-    cardBoxShadow: "", //"rgb(0 0 0 / 14%) -2px -1px 5px 2px",
-    btnBorderRadius: "", //"40px",
     cardBorderRadius: "", //"20px",
+    cardBoxShadow: "", //"rgb(0 0 0 / 14%) -2px -1px 5px 2px",
+    cardPri: "", //"#0A0738",
+    cardTextPri: "", //"#0A0738",
+    cardSec: "", //"#110252",
+    cardTextSec: "", //"#110252",
+
+    useBgImg: true,
     faviconImg: "", //"https://paidnetwork.com/wp-content/uploads/2020/09/paidfav-150x150.jpg",
     mainLogo: "", //"https://i.imgur.com/2MtwKPi.png",
-    useBgImg: true,
     bgImg: "", //"https://i.imgur.com/b2gZEEX.jpg",
   });
   return (

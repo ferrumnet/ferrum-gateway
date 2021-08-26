@@ -272,7 +272,6 @@ export const GlobalStyles = createGlobalStyle`
       theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
-    background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .card {
     background: ${({ theme }) => theme.colors.card.cardPri};
@@ -286,10 +285,11 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.card.text};
     }
     &.card-sec {
-      background-color: ${({ theme }) => theme.colors.card.cardSec};
+      background: ${({ theme }) => theme.colors.card.cardSec};
       p {
-        color: ${({ theme }) => theme.colors.card.cardTextPri};
+        color: ${({ theme }) => theme.colors.card.cardTextSec};
       }
+      
     }
   }
   .alertFailColor {
@@ -360,31 +360,36 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.inverse} !important;
     }
   }
-  .ant-steps-item-process {
-    .ant-steps-item-icon {
-      background:  ${({ theme }) =>
-        theme.colors.stepsWaitBackgroundColor};
+  .ant-steps-item-finish {
+    .ant-steps-item-icon{
+      background: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#168416"};
+      border-color: ${({ theme }) =>
+        theme.colors.stepsFinishBorderColor || "#168416"};
     }
   }
+  .ant-steps-item-wait {
+    .ant-steps-item-icon{
+      background: ${({ theme }) =>
+        theme.colors.stepsFinishBackgroundColor || "#caa561"};
+      border-color: ${({ theme }) =>
+        theme.colors.stepsFinishBorderColor || "#caa561"};
+    }
+  }
+  .ant-steps-item-process {
+    .ant-steps-item-icon{
+      background: ${({ theme }) =>
+        theme.colors.stepsProcessBackgroundColor || "orange"};
+      border-color: ${({ theme }) =>
+        theme.colors.stepsProcessBorderColor || "orange"};
+    }
+
+
   .ant-message-notice-content{
     background: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) =>
       theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
-  }
-  .ant-steps-item-wait {
-    .ant-steps-item-icon {
-     background:  ${({ theme }) =>
-       theme.colors.stepsWaitBackgroundColor};
-    }
-  }
-  .anticon{
-    .ant-steps-finish-icon{
-      color: ${({ theme }) => theme.colors.card.cardPri} !important;
-      span{
-        color: ${({ theme }) => theme.colors.card.cardPri} !important;
-      }
-    }
   }
   .ant-alert-error{
     background-color: ${({ theme }) =>
@@ -438,15 +443,8 @@ export const GlobalStyles = createGlobalStyle`
       theme.colors.stepsWaitBackgroundColor || "#168416"};
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
-  .ant-steps-item-finish {
-    .ant-steps-item-icon{
-      background: ${({ theme }) =>
-        theme.colors.stepsFinishBackgroundColor || "#168416"};
-      border-color: ${({ theme }) =>
-        theme.colors.stepsFinishBorderColor || "#168416"};
-    }
+  
   }
-
   .text-vary-color{
     color: ${({ theme }) => theme.colors.inverse} !important;
   }

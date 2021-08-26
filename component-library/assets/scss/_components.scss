@@ -9,7 +9,6 @@
     border: 0;
     text-decoration: none;
     position: relative;
-
     .step-circle {
       background: #ddd;
       border-radius: 100%;
@@ -69,6 +68,15 @@
         background: lighten(green, 10);
       }
     }
+  }
+}
+.ant-steps-icon {
+  width: 100%;
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
   }
 }
 

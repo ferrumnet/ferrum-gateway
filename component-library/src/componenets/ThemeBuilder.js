@@ -43,9 +43,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
       mainLogo: themeConfig.mainLogo,
       colors: {
         mainHeaderColor: themeConfig?.headingColor?.style,
-        stepsFinishBackgroundColor: themeConfig?.stepsBgColor?.style,
+        // stepsBackgroundColor: themeConfig?.stepsBgColor?.style,
+        stepsFinishBackgroundColor: themeConfig?.stepsFinishBgColor?.style,
+        stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
         stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
-        stepsProgressBackgroundColor: themeConfig?.stepsProgressBgColor?.style,
+        stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
+        stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
+        stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
       },
       button: {
         btnPri: themeConfig?.btnBgColor?.style,
@@ -54,8 +58,11 @@ export const ThemeBuilder = ({ config, onChange }) => {
         btnActiveColor: themeConfig?.btnActiveColor?.style,
       },
       card: {
-        cardBgColor: themeConfig?.cardBgColor?.style,
+        borderRadius: themeConfig?.cardBorderRadius?.style,
+        cardPri: themeConfig?.cardPri?.style,
+        cardTextPri: themeConfig?.cardTextPri?.style,
         cardSec: themeConfig?.cardSec?.style,
+        cardTextSec: themeConfig?.cardTextSec?.style,
       },
     };
     onChange({ ...theme });
@@ -66,19 +73,26 @@ export const ThemeBuilder = ({ config, onChange }) => {
       bgImg: themeConfig.bgImg,
       mainLogo: themeConfig.mainLogo,
       headingColor: themeConfig?.headingColor?.style,
-      stepsBgColor: themeConfig?.stepsBgColor?.style,
-      stepsWaitBgColor: themeConfig?.stepsWaitBgColor?.style,
-      stepsProgressBgColor: themeConfig?.stepsProgressBgColor?.style,
+      // stepsBackgroundColor: themeConfig?.stepsBgColor?.style,
+      stepsFinishBackgroundColor: themeConfig?.stepsFinishBgColor?.style,
+      stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
+      stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
+      stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
+      stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
+      stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
       btnBgColor: themeConfig?.btnBgColor?.style,
       btnTextPriColor: themeConfig?.btnTextPriColor?.style,
       btnTextSecColor: themeConfig?.btnTextSecColor?.style,
       btnActiveColor: themeConfig?.btnActiveColor?.style,
-      cardBgColor: themeConfig?.cardBgColor?.style,
+      cardBorderRadius: themeConfig?.cardBorderRadius?.style,
+      cardPri: themeConfig?.cardPri?.style,
+      cardTextPri: themeConfig?.cardTextPri?.style,
       cardSec: themeConfig?.cardSec?.style,
-    }
+      cardTextSec: themeConfig?.cardTextSec?.style,
+    };
 
     alert(JSON.stringify(exportJson));
-  }
+  };
 
   return (
     <>
@@ -91,7 +105,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
         }}
       >
         <Modal.Header closeButton className="pt-2 pb-0">
-          <h4 className="m-0">Theme Builder</h4>
+          <h4 className="m-0 text-white">Theme Builder</h4>
         </Modal.Header>
         <Modal.Body>
           <ColorPicker
@@ -176,6 +190,18 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
             <section className="theme-bulider-component">
               <h5 style={{ color: "white" }}>Button Design:</h5>
+              {/* <div className="input-group">
+                <label htmlFor="btn_bg_color">btnPadding</label>
+                <input
+                  type="number"
+                  min="0"
+                  id="btnPadding"
+                  name="btnPadding"
+                  value={themeConfig.btnPadding}
+                  onChange={handleThemeConfigChange}
+                  className="form-control"
+                />
+              </div> */}
               <div className="row">
                 <div className="col-6">
                   <button
@@ -183,13 +209,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnBgColor || themeConfig.btnTextPriColor
                         ? {
-                          background: themeConfig.btnBgColor
-                            ? `${themeConfig.btnBgColor.style}`
-                            : undefined,
-                          color: themeConfig.btnTextPriColor
-                            ? themeConfig.btnTextPriColor.style
-                            : undefined,
-                        }
+                            background: themeConfig.btnBgColor
+                              ? `${themeConfig.btnBgColor.style}`
+                              : undefined,
+                            color: themeConfig.btnTextPriColor
+                              ? themeConfig.btnTextPriColor.style
+                              : undefined,
+                          }
                         : {}
                     }
                   >
@@ -255,13 +281,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     style={
                       themeConfig.btnTextSecColor || themeConfig.btnActiveColor
                         ? {
-                          background: themeConfig.btnActiveColor
-                            ? `${themeConfig.btnActiveColor.style}`
-                            : undefined,
-                          color: themeConfig.btnTextSecColor
-                            ? themeConfig.btnTextSecColor.style
-                            : undefined,
-                        }
+                            background: themeConfig.btnActiveColor
+                              ? `${themeConfig.btnActiveColor.style}`
+                              : undefined,
+                            color: themeConfig.btnTextSecColor
+                              ? themeConfig.btnTextSecColor.style
+                              : undefined,
+                          }
                         : {}
                     }
                   >
@@ -316,21 +342,21 @@ export const ThemeBuilder = ({ config, onChange }) => {
               <div className="row">
                 <div className="col-6">
                   <div className="ant-steps ant-steps-vertical">
-                    <div className="ant-steps-item ant-steps-item-wait ant-steps-item-active">
+                    <div className="ant-steps-item ant-steps-item-finish">
                       <div className="ant-steps-item-container">
                         <div className="ant-steps-item-tail"></div>
                         <div
                           className="ant-steps-item-icon"
                           style={
-                            themeConfig.stepsBgColor
+                            themeConfig.stepsFinishBgColor
                               ? {
-                                background: themeConfig.stepsBgColor
-                                  ? `${themeConfig.stepsBgColor.style}`
-                                  : undefined,
-                                borderColor: themeConfig.stepsBorderColor
-                                  ? `${themeConfig.stepsBorderColor.style}`
-                                  : undefined,
-                              }
+                                  background: themeConfig.stepsFinishBgColor
+                                    ? `${themeConfig.stepsFinishBgColor.style}`
+                                    : undefined,
+                                  borderColor: themeConfig.stepsFinishBorderColor
+                                    ? `${themeConfig.stepsFinishBorderColor.style}`
+                                    : undefined,
+                                }
                               : {}
                           }
                         >
@@ -362,52 +388,45 @@ export const ThemeBuilder = ({ config, onChange }) => {
                       </div>
                     </div>
                   </div>
-                  <div
-                    className="radio-group"
-                    style={
-                      themeConfig.stepsBgColor || themeConfig.stepsBorderColor
-                        ? {}
-                        : {}
-                    }
-                  >
+                  <div className="radio-group">
                     <div className="custom-control custom-radio custom-control-inline">
                       <input
                         type="radio"
-                        id="stepsBgColor"
+                        id="stepsFinishBgColor"
                         name="customRadioInline"
                         className="custom-control-input"
-                        checked={fieldName === "stepsBgColor" ? true : false}
+                        checked={fieldName === "stepsFinishBgColor" ? true : false}
                         onChange={() => {
-                          setFieldName("stepsBgColor");
+                          setFieldName("stepsFinishBgColor");
                           setIsGradient(true);
                         }}
                       />
                       <label
                         className="custom-control-label"
-                        for="stepsBgColor"
+                        for="stepsFinishBgColor"
                       >
-                        stepsBgColor
+                        stepsFinishBgColor
                       </label>
                     </div>
                     <div className="custom-control custom-radio custom-control-inline">
                       <input
                         type="radio"
-                        id="stepsBorderColor"
+                        id="stepsFinishBorderColor"
                         name="customRadioInline"
                         className="custom-control-input"
                         checked={
-                          fieldName === "stepsBorderColor" ? true : false
+                          fieldName === "stepsFinishBorderColor" ? true : false
                         }
                         onChange={() => {
-                          setFieldName("stepsBorderColor");
+                          setFieldName("stepsFinishBorderColor");
                           setIsGradient(false);
                         }}
                       />
                       <label
                         className="custom-control-label"
-                        for="stepsBorderColor"
+                        for="stepsFinishBorderColor"
                       >
-                        stepsBorderColor
+                        stepsFinishBorderColor
                       </label>
                     </div>
                   </div>
@@ -422,13 +441,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsWaitBgColor
                               ? {
-                                background: themeConfig.stepsWaitBgColor
-                                  ? `${themeConfig.stepsWaitBgColor.style}`
-                                  : undefined,
-                                borderColor: themeConfig.stepsWaitBgColor
-                                  ? `${themeConfig.stepsWaitBgColor.style}`
-                                  : undefined,
-                              }
+                                  background: themeConfig.stepsWaitBgColor
+                                    ? `${themeConfig.stepsWaitBgColor.style}`
+                                    : undefined,
+                                  borderColor: themeConfig.stepsWaitBgColor
+                                    ? `${themeConfig.stepsWaitBgColor.style}`
+                                    : undefined,
+                                }
                               : {}
                           }
                         >
@@ -469,7 +488,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                 <div className="col-6">
                   <hr />
                   <div className="ant-steps ant-steps-vertical">
-                    <div className="ant-steps-item ant-steps-item-wait">
+                    <div className="ant-steps-item ant-steps-item-process">
                       <div className="ant-steps-item-container">
                         <div className="ant-steps-item-tail"></div>
                         <div
@@ -477,13 +496,13 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           style={
                             themeConfig.stepsProgressBgColor
                               ? {
-                                background: themeConfig.stepsProgressBgColor
-                                  ? `${themeConfig.stepsProgressBgColor.style}`
-                                  : undefined,
-                                borderColor: themeConfig.stepsProgressBgColor
-                                  ? `${themeConfig.stepsProgressBgColor.style}`
-                                  : undefined,
-                              }
+                                  background: themeConfig.stepsProgressBgColor
+                                    ? `${themeConfig.stepsProgressBgColor.style}`
+                                    : undefined,
+                                  borderColor: themeConfig.stepsProgressBgColor
+                                    ? `${themeConfig.stepsProgressBgColor.style}`
+                                    : undefined,
+                                }
                               : {}
                           }
                         >
@@ -545,57 +564,137 @@ export const ThemeBuilder = ({ config, onChange }) => {
             <section className="theme-bulider-component">
               <h5 style={{ color: "white" }}>
                 <span>Card Design:</span>
-
-                <div
-                  className="card w-50 p-2"
-                  style={
-                    themeConfig.cardBgColor
-                      ? {
-                        background: themeConfig.cardBgColor
-                          ? `${themeConfig.cardBgColor.style}`
-                          : undefined,
-                        color: themeConfig.cardSec
-                          ? `${themeConfig.cardSec.style}`
-                          : undefined,
-                      }
-                      : {}
-                  }
-                >
-                  <span>Card Text Color</span>
-                </div>
               </h5>
-              <div className="radio-group">
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    id="cardBgColor"
-                    name="customRadioInline"
-                    className="custom-control-input"
-                    checked={fieldName === "cardBgColor" ? true : false}
-                    onChange={() => {
-                      setFieldName("cardBgColor");
-                      setIsGradient(true);
-                    }}
-                  />
-                  <label className="custom-control-label" for="cardBgColor">
-                    cardBgColor
-                  </label>
+              {/* <div className="input-group">
+                <label htmlFor="btn_bg_color">cardBoxShadow</label>
+                <input
+                type="number"
+                min="0"
+                  id="cardBoxShadow"
+                  name="cardBoxShadow"
+                  value={themeConfig.cardBoxShadow}
+                  onChange={handleThemeConfigChange}
+                  className="form-control"
+                />
+              </div>*/}
+              <div className="input-group">
+                <label htmlFor="cardBorderRadius">cardBorderRadius</label>
+                <input
+                type="number"
+                    min="0"
+                    id="cardBorderRadius"
+                    name="cardBorderRadius"
+                    value={themeConfig.cardBorderRadius}
+                    onChange={handleThemeConfigChange}
+                    className="form-control"
+                    />
+              </div> 
+              <div className="row">
+                <div className="col-6">
+                  <div
+                    className="card p-2 mb-3"
+                    style={
+                      themeConfig.cardPri
+                        ? {
+                            background: themeConfig.cardPri
+                              ? `${themeConfig.cardPri.style}`
+                              : undefined,
+                            color: themeConfig.cardTextPri
+                              ? `${themeConfig.cardTextPri.style}`
+                              : undefined,
+                          }
+                        : {}
+                    }
+                  >
+                    <span>Card Primary</span>
+                  </div>
+                  <div className="radio-group">
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="cardPri"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={fieldName === "cardPri" ? true : false}
+                        onChange={() => {
+                          setFieldName("cardPri");
+                          setIsGradient(true);
+                        }}
+                      />
+                      <label className="custom-control-label" for="cardPri">
+                        cardPri
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="cardTextPri"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={fieldName === "cardTextPri" ? true : false}
+                        onChange={() => {
+                          setFieldName("cardTextPri");
+                          setIsGradient(false);
+                        }}
+                      />
+                      <label className="custom-control-label" for="cardTextPri">
+                        cardTextPri
+                      </label>
+                    </div>
+                  </div>
                 </div>
-                <div className="custom-control custom-radio custom-control-inline">
-                  <input
-                    type="radio"
-                    id="cardSec"
-                    name="customRadioInline"
-                    className="custom-control-input"
-                    checked={fieldName === "cardSec" ? true : false}
-                    onChange={() => {
-                      setFieldName("cardSec");
-                      setIsGradient(false);
-                    }}
-                  />
-                  <label className="custom-control-label" for="cardSec">
-                    cardSec
-                  </label>
+                <div className="col-6">
+                  <div
+                    className="card card-sec p-2 mb-3"
+                    style={
+                      themeConfig.cardSec
+                        ? {
+                            background: themeConfig.cardSec
+                              ? `${themeConfig.cardSec.style}`
+                              : undefined,
+                            color: themeConfig.cardTextSec
+                              ? `${themeConfig.cardTextSec.style}`
+                              : undefined,
+                          }
+                        : {}
+                    }
+                  >
+                    <span>Card Secondary</span>
+                  </div>
+                  <div className="radio-group">
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="cardSec"
+                        name="cardSec"
+                        className="custom-control-input"
+                        checked={fieldName === "cardSec" ? true : false}
+                        onChange={() => {
+                          setFieldName("cardSec");
+                          setIsGradient(true);
+                        }}
+                      />
+                      <label className="custom-control-label" for="cardSec">
+                        cardSec
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="cardTextSec"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={fieldName === "cardTextSec" ? true : false}
+                        onChange={() => {
+                          setFieldName("cardTextSec");
+                          setIsGradient(true);
+                        }}
+                      />
+                      <label className="custom-control-label" for="cardTextSec">
+                        cardTextSec
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
