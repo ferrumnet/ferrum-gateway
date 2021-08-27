@@ -80,15 +80,15 @@ export const ThemeBuilder = ({ config, onChange }) => {
       stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
       stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
       stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
-      btnBgColor: themeConfig?.btnBgColor?.style,
-      btnTextPriColor: themeConfig?.btnTextPriColor?.style,
-      btnTextSecColor: themeConfig?.btnTextSecColor?.style,
-      btnActiveColor: themeConfig?.btnActiveColor?.style,
       cardBorderRadius: themeConfig?.cardBorderRadius?.style,
       cardPri: themeConfig?.cardPri?.style,
       cardTextPri: themeConfig?.cardTextPri?.style,
       cardSec: themeConfig?.cardSec?.style,
       cardTextSec: themeConfig?.cardTextSec?.style,
+      btnBgColor: themeConfig?.btnBgColor?.style,
+      btnTextPriColor: themeConfig?.btnTextPriColor?.style,
+      btnTextSecColor: themeConfig?.btnTextSecColor?.style,
+      btnActiveColor: themeConfig?.btnActiveColor?.style,
     };
 
     alert(JSON.stringify(exportJson));
@@ -483,6 +483,27 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         stepsWaitBgColor
                       </label>
                     </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="stepsWaitBorderColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={
+                          fieldName === "stepsWaitBorderColor" ? true : false
+                        }
+                        onChange={() => {
+                          setFieldName("stepsWaitBorderColor");
+                          setIsGradient(false);
+                        }}
+                      />
+                      <label
+                        className="custom-control-label"
+                        for="stepsWaitBorderColor"
+                      >
+                        stepsWaitBorderColor
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="col-6">
@@ -554,6 +575,27 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         for="stepsProgressBgColor"
                       >
                         stepsProgressBgColor
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="stepsProcessBorderColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={
+                          fieldName === "stepsProcessBorderColor" ? true : false
+                        }
+                        onChange={() => {
+                          setFieldName("stepsProcessBorderColor");
+                          setIsGradient(false);
+                        }}
+                      />
+                      <label
+                        className="custom-control-label"
+                        for="stepsProcessBorderColor"
+                      >
+                        stepsProcessBorderColor
                       </label>
                     </div>
                   </div>
