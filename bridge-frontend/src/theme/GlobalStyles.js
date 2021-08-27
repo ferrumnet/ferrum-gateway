@@ -292,7 +292,7 @@ export const GlobalStyles = createGlobalStyle`
     }
     &.card-sec {
       background: ${({ theme }) => theme.colors.card.cardSec};
-      p {
+      p, small {
         color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"};
       }
       .text-vary-color{
