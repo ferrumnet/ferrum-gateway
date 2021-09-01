@@ -12,6 +12,7 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -21,30 +22,55 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CruicibleRouterInterface extends ethers.utils.Interface {
   functions: {
-    "addSigner(address)": FunctionFragment;
+    "GOVERNANCE_GROUP_ID()": FunctionFragment;
+    "addToQuorum(address,address,uint16,uint16)": FunctionFragment;
+    "addToQuorumGovernance(address,address,uint16,uint16,bytes32,bytes)": FunctionFragment;
     "admin()": FunctionFragment;
+    "burn(address)": FunctionFragment;
+    "cancelSaltedSignature(bytes32,uint16,bytes)": FunctionFragment;
     "createCrucible(address,uint64,uint64)": FunctionFragment;
     "createCrucibleDirect(address,string,string,uint64,uint64)": FunctionFragment;
     "deposit(address,address,uint256,bytes32,uint64,bytes)": FunctionFragment;
+    "depositAddLiquidityStake(address,address,address,uint256,uint256,address,address,uint64,uint256,bytes)": FunctionFragment;
+    "depositAddLiquidityStakeETH(address,address,uint256,address,address,uint64,uint64,bytes)": FunctionFragment;
     "depositOpen(address,address,uint256)": FunctionFragment;
     "getCrucible(address,uint64,uint64)": FunctionFragment;
     "openCaps(address)": FunctionFragment;
-    "overrideFee(address,address,uint8,uint64)": FunctionFragment;
+    "overrideFee(address,address,uint8,uint64,uint64,uint16,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "parameters()": FunctionFragment;
-    "removeSigner(address)": FunctionFragment;
+    "quorumList(uint256)": FunctionFragment;
+    "quorumSubscriptions(address)": FunctionFragment;
+    "quorums(address)": FunctionFragment;
+    "removeFromQuorum(address)": FunctionFragment;
+    "removeFromQuorumGovernance(address,bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
-    "setOpenCap(address,uint256)": FunctionFragment;
+    "setOpenCap(address,uint256,uint64,uint16,bytes)": FunctionFragment;
     "setTaxDistributor(address)": FunctionFragment;
-    "signers(address)": FunctionFragment;
     "taxDistributor()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "addSigner", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "GOVERNANCE_GROUP_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addToQuorum",
+    values: [string, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addToQuorumGovernance",
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
+  ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: "burn", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "cancelSaltedSignature",
+    values: [BytesLike, BigNumberish, BytesLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "createCrucible",
     values: [string, BigNumberish, BigNumberish]
@@ -58,6 +84,34 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
     values: [string, string, BigNumberish, BytesLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "depositAddLiquidityStake",
+    values: [
+      string,
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositAddLiquidityStakeETH",
+    values: [
+      string,
+      string,
+      BigNumberish,
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "depositOpen",
     values: [string, string, BigNumberish]
   ): string;
@@ -68,7 +122,15 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "openCaps", values: [string]): string;
   encodeFunctionData(
     functionFragment: "overrideFee",
-    values: [string, string, BigNumberish, BigNumberish]
+    values: [
+      string,
+      string,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BytesLike
+    ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -76,8 +138,21 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "removeSigner",
+    functionFragment: "quorumList",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "quorumSubscriptions",
     values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "quorums", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "removeFromQuorum",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeFromQuorumGovernance",
+    values: [string, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -86,13 +161,12 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setOpenCap",
-    values: [string, BigNumberish]
+    values: [string, BigNumberish, BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setTaxDistributor",
     values: [string]
   ): string;
-  encodeFunctionData(functionFragment: "signers", values: [string]): string;
   encodeFunctionData(
     functionFragment: "taxDistributor",
     values?: undefined
@@ -106,8 +180,24 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
     values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addSigner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "GOVERNANCE_GROUP_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addToQuorum",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addToQuorumGovernance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "cancelSaltedSignature",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "createCrucible",
     data: BytesLike
@@ -117,6 +207,14 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositAddLiquidityStake",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositAddLiquidityStakeETH",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "depositOpen",
     data: BytesLike
@@ -132,8 +230,18 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "parameters", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "quorumList", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeSigner",
+    functionFragment: "quorumSubscriptions",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "quorums", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "removeFromQuorum",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeFromQuorumGovernance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -146,7 +254,6 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
     functionFragment: "setTaxDistributor",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "signers", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "taxDistributor",
     data: BytesLike
@@ -159,14 +266,12 @@ interface CruicibleRouterInterface extends ethers.utils.Interface {
 
   events: {
     "AdminSet(address)": EventFragment;
-    "CrucibleCreated(address,tuple,address,uint256,uint256)": EventFragment;
-    "Deposited(address,address,uint256)": EventFragment;
+    "CrucibleCreated(address,address,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CrucibleCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
 }
 
@@ -214,12 +319,39 @@ export class CruicibleRouter extends BaseContract {
   interface: CruicibleRouterInterface;
 
   functions: {
-    addSigner(
-      _signer: string,
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<[number]>;
+
+    addToQuorum(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     admin(overrides?: CallOverrides): Promise<[string]>;
+
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    cancelSaltedSignature(
+      salt: BytesLike,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     createCrucible(
       baseToken: string,
@@ -243,8 +375,34 @@ export class CruicibleRouter extends BaseContract {
       amount: BigNumberish,
       salt: BytesLike,
       expiry: BigNumberish,
-      signature: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    depositAddLiquidityStake(
+      to: string,
+      crucible: string,
+      pairToken: string,
+      baseAmount: BigNumberish,
+      pairAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    depositAddLiquidityStakeETH(
+      to: string,
+      crucible: string,
+      baseAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     depositOpen(
@@ -268,6 +426,9 @@ export class CruicibleRouter extends BaseContract {
       target: string,
       overrideType: BigNumberish,
       newFeeX10000: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -286,8 +447,42 @@ export class CruicibleRouter extends BaseContract {
       }
     >;
 
-    removeSigner(
-      _signer: string,
+    quorumList(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    quorumSubscriptions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, number, number] & {
+        id: string;
+        groupId: number;
+        minSignatures: number;
+      }
+    >;
+
+    quorums(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, number, number] & {
+        id: string;
+        groupId: number;
+        minSignatures: number;
+      }
+    >;
+
+    removeFromQuorum(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    removeFromQuorumGovernance(
+      _address: string,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -301,8 +496,11 @@ export class CruicibleRouter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setOpenCap(
-      token: string,
+      crucible: string,
       cap: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -310,8 +508,6 @@ export class CruicibleRouter extends BaseContract {
       _taxDistributor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    signers(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     taxDistributor(overrides?: CallOverrides): Promise<[string]>;
 
@@ -323,12 +519,39 @@ export class CruicibleRouter extends BaseContract {
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  addSigner(
-    _signer: string,
+  GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
+
+  addToQuorum(
+    _address: string,
+    quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addToQuorumGovernance(
+    _address: string,
+    quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
+    salt: BytesLike,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   admin(overrides?: CallOverrides): Promise<string>;
+
+  burn(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  cancelSaltedSignature(
+    salt: BytesLike,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   createCrucible(
     baseToken: string,
@@ -352,8 +575,34 @@ export class CruicibleRouter extends BaseContract {
     amount: BigNumberish,
     salt: BytesLike,
     expiry: BigNumberish,
-    signature: BytesLike,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  depositAddLiquidityStake(
+    to: string,
+    crucible: string,
+    pairToken: string,
+    baseAmount: BigNumberish,
+    pairAmount: BigNumberish,
+    ammRouter: string,
+    stake: string,
+    expiry: BigNumberish,
+    deadline: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  depositAddLiquidityStakeETH(
+    to: string,
+    crucible: string,
+    baseAmount: BigNumberish,
+    ammRouter: string,
+    stake: string,
+    expiry: BigNumberish,
+    deadline: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   depositOpen(
@@ -377,6 +626,9 @@ export class CruicibleRouter extends BaseContract {
     target: string,
     overrideType: BigNumberish,
     newFeeX10000: BigNumberish,
+    expiry: BigNumberish,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -395,8 +647,39 @@ export class CruicibleRouter extends BaseContract {
     }
   >;
 
-  removeSigner(
-    _signer: string,
+  quorumList(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  quorumSubscriptions(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, number, number] & {
+      id: string;
+      groupId: number;
+      minSignatures: number;
+    }
+  >;
+
+  quorums(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [string, number, number] & {
+      id: string;
+      groupId: number;
+      minSignatures: number;
+    }
+  >;
+
+  removeFromQuorum(
+    _address: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  removeFromQuorumGovernance(
+    _address: string,
+    salt: BytesLike,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -410,8 +693,11 @@ export class CruicibleRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setOpenCap(
-    token: string,
+    crucible: string,
     cap: BigNumberish,
+    expiry: BigNumberish,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -419,8 +705,6 @@ export class CruicibleRouter extends BaseContract {
     _taxDistributor: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  signers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   taxDistributor(overrides?: CallOverrides): Promise<string>;
 
@@ -432,9 +716,36 @@ export class CruicibleRouter extends BaseContract {
   usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    addSigner(_signer: string, overrides?: CallOverrides): Promise<void>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
+
+    addToQuorum(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      salt: BytesLike,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     admin(overrides?: CallOverrides): Promise<string>;
+
+    burn(token: string, overrides?: CallOverrides): Promise<void>;
+
+    cancelSaltedSignature(
+      salt: BytesLike,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     createCrucible(
       baseToken: string,
@@ -458,9 +769,35 @@ export class CruicibleRouter extends BaseContract {
       amount: BigNumberish,
       salt: BytesLike,
       expiry: BigNumberish,
-      signature: BytesLike,
+      multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    depositAddLiquidityStake(
+      to: string,
+      crucible: string,
+      pairToken: string,
+      baseAmount: BigNumberish,
+      pairAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    depositAddLiquidityStakeETH(
+      to: string,
+      crucible: string,
+      baseAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     depositOpen(
       to: string,
@@ -483,6 +820,9 @@ export class CruicibleRouter extends BaseContract {
       target: string,
       overrideType: BigNumberish,
       newFeeX10000: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -501,15 +841,52 @@ export class CruicibleRouter extends BaseContract {
       }
     >;
 
-    removeSigner(_signer: string, overrides?: CallOverrides): Promise<void>;
+    quorumList(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    quorumSubscriptions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, number, number] & {
+        id: string;
+        groupId: number;
+        minSignatures: number;
+      }
+    >;
+
+    quorums(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, number, number] & {
+        id: string;
+        groupId: number;
+        minSignatures: number;
+      }
+    >;
+
+    removeFromQuorum(
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    removeFromQuorumGovernance(
+      _address: string,
+      salt: BytesLike,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
 
     setOpenCap(
-      token: string,
+      crucible: string,
       cap: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -517,8 +894,6 @@ export class CruicibleRouter extends BaseContract {
       _taxDistributor: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    signers(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
     taxDistributor(overrides?: CallOverrides): Promise<string>;
 
@@ -535,42 +910,17 @@ export class CruicibleRouter extends BaseContract {
 
     CrucibleCreated(
       token?: null,
-      id?: null,
       baseToken?: null,
       feeOnTransferX10000?: null,
       feeOnWithdrawX10000?: null
     ): TypedEventFilter<
-      [
-        string,
-        [string, BigNumber, BigNumber] & {
-          baseToken: string;
-          feeOnTransferX10000: BigNumber;
-          feeOnWithdrawX10000: BigNumber;
-        },
-        string,
-        BigNumber,
-        BigNumber
-      ],
+      [string, string, BigNumber, BigNumber],
       {
         token: string;
-        id: [string, BigNumber, BigNumber] & {
-          baseToken: string;
-          feeOnTransferX10000: BigNumber;
-          feeOnWithdrawX10000: BigNumber;
-        };
         baseToken: string;
         feeOnTransferX10000: BigNumber;
         feeOnWithdrawX10000: BigNumber;
       }
-    >;
-
-    Deposited(
-      crucible?: string | null,
-      to?: null,
-      amount?: null
-    ): TypedEventFilter<
-      [string, string, BigNumber],
-      { crucible: string; to: string; amount: BigNumber }
     >;
 
     OwnershipTransferred(
@@ -583,12 +933,39 @@ export class CruicibleRouter extends BaseContract {
   };
 
   estimateGas: {
-    addSigner(
-      _signer: string,
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
+    addToQuorum(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    cancelSaltedSignature(
+      salt: BytesLike,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     createCrucible(
       baseToken: string,
@@ -612,8 +989,34 @@ export class CruicibleRouter extends BaseContract {
       amount: BigNumberish,
       salt: BytesLike,
       expiry: BigNumberish,
-      signature: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    depositAddLiquidityStake(
+      to: string,
+      crucible: string,
+      pairToken: string,
+      baseAmount: BigNumberish,
+      pairAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    depositAddLiquidityStakeETH(
+      to: string,
+      crucible: string,
+      baseAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     depositOpen(
@@ -637,6 +1040,9 @@ export class CruicibleRouter extends BaseContract {
       target: string,
       overrideType: BigNumberish,
       newFeeX10000: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -644,8 +1050,27 @@ export class CruicibleRouter extends BaseContract {
 
     parameters(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeSigner(
-      _signer: string,
+    quorumList(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    quorumSubscriptions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    quorums(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    removeFromQuorum(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    removeFromQuorumGovernance(
+      _address: string,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -659,8 +1084,11 @@ export class CruicibleRouter extends BaseContract {
     ): Promise<BigNumber>;
 
     setOpenCap(
-      token: string,
+      crucible: string,
       cap: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -668,8 +1096,6 @@ export class CruicibleRouter extends BaseContract {
       _taxDistributor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    signers(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     taxDistributor(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -682,12 +1108,41 @@ export class CruicibleRouter extends BaseContract {
   };
 
   populateTransaction: {
-    addSigner(
-      _signer: string,
+    GOVERNANCE_GROUP_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    addToQuorum(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    cancelSaltedSignature(
+      salt: BytesLike,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     createCrucible(
       baseToken: string,
@@ -711,8 +1166,34 @@ export class CruicibleRouter extends BaseContract {
       amount: BigNumberish,
       salt: BytesLike,
       expiry: BigNumberish,
-      signature: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    depositAddLiquidityStake(
+      to: string,
+      crucible: string,
+      pairToken: string,
+      baseAmount: BigNumberish,
+      pairAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    depositAddLiquidityStakeETH(
+      to: string,
+      crucible: string,
+      baseAmount: BigNumberish,
+      ammRouter: string,
+      stake: string,
+      expiry: BigNumberish,
+      deadline: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     depositOpen(
@@ -739,6 +1220,9 @@ export class CruicibleRouter extends BaseContract {
       target: string,
       overrideType: BigNumberish,
       newFeeX10000: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -746,8 +1230,30 @@ export class CruicibleRouter extends BaseContract {
 
     parameters(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    removeSigner(
-      _signer: string,
+    quorumList(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    quorumSubscriptions(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    quorums(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removeFromQuorum(
+      _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeFromQuorumGovernance(
+      _address: string,
+      salt: BytesLike,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -761,19 +1267,17 @@ export class CruicibleRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setOpenCap(
-      token: string,
+      crucible: string,
       cap: BigNumberish,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     setTaxDistributor(
       _taxDistributor: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    signers(
-      arg0: string,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     taxDistributor(overrides?: CallOverrides): Promise<PopulatedTransaction>;

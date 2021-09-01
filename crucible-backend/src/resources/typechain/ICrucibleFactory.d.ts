@@ -21,17 +21,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface ICrucibleFactoryInterface extends ethers.utils.Interface {
   functions: {
     "getCrucible(address,uint64,uint64)": FunctionFragment;
+    "router()": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "getCrucible",
     values: [string, BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
 
   decodeFunctionResult(
     functionFragment: "getCrucible",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
 
   events: {};
 }
@@ -86,6 +89,8 @@ export class ICrucibleFactory extends BaseContract {
       feeOnWithdrawX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    router(overrides?: CallOverrides): Promise<[string]>;
   };
 
   getCrucible(
@@ -95,6 +100,8 @@ export class ICrucibleFactory extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  router(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     getCrucible(
       baseToken: string,
@@ -102,6 +109,8 @@ export class ICrucibleFactory extends BaseContract {
       feeOnWithdrawX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    router(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -113,6 +122,8 @@ export class ICrucibleFactory extends BaseContract {
       feeOnWithdrawX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    router(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -122,5 +133,7 @@ export class ICrucibleFactory extends BaseContract {
       feeOnWithdrawX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

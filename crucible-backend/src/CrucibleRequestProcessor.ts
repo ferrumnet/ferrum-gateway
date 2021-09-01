@@ -26,6 +26,15 @@ export class CrucibleRequestProcessor extends HttpRequestProcessor implements In
 
         this.registerProcessor('withdrawGetTransaction',
             (req, userId) => this.withdrawGetTransaction(req, userId));
+
+		this.registerProcessor('deployGetTransaction',
+			(req, userId) => this.deployGetTransaction(req, userId));
+
+		this.registerProcessor('depositAddLiquidityAndStake',
+			(req, userId) => this.depositAddLiquidityAndStake(req, userId));
+
+		this.registerProcessor('stakeForGetTransaction',
+			(req, userId) => this.stakeForGetTransaction(req, userId));
     }
 
     __name__() { return 'CrucibleRequestProcessor'; }
@@ -74,7 +83,56 @@ export class CrucibleRequestProcessor extends HttpRequestProcessor implements In
         ValidationUtils.isTrue(!!currency, 'currency must be provided');
         ValidationUtils.isTrue(!!crucible, 'crucible must be provided');
         ValidationUtils.isTrue(!!amount, 'amount must be provided');
-        return this.svc.withdrawGetTransaction(network, currency, crucible, amount, userId);
+        return this.svc.withdrawGetTransaction(currency, crucible, amount, userId);
+	}
+
+    async deployGetTransaction(req: HttpRequestData, userId: string) {
+		ValidationUtils.allRequired(['baseCurrency', 'feeOnTransfer', 'feeOnWithdraw',], req);
+        const {
+			baseCurrency,
+			feeOnTransfer,
+			feeOnWithdraw,
+        } = req.data;
+        return this.svc.deployGetTransaction(userId, baseCurrency, feeOnTransfer, feeOnWithdraw)
+	}
+
+    async depositAddLiquidityAndStake(req: HttpRequestData, userId: string) {
+		ValidationUtils.allRequired(
+			['baseCurrency',
+			'targetCurrency',
+			'baseAmount',
+			'targetAmount',
+			'crucible',
+			'dealine'], req);
+        const {baseCurrency,
+			targetCurrency,
+			baseAmount,
+			targetAmount,
+			crucible,
+			dealine} = req.data;
+        return this.svc.depositAddLiquidityAndStake(
+			userId,
+			baseCurrency,
+			targetCurrency,
+			baseAmount,
+			targetAmount,
+			crucible,
+			dealine);
+	}
+
+    async stakeForGetTransaction(req: HttpRequestData, userId: string) {
+		ValidationUtils.allRequired(
+			['currency',
+			'stake',
+			'amount'], req);
+        const {currency,
+			stake,
+			amount } = req.data;
+        return this.svc.stakeForGetTransaction(
+			userId,
+			currency,
+			stake,
+			amount);
 	}
 
     async remainingFromCap(req: HttpRequestData) {

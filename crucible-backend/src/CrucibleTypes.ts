@@ -1,8 +1,14 @@
 import { Schema, Document, Connection, } from "mongoose";
-import { NetworkRelatedConfig, StoredAllocationCsv, CrucibleInfo } from "types";
+import { StoredAllocationCsv, CrucibleInfo, NetworkedConfig } from "types";
+
+export interface CrucibleContracts {
+	router: string;
+	factory: string;
+	staking: string;
+}
 
 export interface CrucibleConfig {
-	routerAddress: NetworkRelatedConfig;
+	contracts: NetworkedConfig<CrucibleContracts>;
 }
 
 export const crucibleAllocationCsvSchema = new Schema<Document & StoredAllocationCsv> ({

@@ -192,6 +192,13 @@ export const WETH: NetworkedConfig<string> = {
 	'POLYGON': 'POLYGON:0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
 }
 
+export const USD_PAIR: NetworkedConfig<string> = {
+	'RINKEBY': 'RINKEBY:0xd92e713d051c37ebb2561803a3b5fbabc4962431',
+	'ETHEREUM': 'ETHEREUM:0xdac17f958d2ee523a2206206994597c13d831ec7',
+	'BSC': 'BSC:0xe9e7cea3dedca5984780bafc599bd69add087d56', // BUSD
+	'POLYGON': 'POLYGON:0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // PoS USDT
+}
+
 export const ONE_INCH_ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export const BridgeContractVersions = {

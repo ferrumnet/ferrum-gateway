@@ -1,13 +1,14 @@
 import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper, } from "aws-lambda-helper/dist/blockchain";
-import { ChainClientFactory, EthereumAddress, } from "ferrum-chain-clients";
-import { Container, LoggerFactory, Module, ValidationUtils } from "ferrum-plumbing";
+import { EthereumAddress, } from "ferrum-chain-clients";
+import { Container, Module, ValidationUtils } from "ferrum-plumbing";
 import { CommonBackendModule, decryptKey } from 'common-backend';
-import { CrucibleConfig } from "./CrucibleTypes";
+import { CrucibleConfig, CrucibleContracts } from "./CrucibleTypes";
 import { CrucibleRequestProcessor } from "./CrucibleRequestProcessor";
 import { CrucibeService } from "./CrucibleService";
-import { BasicAllocator } from "common-backend/dist/contracts/BasicAllocator";
-import { AllocatableContract } from "common-backend/dist/contracts/AllocatableContract";
+import { UniswapPricingService } from "common-backend/dist/uniswapv2/UniswapPricingService";
+import { networkEnvConfig } from "common-backend/dist/dev/DevConfigUtils";
+import { BasicAllocation } from 'common-backend/dist/contracts/BasicAllocation';
 
 export function getEnv(env: string) {
     const res = process.env[env];
@@ -30,28 +31,30 @@ export class CrucibleModule implements Module {
                 } as MongooseConfig,
                 addressManagerEndpoint: getEnv('ADDRESS_MANAGER_ENDPOINT'),
                 addressManagerSecret: getEnv('ADDRESS_MANAGER_SECRET'),
-				routerAddress: {
-					'RINKEBY': getEnv('CRUCIBLE_ROUTER_ADDRESS_RINKEBY'),
-				}
+							contracts: networkEnvConfig<CrucibleContracts>(
+								['RINKEBY'],
+								'CRUCIBLE_CONTRACTS',
+								(v) => {
+									const [router, factory, staking] = v.split(',');
+									return { router, factory, staking } as CrucibleContracts;
+								}
+							),
             } as CrucibleConfig;
         }
 
-		container.registerSingleton(CrucibleRequestProcessor, c => new CrucibleRequestProcessor(c.get(CrucibeService)));
-		container.registerSingleton(CrucibeService, c => new CrucibeService(
-			c.get(EthereumSmartContractHelper),
-			conf,
-			c.get(BasicAllocator),
-			'TBD', // Allocator SK!
-			'TBD', // Allocator address
-			));
-		container.register('BasicAllocator', c => new BasicAllocator(
-			c.get(AllocatableContract),
-			c.get(EthereumSmartContractHelper),
-		));
-		container.register(AllocatableContract, c => new AllocatableContract(c.get(EthereumSmartContractHelper)));
+			container.registerSingleton(CrucibleRequestProcessor, c => new CrucibleRequestProcessor(c.get(CrucibeService)));
+			container.registerSingleton(CrucibeService, c => new CrucibeService(
+				c.get(EthereumSmartContractHelper),
+				c.get(UniswapPricingService),
+				conf,
+				c.get(BasicAllocation),
+				'TBD', // Allocator SK!
+				'TBD', // Allocator address
+				));
+			container.register(BasicAllocation, c => new BasicAllocation(c.get(EthereumSmartContractHelper),));
 
-        const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
-            await decryptKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
-        const processorAddress = (await new EthereumAddress('prod').addressFromSk(privateKey)).address;
+			const privateKey = getEnv('PROCESSOR_PRIVATE_KEY_CLEAN_TEXT') ||
+					await decryptKey(region, getEnv('KEY_ID'), getEnv('PROCESSOR_PRIVATE_KEY_ENCRYPTED'));
+			const processorAddress = (await new EthereumAddress('prod').addressFromSk(privateKey)).address;
     }
 }

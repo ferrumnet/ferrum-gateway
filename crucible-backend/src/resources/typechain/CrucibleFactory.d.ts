@@ -22,19 +22,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface CrucibleFactoryInterface extends ethers.utils.Interface {
   functions: {
     "admin()": FunctionFragment;
+    "burn(address)": FunctionFragment;
     "createCrucible(address,uint64,uint64)": FunctionFragment;
     "createCrucibleDirect(address,string,string,uint64,uint64)": FunctionFragment;
     "getCrucible(address,uint64,uint64)": FunctionFragment;
     "owner()": FunctionFragment;
     "parameters()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "router()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
-    "setTaxDistributor(address)": FunctionFragment;
-    "taxDistributor()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: "burn", values: [string]): string;
   encodeFunctionData(
     functionFragment: "createCrucible",
     values: [string, BigNumberish, BigNumberish]
@@ -56,21 +57,15 @@ interface CrucibleFactoryInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "setTaxDistributor",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "taxDistributor",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createCrucible",
     data: BytesLike
@@ -89,15 +84,8 @@ interface CrucibleFactoryInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setTaxDistributor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "taxDistributor",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -105,7 +93,7 @@ interface CrucibleFactoryInterface extends ethers.utils.Interface {
 
   events: {
     "AdminSet(address)": EventFragment;
-    "CrucibleCreated(address,tuple,address,uint256,uint256)": EventFragment;
+    "CrucibleCreated(address,address,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
   };
 
@@ -160,6 +148,11 @@ export class CrucibleFactory extends BaseContract {
   functions: {
     admin(overrides?: CallOverrides): Promise<[string]>;
 
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     createCrucible(
       baseToken: string,
       feeOnTransferX10000: BigNumberish,
@@ -202,17 +195,12 @@ export class CrucibleFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    router(overrides?: CallOverrides): Promise<[string]>;
+
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    setTaxDistributor(
-      _taxDistributor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<[string]>;
 
     transferOwnership(
       newOwner: string,
@@ -221,6 +209,11 @@ export class CrucibleFactory extends BaseContract {
   };
 
   admin(overrides?: CallOverrides): Promise<string>;
+
+  burn(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   createCrucible(
     baseToken: string,
@@ -264,17 +257,12 @@ export class CrucibleFactory extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  router(overrides?: CallOverrides): Promise<string>;
+
   setAdmin(
     _admin: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  setTaxDistributor(
-    _taxDistributor: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  taxDistributor(overrides?: CallOverrides): Promise<string>;
 
   transferOwnership(
     newOwner: string,
@@ -283,6 +271,8 @@ export class CrucibleFactory extends BaseContract {
 
   callStatic: {
     admin(overrides?: CallOverrides): Promise<string>;
+
+    burn(token: string, overrides?: CallOverrides): Promise<void>;
 
     createCrucible(
       baseToken: string,
@@ -324,14 +314,9 @@ export class CrucibleFactory extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
+    router(overrides?: CallOverrides): Promise<string>;
+
     setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
-
-    setTaxDistributor(
-      _taxDistributor: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<string>;
 
     transferOwnership(
       newOwner: string,
@@ -344,29 +329,13 @@ export class CrucibleFactory extends BaseContract {
 
     CrucibleCreated(
       token?: null,
-      id?: null,
       baseToken?: null,
       feeOnTransferX10000?: null,
       feeOnWithdrawX10000?: null
     ): TypedEventFilter<
-      [
-        string,
-        [string, BigNumber, BigNumber] & {
-          baseToken: string;
-          feeOnTransferX10000: BigNumber;
-          feeOnWithdrawX10000: BigNumber;
-        },
-        string,
-        BigNumber,
-        BigNumber
-      ],
+      [string, string, BigNumber, BigNumber],
       {
         token: string;
-        id: [string, BigNumber, BigNumber] & {
-          baseToken: string;
-          feeOnTransferX10000: BigNumber;
-          feeOnWithdrawX10000: BigNumber;
-        };
         baseToken: string;
         feeOnTransferX10000: BigNumber;
         feeOnWithdrawX10000: BigNumber;
@@ -384,6 +353,11 @@ export class CrucibleFactory extends BaseContract {
 
   estimateGas: {
     admin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     createCrucible(
       baseToken: string,
@@ -416,17 +390,12 @@ export class CrucibleFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    router(overrides?: CallOverrides): Promise<BigNumber>;
+
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    setTaxDistributor(
-      _taxDistributor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: string,
@@ -436,6 +405,11 @@ export class CrucibleFactory extends BaseContract {
 
   populateTransaction: {
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    burn(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     createCrucible(
       baseToken: string,
@@ -468,17 +442,12 @@ export class CrucibleFactory extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    setTaxDistributor(
-      _taxDistributor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: string,

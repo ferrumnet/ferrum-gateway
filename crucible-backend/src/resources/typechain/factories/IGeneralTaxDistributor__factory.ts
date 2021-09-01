@@ -17,11 +17,6 @@ const _abi = [
         name: "token",
         type: "address",
       },
-      {
-        internalType: "address",
-        name: "origSender",
-        type: "address",
-      },
     ],
     name: "distributeTax",
     outputs: [

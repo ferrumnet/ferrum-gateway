@@ -21,12 +21,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IGeneralTaxDistributorInterface extends ethers.utils.Interface {
   functions: {
-    "distributeTax(address,address)": FunctionFragment;
+    "distributeTax(address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "distributeTax",
-    values: [string, string]
+    values: [string]
   ): string;
 
   decodeFunctionResult(
@@ -83,23 +83,17 @@ export class IGeneralTaxDistributor extends BaseContract {
   functions: {
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   distributeTax(
     token: string,
-    origSender: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    distributeTax(
-      token: string,
-      origSender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    distributeTax(token: string, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   filters: {};
@@ -107,7 +101,6 @@ export class IGeneralTaxDistributor extends BaseContract {
   estimateGas: {
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -115,7 +108,6 @@ export class IGeneralTaxDistributor extends BaseContract {
   populateTransaction: {
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

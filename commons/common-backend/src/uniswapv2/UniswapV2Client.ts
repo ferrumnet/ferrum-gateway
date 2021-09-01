@@ -1,26 +1,14 @@
-import { Injectable, LocalCache, ValidationUtils, HexString, Networks } from 'ferrum-plumbing';
+import { Injectable, HexString, Networks, LocalCache } from 'ferrum-plumbing';
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
 import { Token, TokenAmount, Trade,
     TradeType, Route, Percent, Router, Pair,
     CurrencyAmount, Currency, TradeOptions } from '@uniswap/sdk'
 import { abi as IUniswapV2Router02ABI } from '@uniswap/v2-periphery/build/IUniswapV2Router02.json';
 import { abi as IUniswapV2Pair} from '@uniswap/v2-core/build/IUniswapV2Pair.json';
-import { abi as TokenABI } from '@uniswap/v2-core/build/IERC20.json';
 import { Big } from 'big.js';
 import { toWei } from './Common';
 import { ETH, SWAP_PROTOCOL_ROUTERS, WETH, } from 'types';
 const Helper = EthereumSmartContractHelper;
-
-const TWO_TO_128 = new Big('340282366920938463463374607431768211456');
-export const DEFAULT_TTL = 360;
-
-function getContract(web3: any, address: string, ABI: any) {
-    if (address === '0x') {
-      throw Error(`Invalid 'address' parameter '${address}'.`)
-    }
-  
-    return new web3.Contract(ABI, address);
-}
 
 /**
  * TODO: Move to aws-lambda-helper...
@@ -34,43 +22,16 @@ export class UniswapV2Client implements Injectable {
 
     __name__() { return 'UniswapV2Client'; }
 
-    async registerToken(currency: string) {
-        const decimals = await this.helper.decimals(currency);
-        const symbol = await this.helper.symbol(currency);
-        const [network, tokenAddress] = Helper.parseCurrency(currency);
-        const token = new Token(
-            Networks.for(network).chainId,
-            tokenAddress,
-            decimals,
-            symbol,
-            symbol);
-        this.cache.set('UNIV2_TOK_' + currency, token);
-    }
-
-    pairAddress(cur1: string, cur2: string): string {
-        return Pair.getAddress(this.tok(cur1), this.tok(cur2));
-    }
-
-    async userBalance(currency: string, userAddress: string): Promise<string> {
-        const [network, tokenAddress] = Helper.parseCurrency(currency);
-        const contract = getContract(this.helper.web3(network), tokenAddress, TokenABI);
-        const res = await contract.methods.balanceOf(userAddress).call();
-        return this.helper.amountToHuman(currency, res);
-    }
-
-    async totalSupply(currency: string): Promise<string> {
-        const [network, tokenAddress] = Helper.parseCurrency(currency);
-        const contract = getContract(this.helper.web3(network), tokenAddress, TokenABI);
-        const res = await contract.methods.totalSupply().call();
-        return this.helper.amountToHuman(currency, res);
+    async pairAddress(cur1: string, cur2: string): Promise<string> {
+        return Pair.getAddress(await this.tok(cur1), await this.tok(cur2));
     }
 
     /**
      * This function won't cache the data. Make sure to cache the price on the interface
      * with timeout to avoid unnecessary calls to provider.
      */
-    async price(cur1: string, cur2: string) {
-        return (await this.route(cur2, cur1, false)).midPrice;
+    async price(curs: [string, string][]) {
+        return (await this.routes(curs)).midPrice;
     }
 
     async amountOut(cur1: string, cur2: string, amountIn: string) {
@@ -82,41 +43,43 @@ export class UniswapV2Client implements Injectable {
 			new Big(t.executionPrice.toFixed()).times(new Big(amountIn)).toFixed());
     }
 
-    async allowRouter(protocol: string, currency: string, from: string, useThisGas: number): Promise<[HexString, number]> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
-		const uniV2Router = SWAP_PROTOCOL_ROUTERS[protocol];
-        return this.helper.approve(currency, from, TWO_TO_128, uniV2Router, useThisGas);
-    }
-
-    private async pair(cur1: string, cur2: string, useCache: boolean) {
-        const pairAddr = this.pairAddress(cur1, cur2);
+    private async pair(cur1: string, cur2: string) {
+        const pairAddr = await this.pairAddress(cur1, cur2);
         const [network, _] = Helper.parseCurrency(cur1);
-        const k = 'UNIV2_PAIR_' + pairAddr;
-        let curP = this.cache.get(k);
-        if (!curP || !useCache) {
-            const contract = getContract(this.helper.web3(network), pairAddr, IUniswapV2Pair);
-            const res = await contract.methods.getReserves().call();
-            const reserves0 = res.reserve0;
-            const reserves1 = res.reserve1;
-            const token1 = this.tok(cur1);
-            const token2 = this.tok(cur2);
-            const balances = token1.sortsBefore(token2) ? [reserves0, reserves1] : [reserves1, reserves0];
-            curP = new Pair(new TokenAmount(token1, balances[0]), new TokenAmount(token2, balances[1]));
-            this.cache.set(k, curP);
-        }
-        return curP;
+		const contract = await this.pairContract(network, pairAddr);
+		const res = await contract.methods.getReserves().call();
+		const reserves0 = res.reserve0;
+		const reserves1 = res.reserve1;
+		const token1 = await this.tok(cur1);
+		const token2 = await this.tok(cur2);
+		const balances = token1.sortsBefore(token2) ? [reserves0, reserves1] : [reserves1, reserves0];
+		return new Pair(new TokenAmount(token1, balances[0]), new TokenAmount(token2, balances[1]));
     }
 
-    private async route(cur1: string, cur2: string, useCache: boolean) {
-        // If one side is eth?
-        const [network1, _] = Helper.parseCurrency(cur1);
-        const [network2, __] = Helper.parseCurrency(cur1);
-        ValidationUtils.isTrue(network1 === network2, 'Network mismatch for Route');
-        const pair = await this.pair(cur1, cur2, useCache);
-        return new Route([pair], this.uniCur(cur1), this.uniCur(cur2));
+	private async router(network: string, contractAddress: string) {
+        const web3 = this.helper.web3(network);
+        return new web3.Contract(IUniswapV2Router02ABI as any, contractAddress);
+	}
+
+	private async pairContract(network: string, pairAddress: string) {
+        const web3 = this.helper.web3(network);
+        return new web3.Contract(IUniswapV2Pair as any, pairAddress);
+	}
+
+    private async routes(curs: [string, string][]) {
+		const pairs: Pair[] = [];
+		for (const curp of curs) {
+        	pairs.push(await this.pair(curp[0], curp[1]));
+		}
+        return new Route(pairs, await this.uniCur(curs[0][0]),
+			await this.uniCur(curs[curs.length - 1][1]));
     }
 
-    private uniCur(cur: string): Currency {
+    private async route(cur1: string, cur2: string) {
+		return this.routes([[cur1, cur2]]);
+    }
+
+    private async uniCur(cur: string): Promise<Currency> {
         const [net, _] = Helper.parseCurrency(cur);
         if (ETH[net][0] === cur) {
             return Currency.ETHER;
@@ -131,39 +94,39 @@ export class UniswapV2Client implements Injectable {
             return CurrencyAmount.ether(amountBig);
         }
         const amountBig = await this.helper.amountToHuman(cur, amount);
-        return new TokenAmount(this.tok(cur), amountBig);
+        return new TokenAmount(await this.tok(cur), amountBig);
     }
 
 
-    async buy(currency: string, base: string, amount: string, slippagePct: number, to: string) {
-        const [network, _] = Helper.parseCurrency(currency);
-        const t = await this.trade(base, currency, 'buy', amount);
-        const slippageTolerance = new Percent((slippagePct * 100).toFixed(0), '10000');
-        const tradeOptions = {
-            allowedSlippage: slippageTolerance,
-            ttl: DEFAULT_TTL,
-            recipient: to,
-        } as TradeOptions;
-        const swapPars = Router.swapCallParameters(t, tradeOptions);
-        return this.execOnRouter(network, swapPars, to);
-    }
+    // async buy(currency: string, base: string, amount: string, slippagePct: number, to: string) {
+    //     const [network, _] = Helper.parseCurrency(currency);
+    //     const t = await this.trade(base, currency, 'buy', amount);
+    //     const slippageTolerance = new Percent((slippagePct * 100).toFixed(0), '10000');
+    //     const tradeOptions = {
+    //         allowedSlippage: slippageTolerance,
+    //         ttl: DEFAULT_TTL,
+    //         recipient: to,
+    //     } as TradeOptions;
+    //     const swapPars = Router.swapCallParameters(t, tradeOptions);
+    //     return this.execOnRouter(network, swapPars, to);
+    // }
 
-    async sell(currency: string, base: string, amount: string, slippagePct: number, to: string) {
-        // When we buy amount in is exact
-        const [network, _] = Helper.parseCurrency(currency);
-        const t = await this.trade(currency, base, 'sell', amount);
-        const slippageTolerance = new Percent((slippagePct * 100).toFixed(0), '10000');
-        const tradeOptions = {
-            allowedSlippage: slippageTolerance,
-            ttl: DEFAULT_TTL,
-            recipient: to,
-        } as TradeOptions;
-        const swapPars = Router.swapCallParameters(t, tradeOptions);
-        return this.execOnRouter(network, swapPars, to);
-    }
+    // async sell(currency: string, base: string, amount: string, slippagePct: number, to: string) {
+    //     // When we buy amount in is exact
+    //     const [network, _] = Helper.parseCurrency(currency);
+    //     const t = await this.trade(currency, base, 'sell', amount);
+    //     const slippageTolerance = new Percent((slippagePct * 100).toFixed(0), '10000');
+    //     const tradeOptions = {
+    //         allowedSlippage: slippageTolerance,
+    //         ttl: DEFAULT_TTL,
+    //         recipient: to,
+    //     } as TradeOptions;
+    //     const swapPars = Router.swapCallParameters(t, tradeOptions);
+    //     return this.execOnRouter(network, swapPars, to);
+    // }
 
     async trade(curIn: string, curOut: string, tType: 'buy' | 'sell', amount: string) {
-        const r = await this.route(curIn, curOut, false);
+        const r = await this.route(curIn, curOut);
         const relevantCurrency = tType === 'sell' ? curIn : curOut;
         const tokA = await this.uniCurAmount(relevantCurrency, amount);
         return new Trade(r, tokA, tType === 'sell' ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT);
@@ -251,16 +214,28 @@ export class UniswapV2Client implements Injectable {
         return new web3.Contract(IUniswapV2Router02ABI as any, SWAP_PROTOCOL_ROUTERS[protocol]);
     }
 
+    private async getToken(currency: string): Promise<Token> {
+		return this.cache.getAsync(`UNIV2_TOK_${currency}`, async () => {
+			const decimals = await this.helper.decimals(currency);
+			const symbol = await this.helper.symbol(currency);
+			const [network, tokenAddress] = Helper.parseCurrency(currency);
+			return new Token(
+				Networks.for(network).chainId,
+				tokenAddress,
+				decimals,
+				symbol,
+				symbol);
+		});
+    }
+
     /**
      * Return the cached token, or WETH if currency is ETH.
      */
-    private tok(currency: string) {
+    private async tok(currency: string) {
         const [net, _] = Helper.parseCurrency(currency);
         if (currency === ETH[net][0]) {
-            return WETH[net];
+            return this.getToken(WETH[net]);
         }
-        const t = this.cache.get('UNIV2_TOK_'+currency);
-        ValidationUtils.isTrue(!!t, `Token "${currency} not registered`);
-        return t;
+		return this.getToken(currency);
     }
 }

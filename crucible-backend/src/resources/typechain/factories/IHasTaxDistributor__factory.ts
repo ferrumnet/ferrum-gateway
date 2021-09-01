@@ -15,7 +15,7 @@ const _abi = [
     name: "taxDistributor",
     outputs: [
       {
-        internalType: "contract IGeneralTaxDistributor",
+        internalType: "address",
         name: "",
         type: "address",
       },

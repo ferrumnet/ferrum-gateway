@@ -25,14 +25,18 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseToken()": FunctionFragment;
+    "burn(uint256)": FunctionFragment;
+    "burnFrom(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "deposit(address)": FunctionFragment;
     "factory()": FunctionFragment;
     "feeOnTransferX10000()": FunctionFragment;
     "feeOnWithdrawX10000()": FunctionFragment;
     "feeOverrides(address)": FunctionFragment;
+    "inventory(address)": FunctionFragment;
     "name()": FunctionFragment;
     "overrideFee(address,uint8,uint64)": FunctionFragment;
+    "router()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -50,6 +54,11 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
+  encodeFunctionData(functionFragment: "burn", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "burnFrom",
+    values: [string, BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(functionFragment: "deposit", values: [string]): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
@@ -65,11 +74,13 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     functionFragment: "feeOverrides",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "overrideFee",
     values: [string, BigNumberish, BigNumberish]
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -92,6 +103,8 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
@@ -107,11 +120,13 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     functionFragment: "feeOverrides",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "overrideFee",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
@@ -126,11 +141,15 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "FeeSet(address,uint8,uint64)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "Withdrawn(uint256,uint256,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
 }
 
 export class CrucibleToken extends BaseContract {
@@ -193,6 +212,17 @@ export class CrucibleToken extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<[string]>;
 
+    burn(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    burnFrom(
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     deposit(
@@ -211,6 +241,8 @@ export class CrucibleToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number, BigNumber] & { over: number; feeX10000: BigNumber }>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     overrideFee(
@@ -219,6 +251,8 @@ export class CrucibleToken extends BaseContract {
       newFeeX10000: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    router(overrides?: CallOverrides): Promise<[string]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
@@ -260,6 +294,17 @@ export class CrucibleToken extends BaseContract {
 
   baseToken(overrides?: CallOverrides): Promise<string>;
 
+  burn(
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  burnFrom(
+    from: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   decimals(overrides?: CallOverrides): Promise<number>;
 
   deposit(
@@ -278,6 +323,8 @@ export class CrucibleToken extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[number, BigNumber] & { over: number; feeX10000: BigNumber }>;
 
+  inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   overrideFee(
@@ -286,6 +333,8 @@ export class CrucibleToken extends BaseContract {
     newFeeX10000: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  router(overrides?: CallOverrides): Promise<string>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -327,6 +376,14 @@ export class CrucibleToken extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<string>;
 
+    burn(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
+
+    burnFrom(
+      from: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     decimals(overrides?: CallOverrides): Promise<number>;
 
     deposit(to: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -342,6 +399,8 @@ export class CrucibleToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number, BigNumber] & { over: number; feeX10000: BigNumber }>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<string>;
 
     overrideFee(
@@ -350,6 +409,8 @@ export class CrucibleToken extends BaseContract {
       newFeeX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    router(overrides?: CallOverrides): Promise<string>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
@@ -387,6 +448,15 @@ export class CrucibleToken extends BaseContract {
       { owner: string; spender: string; value: BigNumber }
     >;
 
+    FeeSet(
+      target?: null,
+      overrideType?: null,
+      feeX10k?: null
+    ): TypedEventFilter<
+      [string, number, BigNumber],
+      { target: string; overrideType: number; feeX10k: BigNumber }
+    >;
+
     Transfer(
       from?: string | null,
       to?: string | null,
@@ -394,6 +464,16 @@ export class CrucibleToken extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { from: string; to: string; value: BigNumber }
+    >;
+
+    Withdrawn(
+      amount?: null,
+      fee?: null,
+      from?: null,
+      to?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, string, string],
+      { amount: BigNumber; fee: BigNumber; from: string; to: string }
     >;
   };
 
@@ -414,6 +494,17 @@ export class CrucibleToken extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<BigNumber>;
 
+    burn(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    burnFrom(
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(
@@ -429,6 +520,8 @@ export class CrucibleToken extends BaseContract {
 
     feeOverrides(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     overrideFee(
@@ -437,6 +530,8 @@ export class CrucibleToken extends BaseContract {
       newFeeX10000: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    router(overrides?: CallOverrides): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -482,6 +577,17 @@ export class CrucibleToken extends BaseContract {
 
     baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    burn(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    burnFrom(
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     deposit(
@@ -504,6 +610,11 @@ export class CrucibleToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    inventory(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     overrideFee(
@@ -512,6 +623,8 @@ export class CrucibleToken extends BaseContract {
       newFeeX10000: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

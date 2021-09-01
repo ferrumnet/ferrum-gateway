@@ -27,6 +27,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     "calculateRewards(address,address,address[])": FunctionFragment;
     "creationSigner()": FunctionFragment;
     "factory()": FunctionFragment;
+    "inventory(address)": FunctionFragment;
     "isTokenizable(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "owner()": FunctionFragment;
@@ -68,6 +69,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
+  encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
     functionFragment: "isTokenizable",
     values: [string]
@@ -170,6 +172,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTokenizable",
     data: BytesLike
@@ -314,6 +317,8 @@ export class StakeTimed extends BaseContract {
     creationSigner(overrides?: CallOverrides): Promise<[string]>;
 
     factory(overrides?: CallOverrides): Promise<[string]>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -489,6 +494,8 @@ export class StakeTimed extends BaseContract {
 
   factory(overrides?: CallOverrides): Promise<string>;
 
+  inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
   name(id: string, overrides?: CallOverrides): Promise<string>;
@@ -659,6 +666,8 @@ export class StakeTimed extends BaseContract {
     creationSigner(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
@@ -902,6 +911,8 @@ export class StakeTimed extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     isTokenizable(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     name(id: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1051,6 +1062,11 @@ export class StakeTimed extends BaseContract {
     creationSigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    inventory(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     isTokenizable(
       id: string,

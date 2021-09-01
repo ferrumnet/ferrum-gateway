@@ -21,15 +21,12 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   functions: {
-    "addAllowedActor(address)": FunctionFragment;
     "admin()": FunctionFragment;
-    "allowedActors(address)": FunctionFragment;
-    "distributeTax(address,address)": FunctionFragment;
+    "distributeTax(address)": FunctionFragment;
     "distributeTaxDirect(address,address)": FunctionFragment;
     "globalTargetConfig()": FunctionFragment;
     "lowThresholdX1000()": FunctionFragment;
     "owner()": FunctionFragment;
-    "removeAllowedActor(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setGlobalTargetInfos(tuple[],uint216)": FunctionFragment;
@@ -42,18 +39,10 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     "transferOwnership(address)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "addAllowedActor",
-    values: [string]
-  ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "allowedActors",
-    values: [string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "distributeTax",
-    values: [string, string]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "distributeTaxDirect",
@@ -68,10 +57,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "removeAllowedActor",
-    values: [string]
-  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -107,15 +92,7 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "addAllowedActor",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "allowedActors",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "distributeTax",
     data: BytesLike
@@ -133,10 +110,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeAllowedActor",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -225,18 +198,10 @@ export class GeneralTaxDistributor extends BaseContract {
   interface: GeneralTaxDistributorInterface;
 
   functions: {
-    addAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     admin(overrides?: CallOverrides): Promise<[string]>;
-
-    allowedActors(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -259,11 +224,6 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    removeAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -332,18 +292,10 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  addAllowedActor(
-    actor: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   admin(overrides?: CallOverrides): Promise<string>;
-
-  allowedActors(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
   distributeTax(
     token: string,
-    origSender: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -366,11 +318,6 @@ export class GeneralTaxDistributor extends BaseContract {
   lowThresholdX1000(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
-
-  removeAllowedActor(
-    actor: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -436,17 +383,9 @@ export class GeneralTaxDistributor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addAllowedActor(actor: string, overrides?: CallOverrides): Promise<void>;
-
     admin(overrides?: CallOverrides): Promise<string>;
 
-    allowedActors(arg0: string, overrides?: CallOverrides): Promise<boolean>;
-
-    distributeTax(
-      token: string,
-      origSender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    distributeTax(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     distributeTaxDirect(
       token: string,
@@ -467,8 +406,6 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
-
-    removeAllowedActor(actor: string, overrides?: CallOverrides): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -545,18 +482,10 @@ export class GeneralTaxDistributor extends BaseContract {
   };
 
   estimateGas: {
-    addAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     admin(overrides?: CallOverrides): Promise<BigNumber>;
-
-    allowedActors(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -571,11 +500,6 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    removeAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -631,21 +555,10 @@ export class GeneralTaxDistributor extends BaseContract {
   };
 
   populateTransaction: {
-    addAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    allowedActors(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     distributeTax(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -662,11 +575,6 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    removeAllowedActor(
-      actor: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }

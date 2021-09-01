@@ -5,7 +5,7 @@ import {
   DomainSeparator,
   Eip712TypeDefinition,
 } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
-import { CrossSwapRequest } from "../crossSwap/CrossSwapTypes";
+import { MultiSigSignature } from "../chain/ChainTypes";
 
 // TODO: Remove mongoose types out of this repo
 
@@ -47,12 +47,6 @@ export const CHAIN_ID_FOR_NETWORK = {
   POLYGON: 137,
   MUMBAI_TESTNET: 80001,
 } as any;
-
-export interface MultiSigSignature {
-  creationTime: number;
-  creator: string;
-  signature: string;
-}
 
 export interface PayBySignatureData {
   token: string;

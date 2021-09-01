@@ -2,7 +2,7 @@ import { HexString } from 'ferrum-plumbing';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 // @ts-ignore
-import {ecsign, toRpcSig} from 'ethereumjs-util';
+import {ecsign, toRpcSig, privateToAddress} from 'ethereumjs-util';
 import { ethers } from 'ethers';
 
 const abi = ethers.utils.defaultAbiCoder;
@@ -76,6 +76,10 @@ export async function signWithPrivateKey(
 		Buffer.from(hash!.replace('0x',''), 'hex'),
 		Buffer.from(privateKey.replace('0x',''), 'hex'),);
 	return fixSig(toRpcSig(sigP2.v, sigP2.r, sigP2.s));
+}
+
+export function privateKeyToAddress(sk: HexString): string {
+	return '0x' + privateToAddress(Buffer.from(sk.replace('0x',''), 'hex')).toString('hex');
 }
 
 export function multiSigToBytes(signatures: string[]) {

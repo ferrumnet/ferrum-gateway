@@ -24,6 +24,7 @@ interface SwapDropInterface extends ethers.utils.Interface {
     "FEE_RATIO_X10000()": FunctionFragment;
     "balances(address)": FunctionFragment;
     "close(address)": FunctionFragment;
+    "inventory(address)": FunctionFragment;
     "make(address,address,address,address)": FunctionFragment;
     "makers(address)": FunctionFragment;
     "take(address,address,address,uint256,uint256,uint256,bool,uint32,bytes32,bytes)": FunctionFragment;
@@ -38,6 +39,7 @@ interface SwapDropInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balances", values: [string]): string;
   encodeFunctionData(functionFragment: "close", values: [string]): string;
+  encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
     functionFragment: "make",
     values: [string, string, string, string]
@@ -71,6 +73,7 @@ interface SwapDropInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "make", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "makers", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "take", data: BytesLike): Result;
@@ -140,6 +143,8 @@ export class SwapDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     make(
       to: string,
       id: string,
@@ -183,6 +188,8 @@ export class SwapDrop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   make(
     to: string,
     id: string,
@@ -222,6 +229,8 @@ export class SwapDrop extends BaseContract {
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     close(id: string, overrides?: CallOverrides): Promise<void>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     make(
       to: string,
@@ -298,6 +307,8 @@ export class SwapDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     make(
       to: string,
       id: string,
@@ -343,6 +354,11 @@ export class SwapDrop extends BaseContract {
     close(
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    inventory(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     make(

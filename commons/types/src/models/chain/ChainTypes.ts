@@ -11,11 +11,9 @@ export interface ChainEventBase {
     eventType: string;
 }
 
-export interface AllocationSignature {
-	issuedAt: number;
-	allocator: string;
+export interface AllocationSignature extends MultiSignable {
+	actor: MultiSigActor;
 	salt: string;
-	signature: string;
 	expirySeconds: number;
 	from: string;
 	to: string;
@@ -25,7 +23,7 @@ export interface UserContractAllocation {
 	signature?: AllocationSignature;
 	network: string;
 	contractAddress: string;
-	methodSelector: string;
+	method: string;
 	userAddress: string;
 	currency: string;
 	allocation: string;
@@ -51,4 +49,21 @@ export interface StoredAllocationCsv {
 export interface CurrencyValue {
 	currency: string;
 	value: string;
+}
+
+export interface MultiSigSignature {
+  creationTime: number;
+  creator: string;
+  signature: string;
+}
+
+export interface MultiSigActor {
+	groupId: number;
+	quorum: string;
+	address: string;
+	contractAddress: string;
+}
+
+export interface MultiSignable {
+	signatures: MultiSigSignature[];
 }

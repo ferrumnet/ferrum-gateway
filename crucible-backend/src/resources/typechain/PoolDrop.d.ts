@@ -23,6 +23,7 @@ interface PoolDropInterface extends ethers.utils.Interface {
   functions: {
     "balances(address)": FunctionFragment;
     "close(address)": FunctionFragment;
+    "inventory(address)": FunctionFragment;
     "pool(address,address,address)": FunctionFragment;
     "signers(address)": FunctionFragment;
     "take(address,address,uint256,bytes32,bytes)": FunctionFragment;
@@ -34,6 +35,7 @@ interface PoolDropInterface extends ethers.utils.Interface {
 
   encodeFunctionData(functionFragment: "balances", values: [string]): string;
   encodeFunctionData(functionFragment: "close", values: [string]): string;
+  encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
     functionFragment: "pool",
     values: [string, string, string]
@@ -59,6 +61,7 @@ interface PoolDropInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "balances", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "signers", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "take", data: BytesLike): Result;
@@ -131,6 +134,8 @@ export class PoolDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     pool(
       id: string,
       token: string,
@@ -175,6 +180,8 @@ export class PoolDrop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   pool(
     id: string,
     token: string,
@@ -215,6 +222,8 @@ export class PoolDrop extends BaseContract {
     balances(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     close(id: string, overrides?: CallOverrides): Promise<void>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     pool(
       id: string,
@@ -272,6 +281,8 @@ export class PoolDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     pool(
       id: string,
       token: string,
@@ -318,6 +329,11 @@ export class PoolDrop extends BaseContract {
     close(
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    inventory(
+      arg0: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     pool(

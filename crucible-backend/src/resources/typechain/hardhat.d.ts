@@ -37,9 +37,33 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BridgePool__factory>;
     getContractFactory(
+      name: "BridgePoolV12",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BridgePoolV12__factory>;
+    getContractFactory(
+      name: "BridgeRemoteStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BridgeRemoteStaking__factory>;
+    getContractFactory(
+      name: "BridgeRouterV12",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BridgeRouterV12__factory>;
+    getContractFactory(
+      name: "IBridgePool",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBridgePool__factory>;
+    getContractFactory(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
+    getContractFactory(
+      name: "IBurnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBurnable__factory>;
+    getContractFactory(
+      name: "WMATIC",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.WMATIC__factory>;
     getContractFactory(
       name: "FerrumDeployer",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -53,6 +77,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IFerrumDeployer__factory>;
     getContractFactory(
+      name: "IStakeFor",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IStakeFor__factory>;
+    getContractFactory(
       name: "IVersioned",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IVersioned__factory>;
@@ -61,9 +89,25 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Allocatable__factory>;
     getContractFactory(
+      name: "MultiSigCheckable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MultiSigCheckable__factory>;
+    getContractFactory(
       name: "SigCheckable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SigCheckable__factory>;
+    getContractFactory(
+      name: "IUniswapV2Router01",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router01__factory>;
+    getContractFactory(
+      name: "IUniswapV2Router02",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Router02__factory>;
+    getContractFactory(
+      name: "IWETH",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IWETH__factory>;
     getContractFactory(
       name: "WithAdmin",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -73,9 +117,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CrucibleFactory__factory>;
     getContractFactory(
-      name: "CruicibleRouter",
+      name: "CrucibleRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CruicibleRouter__factory>;
+    ): Promise<Contracts.CrucibleRouter__factory>;
+    getContractFactory(
+      name: "TestCrucibleFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestCrucibleFactory__factory>;
+    getContractFactory(
+      name: "TestCrucibleTokenDeployer",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestCrucibleTokenDeployer__factory>;
     getContractFactory(
       name: "CrucibleToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -108,6 +160,10 @@ declare module "hardhat/types/runtime" {
       name: "DummyTokenOwnable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DummyTokenOwnable__factory>;
+    getContractFactory(
+      name: "Playground",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Playground__factory>;
     getContractFactory(
       name: "IPoolDrop",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -168,6 +224,18 @@ declare module "hardhat/types/runtime" {
       name: "StakingV2CommonSignatures",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StakingV2CommonSignatures__factory>;
+    getContractFactory(
+      name: "TokenReceivable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenReceivable__factory>;
+    getContractFactory(
+      name: "IRemoteStake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRemoteStake__factory>;
+    getContractFactory(
+      name: "RemoteStakeRewardManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RemoteStakeRewardManager__factory>;
     getContractFactory(
       name: "FerrumRouterV2",
       signerOrOptions?: ethers.Signer | FactoryOptions

@@ -6,13 +6,15 @@ export interface CrucibleInfo {
 	symbol: string;
 	name: string;
 	openCap: string;
+	leftFromCap: string;
 	activeAllocationSum: string;
 	activeAllocationCount: number;
 	priceUsdt: string;
 	priceEth: string;
-	leftFromCap: string;
 	baseCurrency: string;
 	baseSymbol: string;
+	basePriceUsdt: string;
+	basePriceEth: string;
 	feeOnTransferRate: string;
 	feeOnWithdrawRate: string;
 	totalSupply: string;
