@@ -5,18 +5,13 @@ import {
     // @ts-ignore
 } from 'component-library';
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState } from '../common/CrucibleAppState';
+import { CrucibleAppState, CrucibleBoxState } from '../common/CrucibleAppState';
 import { addressesForUser } from 'common-containers';
 import Modal from 'office-ui-fabric-react/lib/Modal';
 import { ResponsiveMode } from 'office-ui-fabric-react';
 import { ChainActionDlg } from './ChainActionDlg';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../CrucibleClient';
-
-interface CrucibleBoxState {
-	network: string;
-	activeTxId: string;
-};
 
 export const crucibleBoxSlice = createSlice({
 	name: 'CrucibleBox',
@@ -94,7 +89,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			.map(c => c.balance).find(Boolean) || '0';
 	});
 	const activeTxId = useSelector<CrucibleAppState, string>(state => 
-		state.ui.crucibleBox?.activeTxId);
+		state.ui.crucibleBox.activeTxId);
 	const userAddr = useSelector<CrucibleAppState, string|undefined>(state =>
 		state.connection.account?.user?.userId);
 	const depositOpen = params.info.activeAllocationCount > 0 ||

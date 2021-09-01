@@ -74,7 +74,7 @@ export class CrucibleRequestProcessor extends HttpRequestProcessor implements In
         return this.svc.depositPublicGetTransaction(network, currency, crucible, amount, userId);
 	}
 
-    async withdrawGetTransaction(req: HttpRequestData, userId: string) {
+	async withdrawGetTransaction(req: HttpRequestData, userId: string) {
         const {
             network, currency, crucible, amount,
         } = req.data;
@@ -86,14 +86,14 @@ export class CrucibleRequestProcessor extends HttpRequestProcessor implements In
         return this.svc.withdrawGetTransaction(currency, crucible, amount, userId);
 	}
 
-    async deployGetTransaction(req: HttpRequestData, userId: string) {
+	async deployGetTransaction(req: HttpRequestData, userId: string) {
 		ValidationUtils.allRequired(['baseCurrency', 'feeOnTransfer', 'feeOnWithdraw',], req);
         const {
 			baseCurrency,
 			feeOnTransfer,
 			feeOnWithdraw,
         } = req.data;
-        return this.svc.deployGetTransaction(userId, baseCurrency, feeOnTransfer, feeOnWithdraw)
+        return this.svc.deployGetTransaction(userId, baseCurrency, feeOnTransfer, feeOnWithdraw);
 	}
 
     async depositAddLiquidityAndStake(req: HttpRequestData, userId: string) {

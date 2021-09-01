@@ -2,7 +2,7 @@ import { JsonRpcRequest, ValidationUtils, Network } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { addAction, CommonActions } from './common/CommonActions';
-import { CrucibleInfo } from 'types';
+import { CrucibleInfo, Utils } from 'types';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
@@ -51,17 +51,13 @@ export class CrucibleClient extends ApiClient {
 		isPublic: boolean,
 		) {
 		try {
-			const network = this.getNetwork();
-            const res = await this.api({
-                command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
-                data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
-            ValidationUtils.isTrue(!!res, 'Error calling deposit. No requests');
-            const requestId = await this.client.sendTransactionAsync(network as Network, [res],
-                {});
-            ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
-			const txId = requestId.split('|')[0];
-			console.log('Deposit generated tx id ', txId);
-			return txId;
+			return this.runServerTransaction(
+				async () => {
+					const network = this.getNetwork();
+					return await this.api({
+							command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
+							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
+				});
 		} catch (e) {
 			console.error('deposit', e);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
@@ -74,17 +70,33 @@ export class CrucibleClient extends ApiClient {
 		amount: string,
 		) {
 		try {
-			const network = this.getNetwork();
-            const res = await this.api({
-                command: 'withdrawGetTransaction',
-                data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
-            ValidationUtils.isTrue(!!res, 'Error calling deposit. No requests');
-            const requestId = await this.client.sendTransactionAsync(network as Network, [res],
-                {});
-            ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
-			const txId = requestId.split('|')[0];
-			console.log('Deposit generated tx id ', txId);
-			return txId;
+			return this.runServerTransaction(
+				async () => {
+					const network = this.getNetwork();
+					return this.api({
+							command: 'withdrawGetTransaction',
+							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
+				}
+			)
+		} catch (e) {
+			console.error('deposit', e);
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
+	}
+
+	async deploy(dispatch: Dispatch<AnyAction>,
+			baseCurrency: string,
+			feeOnTransfer: string,
+			feeOnWithdraw: string,) {
+		try {
+			return this.runServerTransaction(
+				async () => {
+					const [network,] = Utils.parseCurrency(baseCurrency);
+					return this.api({
+						command: 'deployGetTransaction',
+						data: {baseCurrency, feeOnTransfer, feeOnWithdraw}, params: [] } as JsonRpcRequest);
+				}
+			)
 		} catch (e) {
 			console.error('deposit', e);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));

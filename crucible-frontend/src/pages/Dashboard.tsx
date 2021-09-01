@@ -10,6 +10,8 @@ import { inject3 } from 'types';
 import { CrucibleClient } from '../CrucibleClient';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { CrucibleList } from './CrucibleList';
+import { Route } from 'react-router';
+import { Deploy } from './Deploy';
 
 interface DashboardState {
 }
@@ -69,7 +71,14 @@ export function Dashboard(props: DashboardProps) {
 						<></>
                     )}
                     middle={(
-                        <CrucibleList />
+											 <>
+											  <Route path="/deploy">
+                        	<Deploy />
+												</Route>
+											  <Route>
+                        	<CrucibleList />
+												</Route>
+											 </>
                     )}
                     bottom={(
                         <div style={{justifyContent: 'center', display: 'flex', flex: 1}}>

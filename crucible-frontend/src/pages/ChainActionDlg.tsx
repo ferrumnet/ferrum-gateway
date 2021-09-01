@@ -5,7 +5,8 @@ import {
     // @ts-ignore
 } from 'component-library';
 import { BigUtils, ChainEventBase, inject } from 'types';
-import { ApiClient, ApprovableButtonWrapper, ChainEventItem, IApprovableButtonWrapperViewProps } from 'common-containers';
+import { ApiClient, ApprovableButtonWrapper, ChainEventItem,
+	IApprovableButtonWrapperViewProps } from 'common-containers';
 
 export interface ChainActionDlgProps {
 	network: Network;
