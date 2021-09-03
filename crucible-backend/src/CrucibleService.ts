@@ -50,6 +50,16 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		this.crucibleAllocationsCsvModel = CrucibleAllocationCsvModel(con);
 	}
 
+	async getAllocations(
+		crucible: string,
+		userAddress: string,
+	) {
+		const al1 = await this.getAllocation(crucible, userAddress, AllocationMethods.DEPOSIT);
+		const al2 = await this.getAllocation(crucible, userAddress,
+			AllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE);
+		return [al1, al2];
+	}
+
 	async getAllocation(
 		crucible: string,
 		userAddress: string,
@@ -270,11 +280,10 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		} as CurrencyValue;
 	}
 
-	public async getCrucibleInfo(network: Network, address: string) {
-		ValidationUtils.isTrue(!!network, 'network is required');
-		ValidationUtils.isTrue(!!address, 'address is required');
-		return this.cache.getAsync(`CRUCIBLE-${network}:${address}`,
-		async () => this.getCrucibleInfoCached(network, address));
+	public async getCrucibleInfo(crucible: string) {
+		ValidationUtils.isTrue(!!crucible, 'address is required');
+		return this.cache.getAsync(`CRUCIBLE-${crucible}`,
+		async () => this.getCrucibleInfoCached(crucible));
 	}
 
 	public async getAllCruciblesFromDb(network: Network): Promise<CrucibleInfo[]> {
@@ -284,8 +293,9 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		return crucibles.map(c => c.toJSON());
 	}
 
-	private async getCrucibleInfoCached(network: Network, contractAddress: string)
+	private async getCrucibleInfoCached(crucibleAddr: string)
 	: Promise<CrucibleInfo> {
+		const [network, contractAddress] = EthereumSmartContractHelper.parseCurrency(crucibleAddr);
 		const crucible: CrucibleInfo =
 			await this.crucibleModel.findOne({network, contractAddress}).exec();
 		ValidationUtils.isTrue(!!crucible, 'Crucible not found');

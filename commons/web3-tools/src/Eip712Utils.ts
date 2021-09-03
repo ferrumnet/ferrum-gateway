@@ -1,8 +1,8 @@
-import { HexString } from 'ferrum-plumbing';
+import { HexString, ValidationUtils } from 'ferrum-plumbing';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 // @ts-ignore
-import {ecsign, toRpcSig, privateToAddress} from 'ethereumjs-util';
+import {ecsign, toRpcSig, fromRpcSig, ecrecover, privateToAddress, publicToAddress} from 'ethereumjs-util';
 import { ethers } from 'ethers';
 
 const abi = ethers.utils.defaultAbiCoder;
@@ -62,6 +62,13 @@ export function produceSignature(
     const ds = domainSeparator(eth, eipParams.contractName, eipParams.contractVersion, netId, contractAddress);
     const hash = Web3.utils.soliditySha3("\x19\x01", ds, structureHash) as HexString;
     return {...eipParams, hash, signature: ''};
+}
+
+export function verifySignature(hash: HexString, userAddress: string, signature: HexString) {
+	const sig = fromRpcSig(Buffer.from(signature, 'hex'));
+	const pub = ecrecover(Buffer.from(hash, 'hex'), sig.v, sig.r, sig.s);
+	const addr  = publicToAddress(pub);
+	ValidationUtils.isTrue(userAddress.toLowerCase() === addr.toString('hex').toLowerCase(), 'Invalid signature');
 }
 
 export function randomSalt() {

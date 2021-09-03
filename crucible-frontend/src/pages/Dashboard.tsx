@@ -39,9 +39,9 @@ export const dashboardSlice = createSlice({
 	name: 'crucible/dashboard',
 	initialState: {} as DashboardState,
 	reducers: {},
-	extraReducers: {
-		[initThunk.fulfilled as any]: (state, action) => {
-		}
+	extraReducers: (builder) => {
+		builder.addCase(initThunk.fulfilled, (state, action) => {
+		});
 	}
 });
 

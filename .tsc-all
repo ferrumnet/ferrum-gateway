@@ -5,3 +5,5 @@ common-containers
 bridge-backend
 leaderboard-backend
 gateway-backend
+crucible-backend
+governance-backend

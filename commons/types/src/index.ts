@@ -15,3 +15,5 @@ export * from "./models/group/types";
 
 export * from './models/crucible/Types';
 export * from './models/crossSwap/CrossSwapTypes';
+
+export * from './governance/GovernanceTypes';

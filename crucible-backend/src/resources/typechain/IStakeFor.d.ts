@@ -21,10 +21,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IStakeForInterface extends ethers.utils.Interface {
   functions: {
-    "stakeFor(address)": FunctionFragment;
+    "stakeFor(address,address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "stakeFor", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "stakeFor",
+    values: [string, string]
+  ): string;
 
   decodeFunctionResult(functionFragment: "stakeFor", data: BytesLike): Result;
 
@@ -76,24 +79,31 @@ export class IStakeFor extends BaseContract {
 
   functions: {
     stakeFor(
+      token: string,
       staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   stakeFor(
+    token: string,
     staker: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    stakeFor(staker: string, overrides?: CallOverrides): Promise<BigNumber>;
+    stakeFor(
+      token: string,
+      staker: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
 
   estimateGas: {
     stakeFor(
+      token: string,
       staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -101,6 +111,7 @@ export class IStakeFor extends BaseContract {
 
   populateTransaction: {
     stakeFor(
+      token: string,
       staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

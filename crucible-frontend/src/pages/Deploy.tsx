@@ -10,16 +10,29 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { CrucibleClient } from '../CrucibleClient';
 import { inject } from 'types';
+import { addressForUser } from 'common-containers';
 
 interface DeployProps extends DeployState {
 	network: string;
 }
 
 function stateToProps(state: CrucibleAppState): DeployProps {
+	const network = addressForUser(state.connection.account.user)?.network;
 	return {
 		...state.ui.deploy,
+		network,
 	} as DeployProps;
 }
+
+const launchCrucible = createAsyncThunk('crucible/launch', async (payload: { props: DeployProps }, ctx) => {
+	const client = inject<CrucibleClient>(CrucibleClient);
+	const { props } = payload;
+	const txId = await client.deploy(ctx.dispatch, `${props.network}:${props.baseToken.toLowerCase()}`,
+		props.feeOnTransfer, props.feeOnWithdraw);
+	if (txId) {
+		ctx.dispatch(deploySlice.actions.reset());
+	}
+});
 
 export const deploySlice = createSlice({
 	name: 'crucible/deploy',
@@ -31,28 +44,27 @@ export const deploySlice = createSlice({
 	reducers: {
 		baseTokenChanged: (state, action) => {
 			state.baseToken = action.payload.value;
+			state.error = undefined;
 		},
 		feeOnTransferChanged: (state, action) => {
 			state.feeOnTransfer = action.payload.value;
+			state.error = undefined;
 		},
 		feeOnWithdrawChanged: (state, action) => {
 			state.feeOnWithdraw = action.payload.value;
+			state.error = undefined;
 		},
 		reset: (state) => {
 			state.baseToken = '';
 			state.feeOnTransfer = '';
 			state.feeOnWithdraw = '';
+			state.error = undefined;
 		}
-	}
-});
-
-const launchCrucible = createAsyncThunk('crucible/launch', async (payload: { props: DeployProps }, ctx) => {
-	const client = inject<CrucibleClient>(CrucibleClient);
-	const { props } = payload;
-	const txId = await client.deploy(ctx.dispatch, `${props.network}:${props.baseToken.toLowerCase()}`,
-		props.feeOnTransfer, props.feeOnWithdraw);
-	if (txId) {
-		ctx.dispatch(deploySlice.actions.reset());
+	},
+	extraReducers: (builder) => {
+		builder.addCase(launchCrucible.rejected, (state, action) => {
+			state.error = action.error.message;
+		});
 	}
 });
 
@@ -86,6 +98,7 @@ export function Deploy() {
 				/>
 			</Row>
 			<Row withPadding>
+				{props.error && (<span>{props.error} <br/></span>)}
 				<PrimaryButton
 					text={'Launch 🚀'}
 					onClick={() => dispatch(launchCrucible({props}))}

@@ -414,9 +414,6 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 		// We only support direct exchange with FRM, and through FRM...
 		const [fromNetwork,] = EthereumSmartContractHelper.parseCurrency(fromCurrency);
 		const [toNetwork,] = EthereumSmartContractHelper.parseCurrency(toCurrency);
-		await this.uniV2.registerToken(fromCurrency);
-		await this.uniV2.registerToken(throuhCurrencies[0]);
-		// await this.uniV2.registerToken(toCurrency);
 		const amountOut = await this.uniV2.amountOut(fromCurrency, throuhCurrencies[0], 
 			await this.helper.amountToMachine(fromCurrency, amountIn));
 		console.log('Result of amount out is ', amountOut)

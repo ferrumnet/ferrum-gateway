@@ -1,5 +1,5 @@
 import { HexString } from "ferrum-plumbing";
-import { multiSigToBytes, privateKeyToAddress } from "src";
+import { multiSigToBytes, privateKeyToAddress } from "./Eip712Utils";
 import { MultiSignable } from 'types';
 import { signWithPrivateKey } from "./Eip712Utils";
 

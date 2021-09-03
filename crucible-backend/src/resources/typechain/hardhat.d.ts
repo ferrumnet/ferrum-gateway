@@ -97,6 +97,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SigCheckable__factory>;
     getContractFactory(
+      name: "IUniswapV2Factory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IUniswapV2Factory__factory>;
+    getContractFactory(
       name: "IUniswapV2Router01",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV2Router01__factory>;

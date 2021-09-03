@@ -20,7 +20,7 @@ export class CommonTokenServices implements Injectable {
 			userAddress,
 			currency,
 			expirySeconds: 0,
-			methodSelector: '',
+			method: '',
 			network,
 		};
 	}

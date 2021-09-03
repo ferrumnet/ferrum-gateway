@@ -5,6 +5,7 @@ export interface DeployState {
 	baseToken: string;
 	feeOnTransfer: string;
 	feeOnWithdraw: string;
+	error?: string;
 }
 
 export interface CrucibleBoxState {

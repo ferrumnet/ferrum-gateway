@@ -33,6 +33,14 @@
       "path": "../crucible-frontend"
     },
     {
+      "name": "governance-backend",
+      "path": "../governance-backend"
+    },
+    {
+      "name": "governance-frontend",
+      "path": "../governance-frontend"
+    },
+    {
       "name": "bridge-frontend",
       "path": "../bridge-frontend"
     },

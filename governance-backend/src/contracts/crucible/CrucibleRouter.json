@@ -1,0 +1,19 @@
+{
+	"id": "FERRUM_CRUCIBLE_ROUTER:000.001",
+	"identifier": {
+		"name": "FERRUM_CRUCIBLE_ROUTER",
+		"version": "000.001"
+	},
+	"methods": [
+		{
+			"name": "SetOpenCap",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "crucible"},
+				{"type": "uint256", "name": "cap"},
+				{"type": "uint64", "name": "expiry"}
+			]
+		}
+	]
+}

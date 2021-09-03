@@ -15,15 +15,16 @@ import * as Eip712 from 'web3-tools';
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
 import { CommonBackendModule } from 'common-backend';
 import Web3 from "web3";
+import { randomBytes } from "ferrum-crypto";
 
 export class BridgeProcessor implements Injectable {
     private log: Logger;
     constructor(
         private config: BridgeProcessorConfig,
         private chain: ChainClientFactory,
-        private svc: TokenBridgeService,
+        public svc: TokenBridgeService,
 		private bridgeContract: TokenBridgeContractClinet,
-        private tokenConfig: BridgeConfigStorage,
+        public tokenConfig: BridgeConfigStorage,
         private helper: EthereumSmartContractHelper,
         private privateKey: string,
         private processorAddress: string,
@@ -95,6 +96,32 @@ export class BridgeProcessor implements Injectable {
         }
     }
 
+		public async processOffline(network: string, user: string, amount: string, token: string) {
+			const poolAddress = this.config.bridgeConfig.contractClient[network];
+			ValidationUtils.isTrue(!!poolAddress, `No payer for ${network} is configured`);
+			token = token.toLowerCase();
+			const txId = randomBytes(32);
+			const currency = `${network}:${token}`;
+			const amountInt = await this.helper.amountToMachine(currency, amount);
+			try {
+				const [_, item] = await this.produceSignature(
+					'0x' + txId,
+					network,
+					currency,
+					user,
+					amount,
+					network,
+					user,
+					currency,
+					amountInt,
+					txId);
+				return item.payBySig;
+			} finally {
+					await this.svc.close();
+					await this.tokenConfig.close();
+			}
+		}
+
     private async processSingleTransaction(event: BridgeSwapEvent):
         Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
         try {
@@ -122,40 +149,49 @@ export class BridgeProcessor implements Injectable {
             // const sourceAmount = await this.helper.amountToMachine(sourcecurrency, event.amount);
             const targetAmount = await this.helper.amountToMachine(targetCurrency, event.amount);
 			const salt = Web3.utils.keccak256(event.transactionId.toLocaleLowerCase());
-            const payBySig = await this.createSignedPayment(
-                targetNetwork, targetAddress, targetCurrency, targetAmount, salt
-            );
-            processed = {
-                id: event.transactionId,
-                timestamp: new Date().valueOf(),
-                receiveNetwork: conf!.sourceNetwork,
-                receiveCurrency: conf!.sourceCurrency,
-                receiveTransactionId: event.transactionId,
-                receiveAddress: sourceAddress,
-                receiveAmount: event.amount,
-                payBySig,
-
-                sendNetwork: targetNetwork,
-                sendAddress: targetAddress,
-                sendTimestamp: new Date().valueOf(),
-                sendCurrency: conf?.targetCurrency,
-                sendAmount: event.amount,
-
-                used: '',
-                useTransactions: [],
-            } as UserBridgeWithdrawableBalanceItem;
-            await this.svc.withdrawSignedVerify(conf!.targetCurrency, targetAddress,
-                targetAmount,
-                payBySig.hash,
-                payBySig.swapTxId,
-                payBySig.signatures[0].signature,
-                this.processorAddress);
-            await this.svc.newWithdrawItem(processed);
-            return [true, processed];
+			return await this.produceSignature(
+				event.transactionId, conf!.sourceNetwork, conf!.sourceCurrency, sourceAddress, event.amount,
+				targetNetwork, targetAddress, targetCurrency, targetAmount, salt);
         } catch (e) {
             this.log.error(`Error when processing transactions "${JSON.stringify(event)}": ${e}`);
             return [false, undefined];
         }
+    }
+
+    private async produceSignature(
+			transactionId: string, sourceNetwork, sourceCurrency, sourceAddress, amount,
+			targetNetwork: string, targetAddress: string, targetCurrency: string, targetAmount: string, salt: string,
+		): Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
+			const payBySig = await this.createSignedPayment(
+					targetNetwork, targetAddress, targetCurrency, targetAmount, salt
+			);
+			const processed = {
+					id: transactionId,
+					timestamp: new Date().valueOf(),
+					receiveNetwork: sourceNetwork,
+					receiveCurrency: sourceCurrency,
+					receiveTransactionId: transactionId,
+					receiveAddress: sourceAddress,
+					receiveAmount: amount,
+					payBySig,
+
+					sendNetwork: targetNetwork,
+					sendAddress: targetAddress,
+					sendTimestamp: new Date().valueOf(),
+					sendCurrency: targetCurrency,
+					sendAmount: amount,
+
+					used: '',
+					useTransactions: [],
+			} as UserBridgeWithdrawableBalanceItem;
+			await this.svc.withdrawSignedVerify(targetCurrency, targetAddress,
+					targetAmount,
+					payBySig.hash,
+					payBySig.swapTxId,
+					payBySig.signatures[0].signature,
+					this.processorAddress);
+			await this.svc.newWithdrawItem(processed);
+			return [true, processed];
     }
 
     async createSignedPayment(network: string, address: string, currency: string,
@@ -227,3 +263,22 @@ export async function processOneTx(network: string, txId: string) {
     await processor.processOneTx(network as any, txId);
 }
 
+export async function processFromFile(network: string, data: string) {
+	const processor = await prepProcess();
+	try {
+		const items: [string, string, string] [] = data.split('\n')
+			.map(l => l.replace('\r', ''))
+			.map(l => l.split(',', 3)) as any;
+
+		const result: any[] = [];
+		for(const i of items) {
+			const wi = await processor.processOffline(network, i[0], i[1], i[2]);
+			result.push(wi);
+		}
+		console.log('---------------');
+		console.log(JSON.stringify(result));
+	} finally {
+			await processor.svc.close();
+			await processor.tokenConfig.close();
+	}
+}

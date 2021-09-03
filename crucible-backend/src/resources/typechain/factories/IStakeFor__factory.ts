@@ -11,6 +11,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
         name: "staker",
         type: "address",
       },

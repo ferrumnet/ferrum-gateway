@@ -11,7 +11,11 @@ export const CrucibleClientActions = {
 
 const Actions = CrucibleClientActions;
 
-export class CrucibleClient extends ApiClient {
+export class CrucibleClient {
+	constructor(private api: ApiClient) { }
+
+	__name__() { return 'CrucibleClient'; }
+
 	async getAllCrucibles(dispatch: Dispatch<AnyAction>, network: string) {
 		const cs = await this.getAllCruciblesFromDb(dispatch, network);
 		for(const c of cs) {
@@ -20,9 +24,9 @@ export class CrucibleClient extends ApiClient {
 	}
 
 	async updateCrucible(dispatch: Dispatch<AnyAction>, network: string, contractAddress: string) {
-		const crucible = await this.api({
+		const crucible = await this.api.api({
 			command: 'getCrucible',
-			data: {network, contractAddress, userAddress: this.getAddress()},
+			data: {network, contractAddress, userAddress: this.api.getAddress()},
 			params: [],
 		} as JsonRpcRequest);
 		if (!!crucible) {
@@ -33,7 +37,7 @@ export class CrucibleClient extends ApiClient {
 
 	async getAllCruciblesFromDb(dispatch: Dispatch<AnyAction>, network: string) 
 		:Promise<CrucibleInfo[]> {
-		const crucibles = await this.api({
+		const crucibles = await this.api.api({
 			command: 'getAllCruciblesFromDb',
 			data: {network},
 			params: [],
@@ -51,10 +55,10 @@ export class CrucibleClient extends ApiClient {
 		isPublic: boolean,
 		) {
 		try {
-			return this.runServerTransaction(
+			return this.api.runServerTransaction(
 				async () => {
-					const network = this.getNetwork();
-					return await this.api({
+					const network = this.api.getNetwork();
+					return await this.api.api({
 							command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
 							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
 				});
@@ -70,10 +74,10 @@ export class CrucibleClient extends ApiClient {
 		amount: string,
 		) {
 		try {
-			return this.runServerTransaction(
+			return this.api.runServerTransaction(
 				async () => {
-					const network = this.getNetwork();
-					return this.api({
+					const network = this.api.getNetwork();
+					return this.api.api({
 							command: 'withdrawGetTransaction',
 							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
 				}
@@ -89,10 +93,10 @@ export class CrucibleClient extends ApiClient {
 			feeOnTransfer: string,
 			feeOnWithdraw: string,) {
 		try {
-			return this.runServerTransaction(
+			return this.api.runServerTransaction(
 				async () => {
 					const [network,] = Utils.parseCurrency(baseCurrency);
-					return this.api({
+					return this.api.api({
 						command: 'deployGetTransaction',
 						data: {baseCurrency, feeOnTransfer, feeOnWithdraw}, params: [] } as JsonRpcRequest);
 				}

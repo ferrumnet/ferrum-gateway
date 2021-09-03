@@ -11,6 +11,8 @@
     "bridge-backend",
     "crucible-backend",
     "crucible-frontend",
+    "governance-backend",
+    "governance-frontend",
     "gateway-frontend",
     "gateway-backend",
     "bridge-frontend",
