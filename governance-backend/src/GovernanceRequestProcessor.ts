@@ -35,6 +35,12 @@ export class GovernanceRequestProcessor
     return this.svc.contractById(id);
   }
 
+  async loadTransactions(req: HttpRequestData, userId: string) {
+    const { network, contractAddress } = req.data;
+    ValidationUtils.isTrue(!!userId, "Not signed in");
+    return this.svc.loadTransactions(userId, network, contractAddress);
+  }
+
   async archiveTransaction(req: HttpRequestData, userId: string) {
     const { requestId, signature, } = req.data;
     ValidationUtils.allRequired(['requestId', 'signature'], req.data);

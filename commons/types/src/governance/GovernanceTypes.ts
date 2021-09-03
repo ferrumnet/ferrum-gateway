@@ -31,6 +31,7 @@ export interface GovernanceTransaction extends RegisteredContract {
 	requestId: string;
 	created: number;
 	lastUpdate: number;
+	quorum: string;
 	method: string;
 	values: string[];
 	signatures: MultiSigSignature[];

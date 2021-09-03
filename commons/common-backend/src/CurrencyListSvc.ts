@@ -9,7 +9,7 @@ const CURRENCY_LISTS = [
 	'https://tokens.pancakeswap.finance/pancakeswap-extended.json',
 	'https://unpkg.com/quickswap-default-token-list@1.0.82/build/quickswap-default.tokenlist.json',
 ];
-const DAY = 24 * 3600;
+const HOUR =  1 * 3600 * 1000;
 
 export class CurrencyListSvc implements Injectable {
 	private cache = new LocalCache();
@@ -34,7 +34,7 @@ export class CurrencyListSvc implements Injectable {
 				} catch(e) { } 
 			});
 			return lists;
-		}, DAY);
+		}, HOUR);
 	}
 
 	async token(currency: string): Promise<TokenDetails> {

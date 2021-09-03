@@ -27,6 +27,7 @@ const GovernanceTransactionSchema = new Schema<GovernanceTransaction&Document>({
 	contractAddress: String,
 	governanceContractId: String,
 	requestId: String,
+	quorum: String,
 	created: Number,
 	lastUpdate: Number,
 	method: String,
@@ -63,6 +64,14 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		return GovernanceContractDefinitions[id];
 	}
 
+	async loadTransactions(userAddress: string, network: string, contractAddress: string) {
+		this.verifyInit();
+		const sub = await this.subscription(network, contractAddress, userAddress);
+		const txs = await this.transactionsModel.find(
+			{ 'quorum': sub.quorum}).exec();
+		return !!txs ? txs.map(t => t.toJSON()) : undefined;
+	}
+
 	/**
 	 * Archives a request. Makes sure the archives is a valid signer from quorum
 	 */
@@ -89,10 +98,14 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		signature: string,
 	) {
 		this.verifyInit();
-		const sig = await this.methodCall(network, contractAddress, governanceContractId, method, args, false, userAddress, signature);
+		const [sub, sig] = await this.methodCall(network, contractAddress, governanceContractId, method, args, false, userAddress, signature);
 		const requestId = randomBytes(32);
 		const tx = {
 			requestId,
+			network,
+			contractAddress,
+			governanceContractId,
+			quorum: sub.quorum,
 			created: Date.now(),
 			lastUpdate: Date.now(),
 			method: sig.method,
@@ -121,7 +134,9 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		const tx = await this.getGovTransaction(requestId);
 		ValidationUtils.isTrue(!!tx, 'requestId not found: ' + requestId);
 		ValidationUtils.isTrue(!tx.signatures.find(s => s.creator.toLowerCase() === userAddress.toLowerCase()), 'Already signed by this user');
-		await this.methodCall(tx.network, tx.contractAddress, tx.governanceContractId, tx.method, tx.values, false, userAddress, signature);
+		// TODO: Verify sig is for the same quorum
+		await this
+			.methodCall(tx.network, tx.contractAddress, tx.governanceContractId, tx.method, tx.values, false, userAddress, signature);
 		tx.signatures.push({
 			creationTime: Date.now(),
 			creator: userAddress.toLowerCase(),
@@ -139,7 +154,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		values: string[],
 		isArchive: boolean,
 		userAddress: string,
-		signature: string) {
+		signature: string): Promise<[QuorumSubscription, Eip712Params]> {
 		const [contract, m] = await this.getMethod(contractId, method);
 		ValidationUtils.isTrue(isArchive || m.args.length === values.length, `Wrong number of arguments for method ${method}`);
 		const args = isArchive ? 
@@ -158,10 +173,9 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 				args,
 			} as Eip712Params,
 		);
-		if (signature) {
-			await this.authorize(network, contractAddress, userAddress, sig.hash, signature, m.governanceOnly);
-		}
-		return sig;
+		const subscription = await this
+			.authorize(network, contractAddress, userAddress, sig.hash, signature, m.governanceOnly);
+		return [subscription, sig];
 	}
 
 	private async authorize(network: string, contractAddress: string, userAddress: string, msg: string, signature: string, mustBeGov: boolean) {
@@ -172,6 +186,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		if (mustBeGov) {
 			ValidationUtils.isTrue(subscription.groupId < 256, `Address ${userAddress} is of groupId ${subscription.groupId} which is not governance`);
 		}
+		return subscription;
 	}
 
 	private async getMethod(contractId: string, method: string): Promise<[GovernanceContract, SignableMethod]> {
