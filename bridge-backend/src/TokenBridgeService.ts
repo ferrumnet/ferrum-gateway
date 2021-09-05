@@ -3,7 +3,6 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { ChainUtils } from "ferrum-chain-clients";
 import { Injectable, Network, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Document, Model} from "mongoose";
-import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
     GroupInfo,

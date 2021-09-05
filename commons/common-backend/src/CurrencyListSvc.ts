@@ -72,8 +72,14 @@ export class CurrencyListSvc implements Injectable {
 	}
 
 	private async loadSingleList(url: string): Promise<TokenDetails[]> {
-		const res = await fetch(url);
-		const resJ = await res.json();
-		return resJ.tokens;
+			const res = await fetch(url);
+			const resT = await res.text();
+		try {
+			const resJ = JSON.parse(resT);
+			return resJ.tokens;
+		} catch(e) {
+			console.log('ERROR GETTING ', url, resT);
+			return [];
+		}
 	}
 }

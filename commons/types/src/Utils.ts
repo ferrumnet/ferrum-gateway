@@ -143,6 +143,17 @@ export class Utils {
 		}
 		return true;
 	}
+
+	static isNonzeroAddress(address: string) {
+		if(!address) { return false; }
+		const zero = address.replace('0x', '').replace(/0/g,'').length == 0;
+		return !zero;
+	}
+
+	static addressEqual(a1: string, a2: string) {
+		if (!a1 || !a2) return false;
+		return a1.toLowerCase() === a2.toLowerCase();
+	}
 }
 
 export class ParseBigError extends Error { }

@@ -10,7 +10,7 @@ export class ApiClient implements Injectable {
     private address: string = '';
     private network: string = '';
     constructor(private baseUrl: string,
-        protected client: UnifyreExtensionKitClient
+        public client: UnifyreExtensionKitClient
 		) { }
 
     __name__() { return 'ApiClient'; }

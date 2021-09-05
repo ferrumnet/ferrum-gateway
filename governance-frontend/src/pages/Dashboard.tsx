@@ -3,15 +3,15 @@ import React, { useEffect } from 'react';
 import { Page, PageLayout } from 'component-library';
 import { ConnectBar } from '../connect/ConnectBar';
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState } from '../common/GovernanceAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { addressForUser, connectSlice, initThunk } from 'common-containers';
-import { inject3 } from 'types';
-import { CrucibleClient } from '../GovernanceClient';
-import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import { CrucibleList } from './CrucibleList';
-import { Route } from 'react-router';
-import { Deploy } from './Deploy';
+import { initThunk } from 'common-containers';
+import { inject } from 'types';
+import { Route, Switch } from 'react-router';
+import { GovernanceClient } from '../GovernanceClient';
+import { GovernanceAppState } from '../common/GovernanceAppState';
+import { ContractList } from './ContractList';
+import { GovernanceContractPage } from './GovernanceContractPage';
+import { NewMethod } from './Method';
 
 interface DashboardState {
 }
@@ -20,19 +20,9 @@ export interface DashboardProps {
 }
 
 const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payload: {connected: boolean}, ctx) => {
-	const [client, curList, web3Client] = inject3<CrucibleClient, CurrencyList, UnifyreExtensionWeb3Client>(CrucibleClient, CurrencyList, UnifyreExtensionWeb3Client);
-	const state = ctx.getState() as CrucibleAppState;
-	const connectedAddr = addressForUser(state.connection.account?.user);
-	const network = connectedAddr?.network;
-	const allCrucibles = await client.getAllCruciblesFromDb(ctx.dispatch, network || ''); // If not connected will return result for all networks
+	const client = inject<GovernanceClient>(GovernanceClient);
+	await client.listContracts(ctx.dispatch);
 	// Make sure we have user balance for all the crucibles listed
-	const curs = curList.get();
-	curList.set([...curs, ...allCrucibles.map(c => c.currency).filter(cur => curs.indexOf(cur) < 0)]);
-
-	if (payload.connected) { // Connection is already completed
-		const userProfile = await web3Client.getUserProfile();
-		ctx.dispatch(connectSlice.actions.connectionSucceeded({userProfile}));
-	}
 });
 
 export const dashboardSlice = createSlice({
@@ -46,9 +36,12 @@ export const dashboardSlice = createSlice({
 });
 
 export function Dashboard(props: DashboardProps) {
-    const initError = useSelector<CrucibleAppState, string | undefined>(state => state.data.init.initError);
-	const initialized = useSelector<CrucibleAppState, boolean>(state => state.data.init.initialized);
-	const connected = useSelector<CrucibleAppState, boolean>(state => !!state.connection.account.user?.userId);
+	const initError = useSelector<GovernanceAppState, string | undefined>(
+		state => state.data.init.initError);
+	const initialized = useSelector<GovernanceAppState, boolean>(
+		state => state.data.init.initialized);
+	const connected = useSelector<GovernanceAppState, boolean>(
+		state => !!state.connection.account.user?.userId);
 	const dispatch = useDispatch();
 	useEffect(() => {
 		if (initialized && connected) {
@@ -72,12 +65,20 @@ export function Dashboard(props: DashboardProps) {
                     )}
                     middle={(
 											 <>
-											  <Route path="/deploy">
-                        	<Deploy />
+											 <Switch>
+											  <Route path="/newMethod/:network/:contractAddress/:contractId">
+                        	<NewMethod />
 												</Route>
-											  <Route>
-                        	<CrucibleList />
+											  <Route path="/method/:requestId">
+                        	<GovernanceContractPage />
 												</Route>
+											  <Route path="/contract/:network/:contractAddress/:contractId">
+                        	<GovernanceContractPage />
+												</Route>
+											  <Route >
+                        	<ContractList />
+												</Route>
+											 </Switch>
 											 </>
                     )}
                     bottom={(

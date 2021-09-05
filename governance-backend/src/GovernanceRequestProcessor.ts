@@ -23,6 +23,9 @@ export class GovernanceRequestProcessor
 
 		this.registerProcessor('addSignature',
 			(req, userId) => this.addSignature(req, userId));
+
+    this.registerProcessor("listTransactions",
+			(req, userId) => this.listTransactions(req, userId));
   }
 
   __name__() {
@@ -33,12 +36,6 @@ export class GovernanceRequestProcessor
     const { id } = req.data;
     ValidationUtils.isTrue(!!id, "id must be provided");
     return this.svc.contractById(id);
-  }
-
-  async loadTransactions(req: HttpRequestData, userId: string) {
-    const { network, contractAddress } = req.data;
-    ValidationUtils.isTrue(!!userId, "Not signed in");
-    return this.svc.loadTransactions(userId, network, contractAddress);
   }
 
   async archiveTransaction(req: HttpRequestData, userId: string) {
@@ -70,5 +67,11 @@ export class GovernanceRequestProcessor
     const { requestId, signature} = req.data;
     ValidationUtils.allRequired(['requestId', 'signature'], req.data);
     return this.svc.addSignature(userId, requestId, signature);
+  }
+
+  async listTransactions(req: HttpRequestData, userId: string) {
+    const { network, contractAddress } = req.data;
+    ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
+    return this.svc.listTransactions(userId, network, contractAddress);
   }
 }

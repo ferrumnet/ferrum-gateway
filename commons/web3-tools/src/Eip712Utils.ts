@@ -26,6 +26,7 @@ export function domainSeparator(eth: Eth,
     const typeHash = Web3.utils.keccak256(
         Web3.utils.utf8ToHex("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"));
 
+		console.log('Domain separator',"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)", typeHash)
     return Web3.utils.keccak256(
         eth.abi.encodeParameters(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
@@ -61,14 +62,22 @@ export function produceSignature(
     const structureHash = Web3.utils.keccak256(structure);
     const ds = domainSeparator(eth, eipParams.contractName, eipParams.contractVersion, netId, contractAddress);
     const hash = Web3.utils.soliditySha3("\x19\x01", ds, structureHash) as HexString;
+		// console.log(' ALL PARMS FOR SIGN ', {
+		// 	methodSig,
+		// 	methodHash,
+		// 	structure,
+		// 	structureHash,
+		// 	ds,
+		// 	hash
+		// })
     return {...eipParams, hash, signature: ''};
 }
 
 export function verifySignature(hash: HexString, userAddress: string, signature: HexString) {
-	const sig = fromRpcSig(Buffer.from(signature, 'hex'));
+	const sig = fromRpcSig(Buffer.from(signature.replace('0x', ''), 'hex'));
 	const pub = ecrecover(Buffer.from(hash, 'hex'), sig.v, sig.r, sig.s);
-	const addr  = publicToAddress(pub);
-	ValidationUtils.isTrue(userAddress.toLowerCase() === addr.toString('hex').toLowerCase(), 'Invalid signature');
+	const addr  = `0x${publicToAddress(pub).toString('hex').toLowerCase()}`;
+	ValidationUtils.isTrue(userAddress.toLowerCase() === addr, 'Invalid signature');
 }
 
 export function randomSalt() {

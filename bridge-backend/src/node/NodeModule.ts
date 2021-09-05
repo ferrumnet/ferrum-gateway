@@ -9,12 +9,12 @@ import { TransactionListProvider } from "./TransactionListProvider";
 import { TokenBridgeService } from "../TokenBridgeService";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
-import { BridgeModuleCommons } from "../BridgeModule";
 import { BridgeConfigStorage } from "../BridgeConfigStorage";
 import { CommonBackendModule } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
 import { KMS } from "aws-sdk";
+import { BridgeModuleCommons } from "../BridgeModule";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
@@ -24,16 +24,9 @@ export class NodeModule implements Module {
 		brigeContracts[net] = conf.bridgeContracts[net].bridge;
 	});
 
-	await container.registerModule(
-		new CommonBackendModule(conf.chain));
+	await container.registerModule(new CommonBackendModule());
 
-    await container.registerModule(
-      new BridgeModuleCommons(
-		  brigeContracts,
-		  conf.bridgeContracts,
-		  {},
-		),
-    );
+    await container.registerModule(new BridgeModuleCommons(conf.database,),);
 
 	container.registerSingleton(TransactionListProvider,
 		c => new TransactionListProvider(c.get(CrossSwapService)));

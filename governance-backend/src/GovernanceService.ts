@@ -2,7 +2,7 @@ import { MongooseConnection } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, ValidationUtils, Networks } from "ferrum-plumbing";
 import { Connection, Model, Document, Schema } from "mongoose";
-import { GovernanceContract, GovernanceTransaction, MultiSigSignature, SignableMethod } from "types";
+import { GovernanceContract, GovernanceTransaction, MultiSigSignature, SignableMethod, Utils } from "types";
 import { CrucibleRouter__factory } from './resources/typechain/factories/CrucibleRouter__factory';
 import { CrucibleRouter } from './resources/typechain/CrucibleRouter';
 import { GovernanceContractDefinitions, GovernanceContractList } from "./contracts/GovernanceContractList";
@@ -64,11 +64,15 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		return GovernanceContractDefinitions[id];
 	}
 
-	async loadTransactions(userAddress: string, network: string, contractAddress: string) {
+	async listTransactions(userAddress: string, network: string, contractAddress: string) {
 		this.verifyInit();
 		const sub = await this.subscription(network, contractAddress, userAddress);
+		if (!sub) {
+			return [];
+		}
 		const txs = await this.transactionsModel.find(
 			{ 'quorum': sub.quorum}).exec();
+		console.log('Finding ', { 'quorum': sub.quorum}, txs.length)
 		return !!txs ? txs.map(t => t.toJSON()) : undefined;
 	}
 
@@ -105,7 +109,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 			network,
 			contractAddress,
 			governanceContractId,
-			quorum: sub.quorum,
+			quorum: sub.quorum.toLowerCase(),
 			created: Date.now(),
 			lastUpdate: Date.now(),
 			method: sig.method,
@@ -162,17 +166,20 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 					{ type: "boolean", name: "archive", value: true as any },
 			] : m.args.map((a, i) => ({ type: a.type, name: a.name, value: values[i] }));
 
-		const sig = produceSignature(
-			this.helper.web3(network),
-			Networks.for(network).chainId,
-			contractAddress,
-			{ 
+		const params = { 
 				contractName: contract.identifier.name,
 				contractVersion: contract.identifier.version,
 				method: m.name,
 				args,
-			} as Eip712Params,
+			} as Eip712Params
+		const sig = produceSignature(
+			this.helper.web3(network),
+			Networks.for(network).chainId,
+			contractAddress,
+			params,
 		);
+		console.log('Pre authorize', {args, chainId: Networks.for(network).chainId,
+			contractAddress, params});
 		const subscription = await this
 			.authorize(network, contractAddress, userAddress, sig.hash, signature, m.governanceOnly);
 		return [subscription, sig];
@@ -180,8 +187,12 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 
 	private async authorize(network: string, contractAddress: string, userAddress: string, msg: string, signature: string, mustBeGov: boolean) {
 		// First, check if the user signature is valid. Once it is verified, make sure use is allowed on the contract
-		verifySignature(msg, userAddress, signature);
+		console.log('To autorize', {
+			network, contractAddress, userAddress, msg, signature
+		})
+		verifySignature(msg.replace('0x',''), userAddress, signature);
 		const subscription = await this.subscription(network, contractAddress, userAddress);
+		console.log('Subscription', {subscription});
 		ValidationUtils.isTrue(!!subscription, `Address ${userAddress} is not part of any quorum on ${network} - ${contractAddress}`);
 		if (mustBeGov) {
 			ValidationUtils.isTrue(subscription.groupId < 256, `Address ${userAddress} is of groupId ${subscription.groupId} which is not governance`);
@@ -201,11 +212,12 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 
 	private async subscription(network: string, contractAddress: string, userAddress: string): Promise<QuorumSubscription | undefined> {
 		const subscription = (await this.contract(network, contractAddress).quorumSubscriptions(userAddress)) || ['', 0, 0];
-		if (!subscription || !subscription[0]) {
+		console.log('first sub is ', Utils.isNonzeroAddress(subscription[0]), subscription[0])
+		if (!subscription || !Utils.isNonzeroAddress(subscription[0])) {
 			return undefined;
 		}
 		const [quorum, groupId, minSignatures] = subscription;
-		return { quorum, groupId, minSignatures } as QuorumSubscription;
+		return { quorum: quorum.toLowerCase(), groupId, minSignatures } as QuorumSubscription;
 	}
 
 	private async getGovTransaction(requestId: string): Promise<GovernanceTransaction|undefined> {

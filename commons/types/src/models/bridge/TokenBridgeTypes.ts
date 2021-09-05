@@ -6,6 +6,7 @@ import {
   Eip712TypeDefinition,
 } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
 import { MultiSigSignature } from "../chain/ChainTypes";
+import { Networks } from 'ferrum-plumbing';
 
 // TODO: Remove mongoose types out of this repo
 
@@ -176,9 +177,9 @@ export const SignedPairAddressSchemaModel = (c: Connection) =>
   );
 
 export function domainSeparator(network: string): DomainSeparator {
-  const chainId = CHAIN_ID_FOR_NETWORK[network];
+  const chainId = Networks.for(network).chainId;
   return {
-    chainId: chainId,
+    chainId: chainId.toString(),
     name: "PairedUnifyreWallet",
     salt: TOKEN_BRIDGE_DOMAIN_SALT,
     verifyingContract: BRIDGE_CONTRACT[network],

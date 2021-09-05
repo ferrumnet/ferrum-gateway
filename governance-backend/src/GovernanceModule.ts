@@ -39,6 +39,6 @@ export class GovernanceModule implements Module {
     container.registerSingleton(
       GovernanceService, (c) => new GovernanceService( c.get(EthereumSmartContractHelper),));
 
-		container.get<GovernanceService>(GovernanceService).init(conf.database);
+		await container.get<GovernanceService>(GovernanceService).init(conf.database);
   }
 }

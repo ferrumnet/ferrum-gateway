@@ -1,14 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { AnyAction } from "redux";
-import { CrucibleInfo } from "types";
-import { crucibleBoxSlice } from "../pages/CrucibleBox";
-import { deploySlice } from "../pages/Deploy";
+import { GovernanceClientActions } from "../GovernanceClient";
+import { newMethodSlice } from "../pages/Method";
 import { CommonActions } from "./CommonActions";
 import { AppGlobalState, AppUserState } from "./GovernanceAppState";
 
 export const uiReducer = combineReducers({
-	crucibleBox: crucibleBoxSlice.reducer,
-	deploy: deploySlice.reducer,
+	newMethod: newMethodSlice.reducer,
 });
 
 export function userReducer(state: AppUserState = {}, action: AnyAction) {
@@ -18,32 +16,21 @@ export function userReducer(state: AppUserState = {}, action: AnyAction) {
 
 function clientReducer(state: AppGlobalState, action: AnyAction) {
 	switch (action.type) {
-		case CrucibleClientActions.CRUCIBLES_LOADED:
-			const allCru: CrucibleInfo[] = action.payload.crucibles || [];
-			const cru: any = {};
-			allCru.forEach(c => {
-				const cb: CrucibleInfo[] = cru[c.baseCurrency] || [];
-				cb.push(c);
-			});
-			return {...state, crucibles: cru};
-		case CrucibleClientActions.CRUCIBLE_LOADED:
-			const upCru: CrucibleInfo = action.payload.crucible;
-			const upCrus = state.crucibles[cru.baseCurrency];
-			const idx = upCrus.findIndex(c => c.currency === upCru.currency);
-			if (idx >= 0) {
-				upCrus[idx] = upCru;
-			} else {
-				upCrus.push(upCru);
-			}
-			return {...state, crucibles: {
-				...state.crucibles, [upCru.baseCurrency]: upCrus}};
+		case GovernanceClientActions.CONTRACTS_LOADED:
+			return {...state, contracts: action.payload};
+		case GovernanceClientActions.CONTRACT_LOADED:
+			return {...state, selectedContract: action.payload};
+		case GovernanceClientActions.TRANSACTIONS_LOADED:
+			return {...state, requests: action.payload};
 		default:
 			return state;
 	}
 }
 
 export function dataReducer(state: AppGlobalState = {
-		crucibles: {},
+		contracts: [],
+		requests: [],
+		selectedContract: {} as any,
 		waiting: false,
 		initialized: false } as AppGlobalState,
 	action: AnyAction) {
