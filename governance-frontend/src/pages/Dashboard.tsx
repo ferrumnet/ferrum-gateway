@@ -11,7 +11,7 @@ import { GovernanceClient } from '../GovernanceClient';
 import { GovernanceAppState } from '../common/GovernanceAppState';
 import { ContractList } from './ContractList';
 import { GovernanceContractPage } from './GovernanceContractPage';
-import { NewMethod } from './Method';
+import { Method, NewMethod } from './Method';
 
 interface DashboardState {
 }
@@ -19,7 +19,7 @@ interface DashboardState {
 export interface DashboardProps {
 }
 
-const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payload: {connected: boolean}, ctx) => {
+const initializeDashboardThunk = createAsyncThunk('governance/init', async (payload: {connected: boolean}, ctx) => {
 	const client = inject<GovernanceClient>(GovernanceClient);
 	await client.listContracts(ctx.dispatch);
 	// Make sure we have user balance for all the crucibles listed
@@ -69,8 +69,8 @@ export function Dashboard(props: DashboardProps) {
 											  <Route path="/newMethod/:network/:contractAddress/:contractId">
                         	<NewMethod />
 												</Route>
-											  <Route path="/method/:requestId">
-                        	<GovernanceContractPage />
+											  <Route path="/method/:network/:contractAddress/:contractId/:requestId">
+                        	<Method />
 												</Route>
 											  <Route path="/contract/:network/:contractAddress/:contractId">
                         	<GovernanceContractPage />

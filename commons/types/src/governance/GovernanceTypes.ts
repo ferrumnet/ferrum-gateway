@@ -1,8 +1,20 @@
-import { MultiSigSignature } from "src";
+import { MultiSigSignature, TransactionTrackable } from "../models/chain/ChainTypes";
 
 export interface SignableMethodArg {
 	type: string;
 	name: string;
+}
+
+export interface MethodAbiInput {
+	internalType: string;
+	name: string;
+	type: string;
+}
+
+export interface MethodAbi{
+	inputs: MethodAbiInput[];
+	name: string;
+	type: string;
 }
 
 export interface SignableMethod {
@@ -10,6 +22,7 @@ export interface SignableMethod {
 	governanceOnly: boolean;
 	name: string;
 	args: SignableMethodArg[];
+	abi: MethodAbi;
 }
 
 export interface GovernanceContract {
@@ -35,7 +48,13 @@ export interface GovernanceTransaction extends RegisteredContract {
 	method: string;
 	values: string[];
 	signatures: MultiSigSignature[];
-	transactions: { network: string, id: string, status: '' | 'pending' | 'succeeded' | 'failed' }[];
 	archived: boolean;
 	logs: string[];
+	execution: TransactionTrackable;
+}
+
+export interface QuorumSubscription {
+	quorum: string;
+	groupId: number;
+	minSignatures: number;
 }

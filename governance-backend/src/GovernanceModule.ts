@@ -5,6 +5,7 @@ import { CommonBackendModule, decryptKey } from "common-backend";
 import { GovernanceConfig } from "../GovernanceTypes";
 import { GovernanceRequestProcessor } from "./GovernanceRequestProcessor";
 import { GovernanceService } from "./GovernanceService";
+import { TransactionTracker } from "common-backend/dist/contracts/TransactionTracker";
 
 export function getEnv(env: string) {
   const res = process.env[env];
@@ -37,7 +38,9 @@ export class GovernanceModule implements Module {
     );
 
     container.registerSingleton(
-      GovernanceService, (c) => new GovernanceService( c.get(EthereumSmartContractHelper),));
+      GovernanceService, (c) => new GovernanceService(
+				c.get(EthereumSmartContractHelper),
+				c.get(TransactionTracker)));
 
 		await container.get<GovernanceService>(GovernanceService).init(conf.database);
   }

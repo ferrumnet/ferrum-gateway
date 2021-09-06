@@ -22,6 +22,7 @@ import { KMS } from "aws-sdk";
 import { CurrencyListSvc } from "./CurrencyListSvc";
 import { UniswapV2Client } from "./uniswapv2/UniswapV2Client";
 import { UniswapPricingService } from "./uniswapv2/UniswapPricingService";
+import { TransactionTracker } from "./contracts/TransactionTracker";
 
 export class CommonBackendModule implements Module {
   constructor(private chainConfig?: MultiChainConfig) {}
@@ -82,6 +83,8 @@ export class CommonBackendModule implements Module {
 
 		container.registerSingleton(UniswapPricingService,
 			c => new UniswapPricingService(c.get(UniswapV2Client)));
+		container.register(TransactionTracker,
+			c => new TransactionTracker(c.get(EthereumSmartContractHelper)));
 
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")

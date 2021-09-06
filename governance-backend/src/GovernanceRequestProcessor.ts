@@ -26,6 +26,15 @@ export class GovernanceRequestProcessor
 
     this.registerProcessor("listTransactions",
 			(req, userId) => this.listTransactions(req, userId));
+
+    this.registerProcessor("getSubscription",
+			(req, userId) => this.getSubscription(req, userId));
+
+    this.registerProcessor("submitRequestGetTransaction",
+			(req, userId) => this.submitRequestGetTransaction(req, userId));
+
+    this.registerProcessor("updateTransacionsForRequest",
+			(req, userId) => this.updateTransacionsForRequest(req, userId));
   }
 
   __name__() {
@@ -73,5 +82,23 @@ export class GovernanceRequestProcessor
     const { network, contractAddress } = req.data;
     ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
     return this.svc.listTransactions(userId, network, contractAddress);
+  }
+
+  async getSubscription(req: HttpRequestData, userId: string) {
+    const { network, contractAddress } = req.data;
+    ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
+    return this.svc.getSubscription(network, contractAddress, userId);
+  }
+
+  async submitRequestGetTransaction(req: HttpRequestData, userId: string) {
+    const { requestId } = req.data;
+    ValidationUtils.allRequired(['requestId'], req.data);
+    return this.svc.submitRequestGetTransaction(userId, requestId);
+  }
+
+  async updateTransacionsForRequest(req: HttpRequestData, userId: string) {
+    const { requestId, transactionId } = req.data;
+    ValidationUtils.allRequired(['requestId'], req.data);
+    return this.svc.updateTransacionsForRequest(requestId, transactionId);
   }
 }

@@ -2,24 +2,25 @@ import { MongooseConnection } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, ValidationUtils, Networks } from "ferrum-plumbing";
 import { Connection, Model, Document, Schema } from "mongoose";
-import { GovernanceContract, GovernanceTransaction, MultiSigSignature, SignableMethod, Utils } from "types";
+import { GovernanceContract, GovernanceTransaction,
+	MultiSigSignature, SignableMethod, Utils, QuorumSubscription } from "types";
 import { CrucibleRouter__factory } from './resources/typechain/factories/CrucibleRouter__factory';
 import { CrucibleRouter } from './resources/typechain/CrucibleRouter';
 import { GovernanceContractDefinitions, GovernanceContractList } from "./contracts/GovernanceContractList";
-import { Eip712Params, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
+import { Eip712Params, multiSigToBytes, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
 import { randomBytes } from 'ferrum-crypto';
+import { TransactionTrackableSchema, TransactionTracker } from 'common-backend/dist/contracts/TransactionTracker';
 
 export const CACHE_TIMEOUT = 600 * 1000; // 10 min
+
+const SigMethodCommonArgs = {
+	expectedGroupId: 'expectedGroupId',
+	multiSignature: 'multiSignature',
+}
 
 export function ensureNotExpired(expiry: number) {
 	const now = Math.round(Date.now()/1000);
 	ValidationUtils.isTrue(now < expiry, 'Allocation is expired');
-}
-
-interface QuorumSubscription {
-	quorum: string;
-	groupId: number;
-	minSignatures: number;
 }
 
 const GovernanceTransactionSchema = new Schema<GovernanceTransaction&Document>({
@@ -33,9 +34,9 @@ const GovernanceTransactionSchema = new Schema<GovernanceTransaction&Document>({
 	method: String,
 	values: [String],
 	signatures: [Object],
-	transactions: [new Schema({ network: String, id: String, status: String })],
 	archived: Boolean,
 	logs: [String],
+	execution: TransactionTrackableSchema,
 });
 
 const GovernanceTransactionModel = (c: Connection) => c.model<GovernanceTransaction&Document>('governanceTransactions', GovernanceTransactionSchema);
@@ -45,6 +46,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	private transactionsModel: Model<GovernanceTransaction&Document> | undefined;
 	constructor(
 		private helper: EthereumSmartContractHelper,
+		private tracker: TransactionTracker,
 	) {
 		super();
 	}
@@ -62,6 +64,10 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 
 	async contractById(id: string) {
 		return GovernanceContractDefinitions[id];
+	}
+
+	async getSubscription(network: string, contractAddress: string, userAddress: string) {
+		return await this.subscription(network, contractAddress, userAddress);
 	}
 
 	async listTransactions(userAddress: string, network: string, contractAddress: string) {
@@ -121,9 +127,9 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 					signature,
 				} as MultiSigSignature
 			],
-			transactions: [],
 			archived: false,
 			logs: [ `Created by ${userAddress}` ],
+			execution: { status: '', transactions: [] },
 		} as GovernanceTransaction;
 		await new this.transactionsModel(tx)!.save();
 		return await this.getGovTransaction(requestId);
@@ -138,9 +144,10 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		const tx = await this.getGovTransaction(requestId);
 		ValidationUtils.isTrue(!!tx, 'requestId not found: ' + requestId);
 		ValidationUtils.isTrue(!tx.signatures.find(s => s.creator.toLowerCase() === userAddress.toLowerCase()), 'Already signed by this user');
-		// TODO: Verify sig is for the same quorum
-		await this
+		const [sub, sig] = await this
 			.methodCall(tx.network, tx.contractAddress, tx.governanceContractId, tx.method, tx.values, false, userAddress, signature);
+		ValidationUtils.isTrue(sub.quorum === tx.quorum, 
+			`Signer is from a different quorum: ${sub.quorum} vs ${tx.quorum}`);
 		tx.signatures.push({
 			creationTime: Date.now(),
 			creator: userAddress.toLowerCase(),
@@ -148,6 +155,77 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		} as MultiSigSignature);
 		await this.transactionsModel.findOneAndUpdate({requestId}, {signatures: tx.signatures});
 		return await this.getGovTransaction(requestId);
+	}
+
+	async updateTransacionsForRequest(
+		requestId: string,
+		transactionId?: string,
+	) {
+		const r = await this.getGovTransaction(requestId);
+		const execution = await this.tracker.upsert(r.execution || {} as any, transactionId);
+		if (!!execution) {
+			await this.transactionsModel.findOneAndUpdate({requestId}, {execution});
+		}
+		return this.getGovTransaction(requestId);
+	}
+
+	async submitRequestGetTransaction(
+		userAddress: string,
+		requestId: string,
+	) {
+		const tx = await this.getGovTransaction(requestId);
+		ValidationUtils.isTrue(!!tx, 'requestId not found: ' + requestId);
+		const [c, m] = await this.getMethod(tx.governanceContractId, tx.method);
+		const quorumData = await this.contract(tx.network, tx.contractAddress)
+			.quorums(tx.quorum);
+		const expectedGroupId = quorumData[1];
+		ValidationUtils.isTrue(Utils.isNonzeroAddress(quorumData[0]),
+			`Quorum ${tx.quorum} doesnt exist on ${tx.contractAddress}`);
+		const multiSig = multiSigToBytes(tx.signatures.map(s => s.signature));
+		
+		// Custom logic for expectedGroupId and multiSignature?
+		const web3 = this.helper.web3(tx.network);
+		const contract = new web3.Contract([m.abi as any], tx.contractAddress);
+		const values = tx.values;
+		const groupIdIdx = m.abi.inputs.findIndex(a => a.name === SigMethodCommonArgs.expectedGroupId);
+		if (groupIdIdx >= 0) {
+			ValidationUtils.isTrue(groupIdIdx == m.abi.inputs.length - 2,
+				"Contract's method arg 'expectedGroupId' must be the one before last");
+			ValidationUtils.isTrue(m.abi.inputs.length === tx.values.length + 2,
+				`Abi input size for method ${tx.method} is expected to be exactly 2 above the signable size`);
+			values.push(expectedGroupId as any);
+		} else {
+			ValidationUtils.isTrue(m.abi.inputs.length === tx.values.length + 1,
+				`Abi input size for method ${tx.method} is expected to be exactly 1 above the signable size (${m.abi.inputs.length} vs ${tx.values.length})`);
+		}
+		const multiSigIdx = m.abi.inputs.findIndex(a => a.name === SigMethodCommonArgs.multiSignature);
+		ValidationUtils.isTrue(multiSigIdx >= 0,
+			"Contract's method must have last argument: multiSignature");
+		ValidationUtils.isTrue(multiSigIdx == m.abi.inputs.length - 1,
+			"Contract's method arg 'multiSignature' must be the last one");
+		values.push(multiSig);
+
+		const p = contract.methods[m.abi.name](...values);
+
+		const gas = await this.estimateGasOrDefault(p, userAddress, undefined);
+		const nonce = await this.helper.web3(tx.network)
+			.getTransactionCount(userAddress, 'pending');
+		return EthereumSmartContractHelper.callRequest(tx.contractAddress,
+						'na',
+						userAddress,
+						p.encodeABI(),
+						gas ? gas.toFixed() : undefined,
+						nonce,
+						tx.method);
+	}
+
+	async estimateGasOrDefault(method: any, from: string, defaultGas?: number) {
+			try {
+					return await method.estimateGas({from});
+			} catch(e) {
+					console.info('Error estimating gas. Tx might be reverting');
+					return defaultGas;
+			}
 	}
 
 	private async methodCall(
@@ -160,7 +238,21 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		userAddress: string,
 		signature: string): Promise<[QuorumSubscription, Eip712Params]> {
 		const [contract, m] = await this.getMethod(contractId, method);
-		ValidationUtils.isTrue(isArchive || m.args.length === values.length, `Wrong number of arguments for method ${method}`);
+		const sig = this.produceMethodCall(network, contractAddress, contract, m, values, isArchive);
+		const subscription = await this
+			.authorize(network, contractAddress, userAddress, sig.hash, signature, m.governanceOnly);
+		return [subscription, sig];
+	}
+
+	private produceMethodCall(
+		network: string,
+		contractAddress: string,
+		contract: GovernanceContract,
+		m: SignableMethod,
+		values: string[],
+		isArchive: boolean,
+	) {
+		ValidationUtils.isTrue(isArchive || m.args.length === values.length, `Wrong number of arguments for method ${m.name}`);
 		const args = isArchive ? 
 			[
 					{ type: "boolean", name: "archive", value: true as any },
@@ -178,11 +270,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 			contractAddress,
 			params,
 		);
-		console.log('Pre authorize', {args, chainId: Networks.for(network).chainId,
-			contractAddress, params});
-		const subscription = await this
-			.authorize(network, contractAddress, userAddress, sig.hash, signature, m.governanceOnly);
-		return [subscription, sig];
+		return sig;
 	}
 
 	private async authorize(network: string, contractAddress: string, userAddress: string, msg: string, signature: string, mustBeGov: boolean) {

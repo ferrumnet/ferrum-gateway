@@ -13,7 +13,40 @@
 				{"type": "address", "name": "crucible"},
 				{"type": "uint256", "name": "cap"},
 				{"type": "uint64", "name": "expiry"}
-			]
+			],
+			"abi": {
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "crucible",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "cap",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint64",
+						"name": "expiry",
+						"type": "uint64"
+					},
+					{
+						"internalType": "uint16",
+						"name": "expectedGroupId",
+						"type": "uint16"
+					},
+					{
+						"internalType": "bytes",
+						"name": "multiSignature",
+						"type": "bytes"
+					}
+				],
+				"name": "setOpenCap",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
 		}
 	]
 }

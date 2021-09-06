@@ -5,7 +5,7 @@ import {
   DomainSeparator,
   Eip712TypeDefinition,
 } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
-import { MultiSigSignature } from "../chain/ChainTypes";
+import { MultiSigSignature, TransactionTrackable } from "../chain/ChainTypes";
 import { Networks } from 'ferrum-plumbing';
 
 // TODO: Remove mongoose types out of this repo
@@ -83,8 +83,10 @@ export interface UserBridgeWithdrawableBalanceItem {
   originCurrency: string;
   sendToCurrency: string;
 
+	// TODO: Refactor and use the transaction trackeble
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];
+	execution: TransactionTrackable;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -181,7 +183,6 @@ export function domainSeparator(network: string): DomainSeparator {
   return {
     chainId: chainId.toString(),
     name: "PairedUnifyreWallet",
-    salt: TOKEN_BRIDGE_DOMAIN_SALT,
     verifyingContract: BRIDGE_CONTRACT[network],
     version: "0.1.0",
   };

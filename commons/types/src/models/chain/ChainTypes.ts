@@ -67,3 +67,16 @@ export interface MultiSigActor {
 export interface MultiSignable {
 	signatures: MultiSigSignature[];
 }
+
+export interface TransactionTrackableItem {
+	network: string;
+	transactionId: string;
+	timestamp: number;
+	status: 'pending' | 'failed' | 'timedout' | 'sucess';
+	message?: string;
+}
+
+export interface TransactionTrackable {
+	status: '' | 'pending' | 'failed' | 'timedout' | 'sucess';
+	transactions: TransactionTrackableItem[];
+}

@@ -13,6 +13,8 @@ export const GovernanceClientActions = {
 	CONTRACTS_LOADED: 'CONTRACTS_LOADED',
 	CONTRACT_LOADED: 'CONTRACT_LOADED',
 	TRANSACTIONS_LOADED: 'TRANSACTIONS_LOADED',
+	SUBSCRIPTION_LOADED: 'SUBSCRIPTION_LOADED',
+	CLEAR_SUBSCRIPTION: 'CLEAR_SUBSCRIPTION',
 };
 
 const Actions = GovernanceClientActions;
@@ -59,6 +61,20 @@ export class GovernanceClient {
 		}
 	}
 
+	async getSubscription(dispatch: Dispatch<AnyAction>,
+			network: string, contractAddress: string) {
+		const res = await this.api.api({
+			command: 'getSubscription',
+			data: { network, contractAddress },
+			params: [],
+		} as JsonRpcRequest);
+		if (!!res) {
+			dispatch(addAction(Actions.SUBSCRIPTION_LOADED, res));
+		} else {
+			dispatch(addAction(Actions.CLEAR_SUBSCRIPTION, res));
+		}
+	}
+
 	async archiveTransaction(dispatch: Dispatch<AnyAction>, id: string) {
 		// const res = await this.api.api({
 		// 	command: 'contractById',
@@ -68,6 +84,33 @@ export class GovernanceClient {
 		// if (!!res) {
 		// 	dispatch(addAction(Actions.CONTRACT_LOADED, res));
 		// }
+	}
+
+	async submitTransaction(dispatch: Dispatch<AnyAction>,
+			requestId: string,
+			contractAddress: string,
+			) {
+		const network = this.api.getNetwork();
+		const txId = await this.api.runServerTransaction(async () => {
+			return await this.api.api({
+				command: 'submitRequestGetTransaction',
+				data: {
+					requestId,
+				},
+				params: [],
+			} as JsonRpcRequest);
+		})
+		if (!!txId) {
+			return await this.api.api({
+				command: 'updateTransacionsForRequest',
+				data: {
+					requestId,
+					transactionId: txId,
+				},
+				params: [],
+			} as JsonRpcRequest);
+		}
+		await this.reloadTransactions(dispatch, network, contractAddress);
 	}
 
 	async proposeTransaction(dispatch: Dispatch<AnyAction>,
@@ -93,24 +136,22 @@ export class GovernanceClient {
 			await this.reloadTransactions(dispatch, network, contractAddress);
 		}
 	}
-
-	async deposit(dispatch: Dispatch<AnyAction>,
-		currency: string,
-		crucible: string,
-		amount: string,
-		isPublic: boolean,
-		) {
-		try {
-			return this.api.runServerTransaction(
-				async () => {
-					const network = this.api.getNetwork();
-					return await this.api.api({
-							command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
-							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
-				});
-		} catch (e) {
-			console.error('deposit', e);
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+	
+	async addSignature(dispatch: Dispatch<AnyAction>,
+			requestId: string,
+			contractAddress: string,
+			signature: string,) {
+		const network = this.api.getNetwork();
+		const res = await this.api.api({
+			command: 'addSignature',
+			data: {
+				requestId,
+				signature,
+			},
+			params: [],
+		} as JsonRpcRequest);
+		if (!!res) {
+			await this.reloadTransactions(dispatch, network, contractAddress);
 		}
 	}
 

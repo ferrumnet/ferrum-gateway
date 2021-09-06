@@ -1,5 +1,6 @@
 import { AppInitializingState, AppState } from 'common-containers';
-import { GovernanceContract, GovernanceTransaction, RegisteredContract } from 'types';
+import { GovernanceContract, GovernanceTransaction, RegisteredContract, QuorumSubscription
+} from 'types';
 
 export interface NewMethodState {
 	methodIdx: number;
@@ -9,11 +10,19 @@ export interface NewMethodState {
 	pending: boolean;
 }
 
+export interface MethodState {
+	error?: string;
+	saved: boolean;
+	pending: boolean;
+}
+
 export interface AppUiState {
 	newMethod: NewMethodState;
+	method: MethodState;
 };
 
 export interface AppUserState {
+	quorum: QuorumSubscription;
 }
 
 export interface AppGlobalState extends AppInitializingState {
