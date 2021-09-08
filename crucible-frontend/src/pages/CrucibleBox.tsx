@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { CrucibleInfo, BigUtils, CRUCIBLE_ROUTER, inject } from "types";
+import { CrucibleInfo, BigUtils, CRUCIBLE_ROUTER, inject,
+	UserCrucibleInfo, CrucibleAllocationMethods, } from "types";
 import {
     Row, RegularBtn,
     // @ts-ignore
@@ -12,6 +13,8 @@ import { ResponsiveMode } from 'office-ui-fabric-react';
 import { ChainActionDlg } from './ChainActionDlg';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../CrucibleClient';
+import './CrucibleList.css';
+import { userInfo } from 'os';
 
 export const crucibleBoxSlice = createSlice({
 	name: 'CrucibleBox',
@@ -78,23 +81,26 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 	const [stakeModal, showStakeModal] = useState(false);
 	const [withdrawModal, showWithdrawModal] = useState(false);
 	const dispatch = useDispatch();
-	const balance = useSelector<CrucibleAppState, string>(state => {
-		const addr = addressesForUser(state.connection.account.user);
-		return addr.filter(a => a.currency === params.info.currency)
-			.map(c => c.balance).find(Boolean) || '0';
-	});
-	const baseBalance = useSelector<CrucibleAppState, string>(state => {
-		const addr = addressesForUser(state.connection.account.user);
-		return addr.filter(a => a.currency === params.info.baseCurrency)
-			.map(c => c.balance).find(Boolean) || '0';
-	});
+	const crucible = params.info;
+	let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state =>
+		crucible?.currency ?
+			state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
+
+	const baseBalance = userCrucible?.baseBalance || '0';
+	const balance = userCrucible?.balance || '0';
 	const activeTxId = useSelector<CrucibleAppState, string>(state => 
 		state.ui.crucibleBox.activeTxId);
 	const userAddr = useSelector<CrucibleAppState, string|undefined>(state =>
 		state.connection.account?.user?.userId);
 	const depositOpen = params.info.activeAllocationCount > 0 ||
 		BigUtils.truthy(BigUtils.safeParse(params.info.openCap));
+
+	const userDirectAllocation = (userCrucible?.allocations || []
+		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT) || '0';
+	const userLpAllocation = (userCrucible?.allocations || []
+		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE) || '0';
 	const info = params.info;
+	console.log('Is DEPOSIT POEN?', depositModal)
 	const deposit = <Modal
         isOpen={depositModal}
         onDismiss={() => showDepositModal(false)}
@@ -108,7 +114,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			contractAddress={CRUCIBLE_ROUTER[info.network]}
 			userAddress={userAddr!}
 			currency={info.baseCurrency}
-			balance={baseBalance}
+			balance={baseBalance || '0'}
 			balanceTitle={`Available balance`}
 			symbol={info.baseSymbol}
 			feeRatio={'0'}
@@ -119,8 +125,8 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			action={(total, amount, feeAmount) => dispatch(
 				doDeposit({amount,
 					network: info.network,
-					crucible: info.contractAddress,
-					currency: info.currency,
+					crucible: info.currency,
+					currency: info.baseCurrency,
 					isPublic: !!info.openCap,
 				}))}
 			pendingTxId={activeTxId}
@@ -139,7 +145,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			contractAddress={''/*info.mainStaking*/}
 			userAddress={userAddr!}
 			currency={info.currency}
-			balance={baseBalance}
+			balance={baseBalance || '0'}
 			balanceTitle={`Available balance`}
 			symbol={info.symbol}
 			feeRatio={'0'}
@@ -174,10 +180,10 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			approvable={false}
 			onClose={() => showWithdrawModal(false)}
 			action={(total, amount, feeAmount) => dispatch(
-				doWithdraw({amount: total,
+				doWithdraw({amount,
 					network: info.network,
-					crucible: info.contractAddress,
-					currency: info.currency,
+					crucible: info.currency,
+					currency: info.baseCurrency,
 				}))}
 			pendingTxId={activeTxId}
 		  />
@@ -186,36 +192,47 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		<>
 		{deposit}{stake}{withdraw}
 		<div className="crucible-box-container">
-			<Row>
-				<span>{params.info.symbol}</span>
-				<span>Fee on tx %{params.info.feeOnTransferRate}</span>
-				<span>Withdraw %{params.info.feeOnWithdrawRate}</span>
-			</Row>
-			<Row>
+			<div className="crucible-box-row">
+				<span><b>{params.info.name}</b></span>
+			</div>
+			<div className="crucible-box-row">
+				<span><b>{params.info.symbol}</b></span>
+				<span>Fee on tx %{BigUtils.safeParse(params.info.feeOnTransferRate).times(100).toString()}</span>
+				<span>Withdraw %{BigUtils.safeParse(params.info.feeOnWithdrawRate).times(100).toString()}</span>
+			</div>
+			<div className="crucible-box-row">
+				<p> </p>
+			</div>
+			<div className="crucible-box-row">
 				<span>Supply: {params.info.totalSupply || '0'}</span>
 				<span>Price (USD): {params.info.priceUsdt || '0'}</span>
-			</Row>
-			<Row>
+			</div>
+			<div className="crucible-box-row">
 				<span>Balance</span>
 				<span>{balance}</span>
 				<span>Staked</span>
 				<span>0</span>
 				<span>Rewards</span>
 				<span>0</span>
-			</Row>
-			<Row>
+			</div>
+			<div className="crucible-box-row">
 				<span>Mint: {depositOpen ? 'OPEN' : 'CLOSED'}</span>
 				<span>Public cap: {params.info.openCap || '0'}</span>
 				<span>Total Allocations: {params.info.activeAllocationSum || '0'}</span>
-			</Row>
-			<Row>
+			</div>
+			<div className="crucible-box-row">
+				<span>Your allocations</span><br/>
+				<span>Direct mint: {userDirectAllocation}</span>
+				<span>Liquidity mint: {userLpAllocation}</span>
+			</div>
+			<div className="crucible-box-row">
 				<span><small>{params.info.feeDescription}</small></span>
-			</Row>
-			<Row>
+			</div>
+			<div className="crucible-box-row">
 				<RegularBtn
 					disabled={!depositOpen}
 					text='Mint'
-					onClice={() => {
+					onClick={() => {
 						dispatch(crucibleBoxSlice.actions.unregisterTx());
 						showDepositModal(true);
 					}}
@@ -235,7 +252,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 						showWithdrawModal(true);
 					}}
 				/>
-			</Row>
+			</div>
 		</div>
 		</>
 	);

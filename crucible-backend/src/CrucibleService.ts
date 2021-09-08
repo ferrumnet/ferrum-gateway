@@ -2,9 +2,13 @@ import { MongooseConnection } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, Network, ValidationUtils, Networks, HexString } from "ferrum-plumbing";
 import { Connection, Model, Document } from "mongoose";
-import { CrucibleConfig, CrucibleAllocationCsvModel } from "./CrucibleTypes";
+import { CrucibleConfig, CrucibleAllocationCsvModel, CrucibleInfoModel } from "./CrucibleTypes";
 import { CrucibleToken, CrucibleToken__factory, CrucibleRouter__factory, CrucibleFactory, CrucibleFactory__factory } from "./resources/typechain";
-import { AllocationSignature, BigUtils, CrucibleInfo, CurrencyValue, DEFAULT_SWAP_PROTOCOLS, ETH, MultiSigActor, StoredAllocationCsv, UserContractAllocation } from 'types';
+import { AllocationSignature, BigUtils, CrucibleInfo,
+	CurrencyValue, DEFAULT_SWAP_PROTOCOLS, ETH,
+	MultiSigActor, StoredAllocationCsv, UserContractAllocation,
+	UserCrucibleInfo, CrucibleAllocationMethods,
+ } from 'types';
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { ChainUtils } from "ferrum-chain-clients";
 import { produceSignature } from 'web3-tools/dist/Eip712Utils';
@@ -15,11 +19,7 @@ import { sha256 } from 'ferrum-crypto';
 import { MultiSigUtils } from 'web3-tools/dist/MultiSigUtils';
 
 export const CACHE_TIMEOUT = 600 * 1000; // 10 min
-
-const AllocationMethods = {
-	DEPOSIT: 'DEPOSIT',
-	DEPOSIT_ADD_LIQUIDITY_STAKE: 'DEPOSIT_ADD_LIQUIDITY_STAKE',
-}
+const AllocationMethods = CrucibleAllocationMethods;
 
 export function ensureNotExpired(expiry: number) {
 	const now = Math.round(Date.now()/1000);
@@ -48,6 +48,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	initModels(con: Connection): void {
 		// Store allocations
 		this.crucibleAllocationsCsvModel = CrucibleAllocationCsvModel(con);
+		this.crucibleModel = CrucibleInfoModel(con);
 	}
 
 	async getAllocations(
@@ -86,7 +87,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			key, async () => {
 				const allocDefinition = await this.crucibleAllocationsCsvModel.findOne({
 					network, crucible}).exec();
-				return this.basicAllocation.parse(allocDefinition.csv)
+				const csv = allocDefinition?.csv;
+				return csv ? this.basicAllocation.parse(csv) : [];
 			},
 			CACHE_TIMEOUT);
 	}
@@ -101,7 +103,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		from: string,
 	) {
 		const [network, conAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
-		const currency = await this.crucibleCurrency(crucible);
+		const currency = await this.baseCurrency(crucible);
 		ValidationUtils.isTrue(currency == cur, "Invalid currency");
 		const amountInt = await this.helper.amountToMachine(currency, amount);
 		const r = await this.router(network);
@@ -150,13 +152,13 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		amount: string,
 		from: string,
 	): Promise<CustomTransactionCallRequest> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
-		const currency = await this.crucibleCurrency(crucible);
+		const [network, contractAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const currency = await this.baseCurrency(crucible);
 		ValidationUtils.isTrue(currency == cur, "Invalid currency");
 		const r = await this.router(network);
 		const t = await r.populateTransaction.depositOpen(
 			from,
-			crucible,
+			contractAddress,
 			await this.helper.amountToMachine(currency, amount),
 			{from});
 		return EthereumSmartContractHelper.fromTypechainTransaction(t);
@@ -175,7 +177,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		ValidationUtils.isTrue(deadline > now && deadline < now + 3600 * 24, 'Deadline is invalid');
 		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const [, targetToken] = EthereumSmartContractHelper.parseCurrency(targetCur);
-		const expectedBaseCur = await this.crucibleCurrency(crucible);
+		const expectedBaseCur = await this.baseCurrency(crucible);
 		ValidationUtils.isTrue(baseCur === expectedBaseCur, 'Unexpected base currency: ' + baseCur);
 		const ammRouter = DEFAULT_SWAP_PROTOCOLS[network][0];
 		ValidationUtils.isTrue(!!ammRouter, `No default AMM router is configured for ${network}`);
@@ -219,7 +221,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		amount: string,
 		to: string,): Promise<CustomTransactionCallRequest> {
 		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
-		const currency = await this.crucibleCurrency(crucible);
+		const currency = await this.baseCurrency(crucible);
 		ValidationUtils.isTrue(currency == cur, "Invalid currency");
 		const r = await this.crucible(crucible);
 		const t = await r.populateTransaction.withdraw(
@@ -270,10 +272,10 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	}
 
 	async remainingFromCap(crucible: string): Promise<CurrencyValue> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const r = await this.router(network);
-		const cap = await r.openCaps(crucible);
-		const currency = await this.crucibleCurrency(crucible);
+		const cap = await r.openCaps(address);
+		const currency = await this.baseCurrency(crucible);
 		return {
 			currency,
 			value: await this.helper.amountToHuman(currency, cap.toString()),
@@ -283,7 +285,33 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	public async getCrucibleInfo(crucible: string) {
 		ValidationUtils.isTrue(!!crucible, 'address is required');
 		return this.cache.getAsync(`CRUCIBLE-${crucible}`,
-		async () => this.getCrucibleInfoCached(crucible));
+			async () => this.getCrucibleInfoCached(crucible), );
+	}
+
+	public async getUserCrucibleInfo(crucible: string, userAddress: string):
+		Promise<UserCrucibleInfo> {
+		ValidationUtils.isTrue(!!crucible, '"crucible" must be provided');
+		ValidationUtils.isTrue(!!userAddress, '"userAddress" must be provided');
+		const baseCurrency = await this.baseCurrency(crucible);
+		const cru = await this.crucible(crucible);
+		const base = await this.crucible(baseCurrency);
+		const balanceOfInt = (await cru.balanceOf(userAddress)).toString();
+		const basebalanceOfInt = (await base.balanceOf(userAddress)).toString();
+		const allocations: UserContractAllocation[] = [];
+		const al1 = await this.getAllocation(crucible, userAddress, AllocationMethods.DEPOSIT);
+		const al2 = await this.getAllocation(crucible, userAddress, AllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE);
+		if (!!al1?.allocation) { allocations.push(al1); }
+		if (!!al2?.allocation) { allocations.push(al2); }
+		return {
+			currency: crucible,
+			baseCurrency,
+			balance: await this.helper.amountToHuman(crucible, balanceOfInt),
+			baseBalance: await this.helper.amountToHuman(baseCurrency, basebalanceOfInt),
+			symbol: await this.helper.symbol(crucible),
+			baseSymbol: await this.helper.symbol(baseCurrency),
+			allocations,
+			stakes: [],
+		} as UserCrucibleInfo;
 	}
 
 	public async getAllCruciblesFromDb(network: Network): Promise<CrucibleInfo[]> {
@@ -293,49 +321,76 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		return crucibles.map(c => c.toJSON());
 	}
 
-	private async getCrucibleInfoCached(crucibleAddr: string)
+	private async crucibleFromNetwork(crucible: string): Promise<CrucibleInfo> {
+		const baseCurrency = await this.baseCurrency(crucible);
+		const name = (await (await this.crucible(crucible)).name()).toString();
+		return {
+			currency: crucible,
+			baseCurrency,
+			symbol: await this.helper.symbol(crucible),
+			baseSymbol: await this.helper.symbol(baseCurrency),
+			name,
+		} as CrucibleInfo;
+	}
+
+	private async getCrucibleInfoCached(crucibleCur: string)
 	: Promise<CrucibleInfo> {
-		const [network, contractAddress] = EthereumSmartContractHelper.parseCurrency(crucibleAddr);
-		const crucible: CrucibleInfo =
+		this.verifyInit();
+		const [network, contractAddress] = EthereumSmartContractHelper.parseCurrency(crucibleCur);
+		let crucible: CrucibleInfo =
 			await this.crucibleModel.findOne({network, contractAddress}).exec();
-		ValidationUtils.isTrue(!!crucible, 'Crucible not found');
+		if (!crucible) {
+			crucible = await this.crucibleFromNetwork(crucibleCur);
+			ValidationUtils.isTrue(!!crucible, 'Crucible not found');
+		}
 		const allocs = await this.getAllAllocations(`${network}:${contractAddress}`);
+		const priceUsdt = '0'//await this.pricing.usdPrice(crucible.currency);
+		const priceEth = '0' //await this.pricing.ethPrice(crucible.currency);
+		const basePriceUsdt = '0' // await this.pricing.usdPrice(crucible.baseCurrency);
+		const basePriceEth = '0' // await this.pricing.ethPrice(crucible.baseCurrency);
+		const leftFromCap = (await this.remainingFromCap(crucible.currency))?.value;
+		const feeOnTransferRate = await this.crucibleFeeOnTransferRate(crucible.currency);
+		const feeOnWithdrawRate = await this.crucibleFeeOnWithdrawRate(crucible.currency);
+		const totalSupply = await this.crucibleSupply(crucible.currency);
+		const r = await this.router(network);
+		const openCapInt = (await r.openCaps(contractAddress)).toString();
 		return {
 			...crucible,
 			network,
 			contractAddress,
-			openCap: crucible.openCap || '0',
-			activeAllocationSum: allocs.map(a => new Big(a.allocation))
-				.reduce((p, c) => p.add(c), new Big(0)).toFixed(),
+			openCap: await this.helper.amountToHuman(crucibleCur, openCapInt),
+			activeAllocationSum: allocs.map(a => BigUtils.safeParse(a.allocation))
+				.reduce((p, c) => p.add(c), BigUtils.safeParse('0')).toFixed(),
 			activeAllocationCount: allocs.length,
-			priceUsdt: await this.pricing.usdPrice(crucible.currency),
-			priceEth: await this.pricing.ethPrice(crucible.currency),
-			basePriceUsdt: await this.pricing.usdPrice(crucible.baseCurrency),
-			basePriceEth: await this.pricing.ethPrice(crucible.baseCurrency),
-			leftFromCap: (await this.remainingFromCap(crucible.currency))?.value,
-			currency: await this.crucibleCurrency(crucible.currency),
-			feeOnTransferRate: await this.crucibleFeeOnTransferRate(crucible.currency),
-			feeOnWithdrawRate: await this.crucibleFeeOnWithdrawRate(crucible.currency),
-			totalSupply: await this.crucibleSupply(network, contractAddress),
+			priceUsdt,
+			priceEth,
+			basePriceUsdt,
+			basePriceEth,
+			leftFromCap,
+			feeOnTransferRate,
+			feeOnWithdrawRate,
+			totalSupply,
 			feeDescription: '',
 		} as CrucibleInfo;
 	}
 
-	private async crucibleCurrency(crucible: string): Promise<string> {
+	private async baseCurrency(crucible: string): Promise<string> {
 		ValidationUtils.isTrue(!!crucible, '"crucible" must be provided');
 		return this.cache.getAsync<string>(`CRUCIBLE-CUR-${crucible}`, async () => {
 			const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
 			const tok = await this.crucible(crucible);
-			return `${network}:${await tok.baseToken()}`;
+			return EthereumSmartContractHelper.toCurrency(network,
+				ChainUtils.canonicalAddress(network as any, await tok.baseToken()));
 		});
 	}
 
-	private async crucibleSupply(network: string, crucible: string): Promise<string> {
+	private async crucibleSupply(crucible: string): Promise<string> {
 		ValidationUtils.isTrue(!!crucible, '"crucible" must be provided');
-		return this.cache.getAsync<string>(`CRUCIBLE-SUPPLY-${crucible}`, async () => {
+		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
+		return this.cache.getAsync<string>(`CRUCIBLE-SUPPLY-${network}-${address}`, async () => {
 			const tok = await this.crucible(crucible);
 			const sup = (await tok.totalSupply()).toString();
-			return this.helper.amountToHuman(`${network}:${crucible}`, sup);
+			return this.helper.amountToHuman(crucible, sup);
 		});
 	}
 
@@ -343,8 +398,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		ValidationUtils.isTrue(!!crucible, '"crucible" must be provided');
 		return this.cache.getAsync<string>(`CRUCIBLE-TRANSFER-${crucible}`, async () => {
 			const tok = await this.crucible(crucible);
-			const res = await tok.feeOnTransferX10000();
-			return res.mul(10000).toString();
+			const res = (await tok.feeOnTransferX10000()).toString();
+			return BigUtils.parseOrThrow(res, 'feeOnTransferRate').div(10000).toString();
 		});
 	}
 
@@ -352,8 +407,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		ValidationUtils.isTrue(!!crucible, '"crucible" must be provided');
 		return this.cache.getAsync<string>(`CRUCIBLE-WITHDRAW-${crucible}`, async () => {
 			const tok = await this.crucible(crucible);
-			const res = await tok.feeOnWithdrawX10000();
-			return res.mul(10000).toString();
+			const res = (await tok.feeOnWithdrawX10000()).toString();
+			return BigUtils.parseOrThrow(res, 'feeOnTransferRate').div(10000).toString();
 		});
 	}
 
@@ -368,8 +423,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	}
 
 	async crucible(crucible: string): Promise<CrucibleToken> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const provider = await this.helper.ethersProvider(network);
-		return CrucibleToken__factory.connect(crucible, provider);
+		return CrucibleToken__factory.connect(address, provider);
 	}
 }

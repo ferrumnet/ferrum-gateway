@@ -78,5 +78,7 @@ export class CrucibleModule implements Module {
       BasicAllocation,
       (c) => new BasicAllocation(c.get(EthereumSmartContractHelper))
     );
+
+		await container.get<CrucibeService>(CrucibeService).init(conf.database);
   }
 }

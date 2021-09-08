@@ -7,6 +7,8 @@ import { CrucibleInfo, Utils } from 'types';
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
 	CRUCIBLE_LOADED: 'CRUCIBLE_LOADED',
+	USER_CRUCIBLE_LOADED: 'USER_CRUCIBLE_LOADED',
+	SELECT_CRUCIBLE: 'SELECT_CRUCIBLE',
 };
 
 const Actions = CrucibleClientActions;
@@ -15,6 +17,25 @@ export class CrucibleClient {
 	constructor(private api: ApiClient) { }
 
 	__name__() { return 'CrucibleClient'; }
+
+	async getCrucible(dispatch: Dispatch<AnyAction>, crucibleCurrency: string) {
+		const [network, address] = Utils.parseCurrency(crucibleCurrency);
+		const crucible = await this.updateCrucible(dispatch, network, address);
+		dispatch(addAction(Actions.SELECT_CRUCIBLE, {crucible}));
+	}
+
+	async getUserCrucibleInfo(dispatch: Dispatch<AnyAction>,
+		crucible: string) {
+		const userCrucibleInfo = await this.api.api({
+			command: 'getUserCrucibleInfo',
+			data: {crucible, userAddress: this.api.getAddress()},
+			params: [],
+		} as JsonRpcRequest);
+		if (!!userCrucibleInfo) {
+			dispatch(addAction(Actions.USER_CRUCIBLE_LOADED, {userCrucibleInfo}));
+		}
+		return userCrucibleInfo;
+	}
 
 	async getAllCrucibles(dispatch: Dispatch<AnyAction>, network: string) {
 		const cs = await this.getAllCruciblesFromDb(dispatch, network);
@@ -26,7 +47,7 @@ export class CrucibleClient {
 	async updateCrucible(dispatch: Dispatch<AnyAction>, network: string, contractAddress: string) {
 		const crucible = await this.api.api({
 			command: 'getCrucible',
-			data: {network, contractAddress, userAddress: this.api.getAddress()},
+			data: {crucible: `${network}:${contractAddress.toLowerCase()}`},
 			params: [],
 		} as JsonRpcRequest);
 		if (!!crucible) {

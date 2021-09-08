@@ -22,6 +22,12 @@ export class CrucibleRequestProcessor
 
     this.registerProcessor("getCrucible", (req) => this.getCrucible(req));
 
+		this.registerProcessor('getAllCruciblesFromDb', req =>
+			this.svc.getAllCruciblesFromDb(req.data.network));
+
+    this.registerProcessor("getUserCrucibleInfo",
+		(req, userId) => this.svc.getUserCrucibleInfo(req.data.crucible, userId));
+
     this.registerProcessor("remainingFromCap", (req) =>
       this.remainingFromCap(req)
     );

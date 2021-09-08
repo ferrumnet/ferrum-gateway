@@ -12,9 +12,17 @@ export const uiReducer = combineReducers({
 	deploy: deploySlice.reducer,
 });
 
-export function userReducer(state: AppUserState = {}, action: AnyAction) {
-	// TODO: Reduce user allocations...
-    return state;
+export function userReducer(state: AppUserState = { userCrucibleInfo: {} },
+	action: AnyAction) {
+	switch (action.type) {
+		case CrucibleClientActions.USER_CRUCIBLE_LOADED:
+			const actionUci = action.payload.userCrucibleInfo;
+			const uci = {...(state.userCrucibleInfo || {} as any)};
+			uci[actionUci.currency] = actionUci;
+			return {...state, userCrucibleInfo: uci};
+		default:
+    	return state;
+	}
 }
 
 function clientReducer(state: AppGlobalState, action: AnyAction) {
@@ -29,7 +37,7 @@ function clientReducer(state: AppGlobalState, action: AnyAction) {
 			return {...state, crucibles: cru};
 		case CrucibleClientActions.CRUCIBLE_LOADED:
 			const upCru: CrucibleInfo = action.payload.crucible;
-			const upCrus = state.crucibles[cru.baseCurrency];
+			const upCrus = state.crucibles[upCru.baseCurrency] || [];
 			const idx = upCrus.findIndex(c => c.currency === upCru.currency);
 			if (idx >= 0) {
 				upCrus[idx] = upCru;
@@ -38,6 +46,8 @@ function clientReducer(state: AppGlobalState, action: AnyAction) {
 			}
 			return {...state, crucibles: {
 				...state.crucibles, [upCru.baseCurrency]: upCrus}};
+		case CrucibleClientActions.SELECT_CRUCIBLE:
+			return {...state, crucible: action.payload.crucible};
 		default:
 			return state;
 	}

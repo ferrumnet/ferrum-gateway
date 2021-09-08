@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Network } from 'ferrum-plumbing';
 import {
-    Row, RegularBtn, AmountInput,
+    Row, RegularBtn, AmountInput, supportedIcons,
     // @ts-ignore
 } from 'component-library';
 import { BigUtils, ChainEventBase, inject } from 'types';
@@ -41,6 +41,7 @@ async function updateTransaction(item: ChainEventBase): Promise<ChainEventBase> 
 }
 
 export function ChainActionDlg(props: ChainActionDlgProps) {
+	console.log('Action DLG', props)
 	const [amount, setAmount] = useState('');
 	let total = amount;
 	let feeAmount = '';
@@ -48,8 +49,8 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 		feeAmount = BigUtils.safeParse(amount)
 			.times(BigUtils.safeParse(props.feeRatio)).toFixed();
 		total = props.feeDeducts ?
-			BigUtils.safeParse(amount).sub(new Big(feeAmount)).toFixed():
-			BigUtils.safeParse(amount).add(new Big(feeAmount)).toFixed();
+			BigUtils.safeParse(amount).sub(BigUtils.safeParse(feeAmount)).toFixed():
+			BigUtils.safeParse(amount).add(BigUtils.safeParse(feeAmount)).toFixed();
 	}
 	const fee = feeAmount ? (
 		<>
@@ -63,27 +64,30 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 	) : (<></>);
 	return (
 		<div className="chain-action-dlg-container">
-			<Row withPadding>
+			<div className="crucible-box-row">
 				<h3>{props.title} - {props.network}</h3>
-			</Row>
-			<Row withPadding>
+			</div>
+			<div className="crucible-box-row">
 				<label>{props.balanceTitle}</label><br />
 				<label>{props.balance}</label>
-			</Row>
-			<Row withPadding>
+			</div>
+			<div className="crucible-box-row">
 				<AmountInput
                     symbol={props.symbol}
                     amount={amount}
                     value={amount}
                     fee={0}
-                    icons={{}}
+                    icons={supportedIcons}
+										addonStyle={styles.addon}
                     balance={props.balance}
                     setMax={() => setAmount(props.balance)}
                     onChange={ (v:any) => setAmount(v.target.value)}
 				/>
-			</Row>
+			</div>
+			<div className="crucible-box-row">
 			{fee}
-			<Row withPadding>
+			</div>
+			<div className="crucible-box-row">
 				{ props.approvable ? (
 					<ApprovableButton
 						disabled={!amount || !!props.pendingTxId}
@@ -105,7 +109,8 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 					text={'Close'}
 					onClick={() => props.onClose()}
 				/>
-			</Row>
+			</div>
+			<div className="crucible-box-row">
 			{props.pendingTxId && (
 				<ChainEventItem
 					eventType="transaction"
@@ -117,6 +122,7 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 					<span>Transaction ID: <br/>{props.pendingTxId}</span>
 				</ChainEventItem>
 			)}
+			</div>
 		</div>
 	);
 }
@@ -155,4 +161,18 @@ export function ApprovableButton(props: {
 			// @ts-ignore
 			View={(ownProps) => <ApprovableButtonInternal {...ownProps} {...props} />}
 		/>
+}
+
+const styles = {
+    addon: {
+        position: "absolute" as "absolute",
+        right: '5%',
+        display: "flex",
+        height: "40%",
+        alignItems: "center" as "center",
+        cursor: "pointer",
+        top: "15px",
+        padding: "10px",
+				width: '30px',
+    },
 }

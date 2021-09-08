@@ -177,6 +177,7 @@ export const ETH: {[k: string]: [string, string]} = {
 
 export const CRUCIBLE_ROUTER: {[k: string]: string} = {
 	'ETHEREUM': '',
+	'RINKEBY': '0x3559b7ff53a2da38b96c9d17f2484d8e0070bc54',
 }
 
 export const SWAP_PROTOCOL_ROUTERS: {[k: string]: string} = {

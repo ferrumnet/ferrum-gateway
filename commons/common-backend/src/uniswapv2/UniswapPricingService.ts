@@ -21,16 +21,26 @@ export class UniswapPricingService implements Injectable {
 	}
 
 	async ethPrice(currency: string): Promise<string> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
-		const pairs: [string, string][] = [[currency, WETH[network]]];
-		return this.price(pairs);
+		try {
+			const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
+			const pairs: [string, string][] = [[currency, WETH[network]]];
+			return this.price(pairs);
+		} catch (e) {
+			console.error('ethPrice', e as Error);
+			return '';
+		}
 	}
 
 	async usdPrice(currency: string, direct: boolean = false): Promise<string> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
-		const pairs: [string, string][] = direct ?
-			[[currency, USD_PAIR[network]]] :
-			[[currency, WETH[network]], [WETH[network], USD_PAIR[network]]];
-		return this.price(pairs);
+		try {
+			const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
+			const pairs: [string, string][] = direct ?
+				[[currency, USD_PAIR[network]]] :
+				[[currency, WETH[network]], [WETH[network], USD_PAIR[network]]];
+			return this.price(pairs);
+		} catch (e) {
+			console.error('usdPrice', e as Error);
+			return '';
+		}
 	}
 }

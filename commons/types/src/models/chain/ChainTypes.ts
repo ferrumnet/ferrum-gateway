@@ -80,3 +80,14 @@ export interface TransactionTrackable {
 	status: '' | 'pending' | 'failed' | 'timedout' | 'sucess';
 	transactions: TransactionTrackableItem[];
 }
+
+export interface UserStakeSummary {
+	name: string;
+	network: string;
+	currency: string;
+	rewardCurrencies: string[];
+	stakeContractAddress: string;
+	lastUpdate: number;
+	stake: string;
+	rewards: string[];
+}
