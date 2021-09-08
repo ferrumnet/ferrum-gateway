@@ -5,3 +5,4 @@ common-containers
 bridge-backend
 leaderboard-backend
 gateway-backend
+bridge-cron

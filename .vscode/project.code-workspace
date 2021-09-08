@@ -47,6 +47,10 @@
     {
       "name": "leaderboard-backend",
       "path": "../leaderboard-backend"
+    },
+    {
+      "name": "bridge-cron",
+      "path": "../bridge-cron"
     }
   ],
   "settings": {

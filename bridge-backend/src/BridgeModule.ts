@@ -9,9 +9,82 @@ import { BridgeProcessor } from "./BridgeProcessor";
 import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { CommonBackendModule, decryptKey } from "common-backend";
+import { CommonBackendModule, CurrencyListSvc, decryptKey } from "common-backend";
+import { CrossSwapService } from "bridge-cron/src/crossSwap/CrossSwapService";
+import { OneInchClient } from "bridge-cron/src/crossSwap/OneInchClient";
+import {
+  BridgeV12Contracts,
+  BRIDGE_NETWORKS,
+  DEFAULT_SWAP_PROTOCOLS,
+  NetworkedConfig,
+  SwapProtocol,
+} from "types";
+import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
+
+export class BridgeModuleCommons implements Module {
+  constructor(
+    private bridgeContracts: NetworkedConfig<string>,
+    private bridgeV12Contracts: NetworkedConfig<BridgeV12Contracts>,
+    private swapProtocols: NetworkedConfig<SwapProtocol[]>
+  ) { }
+
+  async configAsync(container: Container) {
+    container.registerSingleton(
+      TokenBridgeContractClinet,
+      (c) =>
+        new TokenBridgeContractClinet(
+          c.get(EthereumSmartContractHelper),
+          this.bridgeContracts
+        )
+    );
+    container.registerSingleton(
+      BridgeConfigStorage,
+      () => new BridgeConfigStorage()
+    );
+
+    container.registerSingleton(
+      CrossSwapService,
+      (c) =>
+        new CrossSwapService(
+          c.get(OneInchClient),
+          c.get(CurrencyListSvc),
+          c.get(UniswapV2Client),
+          c.get(EthereumSmartContractHelper),
+          c.get(BridgeConfigStorage),
+          c.get(TokenBridgeService),
+          this.swapProtocols || DEFAULT_SWAP_PROTOCOLS,
+          this.bridgeV12Contracts
+        )
+    );
+    container.registerSingleton(
+      OneInchClient,
+      (c) =>
+        new OneInchClient(
+          c.get(EthereumSmartContractHelper),
+          c.get(LoggerFactory)
+        )
+    );
+    container.registerSingleton(
+      BridgeRequestProcessor,
+      (c) =>
+        new BridgeRequestProcessor(
+          c.get(TokenBridgeService),
+          c.get(BridgeConfigStorage)
+        )
+    );
+    container.registerSingleton(
+      TokenBridgeService,
+      (c) =>
+        new TokenBridgeService(
+          c.get(EthereumSmartContractHelper),
+          c.get(TokenBridgeContractClinet),
+          c.get(PairAddressSignatureVerifyre),
+        )
+    );
+  }
+}
 
 export class BridgeModule implements Module {
   async configAsync(container: Container) {

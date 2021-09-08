@@ -31,7 +31,7 @@ export class GatewayModule implements Module {
     container.registerSingleton(
       CommonTokenServices,
       (c) => new CommonTokenServices(c.get(EthereumSmartContractHelper), c.get(CurrencyListSvc)));
-	container.registerSingleton(CurrencyListSvc, () => new CurrencyListSvc());
+    // container.registerSingleton(CurrencyListSvc, () => new CurrencyListSvc());
     // Registering other modules at the end, in case they had to initialize database...
     await container.registerModule(new BridgeModule());
     await container.registerModule(new LeaderboardModule());

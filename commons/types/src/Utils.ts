@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { Big } from 'big.js';
+import { Networks } from 'ferrum-plumbing';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -19,7 +21,11 @@ export class Utils {
     }
 
     static getQueryparam(param: string): string | undefined {
-        const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));
+        return Utils._getQueryparam(href(), param);
+    }
+
+    static _getQueryparam(href: string, param: string): string | undefined {
+        const queryParams = (href.split('?')[1] || '').split('&').map(p => p.split('='));
         return (queryParams.find(p => p[0] === param) || [])[1];
     }
 
@@ -31,7 +37,7 @@ export class Utils {
         return base + subRoute;
     }
 
-    
+
     static ellipsis(s: string, len: number) {
         if (s.length <= len) { return s; }
         return `${s.substr(0, len - 3)}...`;
@@ -85,7 +91,7 @@ export class Utils {
     static tillDate(date: number) {
         var endDate = new Date(date * 1000);
         var now = new Date();
-      
+
         var m = moment(endDate);
         const d2 = moment(now);
         var years = m.diff(d2, 'years');
@@ -99,9 +105,9 @@ export class Utils {
         var minutes = m.diff(d2, 'minutes');
         m.add(-minutes, 'minutes');
 
-      
-        return [years*12 + months,
-          days, hours, minutes];
+
+        return [years * 12 + months,
+            days, hours, minutes];
     }
 
     static union<T>(a1: T[], a2: T[], keyFun: (v: T) => string): T[] {
@@ -114,5 +120,51 @@ export class Utils {
     static parseCurrency(cur: string): [string, string] {
         const pars = cur.split(':', 2);
         return [pars[0], pars[1]];
+    }
+
+    static toCurrency(network: string, address: string): string | undefined {
+        if (!network || !address) return undefined;
+        return `${network.toUpperCase()}:${address.toLowerCase()}`
+    }
+
+    static isCurrencyValid(cur: string): boolean {
+        if (!cur) { return false; }
+        const [network, token] = Utils.parseCurrency(cur);
+        if (!token) { return false; }
+        if (!network) { return false; }
+        if (!token.startsWith('0x')) {
+            return false;
+        }
+        if (token.length != 42) {
+            return false;
+        }
+        if (!Networks.CHAINS_BY_ID.get(network)) {
+            return false;
+        }
+        return true;
+    }
+}
+
+export class ParseBigError extends Error { }
+
+export class BigUtils {
+    static truthy(b?: Big): boolean {
+        return !!b && !(new Big(0).eq(b));
+    }
+
+    static safeParse(s: string): Big {
+        try {
+            return new Big(s);
+        } catch (e) {
+            return new Big('0');
+        }
+    }
+
+    static parseOrThrow(s: string, varName: string): Big {
+        try {
+            return new Big(s);
+        } catch (e) {
+            throw new ParseBigError(`Error parsing ${varName}. "${s}" is not a valid number`);
+        }
     }
 }
