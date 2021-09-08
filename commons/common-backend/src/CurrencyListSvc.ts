@@ -1,4 +1,4 @@
-import { Injectable, LocalCache, Networks } from "ferrum-plumbing";
+import { Injectable, LocalCache, Networks, ValidationUtils } from "ferrum-plumbing";
 import { TokenDetails } from "types";
 import fetch from 'cross-fetch';
 
@@ -6,7 +6,7 @@ const CURRENCY_LISTS = [
 	'https://raw.githubusercontent.com/ferrumnet/ferrum-token-list/main/FerrumTokenList.json',
 	'https://tokens.coingecko.com/uniswap/all.json',
 ];
-const DAY = 24 * 3600;
+const HOUR = 1 * 3600 * 1000;
 
 export class CurrencyListSvc implements Injectable {
 	private cache = new LocalCache();
@@ -27,13 +27,19 @@ export class CurrencyListSvc implements Injectable {
 					l.currency = `${network}:${(l.address || '').toLowerCase()}`;
 				} catch(e) { } 
 			});
+			ValidationUtils.isTrue(!!lists.length, 'Error getting currency list. No data was downloaded');
 			return lists;
-		}, DAY);
+		}, HOUR);
 	}
 
 	private async loadSingleList(url: string): Promise<TokenDetails[]> {
-		const res = await fetch(url);
-		const resJ = await res.json();
-		return resJ.tokens;
+		try {
+			const res = await fetch(url);
+			const resJ = await res.json();
+			return resJ.tokens;
+		} catch (e) {
+			console.error(`Error getting currency list ${url}`, e);
+			return [];
+		}
 	}
 }
