@@ -18,8 +18,7 @@ export const themeMapper = (themeVariable) => {
         colors: {
           themeColor: "#fff7e9",
           navbar: "transparent",
-          mainHeaderColor:
-            themeVariable?.headingColor || themeVariable?.themeDarker,
+          mainHeaderColor: themeVariable?.headingColor || themeVariable?.themeDarker,
           topBannerTextColor: themeVariable?.topBannerTextColor,
           topBannerBgColor: themeVariable?.topBannerBgColor,
           topBannerIconColor: themeVariable?.topBannerIconColor,
@@ -27,6 +26,7 @@ export const themeMapper = (themeVariable) => {
           headercolor: "rgba(39, 42, 51,0)",
           themePrimary: themeVariable?.themeDark,
           themeSecondary: themeVariable?.themeSecondary,
+          borderColor: "#828282",
           // Text
           textPri: "#ffffff",
           text: "#dbb46e",
@@ -43,15 +43,14 @@ export const themeMapper = (themeVariable) => {
             cardPri: themeVariable?.cardBgColor || themeVariable?.neutralDark,
             cardTextPri: themeVariable?.cardTextPri || "#f3f3f3",
             cardSec: themeVariable?.cardSec || "#272a33",
-            cardTextSec: themeVariable?.cardTextSec || "#272a33",
-            borderRadius: themeVariable?.cardBorderRadius || "0",
+            cardTextSec: themeVariable?.cardTextSec || "#f3f3f3",
             boxShadow:
               themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
             //todo: check for other uses of this or remove
-            "box-shadow":
-              themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
+            "box-shadow": themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
+            borderRadius: themeVariable?.cardBorderRadius || "0",
           },
-          borderColor: "#828282",
+
           button: {
             btnPri: themeVariable?.btnBgColor || themeVariable?.themePrimary,
             btnTextPriColor: themeVariable?.btnTextPriColor,
