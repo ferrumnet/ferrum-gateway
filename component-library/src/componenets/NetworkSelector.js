@@ -16,7 +16,7 @@ export const NetworkSelector = ({
       <div className="icon-network icon-lg mb-3">
         <img src={icon} alt="loading"></img>
       </div>
-      <div className="d-flex align-items-center justify-content-between text-vary-color">
+      <div className="d-flex align-items-center justify-content-between">
         <small>{currentNetwork?.display}</small>
         {
             <Dropdown disabled={disabled} className={ `cardTheme ${!showDropdown && 'opaque'}`}>

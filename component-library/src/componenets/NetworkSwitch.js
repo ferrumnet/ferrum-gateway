@@ -39,11 +39,11 @@ export const NetworkSwitch = (
             />
           }
         </div>
-        <div className="col-lg-2 col-md-2 text-center">
-          <Button className="btn-pri btn-icon btn-swap my-4" disabled={swapping}
+        <div className="col-lg-2 col-md-2 text-center mt-4">
+          <Button className="btn-pri btn-icon btn-swap my-auto" disabled={swapping}
 		//    onClick={()=>setIsNetworkReverse()}
 		  >
-            <i className="mdi mdi-arrow-right"></i>
+            <i className="mdi mdi-arrow-right mr-0"></i>
           </Button>
         </div>
         <div className="col-lg-5 col-md-5">

@@ -285,18 +285,18 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
     }
     .text-vary-color{
-      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
     }
     .ant-steps-item-title{
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
     }
     &.card-sec {
       background: ${({ theme }) => theme.colors.card.cardSec};
-      p {
+      p, small {
         color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"};
       }
       .text-vary-color{
-          color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"} !important;
+          color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"};
       }
     }
   }
@@ -379,9 +379,9 @@ export const GlobalStyles = createGlobalStyle`
   .ant-steps-item-wait {
     .ant-steps-item-icon{
       background: ${({ theme }) =>
-    theme.colors.stepsFinishBackgroundColor || "#caa561"};
+    theme.colors.stepsWaitBackgroundColor || "#caa561"};
       border-color: ${({ theme }) =>
-    theme.colors.stepsFinishBorderColor || "#caa561"};
+    theme.colors.stepsWaitBorderColor || "#caa561"};
     }
   }
   .ant-steps-item-process {
@@ -454,7 +454,7 @@ export const GlobalStyles = createGlobalStyle`
   
   }
   .text-vary-color{
-    color: ${({ theme }) => theme.colors.inverse} !important;
+    color: ${({ theme }) => theme.colors.inverse};
   }
   .top-banner{
     .ant-alert-icon {
