@@ -1,0 +1,34 @@
+{
+  "name": "bridge-cron",
+  "version": "1.0.0",
+  "description": "Ferrum Gateway Bridge Cron",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "dist": "webpack",
+    "test": "./node_modules/.bin/jest --detectOpenHandles",
+    "deploy-prod": "TODO: Deploy to prod",
+    "deploy": "./bin/deploy.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node-schedule": "^1.3.2",
+    "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
+    "bridge-backend": "1.0.0",
+    "common-backend": "1.0.0",
+    "dotenv": "^8.2.0",
+    "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
+    "node-hid": "^2.1.1",
+    "types": "1.0.0",
+    "web3": "^1.2.9"
+  },
+  "devDependencies": {
+    "@types/node": "^16.7.2",
+    "node-schedule": "^2.0.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.2"
+  }
+}
