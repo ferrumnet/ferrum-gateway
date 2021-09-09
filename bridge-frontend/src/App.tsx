@@ -41,7 +41,7 @@ function App() {
     btnTextPriColor: "", //"#fff",
     btnTextSecColor: "", //"#fff",
     btnActiveColor: "", //"linear-gradient(to right, #F69321 0%, #F69321 50%, #da1e5e 100%)",
-    
+
     stepsFinishBgColor: "", //"rgb(219, 72, 59)",
     stepsFinishBorderColor: "", //"rgb(219, 72, 59)",
     stepsWaitBgColor: "", //"rgb(219, 72, 59)",
