@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { setToLS, getFromLS } from "../storageUtils/storage";
 import * as DefaultTheme from "./schema.json";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import _ from "lodash";
 
 export const themeMapper = (themeVariable) => {
@@ -48,7 +48,7 @@ export const themeMapper = (themeVariable) => {
               themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
             //todo: check for other uses of this or remove
             "box-shadow": themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
-            borderRadius: themeVariable?.cardBorderRadius || "0",
+            cardBorderRadius: themeVariable?.borderRadius,
           },
 
           button: {
@@ -60,7 +60,7 @@ export const themeMapper = (themeVariable) => {
             //todo: check for other uses or remove
             textPri: "#111111",
             textSec: "#333333",
-            borderRadius: themeVariable?.btnBorderRadius || "0",
+            btnBorderRadius: themeVariable?.borderRadius,
             backgroundSize: themeVariable?.btnBackgroundSize,
             btnActiveColor: themeVariable?.btnActiveColor,
             btnPadding: themeVariable?.btnPadding,

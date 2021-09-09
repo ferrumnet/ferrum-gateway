@@ -66,7 +66,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .btnTheme {
     background: ${({ theme }) => theme.colors.button.btnPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius} !important;
     border-width: 0;
     &:focus,
     &:active,
@@ -95,7 +95,7 @@ export const GlobalStyles = createGlobalStyle`
     border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
   }
   .btn {  
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.btnBorderRadius}px !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || "auto"} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
     &:focus,
@@ -122,7 +122,8 @@ export const GlobalStyles = createGlobalStyle`
       background:  ${({ theme }) => theme.colors.button.btnPri || "#caa561"};
       color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
       background-size: ${({ theme }) => theme.colors.button.backgroundSize || "auto"};
-      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.borderRadius} !important;
+      border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0"}px !important;
+      // border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
     }
     &.btn-sec {
       background-color: ${({ theme }) => theme.colors.button.btnSec};
@@ -196,7 +197,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .dropdown {
     .btn {
-      border-radius:  ${({ theme }) => theme.colors.button.borderRadius} !important;
+      border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius}px !important;
     }
     .dropdown-menu{
       a.active:after{
@@ -206,7 +207,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .cardTheme {
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
@@ -219,7 +220,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .ant-modal-header{
     border-bottom: 0 !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0" + 2} !important;
     padding-top: 40px;
     background: ${({ theme }) => theme.colors.card.cardPri};
   }
@@ -251,7 +252,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .card {
     background: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.borderRadius} !important;
+    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ? theme.colors.card.cardBorderRadius : 0}px !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     p {
@@ -265,9 +266,10 @@ export const GlobalStyles = createGlobalStyle`
     }
     &.card-sec {
       background: ${({ theme }) => theme.colors.card.cardSec};
-      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.borderRadius} !important;
+      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ?
+    theme.colors.card.cardBorderRadius : 0}px !important;
       p, small {
-        color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"} !important;
+        color: ${({ theme }) => theme.colors.card.cardTextSec || "white"} !important;
       }
     }
   }
@@ -414,31 +416,19 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse};
   }
   .top-banner{
+    background: ${({ theme }) => theme.colors.button.btnPri || "#caa561 "} !important;
     .ant-alert-icon {
-      color: ${({ theme }) =>
-    theme.colors.topBannerIconColor || "black"} !important;
-      margin: 3px;
-      margin-right: 10px;
+      color: ${({ theme }) => theme.colors.button.btnTextPriColor || "black"} !important;
     }
-
-    &.ant-alert-warning {
-      background-color: ${({ theme }) =>
-    theme.colors.topBannerBgColor} !important;
-      padding: 10px 15px 15px 24px !important;
-      
+    .anticon-close{
+      border-color: ${({ theme }) => theme.colors.button.btnTextPriColor || "black"} !important;
+      color: ${({ theme }) => theme.colors.button.btnTextPriColor || "black"} !important;
+    }
+    .ant-alert-message {
+      color: ${({ theme }) => theme.colors.button.btnTextPriColor || "black"} !important; 
     }
     .ant-alert-description{
-      line-height: 1 !important;
-      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
-    }
-
-    .anticon-close{
-      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
-    }
-
-    .ant-alert-message {
-      color: ${({ theme }) => theme.colors.topBannerTextColor} !important;
-      line-height: 1;
+      color: ${({ theme }) => theme.colors.button.btnTextPriColor || "black"} !important;
     }
   }
   .modal {
@@ -478,13 +468,13 @@ export const GlobalStyles = createGlobalStyle`
       }
       .btn-group {
         .btn {
-          border-radius: ${({ theme }) => theme.radius ? theme.radius : 0}px !important;
+          border-radius: ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : 0}px !important;
         }
       }
       .ui-color-picker {
         .input-field {
           input {
-            border-radius: ${({ theme }) => theme.radius ? theme.radius : 0}px !important;
+            border-radius: ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : 0}px !important;
           }
         }
       }

@@ -16,7 +16,7 @@
   }
 }
 
-$DrawerSize: 450px;
+$DrawerSize: 550px;
 .theme-builder-dlg {
   .modal-dialog {
     position: fixed;
@@ -56,7 +56,7 @@ $DrawerSize: 450px;
           display: flex;
           flex-wrap: wrap;
           .custom-control {
-            flex: 0 0 40%;
+            flex: 0 0 100%;
             margin-bottom: 0.5rem;
           }
         }
@@ -71,20 +71,24 @@ $DrawerSize: 450px;
           }
         }
       }
-      .ui-color-picker {
-        // flex-direction: row;
-        // position: relative;
-        // padding-top: 4rem;
-        padding: 1rem;
-        width: calc(100% + 3rem);
-        margin: 0 auto 2rem;
-        margin-left: -1.5rem;
-        margin-right: -1.5rem;
+      .position-sticky {
         position: sticky;
         top: 0;
         z-index: 10000;
         background-color: white;
         box-shadow: 0 5px 10px rgba($color: #000000, $alpha: 0.15);
+        width: calc(100% + 3rem);
+        margin: 0 auto 2rem;
+        margin-left: -1.5rem;
+        margin-right: -1.5rem;
+      }
+      .ui-color-picker {
+        // flex-direction: row;
+        // position: relative;
+        // padding-top: 4rem;
+        width: 100%;
+        padding: 1rem;
+
         .gradient-controls {
           // flex-direction: column;
         }

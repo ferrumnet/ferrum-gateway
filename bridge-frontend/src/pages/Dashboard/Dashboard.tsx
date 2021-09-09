@@ -313,15 +313,17 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
         </>
     )
 
+    console.log(props?.tempTheme?.bannerMainMessage)
     return (
         <>
             <>
+
                 {
-                    groupInfo.themeVariables?.bannerMainMessage &&
+                    (props?.tempTheme?.bannerMainMessage || props?.tempTheme?.bannerSubMessage || groupInfo.themeVariables?.bannerMainMessage) &&
                     <Alert
                         className="top-banner"
-                        message={groupInfo.themeVariables?.bannerMainMessage}
-                        description={groupInfo.themeVariables?.bannerSubMessage}
+                        message={props?.tempTheme?.bannerMainMessage ? props?.tempTheme?.bannerMainMessage : groupInfo.themeVariables?.bannerMainMessage}
+                        description={props?.tempTheme?.bannerSubMessage ? props?.tempTheme?.bannerSubMessage : groupInfo.themeVariables?.bannerSubMessage}
                         banner
                         closable
                     />
@@ -457,6 +459,9 @@ export function Dashboard(props: ThemeProps) {
                                 cardTextSec:
                                     props.themeConfig.card.cardTextSec ?
                                         props.themeConfig.card.cardTextSec : selectedTheme.colors.card.cardTextSec,
+                                cardBorderRadius:
+                                    props.themeConfig.card.cardBorderRadius ?
+                                        props.themeConfig.card.cardBorderRadius : selectedTheme.colors.card.cardBorderRadius,
                             } : selectedTheme.colors.card
                     }
                 }
