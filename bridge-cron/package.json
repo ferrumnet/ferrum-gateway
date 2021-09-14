@@ -4,7 +4,7 @@
   "description": "Ferrum Gateway Bridge Cron",
   "main": "index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "start": "ts-node index.ts",
     "build": "tsc",
     "dist": "webpack",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
@@ -23,7 +23,8 @@
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "node-hid": "^2.1.1",
     "types": "1.0.0",
-    "web3": "^1.2.9"
+    "web3": "^1.5.2",
+    "web3-eth-contract": "^1.5.2"
   },
   "devDependencies": {
     "@types/node": "^16.7.2",

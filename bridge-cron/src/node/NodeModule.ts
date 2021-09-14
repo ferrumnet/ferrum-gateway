@@ -2,7 +2,7 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { CreateNewAddressFactory } from "ferrum-chain-clients";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { NetworkedConfig } from "types";
-import { loadConfigFromFile } from "common-backend/dist/dev/DevConfigUtils";
+// import { loadConfigFromFile } from "common-backend/dist/dev/DevConfigUtils";
 import { BridgeNodeConfig } from "./BridgeNodeConfig";
 import { BridgeNodeV12 } from "./BridgeNodeV12";
 import { TransactionListProvider } from "./TransactionListProvider";
@@ -10,20 +10,28 @@ import { TokenBridgeService } from "bridge-backend/src/TokenBridgeService";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
 import { BridgeModuleCommons } from "bridge-backend/src/BridgeModule";
+import { PairAddressSignatureVerifyre } from "bridge-backend/src/common/PairAddressSignatureVerifyer";
 import { BridgeConfigStorage } from "bridge-backend/src/BridgeConfigStorage";
-import { CommonBackendModule } from "common-backend";
+import { CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
 import { KMS } from "aws-sdk";
-
+import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 export class NodeModule implements Module {
 	async configAsync(container: Container) {
-		let conf: BridgeNodeConfig = loadConfigFromFile();
+		// let conf: BridgeNodeConfig = loadConfigFromFile();
+		let conf = {} as any;
+		conf = {
+			bridgeContracts: process.env.CONFIG_FILES,
+		}
 		const brigeContracts: NetworkedConfig<string> = {};
 		Object.keys(conf.bridgeContracts).forEach(net => {
 			brigeContracts[net] = conf.bridgeContracts[net].bridge;
 		});
 
+		await container.registerSingleton(CurrencyListSvc, c => new CurrencyListSvc(c.get(EthereumSmartContractHelper)));
+		await container.registerSingleton(UniswapV2Client, c => new UniswapV2Client(c.get(EthereumSmartContractHelper)));
+		await container.registerSingleton(PairAddressSignatureVerifyre, c => new PairAddressSignatureVerifyre());
 		await container.registerModule(
 			new CommonBackendModule(conf.chain));
 
