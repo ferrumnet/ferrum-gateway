@@ -87,12 +87,28 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
   }
+  .cardTheme{
+    &.confirmationModalTheme{
+      border-radius: 0px !important;
+    }
+  }
+  .confirmationModalTheme{
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+    border-radius: 0px !important;
+    .ant-result-title{
+      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+    }
+    .ant-result-subtitle{
+      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+    }
+  }
   .clsBtn{
     width: 200px !important;
     height: 50px !important;
   }
   .listTheme{
     border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec};
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .btn {  
     border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.btnBorderRadius}px !important;
@@ -223,6 +239,11 @@ export const GlobalStyles = createGlobalStyle`
     border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0" + 2} !important;
     padding-top: 40px;
     background: ${({ theme }) => theme.colors.card.cardPri};
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+    border-bottom: 0.5px solid  ${({ theme }) => theme.colors.card.cardSec} !important;
+  }
+  .ant-modal-title{
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .ant-drawer-header{
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
@@ -239,6 +260,7 @@ export const GlobalStyles = createGlobalStyle`
     background-color: ${({ theme }) => theme.colors.card.cardSec} !important;
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .web3modal-provider-wrapper{
     border: none !important 
@@ -249,6 +271,10 @@ export const GlobalStyles = createGlobalStyle`
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
+  }
+
+  .web3modal-provider-description{
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .card {
     background: ${({ theme }) => theme.colors.card.cardPri};
@@ -266,10 +292,12 @@ export const GlobalStyles = createGlobalStyle`
     }
     &.card-sec {
       background: ${({ theme }) => theme.colors.card.cardSec};
-      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ?
-    theme.colors.card.cardBorderRadius : 0}px !important;
+      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ? theme.colors.card.cardBorderRadius : 0}px !important;
       p, small {
-        color: ${({ theme }) => theme.colors.card.cardTextSec || "white"} !important;
+        color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"};
+      }
+      .text-vary-color{
+          color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
       }
     }
   }
@@ -357,10 +385,17 @@ export const GlobalStyles = createGlobalStyle`
       border-color: ${({ theme }) => theme.colors.stepsProcessBorderColor || "orange"};
     }
 
+  .custom-class {
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
 
+    .ant-message-notice-content{
+      background: ${({ theme }) => theme.colors.card.cardPri} !important;
+
+    }
+  }
   .ant-message-notice-content{
-    background: ${({ theme }) => theme.colors.card.cardPri};
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
   }
   .ant-alert-error{

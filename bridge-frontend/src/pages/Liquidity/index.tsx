@@ -117,8 +117,8 @@ const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (pa
 			return;
 		}
         const sc = inject<BridgeClient>(BridgeClient);
-		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
-
+		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);		
+        
 		// Get available liquidity for all pairs of the selected currency
 		const allCurrencies = new Set<string>();
 		const pairs = state.data.state.currencyPairs.filter(cp =>
@@ -364,13 +364,14 @@ export function LiquidityPage() {
         message.success({
             icon: <></>,
             content: <Result
+                className="cardTheme confirmationModalTheme"
                 status="success"
                 title="Your Transaction is Processing"
                 subTitle={v}
                 extra={[
                     <>
                         <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                        <a className="text-vary-color" onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                         <p>
                             <Button className={'btn-pri'} key="buy" onClick={()=>{
                                     message.destroy('withdraw');

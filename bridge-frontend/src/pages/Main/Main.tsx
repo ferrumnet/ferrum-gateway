@@ -275,29 +275,30 @@ export const ConnectBridge = () => {
     const onWithdrawSuccessMessage = async (txNet:string, tx:string, txCur: string) => {  
         message.success({
             icon: <></>,
-            content: <Result
-                status="success"
-                title="Withdrawal Transaction Processing"
-                subTitle={txNet}
-                extra={[
-                    <>
-                        <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(txNet,tx), '_blank')}>
-							{tx}</a>
-                    </>,
-                    <p></p>,
-                    <AddTokenToMetamask tokenData={assets[txCur]} />,
-                    <p></p>,
-                    <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
-                        message.destroy('withdr');
-                        dispatch(Actions.resetSwap({}));
-                        dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
-                        dispatch(Actions.setProgressStatus({status:1}))
-                        dispatch(Actions.activeWithdrawSuccess({value: false}))
-                    }}>Close</Button>
-                ]}
-            />,
-            className: 'custom-class',
+            content: 
+                <Result
+                    className="cardTheme confirmationModalTheme"
+                    status="success"
+                    title="Withdrawal Transaction Processing"
+                    subTitle={txNet}
+                    extra={[
+                        <>
+                            <div> View Transaction Status </div>
+                            <a onClick={() => window.open(Utils.linkForTransaction(txNet,tx), '_blank')}>
+                                {tx}</a>
+                        </>,
+                        <p></p>,
+                        <AddTokenToMetamask tokenData={assets[txCur]} />,
+                        <p></p>,
+                        <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
+                            message.destroy('withdr');
+                            dispatch(Actions.resetSwap({}));
+                            dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
+                            dispatch(Actions.setProgressStatus({status:1}))
+                            dispatch(Actions.activeWithdrawSuccess({value: false}))
+                        }}>Close</Button>
+                    ]}
+                />,
             style: {
               marginTop: '20vh',
             },
@@ -313,7 +314,7 @@ export const ConnectBridge = () => {
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
-
+    
     return (
         <>
          <WithdrawNoti
