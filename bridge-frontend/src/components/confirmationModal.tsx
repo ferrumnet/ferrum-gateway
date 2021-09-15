@@ -74,7 +74,7 @@ export function ConfirmationModal (props: {
 
         </div>
         <div className={styles.body}>
-            <div className={styles.headerAmount}>{props.amount} {props.token}</div>
+            <div className={`${styles.headerAmount} text-vary-color`}>{props.amount} {props.token}</div>
             <div className={styles.itemList}>
               <div className={`${styles.tabbedBtn} cardSecTheme`}>
                 <div className={styles.centered}>
@@ -86,7 +86,7 @@ export function ConfirmationModal (props: {
                   <p>{props.sourceNetwork}</p>
                 </div>
                 <span>
-                  <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+                  <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold text-vary-color"></i>
                 </span>
                 <div className={styles.centered}>
                   <img 
@@ -175,7 +175,7 @@ return (
       responsiveMode={ResponsiveMode.medium}
     >
       <div className={styles.header}>
-          <h5 className="text-inverse text-center">
+          <h5 className="text-vary-color text-center">
             Confirm
             <Divider
               style={{"margin":"12px 0px"}}
@@ -186,10 +186,10 @@ return (
           <div className={`${styles.itemList} listTheme`}>
             <div className={`${styles.tabbedBtn} cardSecTheme`}>
               <div className={styles.centered}>
-                <div className={styles.headerAmount}>{props.amount} {props.token}</div>
+                <div className={`${styles.headerAmount} text-vary-color`}>{props.amount} {props.token}</div>
               </div>
               <span>
-                <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+                <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold text-vary-color"></i>
               </span>
               <div className={styles.centered}>
                 <img 

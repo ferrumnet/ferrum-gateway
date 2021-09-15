@@ -28,6 +28,8 @@ const store = StoreBuilder.build(
   BASE_URL
 );
 
+const showThemeBuilder = false
+
 function App() {
   // const [themeConfig,setThemeConfig] = useState({primary:"",secondary:"",backgroud:"",radius:0,backgroundImage:"",logo:""});
   const [themeConfig, setThemeConfig] = useState({
@@ -68,22 +70,17 @@ function App() {
           <Dashboard themeConfig={themeConfig} />
         </Router>
       </ToastProvider>
-      <ThemeBuilder
-        config={themeConfig}
-        onChange={(value: any) => {
-          setThemeConfig({ ...value });
-        }}
-      />
+      {
+        showThemeBuilder &&
+        <ThemeBuilder
+          config={themeConfig}
+          onChange={(value: any) => {
+            setThemeConfig({ ...value });
+          }}
+        />
+      } 
     </StoreBuilder.Provider>
   );
-}
-
-function readFile(file: File) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(reader.result), false);
-    reader.readAsDataURL(file);
-  });
 }
 
 export default App;
