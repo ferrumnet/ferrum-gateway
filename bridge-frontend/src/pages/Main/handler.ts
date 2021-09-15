@@ -83,6 +83,10 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
     }
 }
 
+export const initialise = (dispatch:Dispatch<AnyAction>) => {
+    dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+}
+
 export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,
@@ -98,7 +102,7 @@ export const onSwap = async (
     ) => {
     try {
 		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
-        ValidationUtils.isTrue(!(Number(amount) > Number(availableLiquidity) ),'Not anough Liquidity available on destination network');
+        ValidationUtils.isTrue(!(Number(amount) >= (Number(availableLiquidity) - 1) ),'Not anough Liquidity available on destination network');
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);        

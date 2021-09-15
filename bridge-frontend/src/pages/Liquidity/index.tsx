@@ -404,6 +404,7 @@ export function LiquidityPage() {
                 token={pageProps.symbol}
                 total={pageProps.amount}
                 liquidity={pageProps.availableLiquidity}
+                availableLiquidity={pageProps.TotalAvailableLiquidity}
                 processLiqAction={action ?
                     () => addLiquidity(dispatch,pageProps.amount,pageProps.balance,pageProps.currency,onSuccessMessage,pageProps.allowanceRequired)
                     : () => removeLiquidity(dispatch,pageProps.amount,pageProps.availableLiquidity,pageProps.currency,onSuccessMessage)
@@ -470,7 +471,7 @@ export function LiquidityPage() {
                                             addonStyle={styles.addon}
                                             groupAddonStyle={styles.groupAddon}
                                             balance={pageProps.balance}
-                                            setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
+                                            setMax={()=>dispatch(Actions.setMax({balance: action?pageProps.balance:pageProps.availableLiquidity,fee: 0}))}
                                             onChange={ (v:any) => amountChanged(dispatch,v.target.value)}
                                             onWheel={ (event:any) => event.currentTarget.blur() }
                                         />
@@ -523,6 +524,7 @@ export function LiquidityPage() {
                                         isAmountEntered= {(Number(pageProps.amount) <= 0)}
                                         isTokenSelected= {!pageProps.selectedToken }
                                         allowanceRequired={pageProps.allowanceRequired}
+                                        totalLiquidty={Number(pageProps.TotalAvailableLiquidity) > 0 ? (Number(pageProps.TotalAvailableLiquidity) - 1) : Number(pageProps.TotalAvailableLiquidity)}
                                     />
                             </ChainEventItem>
                         </div>                      
