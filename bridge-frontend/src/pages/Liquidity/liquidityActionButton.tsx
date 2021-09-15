@@ -14,11 +14,13 @@ export interface liquidityActionProps {
     onManageLiquidityClick: () => void,
     addLiquidity : boolean,
     contractAddress: string,
+    totalLiquidty:number,
     currency: string,
 }
 export function LiquidiyButtonView(props: liquidityActionProps&IApprovableButtonWrapperViewProps) {
     const theme = useContext(ThemeContext);   
-    const disabled = props.isAmountEntered || props.isTokenSelected || !props.currency
+    const checkRemovableLiquidity = !props.addLiquidity && (Number(props.amount) > Number(props.totalLiquidty))
+    const disabled = props.isAmountEntered || props.isTokenSelected || !props.currency || checkRemovableLiquidity
     const btnContent = props.isApprovalMode ? (<>
         <i className="mdi mdi-lock-open-outline"></i>
             {'APPROVE'}

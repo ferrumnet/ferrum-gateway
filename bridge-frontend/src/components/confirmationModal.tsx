@@ -17,6 +17,7 @@ import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
+import { formatter } from './../common/Utils';
 
 const images = {
   "BSC":IconCryptoBNB,
@@ -152,6 +153,7 @@ export function LiquidityConfirmationModal (props: {
   total: string,
   action:string,
   liquidity:string,
+  availableLiquidity:string,
   processLiqAction: ()=> void,
   setIsModalClose: () => void
 }) {
@@ -159,7 +161,8 @@ const theme = useContext(ThemeContext);
 const styles = themedStyles(theme);    
 const [refreshing,setRefreshing] = useState(false)
 const titleId = useId('title');
-
+const liquidityToBeRemoved = ((Number(props.total)) > (Number(props.availableLiquidity))) ? (Number(props.availableLiquidity)) : (Number(props.total));
+const liquidityValue = props.action === 'Added' ? (Number(props.total)) : liquidityToBeRemoved;
 return (
   <div>    
     <Modal
@@ -203,12 +206,16 @@ return (
               <div className={styles.listItem2}>{props.token}</div>
           </div>
           <div className={`${styles.itemList} listTheme`}>
-              <div className={styles.listLabel2}>Current Destination Liquidity</div>
-              <div className={styles.listItem2}>{props.liquidity}</div>
+              <div className={styles.listLabel2}>Your deposited liquidity</div>
+              <div className={styles.listItem2}>{formatter.format(props.liquidity,false)}</div>
+          </div>
+          <div className={`${styles.itemList} listTheme`}>
+              <div className={styles.listLabel2}>Liquidity Requested to be {props.action}</div>
+              <div className={styles.listItem2}>{(Number(props.total))} {props.token}</div>
           </div>
           <div className={`${styles.itemList} listTheme`}>
               <div className={styles.listLabel2}>Liquidity to be {props.action}</div>
-              <div className={styles.listItem2}>{(Number(props.total))} {props.token}</div>
+              <div className={styles.listItem2}>{(liquidityValue)} {props.token}</div>
           </div>
           {/* <div className={styles.btnList}>
               <Alert
@@ -223,6 +230,7 @@ return (
                       marginBottom: '5px',
                       minWidth: '45%'
                   }}
+                  disabled={(Number(liquidityValue) <= 0)}
                   onClick={()=>{props.processLiqAction();props.setIsModalClose()}}
               />
               <RegularBtn text={'Cancel'}
