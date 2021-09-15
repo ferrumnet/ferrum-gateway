@@ -28,6 +28,8 @@ const store = StoreBuilder.build(
   BASE_URL
 );
 
+const showThemeBuilder = false
+
 function App() {
   // const [themeConfig,setThemeConfig] = useState({primary:"",secondary:"",backgroud:"",radius:0,backgroundImage:"",logo:""});
   const [themeConfig, setThemeConfig] = useState({
@@ -68,12 +70,15 @@ function App() {
           <Dashboard themeConfig={themeConfig} />
         </Router>
       </ToastProvider>
-      <ThemeBuilder
-        config={themeConfig}
-        onChange={(value: any) => {
-          setThemeConfig({ ...value });
-        }}
-      />
+      {
+        showThemeBuilder &&
+        <ThemeBuilder
+          config={themeConfig}
+          onChange={(value: any) => {
+            setThemeConfig({ ...value });
+          }}
+        />
+      } 
     </StoreBuilder.Provider>
   );
 }
