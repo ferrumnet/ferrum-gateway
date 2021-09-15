@@ -40,12 +40,6 @@ const _abi = [
         name: "amountPaid",
         type: "uint256",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
-      },
     ],
     name: "BasePaid",
     type: "event",
@@ -166,30 +160,6 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "rewardToken",
-        type: "address",
-      },
-    ],
-    name: "addReward",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "",
         type: "address",
       },
@@ -205,6 +175,49 @@ const _abi = [
         internalType: "enum StakingBasics.AdminRole",
         name: "",
         type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+    ],
+    name: "allowedRewardTokenList",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+    ],
+    name: "allowedRewardTokens",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -250,6 +263,59 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "staker",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+    ],
+    name: "fakeRewardOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+    ],
+    name: "fakeRewardsTotal",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -372,11 +438,16 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "_taxDistributor",
+        name: "id",
         type: "address",
       },
+      {
+        internalType: "uint256",
+        name: "lockSeconds",
+        type: "uint256",
+      },
     ],
-    name: "setTaxDistributor",
+    name: "setLockSeconds",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -385,17 +456,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "payer",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
         name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "staker",
         type: "address",
       },
     ],
@@ -414,17 +480,36 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "payer",
-        type: "address",
-      },
-      {
-        internalType: "address",
         name: "id",
         type: "address",
       },
       {
         internalType: "address",
         name: "staker",
+        type: "address",
+      },
+    ],
+    name: "stakeOf",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "id",
         type: "address",
       },
       {
@@ -452,6 +537,25 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+    ],
+    name: "stakedBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -495,16 +599,6 @@ const _abi = [
         type: "uint32",
       },
       {
-        internalType: "uint32",
-        name: "feeRateX10000",
-        type: "uint32",
-      },
-      {
-        internalType: "uint32",
-        name: "withdrawFeeRateX10000",
-        type: "uint32",
-      },
-      {
         internalType: "uint16",
         name: "flags",
         type: "uint16",
@@ -541,58 +635,6 @@ const _abi = [
     ],
     name: "sweepRewards",
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "taxDistributor",
-    outputs: [
-      {
-        internalType: "contract IGeneralTaxDistributor",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "transferFrom",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
     stateMutability: "nonpayable",
     type: "function",
   },

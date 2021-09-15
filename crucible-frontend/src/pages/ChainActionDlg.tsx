@@ -15,6 +15,7 @@ export interface ChainActionDlgProps {
 	userAddress: string;
 	currency: string;
 	balance: string;
+	allocation: string|undefined;
 	balanceTitle: string;
 	symbol: string;
 	feeRatio: string;
@@ -67,6 +68,11 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 			<div className="crucible-box-row">
 				<h3>{props.title} - {props.network}</h3>
 			</div>
+			{ props.allocation && (
+					<div className="crucible-box-row">
+						<label>Allocation</label><br />
+						<label>{props.allocation}</label>
+					</div>) }
 			<div className="crucible-box-row">
 				<label>{props.balanceTitle}</label><br />
 				<label>{props.balance}</label>
@@ -80,7 +86,7 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
                     icons={supportedIcons}
 										addonStyle={styles.addon}
                     balance={props.balance}
-                    setMax={() => setAmount(props.balance)}
+                    setMax={() => setAmount((props.allocation && BigUtils.safeParse(props.allocation).lt(BigUtils.safeParse(props.balance))) ? props.allocation : props.balance)}
                     onChange={ (v:any) => setAmount(v.target.value)}
 				/>
 			</div>

@@ -257,9 +257,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RouterV2SwapDrop__factory>;
     getContractFactory(
+      name: "StakeOpen",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.StakeOpen__factory>;
+    getContractFactory(
       name: "StakeTimed",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StakeTimed__factory>;
+    getContractFactory(
+      name: "TokenizableStaking",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenizableStaking__factory>;
     getContractFactory(
       name: "ISwapDrop",
       signerOrOptions?: ethers.Signer | FactoryOptions

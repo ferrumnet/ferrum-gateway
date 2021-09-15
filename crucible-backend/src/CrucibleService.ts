@@ -18,7 +18,7 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { sha256 } from 'ferrum-crypto';
 import { MultiSigUtils } from 'web3-tools/dist/MultiSigUtils';
 
-export const CACHE_TIMEOUT = 600 * 1000; // 10 min
+export const CACHE_TIMEOUT = 120 * 1000; // 2 mins
 const AllocationMethods = CrucibleAllocationMethods;
 
 export function ensureNotExpired(expiry: number) {
@@ -81,14 +81,16 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 
 	async getAllAllocations(
 		crucible: string,): Promise<UserContractAllocation[]> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(crucible);
-		const key = `ALLOC-${network}:${crucible}`;
+		const key = `ALLOC-${crucible}`;
 		return await this.cache.getAsync(
 			key, async () => {
-				const allocDefinition = await this.crucibleAllocationsCsvModel.findOne({
-					network, crucible}).exec();
+				console.log('ABOUT TO GET CRUCI ', crucible)
+				const allocDefinition = await this.crucibleAllocationsCsvModel.findOne({crucible}).exec();
+				console.log('GOT CRUCI ', allocDefinition)
 				const csv = allocDefinition?.csv;
-				return csv ? this.basicAllocation.parse(csv) : [];
+				const parsed = csv ? this.basicAllocation.parse(csv) : [];
+				console.log('GOT CRUCI - FIN ')
+				return parsed;
 			},
 			CACHE_TIMEOUT);
 	}
@@ -109,6 +111,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const r = await this.router(network);
 
 		const allocation = await this.signedAllocation(from, crucible, AllocationMethods.DEPOSIT, amountInt);
+		ValidationUtils.isTrue(BigUtils.safeParse(amount).lte(BigUtils.parseOrThrow(allocation.allocation, 'allocation')),
+			`Amount ${amount} larger than allocation "${allocation.allocation}"`);
 		const t = await r.populateTransaction.deposit(
 			from,
 			conAddress,
@@ -126,7 +130,9 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const allocation = await this.getAllocation(crucible, from, allocationMethod);
 		ensureNotExpired(allocation.expirySeconds);
 		ValidationUtils.isTrue(!!allocation && !!allocation.allocation, `No allocation for ${from}`);
-		allocation.signature!.salt = await sha256(Buffer.from(`${from.toLowerCase()}-${allocation.expirySeconds}-${allocation.allocation}`, 'utf-8').toString('hex'));
+		allocation.signature!.salt = `0x${await sha256(Buffer.from(`${from.toLowerCase()}-${allocation.expirySeconds}-${allocation.allocation}`, 'utf-8').toString('hex'))}`;
+		allocation.signature!.signatures = allocation.signature!.signatures || [];
+
 		const method = produceSignature(this.helper.web3(network),
 			Networks.for(network).chainId,
 			this.config.contracts[network].router,
@@ -143,6 +149,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 				]
 			});
 		allocation.signature = await MultiSigUtils.signWithPrivateKey(this.sk, method.hash!, allocation.signature!);
+		console.log('ABOUT TO SIGN ', method, {allocation});
 		return allocation;
 	}
 
@@ -285,7 +292,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	public async getCrucibleInfo(crucible: string) {
 		ValidationUtils.isTrue(!!crucible, 'address is required');
 		return this.cache.getAsync(`CRUCIBLE-${crucible}`,
-			async () => this.getCrucibleInfoCached(crucible), );
+			async () => this.getCrucibleInfoCached(crucible),
+		CACHE_TIMEOUT);
 	}
 
 	public async getUserCrucibleInfo(crucible: string, userAddress: string):

@@ -22,14 +22,17 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   functions: {
     "admin()": FunctionFragment;
+    "configureToken(address,uint256,tuple[],uint216)": FunctionFragment;
     "distributeTax(address)": FunctionFragment;
-    "distributeTaxDirect(address,address)": FunctionFragment;
+    "distributeTaxDirect(address)": FunctionFragment;
     "globalTargetConfig()": FunctionFragment;
     "lowThresholdX1000()": FunctionFragment;
     "owner()": FunctionFragment;
+    "poolRoutingTable(address,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setGlobalTargetInfos(tuple[],uint216)": FunctionFragment;
+    "setPoolRouting(address,address,address)": FunctionFragment;
     "setTokenInfo(address,uint256,uint8)": FunctionFragment;
     "setTokenTargetInfos(address,tuple[],uint216)": FunctionFragment;
     "targetInfos(uint256)": FunctionFragment;
@@ -41,12 +44,21 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "configureToken",
+    values: [
+      string,
+      BigNumberish,
+      { tgt: string; tType: BigNumberish }[],
+      BigNumberish
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "distributeTax",
     values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "distributeTaxDirect",
-    values: [string, string]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "globalTargetConfig",
@@ -58,6 +70,10 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "poolRoutingTable",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -65,6 +81,10 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "setGlobalTargetInfos",
     values: [{ tgt: string; tType: BigNumberish }[], BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPoolRouting",
+    values: [string, string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setTokenInfo",
@@ -94,6 +114,10 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "configureToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "distributeTax",
     data: BytesLike
   ): Result;
@@ -111,12 +135,20 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "poolRoutingTable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setGlobalTargetInfos",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPoolRouting",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -200,6 +232,14 @@ export class GeneralTaxDistributor extends BaseContract {
   functions: {
     admin(overrides?: CallOverrides): Promise<[string]>;
 
+    configureToken(
+      tokenAddress: string,
+      bufferSize: BigNumberish,
+      infos: { tgt: string; tType: BigNumberish }[],
+      weights: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     distributeTax(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -207,7 +247,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTaxDirect(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -225,6 +264,12 @@ export class GeneralTaxDistributor extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    poolRoutingTable(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -240,6 +285,13 @@ export class GeneralTaxDistributor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setPoolRouting(
+      tokenAddress: string,
+      msgSender: string,
+      poolId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setTokenInfo(
       tokenAdress: string,
       bufferSize: BigNumberish,
@@ -248,7 +300,7 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setTokenTargetInfos(
-      tokenAddess: string,
+      tokenAddress: string,
       infos: { tgt: string; tType: BigNumberish }[],
       weights: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -294,6 +346,14 @@ export class GeneralTaxDistributor extends BaseContract {
 
   admin(overrides?: CallOverrides): Promise<string>;
 
+  configureToken(
+    tokenAddress: string,
+    bufferSize: BigNumberish,
+    infos: { tgt: string; tType: BigNumberish }[],
+    weights: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   distributeTax(
     token: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -301,7 +361,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
   distributeTaxDirect(
     token: string,
-    origSender: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -319,6 +378,12 @@ export class GeneralTaxDistributor extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  poolRoutingTable(
+    arg0: string,
+    arg1: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -334,6 +399,13 @@ export class GeneralTaxDistributor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setPoolRouting(
+    tokenAddress: string,
+    msgSender: string,
+    poolId: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setTokenInfo(
     tokenAdress: string,
     bufferSize: BigNumberish,
@@ -342,7 +414,7 @@ export class GeneralTaxDistributor extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setTokenTargetInfos(
-    tokenAddess: string,
+    tokenAddress: string,
     infos: { tgt: string; tType: BigNumberish }[],
     weights: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -385,11 +457,18 @@ export class GeneralTaxDistributor extends BaseContract {
   callStatic: {
     admin(overrides?: CallOverrides): Promise<string>;
 
+    configureToken(
+      tokenAddress: string,
+      bufferSize: BigNumberish,
+      infos: { tgt: string; tType: BigNumberish }[],
+      weights: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     distributeTax(token: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     distributeTaxDirect(
       token: string,
-      origSender: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -407,6 +486,12 @@ export class GeneralTaxDistributor extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    poolRoutingTable(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
@@ -414,6 +499,13 @@ export class GeneralTaxDistributor extends BaseContract {
     setGlobalTargetInfos(
       infos: { tgt: string; tType: BigNumberish }[],
       weights: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPoolRouting(
+      tokenAddress: string,
+      msgSender: string,
+      poolId: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -425,7 +517,7 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<void>;
 
     setTokenTargetInfos(
-      tokenAddess: string,
+      tokenAddress: string,
       infos: { tgt: string; tType: BigNumberish }[],
       weights: BigNumberish,
       overrides?: CallOverrides
@@ -484,6 +576,14 @@ export class GeneralTaxDistributor extends BaseContract {
   estimateGas: {
     admin(overrides?: CallOverrides): Promise<BigNumber>;
 
+    configureToken(
+      tokenAddress: string,
+      bufferSize: BigNumberish,
+      infos: { tgt: string; tType: BigNumberish }[],
+      weights: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     distributeTax(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -491,7 +591,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTaxDirect(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -500,6 +599,12 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    poolRoutingTable(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -516,6 +621,13 @@ export class GeneralTaxDistributor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setPoolRouting(
+      tokenAddress: string,
+      msgSender: string,
+      poolId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setTokenInfo(
       tokenAdress: string,
       bufferSize: BigNumberish,
@@ -524,7 +636,7 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<BigNumber>;
 
     setTokenTargetInfos(
-      tokenAddess: string,
+      tokenAddress: string,
       infos: { tgt: string; tType: BigNumberish }[],
       weights: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -557,6 +669,14 @@ export class GeneralTaxDistributor extends BaseContract {
   populateTransaction: {
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    configureToken(
+      tokenAddress: string,
+      bufferSize: BigNumberish,
+      infos: { tgt: string; tType: BigNumberish }[],
+      weights: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     distributeTax(
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -564,7 +684,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTaxDirect(
       token: string,
-      origSender: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -575,6 +694,12 @@ export class GeneralTaxDistributor extends BaseContract {
     lowThresholdX1000(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    poolRoutingTable(
+      arg0: string,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -591,6 +716,13 @@ export class GeneralTaxDistributor extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setPoolRouting(
+      tokenAddress: string,
+      msgSender: string,
+      poolId: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setTokenInfo(
       tokenAdress: string,
       bufferSize: BigNumberish,
@@ -599,7 +731,7 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setTokenTargetInfos(
-      tokenAddess: string,
+      tokenAddress: string,
       infos: { tgt: string; tType: BigNumberish }[],
       weights: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }

@@ -19,42 +19,41 @@ import { Listener, Provider } from "@ethersproject/providers";
 import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
-interface StakeTimedInterface extends ethers.utils.Interface {
+interface StakeOpenInterface extends ethers.utils.Interface {
   functions: {
     "addMarginalReward(address)": FunctionFragment;
     "addMarginalRewardToPool(address,address)": FunctionFragment;
-    "addReward(address,address)": FunctionFragment;
     "admins(address,address)": FunctionFragment;
     "allowedRewardTokenList(address)": FunctionFragment;
     "allowedRewardTokens(address,address)": FunctionFragment;
     "baseToken(address)": FunctionFragment;
-    "calculateRewards(address,address,address[])": FunctionFragment;
     "creationSigner()": FunctionFragment;
     "factory()": FunctionFragment;
     "fakeRewardOf(address,address,address)": FunctionFragment;
     "fakeRewardsTotal(address,address)": FunctionFragment;
+    "initDefault(address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "isTokenizable(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "rewardOf(address,address,address[])": FunctionFragment;
     "setAdmin(address,address,uint8)": FunctionFragment;
     "setCreationSigner(address)": FunctionFragment;
     "setLockSeconds(address,uint256)": FunctionFragment;
-    "setVestingSchedule(address,address,uint256,uint256,uint32[],uint128[],uint8[])": FunctionFragment;
     "stake(address,address)": FunctionFragment;
+    "stakeFor(address,address)": FunctionFragment;
     "stakeOf(address,address)": FunctionFragment;
     "stakeWithAllocation(address,address,uint256,bytes32,bytes)": FunctionFragment;
     "stakedBalance(address)": FunctionFragment;
     "stakings(address)": FunctionFragment;
     "sweepBase(address)": FunctionFragment;
     "sweepRewards(address,address[])": FunctionFragment;
-    "takeRewards(address,address[])": FunctionFragment;
-    "takeRewardsWithSignature(address,address,address,address[],bytes32,bytes)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
-    "withdraw(address,address[],uint256)": FunctionFragment;
-    "withdrawWithSignature(address,address,address,address,address[],uint256,bytes32,bytes)": FunctionFragment;
+    "withdraw(address,address,uint256)": FunctionFragment;
+    "withdrawRewards(address,address)": FunctionFragment;
+    "withdrawTimeOf(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -63,10 +62,6 @@ interface StakeTimedInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addMarginalRewardToPool",
-    values: [string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addReward",
     values: [string, string]
   ): string;
   encodeFunctionData(
@@ -83,10 +78,6 @@ interface StakeTimedInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "baseToken", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "calculateRewards",
-    values: [string, string, string[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "creationSigner",
     values?: undefined
   ): string;
@@ -99,6 +90,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "fakeRewardsTotal",
     values: [string, string]
   ): string;
+  encodeFunctionData(functionFragment: "initDefault", values: [string]): string;
   encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
     functionFragment: "isTokenizable",
@@ -109,6 +101,10 @@ interface StakeTimedInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rewardOf",
+    values: [string, string, string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "setAdmin",
@@ -123,19 +119,11 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "setVestingSchedule",
-    values: [
-      string,
-      string,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish[],
-      BigNumberish[],
-      BigNumberish[]
-    ]
+    functionFragment: "stake",
+    values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "stake",
+    functionFragment: "stakeFor",
     values: [string, string]
   ): string;
   encodeFunctionData(
@@ -157,14 +145,6 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     values: [string, string[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "takeRewards",
-    values: [string, string[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "takeRewardsWithSignature",
-    values: [string, string, string, string[], BytesLike, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -174,20 +154,15 @@ interface StakeTimedInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
-    values: [string, string[], BigNumberish]
+    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawWithSignature",
-    values: [
-      string,
-      string,
-      string,
-      string,
-      string[],
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
+    functionFragment: "withdrawRewards",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawTimeOf",
+    values: [string, string]
   ): string;
 
   decodeFunctionResult(
@@ -198,7 +173,6 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "addMarginalRewardToPool",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "allowedRewardTokenList",
@@ -209,10 +183,6 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "calculateRewards",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "creationSigner",
     data: BytesLike
@@ -226,6 +196,10 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "fakeRewardsTotal",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "initDefault",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTokenizable",
@@ -237,6 +211,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "rewardOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setCreationSigner",
@@ -246,11 +221,8 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "setLockSeconds",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setVestingSchedule",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakeFor", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stakeOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "stakeWithAllocation",
@@ -267,21 +239,17 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "takeRewards",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "takeRewardsWithSignature",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "usedHashes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawWithSignature",
+    functionFragment: "withdrawRewards",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawTimeOf",
     data: BytesLike
   ): Result;
 
@@ -300,7 +268,7 @@ interface StakeTimedInterface extends ethers.utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Staked"): EventFragment;
 }
 
-export class StakeTimed extends BaseContract {
+export class StakeOpen extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
@@ -341,7 +309,7 @@ export class StakeTimed extends BaseContract {
     toBlock?: string | number | undefined
   ): Promise<Array<TypedEvent<EventArgsArray & EventArgsObject>>>;
 
-  interface: StakeTimedInterface;
+  interface: StakeOpenInterface;
 
   functions: {
     addMarginalReward(
@@ -350,12 +318,6 @@ export class StakeTimed extends BaseContract {
     ): Promise<ContractTransaction>;
 
     addMarginalRewardToPool(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    addReward(
       id: string,
       rewardToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -380,13 +342,6 @@ export class StakeTimed extends BaseContract {
 
     baseToken(id: string, overrides?: CallOverrides): Promise<[string]>;
 
-    calculateRewards(
-      to: string,
-      id: string,
-      rewardTokens: string[],
-      overrides?: CallOverrides
-    ): Promise<[BigNumber[]] & { amounts: BigNumber[] }>;
-
     creationSigner(overrides?: CallOverrides): Promise<[string]>;
 
     factory(overrides?: CallOverrides): Promise<[string]>;
@@ -404,6 +359,11 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    initDefault(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<[boolean]>;
@@ -418,6 +378,13 @@ export class StakeTimed extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    rewardOf(
+      id: string,
+      staker: string,
+      rewardTokens: string[],
+      overrides?: CallOverrides
+    ): Promise<[BigNumber[]] & { amounts: BigNumber[] }>;
 
     setAdmin(
       id: string,
@@ -437,18 +404,13 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setVestingSchedule(
+    stake(
+      to: string,
       id: string,
-      rewardToken: string,
-      maxApyX10000: BigNumberish,
-      baseRewRatioX128: BigNumberish,
-      endTimes: BigNumberish[],
-      amounts: BigNumberish[],
-      periodTypes: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    stake(
+    stakeFor(
       to: string,
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -497,22 +459,6 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    takeRewards(
-      id: string,
-      rewardTokens: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    takeRewardsWithSignature(
-      to: string,
-      id: string,
-      staker: string,
-      rewardTokens: string[],
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -521,23 +467,23 @@ export class StakeTimed extends BaseContract {
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
 
     withdraw(
+      to: string,
       id: string,
-      rewardTokens: string[],
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    withdrawWithSignature(
+    withdrawRewards(
       to: string,
-      rewardsTo: string,
       id: string,
-      staker: string,
-      rewardTokens: string[],
-      amount: BigNumberish,
-      salt: BytesLike,
-      signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawTimeOf(
+      id: string,
+      staker: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
   addMarginalReward(
@@ -546,12 +492,6 @@ export class StakeTimed extends BaseContract {
   ): Promise<ContractTransaction>;
 
   addMarginalRewardToPool(
-    id: string,
-    rewardToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  addReward(
     id: string,
     rewardToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -576,13 +516,6 @@ export class StakeTimed extends BaseContract {
 
   baseToken(id: string, overrides?: CallOverrides): Promise<string>;
 
-  calculateRewards(
-    to: string,
-    id: string,
-    rewardTokens: string[],
-    overrides?: CallOverrides
-  ): Promise<BigNumber[]>;
-
   creationSigner(overrides?: CallOverrides): Promise<string>;
 
   factory(overrides?: CallOverrides): Promise<string>;
@@ -600,6 +533,11 @@ export class StakeTimed extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  initDefault(
+    token: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
@@ -611,6 +549,13 @@ export class StakeTimed extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  rewardOf(
+    id: string,
+    staker: string,
+    rewardTokens: string[],
+    overrides?: CallOverrides
+  ): Promise<BigNumber[]>;
 
   setAdmin(
     id: string,
@@ -630,18 +575,13 @@ export class StakeTimed extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setVestingSchedule(
+  stake(
+    to: string,
     id: string,
-    rewardToken: string,
-    maxApyX10000: BigNumberish,
-    baseRewRatioX128: BigNumberish,
-    endTimes: BigNumberish[],
-    amounts: BigNumberish[],
-    periodTypes: BigNumberish[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  stake(
+  stakeFor(
     to: string,
     id: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -690,22 +630,6 @@ export class StakeTimed extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  takeRewards(
-    id: string,
-    rewardTokens: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  takeRewardsWithSignature(
-    to: string,
-    id: string,
-    staker: string,
-    rewardTokens: string[],
-    salt: BytesLike,
-    signature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -714,23 +638,23 @@ export class StakeTimed extends BaseContract {
   usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
   withdraw(
+    to: string,
     id: string,
-    rewardTokens: string[],
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  withdrawWithSignature(
+  withdrawRewards(
     to: string,
-    rewardsTo: string,
     id: string,
-    staker: string,
-    rewardTokens: string[],
-    amount: BigNumberish,
-    salt: BytesLike,
-    signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  withdrawTimeOf(
+    id: string,
+    staker: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   callStatic: {
     addMarginalReward(
@@ -739,12 +663,6 @@ export class StakeTimed extends BaseContract {
     ): Promise<BigNumber>;
 
     addMarginalRewardToPool(
-      id: string,
-      rewardToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    addReward(
       id: string,
       rewardToken: string,
       overrides?: CallOverrides
@@ -769,13 +687,6 @@ export class StakeTimed extends BaseContract {
 
     baseToken(id: string, overrides?: CallOverrides): Promise<string>;
 
-    calculateRewards(
-      to: string,
-      id: string,
-      rewardTokens: string[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
     creationSigner(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
@@ -793,6 +704,8 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initDefault(token: string, overrides?: CallOverrides): Promise<void>;
+
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
@@ -802,6 +715,13 @@ export class StakeTimed extends BaseContract {
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    rewardOf(
+      id: string,
+      staker: string,
+      rewardTokens: string[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber[]>;
 
     setAdmin(
       id: string,
@@ -821,18 +741,13 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setVestingSchedule(
-      id: string,
-      rewardToken: string,
-      maxApyX10000: BigNumberish,
-      baseRewRatioX128: BigNumberish,
-      endTimes: BigNumberish[],
-      amounts: BigNumberish[],
-      periodTypes: BigNumberish[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     stake(
+      to: string,
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    stakeFor(
       to: string,
       id: string,
       overrides?: CallOverrides
@@ -878,22 +793,6 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    takeRewards(
-      id: string,
-      rewardTokens: string[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
-    takeRewardsWithSignature(
-      to: string,
-      id: string,
-      staker: string,
-      rewardTokens: string[],
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber[]>;
-
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
@@ -902,33 +801,23 @@ export class StakeTimed extends BaseContract {
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
     withdraw(
+      to: string,
       id: string,
-      rewardTokens: string[],
       amount: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber[]] & {
-        actualAmount: BigNumber;
-        rewardAmount: BigNumber[];
-      }
-    >;
+    ): Promise<void>;
 
-    withdrawWithSignature(
+    withdrawRewards(
       to: string,
-      rewardsTo: string,
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawTimeOf(
       id: string,
       staker: string,
-      rewardTokens: string[],
-      amount: BigNumberish,
-      salt: BytesLike,
-      signature: BytesLike,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber[]] & {
-        actualAmount: BigNumber;
-        rewardAmount: BigNumber[];
-      }
-    >;
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -1006,12 +895,6 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     admins(
       arg0: string,
       arg1: string,
@@ -1031,13 +914,6 @@ export class StakeTimed extends BaseContract {
 
     baseToken(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    calculateRewards(
-      to: string,
-      id: string,
-      rewardTokens: string[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     creationSigner(overrides?: CallOverrides): Promise<BigNumber>;
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1055,6 +931,11 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initDefault(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1065,6 +946,13 @@ export class StakeTimed extends BaseContract {
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    rewardOf(
+      id: string,
+      staker: string,
+      rewardTokens: string[],
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setAdmin(
@@ -1085,18 +973,13 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setVestingSchedule(
+    stake(
+      to: string,
       id: string,
-      rewardToken: string,
-      maxApyX10000: BigNumberish,
-      baseRewRatioX128: BigNumberish,
-      endTimes: BigNumberish[],
-      amounts: BigNumberish[],
-      periodTypes: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    stake(
+    stakeFor(
       to: string,
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1132,22 +1015,6 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    takeRewards(
-      id: string,
-      rewardTokens: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    takeRewardsWithSignature(
-      to: string,
-      id: string,
-      staker: string,
-      rewardTokens: string[],
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1156,22 +1023,22 @@ export class StakeTimed extends BaseContract {
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     withdraw(
+      to: string,
       id: string,
-      rewardTokens: string[],
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    withdrawWithSignature(
+    withdrawRewards(
       to: string,
-      rewardsTo: string,
+      id: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdrawTimeOf(
       id: string,
       staker: string,
-      rewardTokens: string[],
-      amount: BigNumberish,
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -1182,12 +1049,6 @@ export class StakeTimed extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     addMarginalRewardToPool(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    addReward(
       id: string,
       rewardToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1215,13 +1076,6 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    calculateRewards(
-      to: string,
-      id: string,
-      rewardTokens: string[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     creationSigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1237,6 +1091,11 @@ export class StakeTimed extends BaseContract {
       id: string,
       rewardToken: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initDefault(
+      token: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     inventory(
@@ -1257,6 +1116,13 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    rewardOf(
+      id: string,
+      staker: string,
+      rewardTokens: string[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     setAdmin(
       id: string,
       admin: string,
@@ -1275,18 +1141,13 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setVestingSchedule(
+    stake(
+      to: string,
       id: string,
-      rewardToken: string,
-      maxApyX10000: BigNumberish,
-      baseRewRatioX128: BigNumberish,
-      endTimes: BigNumberish[],
-      amounts: BigNumberish[],
-      periodTypes: BigNumberish[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    stake(
+    stakeFor(
       to: string,
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1328,22 +1189,6 @@ export class StakeTimed extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    takeRewards(
-      id: string,
-      rewardTokens: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    takeRewardsWithSignature(
-      to: string,
-      id: string,
-      staker: string,
-      rewardTokens: string[],
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1355,22 +1200,22 @@ export class StakeTimed extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     withdraw(
+      to: string,
       id: string,
-      rewardTokens: string[],
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    withdrawWithSignature(
+    withdrawRewards(
       to: string,
-      rewardsTo: string,
+      id: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawTimeOf(
       id: string,
       staker: string,
-      rewardTokens: string[],
-      amount: BigNumberish,
-      salt: BytesLike,
-      signature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

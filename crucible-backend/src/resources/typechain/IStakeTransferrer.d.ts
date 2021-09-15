@@ -21,16 +21,40 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IStakeTransferrerInterface extends ethers.utils.Interface {
   functions: {
-    "transferFrom(address,address,address,uint256)": FunctionFragment;
+    "allowance(address,address,address)": FunctionFragment;
+    "approveOnlyPool(address,address,address,uint256)": FunctionFragment;
+    "transferFromOnlyPool(address,address,address,address,uint256)": FunctionFragment;
+    "transferOnlyPool(address,address,address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "transferFrom",
+    functionFragment: "allowance",
+    values: [string, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "approveOnlyPool",
+    values: [string, string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferFromOnlyPool",
+    values: [string, string, string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOnlyPool",
     values: [string, string, string, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "transferFrom",
+    functionFragment: "approveOnlyPool",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferFromOnlyPool",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOnlyPool",
     data: BytesLike
   ): Result;
 
@@ -81,51 +105,171 @@ export class IStakeTransferrer extends BaseContract {
   interface: IStakeTransferrerInterface;
 
   functions: {
-    transferFrom(
+    allowance(
+      id: string,
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    approveOnlyPool(
+      id: string,
+      sender: string,
+      spender: string,
+      value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    transferFromOnlyPool(
       stakingPoolId: string,
+      sender: string,
       from: string,
       to: string,
       value: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    transferOnlyPool(
+      id: string,
+      from: string,
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
-  transferFrom(
+  allowance(
+    id: string,
+    owner: string,
+    spender: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  approveOnlyPool(
+    id: string,
+    sender: string,
+    spender: string,
+    value: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  transferFromOnlyPool(
     stakingPoolId: string,
+    sender: string,
     from: string,
     to: string,
     value: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  transferOnlyPool(
+    id: string,
+    from: string,
+    to: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
-    transferFrom(
+    allowance(
+      id: string,
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    approveOnlyPool(
+      id: string,
+      sender: string,
+      spender: string,
+      value: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    transferFromOnlyPool(
       stakingPoolId: string,
+      sender: string,
       from: string,
       to: string,
       value: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+    ): Promise<boolean>;
+
+    transferOnlyPool(
+      id: string,
+      from: string,
+      to: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
-    transferFrom(
+    allowance(
+      id: string,
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    approveOnlyPool(
+      id: string,
+      sender: string,
+      spender: string,
+      value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    transferFromOnlyPool(
       stakingPoolId: string,
+      sender: string,
       from: string,
       to: string,
       value: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    transferOnlyPool(
+      id: string,
+      from: string,
+      to: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    transferFrom(
+    allowance(
+      id: string,
+      owner: string,
+      spender: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    approveOnlyPool(
+      id: string,
+      sender: string,
+      spender: string,
+      value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferFromOnlyPool(
       stakingPoolId: string,
+      sender: string,
       from: string,
       to: string,
       value: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOnlyPool(
+      id: string,
+      from: string,
+      to: string,
+      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

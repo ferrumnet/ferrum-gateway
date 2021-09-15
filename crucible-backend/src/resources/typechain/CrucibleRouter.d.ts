@@ -33,6 +33,7 @@ interface CrucibleRouterInterface extends ethers.utils.Interface {
     "deposit(address,address,uint256,bytes32,uint64,uint16,bytes)": FunctionFragment;
     "depositAddLiquidityStake(address,address,address,uint256,uint256,address,address,uint64,uint256,uint16,bytes)": FunctionFragment;
     "depositAddLiquidityStakeETH(address,address,uint256,address,address,uint64,uint64,uint16,bytes)": FunctionFragment;
+    "depositAndStake(address,address,uint256,address,bytes32,uint64,uint16,bytes)": FunctionFragment;
     "depositOpen(address,address,uint256)": FunctionFragment;
     "openCaps(address)": FunctionFragment;
     "overrideFee(address,address,uint8,uint64,uint64,uint16,bytes)": FunctionFragment;
@@ -112,6 +113,19 @@ interface CrucibleRouterInterface extends ethers.utils.Interface {
       string,
       string,
       BigNumberish,
+      BigNumberish,
+      BigNumberish,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositAndStake",
+    values: [
+      string,
+      string,
+      BigNumberish,
+      string,
+      BytesLike,
       BigNumberish,
       BigNumberish,
       BytesLike
@@ -212,6 +226,10 @@ interface CrucibleRouterInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "depositAddLiquidityStakeETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "depositAndStake",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -387,6 +405,18 @@ export class CrucibleRouter extends BaseContract {
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    depositAndStake(
+      to: string,
+      crucible: string,
+      amount: BigNumberish,
+      stake: string,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     depositOpen(
@@ -565,6 +595,18 @@ export class CrucibleRouter extends BaseContract {
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  depositAndStake(
+    to: string,
+    crucible: string,
+    amount: BigNumberish,
+    stake: string,
+    salt: BytesLike,
+    expiry: BigNumberish,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   depositOpen(
     to: string,
     crucible: string,
@@ -733,6 +775,18 @@ export class CrucibleRouter extends BaseContract {
       stake: string,
       expiry: BigNumberish,
       deadline: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    depositAndStake(
+      to: string,
+      crucible: string,
+      amount: BigNumberish,
+      stake: string,
+      salt: BytesLike,
+      expiry: BigNumberish,
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
@@ -922,6 +976,18 @@ export class CrucibleRouter extends BaseContract {
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    depositAndStake(
+      to: string,
+      crucible: string,
+      amount: BigNumberish,
+      stake: string,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     depositOpen(
       to: string,
       crucible: string,
@@ -1087,6 +1153,18 @@ export class CrucibleRouter extends BaseContract {
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    depositAndStake(
+      to: string,
+      crucible: string,
+      amount: BigNumberish,
+      stake: string,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     depositOpen(

@@ -150,8 +150,8 @@ export class StakingTokenPool extends BaseContract {
 
   functions: {
     allowance(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -192,8 +192,8 @@ export class StakingTokenPool extends BaseContract {
   };
 
   allowance(
-    arg0: string,
-    arg1: string,
+    owner: string,
+    spender: string,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -234,8 +234,8 @@ export class StakingTokenPool extends BaseContract {
 
   callStatic: {
     allowance(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -307,8 +307,8 @@ export class StakingTokenPool extends BaseContract {
 
   estimateGas: {
     allowance(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -350,8 +350,8 @@ export class StakingTokenPool extends BaseContract {
 
   populateTransaction: {
     allowance(
-      arg0: string,
-      arg1: string,
+      owner: string,
+      spender: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

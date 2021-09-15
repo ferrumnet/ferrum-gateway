@@ -21,11 +21,14 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   functions: {
-    "addReward(address,address)": FunctionFragment;
     "admins(address,address)": FunctionFragment;
+    "allowedRewardTokenList(address)": FunctionFragment;
+    "allowedRewardTokens(address,address)": FunctionFragment;
     "baseToken(address)": FunctionFragment;
     "creationSigner()": FunctionFragment;
     "factory()": FunctionFragment;
+    "fakeRewardOf(address,address,address)": FunctionFragment;
+    "fakeRewardsTotal(address,address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "isTokenizable(address)": FunctionFragment;
     "name(address)": FunctionFragment;
@@ -35,25 +38,29 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address,address,uint8)": FunctionFragment;
     "setCreationSigner(address)": FunctionFragment;
-    "setTaxDistributor(address)": FunctionFragment;
+    "setLockSeconds(address,uint256)": FunctionFragment;
     "signatureByIdSignerAddress(address,uint8,bytes,uint32)": FunctionFragment;
-    "stake(address,address,address)": FunctionFragment;
-    "stakeWithAllocation(address,address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "stake(address,address)": FunctionFragment;
+    "stakeOf(address,address)": FunctionFragment;
+    "stakeWithAllocation(address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "stakedBalance(address)": FunctionFragment;
     "stakings(address)": FunctionFragment;
     "sweepBase(address)": FunctionFragment;
     "sweepRewards(address,address[])": FunctionFragment;
-    "taxDistributor()": FunctionFragment;
-    "transferFrom(address,address,address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "addReward",
+    functionFragment: "admins",
     values: [string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "admins",
+    functionFragment: "allowedRewardTokenList",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowedRewardTokens",
     values: [string, string]
   ): string;
   encodeFunctionData(functionFragment: "baseToken", values: [string]): string;
@@ -62,6 +69,14 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "fakeRewardOf",
+    values: [string, string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fakeRewardsTotal",
+    values: [string, string]
+  ): string;
   encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
     functionFragment: "isTokenizable",
@@ -106,8 +121,8 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "setTaxDistributor",
-    values: [string]
+    functionFragment: "setLockSeconds",
+    values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "signatureByIdSignerAddress",
@@ -115,25 +130,25 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "stake",
-    values: [string, string, string]
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakeOf",
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "stakeWithAllocation",
-    values: [string, string, string, BigNumberish, BytesLike, BytesLike]
+    values: [string, string, BigNumberish, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakedBalance",
+    values: [string]
   ): string;
   encodeFunctionData(functionFragment: "stakings", values: [string]): string;
   encodeFunctionData(functionFragment: "sweepBase", values: [string]): string;
   encodeFunctionData(
     functionFragment: "sweepRewards",
     values: [string, string[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "taxDistributor",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [string, string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
@@ -144,14 +159,29 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     values: [BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "allowedRewardTokenList",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allowedRewardTokens",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "creationSigner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fakeRewardOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fakeRewardsTotal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isTokenizable",
@@ -174,7 +204,7 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setTaxDistributor",
+    functionFragment: "setLockSeconds",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -182,8 +212,13 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakeOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "stakeWithAllocation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stakedBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "stakings", data: BytesLike): Result;
@@ -193,21 +228,13 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "taxDistributor",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "usedHashes", data: BytesLike): Result;
 
   events: {
-    "BasePaid(address,address,address,address,uint256,uint256)": EventFragment;
+    "BasePaid(address,address,address,address,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RewardAdded(address,address,uint256)": EventFragment;
     "RewardPaid(address,address,address,address[],uint256[])": EventFragment;
@@ -265,23 +292,41 @@ export class CommonFerrumInitiator extends BaseContract {
   interface: CommonFerrumInitiatorInterface;
 
   functions: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     admins(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<[number]>;
 
+    allowedRewardTokenList(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
+
+    allowedRewardTokens(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     baseToken(id: string, overrides?: CallOverrides): Promise<[string]>;
 
     creationSigner(overrides?: CallOverrides): Promise<[string]>;
 
     factory(overrides?: CallOverrides): Promise<[string]>;
+
+    fakeRewardOf(
+      id: string,
+      staker: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    fakeRewardsTotal(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -339,8 +384,9 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setTaxDistributor(
-      _taxDistributor: string,
+    setLockSeconds(
+      id: string,
+      lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -353,45 +399,39 @@ export class CommonFerrumInitiator extends BaseContract {
     ): Promise<[string] & { signer: string }>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    stakeWithAllocation(
-      payer: string,
+    stakeOf(
       id: string,
       staker: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    stakeWithAllocation(
+      to: string,
+      id: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    stakedBalance(id: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     stakings(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [
-        number,
-        boolean,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ] & {
+      [number, boolean, number, number, number, number, number] & {
         stakeType: number;
         restrictedRewards: boolean;
         contribStart: number;
         contribEnd: number;
         endOfLife: number;
         configHardCutOff: number;
-        feeRateX10000: number;
-        withdrawFeeRateX10000: number;
         flags: number;
       }
     >;
@@ -407,16 +447,6 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    taxDistributor(overrides?: CallOverrides): Promise<[string]>;
-
-    transferFrom(
-      id: string,
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -425,23 +455,41 @@ export class CommonFerrumInitiator extends BaseContract {
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  addReward(
-    id: string,
-    rewardToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   admins(
     arg0: string,
     arg1: string,
     overrides?: CallOverrides
   ): Promise<number>;
 
+  allowedRewardTokenList(
+    id: string,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
+  allowedRewardTokens(
+    id: string,
+    rewardToken: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   baseToken(id: string, overrides?: CallOverrides): Promise<string>;
 
   creationSigner(overrides?: CallOverrides): Promise<string>;
 
   factory(overrides?: CallOverrides): Promise<string>;
+
+  fakeRewardOf(
+    id: string,
+    staker: string,
+    rewardToken: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  fakeRewardsTotal(
+    id: string,
+    rewardToken: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -496,8 +544,9 @@ export class CommonFerrumInitiator extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setTaxDistributor(
-    _taxDistributor: string,
+  setLockSeconds(
+    id: string,
+    lockSeconds: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -510,45 +559,39 @@ export class CommonFerrumInitiator extends BaseContract {
   ): Promise<string>;
 
   stake(
-    payer: string,
+    to: string,
     id: string,
-    staker: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  stakeWithAllocation(
-    payer: string,
+  stakeOf(
     id: string,
     staker: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  stakeWithAllocation(
+    to: string,
+    id: string,
     allocation: BigNumberish,
     salt: BytesLike,
     allocatorSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  stakedBalance(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   stakings(
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [
-      number,
-      boolean,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number,
-      number
-    ] & {
+    [number, boolean, number, number, number, number, number] & {
       stakeType: number;
       restrictedRewards: boolean;
       contribStart: number;
       contribEnd: number;
       endOfLife: number;
       configHardCutOff: number;
-      feeRateX10000: number;
-      withdrawFeeRateX10000: number;
       flags: number;
     }
   >;
@@ -564,16 +607,6 @@ export class CommonFerrumInitiator extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  taxDistributor(overrides?: CallOverrides): Promise<string>;
-
-  transferFrom(
-    id: string,
-    from: string,
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -582,23 +615,41 @@ export class CommonFerrumInitiator extends BaseContract {
   usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     admins(
       arg0: string,
       arg1: string,
       overrides?: CallOverrides
     ): Promise<number>;
 
+    allowedRewardTokenList(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
+    allowedRewardTokens(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     baseToken(id: string, overrides?: CallOverrides): Promise<string>;
 
     creationSigner(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
+
+    fakeRewardOf(
+      id: string,
+      staker: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    fakeRewardsTotal(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -651,8 +702,9 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setTaxDistributor(
-      _taxDistributor: string,
+    setLockSeconds(
+      id: string,
+      lockSeconds: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -665,45 +717,39 @@ export class CommonFerrumInitiator extends BaseContract {
     ): Promise<string>;
 
     stake(
-      payer: string,
+      to: string,
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    stakeOf(
       id: string,
       staker: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     stakeWithAllocation(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    stakedBalance(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     stakings(
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [
-        number,
-        boolean,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number,
-        number
-      ] & {
+      [number, boolean, number, number, number, number, number] & {
         stakeType: number;
         restrictedRewards: boolean;
         contribStart: number;
         contribEnd: number;
         endOfLife: number;
         configHardCutOff: number;
-        feeRateX10000: number;
-        withdrawFeeRateX10000: number;
         flags: number;
       }
     >;
@@ -715,16 +761,6 @@ export class CommonFerrumInitiator extends BaseContract {
       rewardTokens: string[],
       overrides?: CallOverrides
     ): Promise<void>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<string>;
-
-    transferFrom(
-      id: string,
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
 
     transferOwnership(
       newOwner: string,
@@ -740,17 +776,15 @@ export class CommonFerrumInitiator extends BaseContract {
       staker?: null,
       to?: null,
       token?: null,
-      amountPaid?: null,
-      fee?: null
+      amountPaid?: null
     ): TypedEventFilter<
-      [string, string, string, string, BigNumber, BigNumber],
+      [string, string, string, string, BigNumber],
       {
         id: string;
         staker: string;
         to: string;
         token: string;
         amountPaid: BigNumber;
-        fee: BigNumber;
       }
     >;
 
@@ -800,15 +834,20 @@ export class CommonFerrumInitiator extends BaseContract {
   };
 
   estimateGas: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     admins(
       arg0: string,
       arg1: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    allowedRewardTokenList(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    allowedRewardTokens(
+      id: string,
+      rewardToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -817,6 +856,19 @@ export class CommonFerrumInitiator extends BaseContract {
     creationSigner(overrides?: CallOverrides): Promise<BigNumber>;
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fakeRewardOf(
+      id: string,
+      staker: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    fakeRewardsTotal(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -871,8 +923,9 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setTaxDistributor(
-      _taxDistributor: string,
+    setLockSeconds(
+      id: string,
+      lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -885,21 +938,27 @@ export class CommonFerrumInitiator extends BaseContract {
     ): Promise<BigNumber>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    stakeWithAllocation(
-      payer: string,
+    stakeOf(
       id: string,
       staker: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    stakeWithAllocation(
+      to: string,
+      id: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    stakedBalance(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     stakings(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -914,16 +973,6 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    taxDistributor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transferFrom(
-      id: string,
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -933,15 +982,20 @@ export class CommonFerrumInitiator extends BaseContract {
   };
 
   populateTransaction: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     admins(
       arg0: string,
       arg1: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    allowedRewardTokenList(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    allowedRewardTokens(
+      id: string,
+      rewardToken: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -953,6 +1007,19 @@ export class CommonFerrumInitiator extends BaseContract {
     creationSigner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fakeRewardOf(
+      id: string,
+      staker: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    fakeRewardsTotal(
+      id: string,
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     inventory(
       arg0: string,
@@ -1013,8 +1080,9 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setTaxDistributor(
-      _taxDistributor: string,
+    setLockSeconds(
+      id: string,
+      lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1027,20 +1095,29 @@ export class CommonFerrumInitiator extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    stakeWithAllocation(
-      payer: string,
+    stakeOf(
       id: string,
       staker: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    stakeWithAllocation(
+      to: string,
+      id: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    stakedBalance(
+      id: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     stakings(
@@ -1056,16 +1133,6 @@ export class CommonFerrumInitiator extends BaseContract {
     sweepRewards(
       id: string,
       rewardTokens: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    taxDistributor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transferFrom(
-      id: string,
-      from: string,
-      to: string,
-      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

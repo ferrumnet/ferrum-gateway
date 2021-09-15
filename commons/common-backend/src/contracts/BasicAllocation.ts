@@ -7,7 +7,7 @@ const ALLOC_FIELDS = [
   "contractAddress",
   "method",
   "userAddress",
-  "currecy",
+  "crucible",
   "allocation",
   "expirySeconds",
 ];
@@ -15,11 +15,9 @@ const ALLOC_FIELDS = [
 function parseAllocation(allocStr: string): UserContractAllocation {
   const alloc: UserContractAllocation = {} as any;
 	allocStr = allocStr.replace("\r", '');
-  allocStr
-    .toLowerCase()
-    .split(",")
-    .forEach((v, i) => {
-			if (!!ALLOC_FIELDS[0] && ALLOC_FIELDS[0].toUpperCase() !== 'NETWORK') {
+	const values = allocStr.split(",");
+	values.forEach((v, i) => {
+			if (values[0] !== 'NETWORK') {
 				// @ts-ignore
 				alloc[ALLOC_FIELDS[i]] = v;
 			}
@@ -27,7 +25,11 @@ function parseAllocation(allocStr: string): UserContractAllocation {
   alloc.currency = alloc.currency?.indexOf(":")
     ? alloc.currency
     : `${alloc.network}:${alloc.currency}`;
-  alloc.network = alloc.network?.toUpperCase();
+  alloc.network = (alloc.network || '').toUpperCase();
+	alloc.contractAddress = (alloc.contractAddress || '').toLowerCase();
+	alloc.method = (alloc.method || '').toUpperCase();
+	alloc.userAddress = (alloc.userAddress || '').toLowerCase();
+	alloc.currency = `${alloc.network}:${(alloc as any).crucible}`;
   alloc.signature = {
     from: alloc.userAddress,
     to: alloc.userAddress,
@@ -53,6 +55,7 @@ export class BasicAllocation implements Injectable {
   }
 
   async parse(allocCsv: string): Promise<UserContractAllocation[]> {
+		console.log('AL LO C C S V ', allocCsv)
     return allocCsv.split("\n").map(parseAllocation).filter(Boolean);
   }
 }

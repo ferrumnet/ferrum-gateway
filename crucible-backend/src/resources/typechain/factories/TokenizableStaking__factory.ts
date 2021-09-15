@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import { Provider } from "@ethersproject/providers";
 import type {
-  CommonFerrumInitiator,
-  CommonFerrumInitiatorInterface,
-} from "../CommonFerrumInitiator";
+  TokenizableStaking,
+  TokenizableStakingInterface,
+} from "../TokenizableStaking";
 
 const _abi = [
   {
@@ -187,6 +187,35 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "allowance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "id",
         type: "address",
       },
@@ -224,6 +253,40 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+    ],
+    name: "approveOnlyPool",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -382,89 +445,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "baseToken",
-        type: "address",
-      },
-      {
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-      {
-        internalType: "uint32",
-        name: "hardConfigDeadline",
-        type: "uint32",
-      },
-      {
-        internalType: "uint256",
-        name: "cap",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "feeRateX10000",
-        type: "uint32",
-      },
-      {
-        internalType: "address",
-        name: "feeTarget",
-        type: "address",
-      },
-      {
-        internalType: "address[]",
-        name: "allowedRewardTokens",
-        type: "address[]",
-      },
-      {
-        internalType: "bool",
-        name: "tokenizable",
-        type: "bool",
-      },
-      {
-        internalType: "address",
-        name: "adminAddress",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "allocator",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "sweepTarget",
-        type: "address",
-      },
-      {
-        internalType: "bytes32",
-        name: "salt",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        internalType: "uint32",
-        name: "signatureLifetime",
-        type: "uint32",
-      },
-    ],
-    name: "openEnded",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
     inputs: [],
     name: "owner",
     outputs: [
@@ -475,44 +455,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
-      {
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-      {
-        internalType: "address",
-        name: "baseToken",
-        type: "address",
-      },
-      {
-        internalType: "uint32",
-        name: "minApy",
-        type: "uint32",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        internalType: "uint32",
-        name: "signatureLifetime",
-        type: "uint32",
-      },
-    ],
-    name: "publicStaking",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -574,40 +516,6 @@ const _abi = [
     name: "setLockSeconds",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
-      {
-        internalType: "enum Staking.StakeType",
-        name: "stakeType",
-        type: "uint8",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        internalType: "uint32",
-        name: "signatureLifetime",
-        type: "uint32",
-      },
-    ],
-    name: "signatureByIdSignerAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "signer",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {
@@ -800,6 +708,73 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "value",
+        type: "uint256",
+      },
+    ],
+    name: "transferFromOnlyPool",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "transferOnlyPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "newOwner",
         type: "address",
       },
@@ -830,19 +805,15 @@ const _abi = [
   },
 ];
 
-export class CommonFerrumInitiator__factory {
+export class TokenizableStaking__factory {
   static readonly abi = _abi;
-  static createInterface(): CommonFerrumInitiatorInterface {
-    return new utils.Interface(_abi) as CommonFerrumInitiatorInterface;
+  static createInterface(): TokenizableStakingInterface {
+    return new utils.Interface(_abi) as TokenizableStakingInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): CommonFerrumInitiator {
-    return new Contract(
-      address,
-      _abi,
-      signerOrProvider
-    ) as CommonFerrumInitiator;
+  ): TokenizableStaking {
+    return new Contract(address, _abi, signerOrProvider) as TokenizableStaking;
   }
 }

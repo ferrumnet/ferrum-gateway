@@ -26,6 +26,30 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "poolId",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+    ],
+    name: "addMarginalRewardToPool",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ];
 
 export class IRewardPool__factory {

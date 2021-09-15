@@ -17,3 +17,5 @@ export * from './models/crucible/Types';
 export * from './models/crossSwap/CrossSwapTypes';
 
 export * from './governance/GovernanceTypes';
+
+export * from './staking/Types';

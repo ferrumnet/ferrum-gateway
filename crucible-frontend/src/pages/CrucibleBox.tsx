@@ -7,14 +7,12 @@ import {
 } from 'component-library';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState, CrucibleBoxState } from '../common/CrucibleAppState';
-import { addressesForUser } from 'common-containers';
 import Modal from 'office-ui-fabric-react/lib/Modal';
 import { ResponsiveMode } from 'office-ui-fabric-react';
 import { ChainActionDlg } from './ChainActionDlg';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../CrucibleClient';
 import './CrucibleList.css';
-import { userInfo } from 'os';
 
 export const crucibleBoxSlice = createSlice({
 	name: 'CrucibleBox',
@@ -96,11 +94,10 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		BigUtils.truthy(BigUtils.safeParse(params.info.openCap));
 
 	const userDirectAllocation = (userCrucible?.allocations || []
-		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT) || '0';
+		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '0';
 	const userLpAllocation = (userCrucible?.allocations || []
-		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE) || '0';
+		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE)?.allocation || '0';
 	const info = params.info;
-	console.log('Is DEPOSIT POEN?', depositModal)
 	const deposit = <Modal
         isOpen={depositModal}
         onDismiss={() => showDepositModal(false)}
@@ -115,6 +112,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			userAddress={userAddr!}
 			currency={info.baseCurrency}
 			balance={baseBalance || '0'}
+			allocation={userDirectAllocation}
 			balanceTitle={`Available balance`}
 			symbol={info.baseSymbol}
 			feeRatio={'0'}
@@ -127,7 +125,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 					network: info.network,
 					crucible: info.currency,
 					currency: info.baseCurrency,
-					isPublic: !!info.openCap,
+					isPublic: !!info.openCap && !userDirectAllocation,
 				}))}
 			pendingTxId={activeTxId}
 		  />
@@ -146,6 +144,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			userAddress={userAddr!}
 			currency={info.currency}
 			balance={baseBalance || '0'}
+			allocation={''}
 			balanceTitle={`Available balance`}
 			symbol={info.symbol}
 			feeRatio={'0'}
@@ -172,6 +171,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			userAddress={userAddr!}
 			currency={info.currency}
 			balance={balance}
+			allocation={''}
 			balanceTitle={`Available balance`}
 			symbol={info.symbol}
 			feeRatio={info.feeOnWithdrawRate}

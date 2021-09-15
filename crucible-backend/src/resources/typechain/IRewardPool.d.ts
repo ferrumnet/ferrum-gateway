@@ -22,15 +22,24 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IRewardPoolInterface extends ethers.utils.Interface {
   functions: {
     "addMarginalReward(address)": FunctionFragment;
+    "addMarginalRewardToPool(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "addMarginalReward",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "addMarginalRewardToPool",
+    values: [string, string]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "addMarginalReward",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addMarginalRewardToPool",
     data: BytesLike
   ): Result;
 
@@ -85,6 +94,12 @@ export class IRewardPool extends BaseContract {
       rewardToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    addMarginalRewardToPool(
+      poolId: string,
+      rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   addMarginalReward(
@@ -92,8 +107,20 @@ export class IRewardPool extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  addMarginalRewardToPool(
+    poolId: string,
+    rewardToken: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     addMarginalReward(
+      rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    addMarginalRewardToPool(
+      poolId: string,
       rewardToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -106,10 +133,22 @@ export class IRewardPool extends BaseContract {
       rewardToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    addMarginalRewardToPool(
+      poolId: string,
+      rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     addMarginalReward(
+      rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addMarginalRewardToPool(
+      poolId: string,
       rewardToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

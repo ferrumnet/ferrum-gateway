@@ -14,30 +14,6 @@ const _abi = [
         name: "id",
         type: "address",
       },
-      {
-        internalType: "address",
-        name: "rewardToken",
-        type: "address",
-      },
-    ],
-    name: "addReward",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
     ],
     name: "baseToken",
     outputs: [
@@ -45,25 +21,6 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "id",
-        type: "address",
-      },
-    ],
-    name: "isTokenizable",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
       },
     ],
     stateMutability: "nonpayable",
@@ -92,17 +49,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "payer",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
         name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "staker",
         type: "address",
       },
     ],
@@ -121,17 +73,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "payer",
+        name: "to",
         type: "address",
       },
       {
         internalType: "address",
         name: "id",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "staker",
         type: "address",
       },
       {

@@ -21,39 +21,24 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface IStakeV2Interface extends ethers.utils.Interface {
   functions: {
-    "addReward(address,address)": FunctionFragment;
     "baseToken(address)": FunctionFragment;
-    "isTokenizable(address)": FunctionFragment;
     "name(address)": FunctionFragment;
-    "stake(address,address,address)": FunctionFragment;
-    "stakeWithAllocation(address,address,address,uint256,bytes32,bytes)": FunctionFragment;
+    "stake(address,address)": FunctionFragment;
+    "stakeWithAllocation(address,address,uint256,bytes32,bytes)": FunctionFragment;
   };
 
-  encodeFunctionData(
-    functionFragment: "addReward",
-    values: [string, string]
-  ): string;
   encodeFunctionData(functionFragment: "baseToken", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "isTokenizable",
-    values: [string]
-  ): string;
   encodeFunctionData(functionFragment: "name", values: [string]): string;
   encodeFunctionData(
     functionFragment: "stake",
-    values: [string, string, string]
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "stakeWithAllocation",
-    values: [string, string, string, BigNumberish, BytesLike, BytesLike]
+    values: [string, string, BigNumberish, BytesLike, BytesLike]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isTokenizable",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
   decodeFunctionResult(
@@ -108,18 +93,7 @@ export class IStakeV2 extends BaseContract {
   interface: IStakeV2Interface;
 
   functions: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     baseToken(
-      id: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    isTokenizable(
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -130,16 +104,14 @@ export class IStakeV2 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     stakeWithAllocation(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
@@ -147,18 +119,7 @@ export class IStakeV2 extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  addReward(
-    id: string,
-    rewardToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   baseToken(
-    id: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  isTokenizable(
     id: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -169,16 +130,14 @@ export class IStakeV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   stake(
-    payer: string,
+    to: string,
     id: string,
-    staker: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   stakeWithAllocation(
-    payer: string,
+    to: string,
     id: string,
-    staker: string,
     allocation: BigNumberish,
     salt: BytesLike,
     allocatorSignature: BytesLike,
@@ -186,29 +145,19 @@ export class IStakeV2 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     baseToken(id: string, overrides?: CallOverrides): Promise<string>;
-
-    isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
     name(id: string, overrides?: CallOverrides): Promise<string>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     stakeWithAllocation(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
@@ -219,18 +168,7 @@ export class IStakeV2 extends BaseContract {
   filters: {};
 
   estimateGas: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     baseToken(
-      id: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    isTokenizable(
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -241,16 +179,14 @@ export class IStakeV2 extends BaseContract {
     ): Promise<BigNumber>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     stakeWithAllocation(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
@@ -259,18 +195,7 @@ export class IStakeV2 extends BaseContract {
   };
 
   populateTransaction: {
-    addReward(
-      id: string,
-      rewardToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     baseToken(
-      id: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    isTokenizable(
       id: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -281,16 +206,14 @@ export class IStakeV2 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     stake(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     stakeWithAllocation(
-      payer: string,
+      to: string,
       id: string,
-      staker: string,
       allocation: BigNumberish,
       salt: BytesLike,
       allocatorSignature: BytesLike,
