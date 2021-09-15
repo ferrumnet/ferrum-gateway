@@ -111,7 +111,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .btn {  
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.button.btnBorderRadius}px !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || "auto"} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
     &:focus,
@@ -138,11 +138,10 @@ export const GlobalStyles = createGlobalStyle`
       background:  ${({ theme }) => theme.colors.button.btnPri || "#caa561"};
       color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
       background-size: ${({ theme }) => theme.colors.button.backgroundSize || "auto"};
-      border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0"}px !important;
-      // border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
+      border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
     }
     &.btn-sec {
-      background-color: ${({ theme }) => theme.colors.button.btnSec};
+      background: ${({ theme }) => theme.colors.button.btnSec};
       color: ${({ theme }) => theme.colors.button.textSec};
     }
     &.btn-dull {
@@ -229,7 +228,7 @@ export const GlobalStyles = createGlobalStyle`
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
   }
   .cardSecTheme{
-    background-color: ${({ theme }) => theme.colors.card.cardSec};
+    background: ${({ theme }) => theme.colors.card.cardSec};
   }
   .ant-modal-content{
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
@@ -257,7 +256,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .web3modal-provider-container{
-    background-color: ${({ theme }) => theme.colors.card.cardSec} !important;
+    background: ${({ theme }) => theme.colors.card.cardSec} !important;
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;

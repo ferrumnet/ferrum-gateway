@@ -343,7 +343,7 @@ export class BridgeClient implements Injectable {
         ) {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
-            console.log(targetCurrency,'targetCurrency',currency);    
+            //console.log(targetCurrency,'targetCurrency',currency);    
 			const sourceNetwork = Utils.parseCurrency(currency);
 			const targetNetwork = Utils.parseCurrency(targetCurrency);
 			ValidationUtils.isTrue(sourceNetwork !== targetNetwork, 'Source and target networks cannot be the same');

@@ -142,14 +142,14 @@ async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase, cal
 	try {
 		const connect = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionKitClient);
 		const t = await connect.getTransaction(e.id);
-		console.log('Checking the transloota ', t)
+		//console.log('Checking the transloota ', t)
 		if (t &&t.blockNumber) {
-			console.log('Translo iso componte ', t)
+			//console.log('Translo iso componte ', t)
             updateData(dispatch);
             callback();
 			return {...e, status: 'completed'}; // TODO: Check for failed
 		}
-		console.log('Noting inderezding ', e)
+		//console.log('Noting inderezding ', e)
 		return {...e, status: 'pending'};
 	} catch(ex) {
 		console.error('Button.updateEvent', ex, e);

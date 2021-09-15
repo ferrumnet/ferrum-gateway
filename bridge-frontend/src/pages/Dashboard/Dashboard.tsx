@@ -158,8 +158,8 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
         let groupId = getGroupIdFromHref();
 				let groupInfo: GroupInfo | undefined;
         if (!groupId) {
-						groupId = getWebstieIdFromHref();
-						console.log('No groupId so trying the website ID: ', groupId);
+				groupId = getWebstieIdFromHref();
+				console.log('No groupId so trying the website ID: ', groupId);
         		groupInfo = await client.loadGroupInfo(dispatch, groupId!);
 						if (!!groupInfo) {
 							history.replace('/' + groupId);
@@ -320,7 +320,7 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
         </>
     )
 
-    console.log(props?.tempTheme?.bannerMainMessage)
+    //console.log(props?.tempTheme?.bannerMainMessage)
     return (
         <>
             <>
@@ -434,8 +434,8 @@ export function Dashboard(props: ThemeProps) {
     }, [appInitialized]);
 
     if (appInitialized && !stateData.initializeError) {
-        console.log(selectedTheme);
-        console.log(props.themeConfig.colors)
+       // console.log(selectedTheme);
+       // console.log(props.themeConfig.colors)
         return (
             <ThemeProvider theme={
                 {
