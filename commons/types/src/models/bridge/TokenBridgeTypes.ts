@@ -163,7 +163,6 @@ export function domainSeparator(network: string): DomainSeparator {
   return {
     chainId: chainId,
     name: "PairedUnifyreWallet",
-    salt: TOKEN_BRIDGE_DOMAIN_SALT,
     verifyingContract: BRIDGE_CONTRACT[network],
     version: "0.1.0",
   };

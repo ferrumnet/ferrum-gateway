@@ -14,9 +14,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { AnyAction, Dispatch } from "redux";
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
 import { Theme, ThemeContext, ThemeConstantProvider, WebdefaultLightThemeConstantsBuilder } from 'unifyre-react-helper';
-import { inject, inject2, UserBridgeWithdrawableBalanceItem } from 'types';
+import { GroupInfo, inject, inject2, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
-import { getGroupIdFromHref } from './../../common/Utils';
+import { getGroupIdFromHref, getWebstieIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
 import { CommonActions, addAction } from './../../common/Actions';
 import { AppAccountState, connectSlice } from 'common-containers';
@@ -156,14 +156,21 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
         let groupId = getGroupIdFromHref();
+				let groupInfo: GroupInfo | undefined;
         if (!groupId) {
-            // window.location.href = '/frm'
-            groupId = 'frm';
-            history.replace('/frm');
-            // dispatch(Actions.initializeError({initError: 'No group ID'}));
-            // return;
+						groupId = getWebstieIdFromHref();
+						console.log('No groupId so trying the website ID: ', groupId);
+        		groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+						if (!!groupInfo) {
+							history.replace('/' + groupId);
+						} else {
+							groupId = 'frm';
+							history.replace('/frm');
+						}
         }
-        const groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+				if (!groupInfo) {
+        	groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+				}
         if (!groupInfo) {
             dispatch(Actions.initializeError({ initError: 'Invalid group Info' }));
             return;
