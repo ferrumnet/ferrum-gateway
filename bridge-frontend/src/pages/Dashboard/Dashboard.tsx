@@ -39,6 +39,7 @@ import { Switch, Route } from 'react-router-dom';
 import { setAllThemes, setToLS, removeFromLS, getFromLS } from "./../../storageUtils/storage";
 import * as defaultTheme from "./../../theme/schema.json";
 import { Alert } from 'antd';
+import { SelfServicePage } from "./../SelfService";
 
 interface DashboardState {
     initialized: boolean,
@@ -361,6 +362,9 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
                 <ContentContainer>
                     <div className="landing-page">
                         <Switch>
+                            <Route path='/:gid/service/process'>
+                                <SelfServicePage/>
+                            </Route>
                             <Route path='/:gid/liquidity/:action'>
                                 <LiquidityPage />
                             </Route>

@@ -146,6 +146,27 @@ export function getEnv(env: string) {
   return res!;
 }
 
+export interface swapTx {
+  id: string,
+  network: string,
+  status: "pending" | "processed" | "failed"
+}
+
+//@ts-ignore
+const swapTxSchema: Scheme = new Schema<
+  swapTx & Document
+>({
+  id: String,
+  network: String,
+  status: String
+})
+
+export const swapTxModel = (c: Connection) =>
+  c.model<swapTx & Document>(
+    "swapTransactions",
+    swapTxSchema
+  )
+
 export const UserBridgeWithdrawableBalanceItemModel = (c: Connection) =>
   c.model<UserBridgeWithdrawableBalanceItem & Document>(
     "userBridgeWithdrawableBalanceItem",
@@ -163,6 +184,7 @@ export function domainSeparator(network: string): DomainSeparator {
   return {
     chainId: chainId,
     name: "PairedUnifyreWallet",
+    salt: TOKEN_BRIDGE_DOMAIN_SALT,
     verifyingContract: BRIDGE_CONTRACT[network],
     version: "0.1.0",
   };
@@ -225,6 +247,8 @@ export interface BridgeTokenConfig {
   feeConstant: string;
   fee: string;
 }
+
+
 
 export interface NetworkRelatedConfig {
   [network: string]: string;
