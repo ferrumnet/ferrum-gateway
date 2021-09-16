@@ -48,7 +48,7 @@ export const themeMapper = (themeVariable) => {
               themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
             //todo: check for other uses of this or remove
             "box-shadow": themeVariable?.cardBoxShadow || "#ffffff73 0px 0px 0px 0px",
-            cardBorderRadius: themeVariable?.borderRadius,
+            cardBorderRadius: themeVariable?.cardBorderRadius,
           },
 
           button: {
@@ -60,7 +60,7 @@ export const themeMapper = (themeVariable) => {
             //todo: check for other uses or remove
             textPri: "#111111",
             textSec: "#333333",
-            btnBorderRadius: themeVariable?.borderRadius,
+            btnBorderRadius: themeVariable?.btnBorderRadius,
             backgroundSize: themeVariable?.btnBackgroundSize,
             btnActiveColor: themeVariable?.btnActiveColor,
             btnPadding: themeVariable?.btnPadding,
