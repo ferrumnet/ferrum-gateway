@@ -283,6 +283,18 @@ export class BridgeClient implements Injectable {
         }
     }
 
+    async getWithdrawItems(dispatch: Dispatch<AnyAction>, network: string):
+		Promise<{withdrawableBalanceItems: UserBridgeWithdrawableBalanceItem[]}> {
+        try {
+            const res = await this.api.api({command: 'getWithdrawItems', data: { network }, params: [] } as JsonRpcRequest);
+            return res;
+        } catch(e) {
+			return {withdrawableBalanceItems: []};
+        } finally {
+          //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+        }
+    }
+
     public async addLiquidity(
         dispatch: Dispatch<AnyAction>,
         currency: string,
@@ -339,6 +351,15 @@ export class BridgeClient implements Injectable {
         }
     }
 
+    /**
+     * Loga swap transactions
+     */
+     async logSwapTransaction(txId:string,network:string) {
+        const res = await this.api.api({
+            command: 'logSwapTransaction', data: {txId,network}, params: [] } as JsonRpcRequest);
+        return res;
+    }
+
     public async swap(
         dispatch: Dispatch<AnyAction>,
         currency: string,
@@ -360,6 +381,7 @@ export class BridgeClient implements Injectable {
                 {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
             const response = await this.processRequest(dispatch, requestId);            
+            await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
             return {
                 "status":'success',
                 "txId": requestId.split('|')[0],

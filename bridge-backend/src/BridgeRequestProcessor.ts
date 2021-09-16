@@ -64,12 +64,23 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         
         this.registerProcessor('getLiquidity',
             req => this.getLiquidity(req));
+        
+        this.registerProcessor('logSwapTransaction',
+            req => this.logSwapTransaction(req))
+        
+        this.registerProcessor('getWithdrawItems',
+            (req,userId) => this.getWithdrawItems(req,userId!));
 
     }
 
     __name__() { return 'BridgeRequestProcessor'; }
 
   
+    async getWithdrawItems(req: HttpRequestData,userId: string) {
+        const items = await this.svc.getWithdrawItems();
+        return { 'withdrawableBalanceItems': items};
+    }
+    
     async removeLiquidityIfPossibleGetTransaction(req: HttpRequestData, userId: string) {
         const {
             currency, amount
@@ -78,6 +89,16 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         ValidationUtils.isTrue(!!currency, "'currency' must be provided");
         ValidationUtils.isTrue(!!amount, "'amount must be provided");
         return this.svc.removeLiquidityIfPossibleGetTransaction(userId, currency, amount);
+    }
+
+    async logSwapTransaction(req: HttpRequestData){
+        const {
+            network,
+            txId
+        } = req.data;
+        ValidationUtils.isTrue(!!network, "'network' must be provided");
+        ValidationUtils.isTrue(!!txId, "'txId' must be provided");
+        await this.svc.logSwapTx(network,txId)
     }
 
     async getLiquidity(req: HttpRequestData) {

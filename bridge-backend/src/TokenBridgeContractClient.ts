@@ -54,9 +54,10 @@ export class TokenBridgeContractClinet implements Injectable {
 		const tx = await web3.getTransactionReceipt(txId);
 		ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as Network, address, tx.to),
 			'Transaction is not against the bridge contract');
-		const swapLog = tx.logs[tx.logs.length - 1]; // Last log is the Bridge swap
-		const decoded = web3.abi.decodeLog(this.bridgeSwapInputs.inputs, swapLog.data, swapLog.topics);
-		return this.parseSwapEvent(network, decoded);
+        const swapLog = tx.logs.find(l => ChainUtils.addressesAreEqual(network as Network, address, l.address)); // Index for the swap event
+        ValidationUtils.isTrue(!!swapLog, 'No swap log found on tx ' + txId)
+        const decoded = web3.abi.decodeLog(this.bridgeSwapInputs.inputs, swapLog.data, swapLog.topics.slice(1));
+        return this.parseSwapEvent(network, { returnValues: decoded, transactionHash: txId });
 	}
 
 	private async parseSwapEvent(network: string, e: any): Promise<BridgeSwapEvent> {

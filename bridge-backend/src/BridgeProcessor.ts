@@ -48,16 +48,37 @@ export class BridgeProcessor implements Injectable {
         try {
             console.log(relevantTokens.map((j:any) => j.sourceCurrency),'soucre currencies')
 			// todo: get event logs
-            const incoming = await this.bridgeContract.getSwapEvents(network);
-            console.log('Got icoming txs:', {...incoming})
+            let incoming = await this.bridgeContract.getSwapEvents(network);
+            const swapTxs = await this.svc.getPendingSwapTxIds(network);
+            const swapTxsIds = swapTxs.map((e:any) => e.id)
+            let swapEvents= [];
+
+            for (const Tx of swapTxsIds){
+                const txsFromChain =  incoming.map(e => e.transactionId);
+                if(!(txsFromChain.includes(Tx))){
+                    const event = await this.bridgeContract.getSwapEventByTxId(network as Network,Tx)
+                    swapEvents.push(event)
+                }
+            }
+
+            console.log('Got icoming txs:', {...incoming},swapEvents)
+
+            if(swapEvents.length > 1){
+                incoming = {...incoming,...swapEvents}
+            }
+
             if (!incoming || !incoming.length) {
                 this.log.info('No recent transaction for address ' + network + ':' + poolAddress);
+                for (const evt of swapTxsIds){
+                    await this.svc.updateProcessedSwapTxs(network,evt)
+                }
                 return;
             }
             
             for (const tx of incoming.reverse()) {
                 this.log.info(`Processing transaction ${tx.transactionId}`);
                 const [existed, _] = await this.processSingleTransaction(tx);
+                await this.svc.updateProcessedSwapTxs(network,tx.transactionId)
                 if (existed) {
                     this.log.info(`Reached a transaction that was already processed: ${tx.transactionId}`);
 					if (!noStop) { return; }
