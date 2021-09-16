@@ -1,6 +1,5 @@
 import { createGlobalStyle } from "styled-components";
 // import "../assets/scss/styles.scss";
-
 export const GlobalStyles = createGlobalStyle`
   body{
     color: ${({ theme }) => theme.colors.inverse} !important;
@@ -111,7 +110,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .btn {  
-    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius} !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || "auto"} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
     &:focus,
@@ -277,22 +276,22 @@ export const GlobalStyles = createGlobalStyle`
   }
   .card {
     background: ${({ theme }) => theme.colors.card.cardPri};
-    border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ? theme.colors.card.cardBorderRadius : 0}px !important;
+    border-radius:  ${({ theme }) => theme.colors.card.cardBorderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     p {
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
     }
     .text-vary-color{
-      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
+      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
     }
     .ant-steps-item-title{
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
     }
     &.card-sec {
       background: ${({ theme }) => theme.colors.card.cardSec};
-      border-radius:  ${({ theme }) => theme.radius ? theme.radius : theme.colors.card.cardBorderRadius <= 20 ? theme.colors.card.cardBorderRadius : 0}px !important;
       p, small {
+        border-radius:  ${({ theme }) => theme.colors.card.cardBorderRadius || "0" + 2} !important;
         color: ${({ theme }) => theme.colors.card.cardTextSec ? theme.colors.card.cardTextSec : "white"};
       }
       .text-vary-color{
