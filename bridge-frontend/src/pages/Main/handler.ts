@@ -226,25 +226,6 @@ export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:b
     }
 }
 
-
-export const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number) => {
-    try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
-        if(res){
-            if(res === 'successful'){
-                // updateData(dispatch)
-            }
-            return res;
-        }
-        return '';
-    }catch(e) {
-		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
-    }
-};
-
 export const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string) => {
     try {
         const sc = inject<BridgeClient>(BridgeClient);

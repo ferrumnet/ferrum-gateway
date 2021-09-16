@@ -48,7 +48,7 @@ export const updateData= async (dispatch:Dispatch<AnyAction>) => {
 async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
   try {
     const sc = inject<BridgeClient>(BridgeClient);
-    const res = await sc.checkTxStatus(dispatch,item.id,item.network,Date.now());
+    let res = await sc.checkTxStatus(dispatch,item.id,item.network);
     if(res) {
       if(res && res === 'successful') {
 		    dispatch(SidePanelSlice.actions.moveToNext({step: 2}));
@@ -60,6 +60,9 @@ async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyActi
         return { ...item, status: 'failed' };
       }
     }
+		if (res === 'timedout') { // TODO: This is a hack. Make sure the backend works fine.
+			res = 'pending';
+		}
     return { ...item, status: res || 'pending'};
   } catch (e) {
     console.error('error updating', e);

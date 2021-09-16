@@ -144,7 +144,6 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         item = {...item};
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const pendingTxs = (item.useTransactions || []).filter(t => t.status === 'pending');
-        console.log('PENDING TXS', pendingTxs);
 		if (!pendingTxs.length && item.used === 'pending') {
 			item.used = 'failed';
 		}
@@ -185,10 +184,14 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
             }
         } else {
             const txTime = Date.now();
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime || Date.now());
+            let txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime);
+						if (txStatus === 'timedout') {
+							console.error('New transaction cannot be timed out: ', tid);
+							txStatus = 'pending';
+						}
             item.useTransactions = item.useTransactions || [];
             item.useTransactions.push({id: tid, status: txStatus, timestamp: txTime});
-            if(txStatus === ('timedout' || 'failed')){
+            if(txStatus === 'failed'){
                 item.used = 'failed';
             }else if(txStatus === 'successful'){
                 item.used = 'completed'

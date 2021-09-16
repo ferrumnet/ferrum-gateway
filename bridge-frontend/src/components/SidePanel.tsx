@@ -165,7 +165,7 @@ const executeWithrawItem = async (
 async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
     try {
         const c = inject<BridgeClient>(BridgeClient);
-        const res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
+        let res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
     } catch(e) {
         console.error('updateWithdrawItem ', e);

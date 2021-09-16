@@ -1,4 +1,4 @@
-import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, JsonRpcRequest, Network, ValidationUtils, sleep } from "ferrum-plumbing";
 import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
@@ -107,10 +107,10 @@ export class BridgeClient implements Injectable {
         return currencyPairs;
     }
 
-    async checkTxStatus(dispatch: Dispatch<AnyAction>,txId: string,sendNetwork: string,timestamp: number) {
+    async checkTxStatus(dispatch: Dispatch<AnyAction>,txId: string,sendNetwork: string) {
         try {
         const res = await this.api.api({
-            command: 'GetSwapTransactionStatus', data: {tid: txId,sendNetwork,timestamp}, params: [] } as JsonRpcRequest);
+            command: 'GetSwapTransactionStatus', data: {tid: txId, sendNetwork, timestamp: Date.now()}, params: [] } as JsonRpcRequest);
         return res;
         } catch(e) {
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
@@ -202,6 +202,10 @@ export class BridgeClient implements Injectable {
                 throw new Error((response as any).reason || 'Request was rejected');
             }
             const txIds = (response.response || []).map(r => r.transactionId);
+						// Sleep some time before adding tx.
+						// TODO: This is a hack for quickly improving the situation with txs auto failing.
+						// This needs a proper fix from backend side.
+						await sleep(15 * 1000);
             dispatch(addAction(CommonActions.WAITING, { source: 'withdrawableBalanceItemAddTransaction' }));
             await this.withdrawableBalanceItemUpdateTransaction(dispatch, w.receiveTransactionId, txIds[0]);
             return ['success',txIds[0]];
