@@ -175,7 +175,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         if (!!txItem) {
             const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txItem.timestamp || Date.now());
             txItem.status = txStatus;
-            console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
+            // console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
             if(txStatus === ('timedout' || 'failed')){
                 item.used = 'failed';
             }else if(txStatus === 'successful'){
