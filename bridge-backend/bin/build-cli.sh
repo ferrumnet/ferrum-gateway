@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build . --tag naiemk/bridge-cli:0.0.4
+docker build . --tag naiemk/bridge-cli:0.0.8

@@ -279,7 +279,7 @@ export class BridgeProcessor implements Injectable {
       params
     );
 
-    console.log("SIG 2 WAS ", sig2);
+    // console.log("SIG 2 WAS ", sig2);
     // Create signature. TODO: Use a more secure method. Address manager is not secure enough.
     // E.g. Have an ecnrypted SK as ENV. Configure KMS to only work with a certain IP
     const sigP = await this.chain
