@@ -68,17 +68,18 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         this.registerProcessor('logSwapTransaction',
             req => this.logSwapTransaction(req))
         
-        this.registerProcessor('getWithdrawItems',
-            (req,userId) => this.getWithdrawItems(req,userId!));
+        this.registerProcessor('getWithdrawItem',
+            (req,userId) => this.getWithdrawItem(req));
 
     }
 
     __name__() { return 'BridgeRequestProcessor'; }
 
   
-    async getWithdrawItems(req: HttpRequestData,userId: string) {
-        const items = await this.svc.getWithdrawItems();
-        return { 'withdrawableBalanceItems': items};
+    async getWithdrawItem(req: HttpRequestData) {
+			const { network, receiveTransactionId } = req.data;
+			ValidationUtils.allRequired(['network', 'receiveTransactionId'], req.data);
+			return await this.svc.getWithdrawItem(receiveTransactionId);
     }
     
     async removeLiquidityIfPossibleGetTransaction(req: HttpRequestData, userId: string) {

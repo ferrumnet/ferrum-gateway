@@ -23,7 +23,7 @@ export const uiReducer = combineReducers({
     swapPage: swapageSlice.reducer,
     liquidityPage: liquidityPageSlice.reducer,
     sidePanel: SidePanelSlice.reducer,
-	selfServicePage: selfServicePageSlice.reducer
+		selfServicePage: selfServicePageSlice.reducer
 });
 
 export function userReducer(

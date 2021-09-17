@@ -6,7 +6,7 @@ import { Connection, Document, Model} from "mongoose";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
-    GroupInfo,swapTxModel,swapTx
+    GroupInfo, SwapTxModel, SwapTx
 } from "types";
 import { Big } from 'big.js';
 import { GroupInfoModel } from './common/TokenBridgeTypes';
@@ -17,7 +17,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
     private groupInfoModel: Model<GroupInfo & Document> | undefined;
     private balanceItem?: Model<UserBridgeWithdrawableBalanceItem&Document>;
-    private swapTxModel?: Model<swapTx&Document>
+    private swapTxModel?: Model<SwapTx&Document>
     private con: Connection|undefined;
     constructor(
         private helper: EthereumSmartContractHelper,
@@ -31,29 +31,29 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         this.signedPairAddressModel = SignedPairAddressSchemaModel(con);
         this.groupInfoModel = GroupInfoModel(con);
         this.balanceItem = UserBridgeWithdrawableBalanceItemModel(con);
-        this.swapTxModel = swapTxModel(con);
+        this.swapTxModel = SwapTxModel(con);
         this.con = con;
     }
 
     __name__() { return 'TokenBridgeService'; }
 
     async getPendingSwapTxIds(network:string){
-        return await this.swapTxModel.find({network,status:"pending"})
+        const rv = await this.swapTxModel.find({network,status:"pending"})
+				return rv.map(r => r.toJSON());
     }
 
-    async updateProcessedSwapTxs(network:string,id:string){
-        this.verifyInit();
-        const tx = await this.swapTxModel.findOne({network,id});
-        let processed = await this.getWithdrawItem(tx.id);
-        if(processed) await this.swapTxModel.findOneAndUpdate({id:tx.id},{"status": "processed"})
+		async failSwapTx(network: string, txId: string, reason: string) {
+			this.verifyInit();
+			await this.swapTxModel.findOneAndUpdate({id: txId}, {"status": "failed", reason});
+		}
+
+    async updateProcessedSwapTxs(network:string, id:string){
+			this.verifyInit();
+			const tx = await this.swapTxModel.findOne({network,id});
+			let processed = await this.getWithdrawItem(tx.id);
+			if(processed) await this.swapTxModel.findOneAndUpdate({id:tx.id},{"status": "processed"})
     }
 
-    async getWithdrawItems(): Promise<UserBridgeWithdrawableBalanceItem[]> {
-        this.verifyInit();
-        const items = await this.balanceItem!.find();
-        return items.map(i => i.toJSON());
-    }
-    
     async logSwapTx(network:string,txId:string) {
         ValidationUtils.isTrue(!!network, "network value is required");
         ValidationUtils.isTrue(!!txId, "transactionId value is required");

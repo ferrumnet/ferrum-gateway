@@ -146,23 +146,22 @@ export function getEnv(env: string) {
   return res!;
 }
 
-export interface swapTx {
-  id: string,
-  network: string,
-  status: "pending" | "processed" | "failed"
+export interface SwapTx {
+  id: string;
+  network: string;
+  status: "pending" | "processed" | "failed";
+	reason?: string;
 }
 
-//@ts-ignore
-const swapTxSchema: Scheme = new Schema<
-  swapTx & Document
->({
+const swapTxSchema = new Schema<SwapTx & Document>({
   id: String,
   network: String,
-  status: String
+  status: String,
+	reason: String,
 })
 
-export const swapTxModel = (c: Connection) =>
-  c.model<swapTx & Document>(
+export const SwapTxModel = (c: Connection) =>
+  c.model<SwapTx & Document>(
     "swapTransactions",
     swapTxSchema
   )
