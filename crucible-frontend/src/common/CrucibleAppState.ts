@@ -1,5 +1,6 @@
 import { AppInitializingState, AppState } from 'common-containers';
 import { CrucibleInfo, UserCrucibleInfo, } from 'types';
+import { StakingState } from '../staking/StakingClient';
 
 export interface DeployState {
 	baseToken: string;
@@ -26,6 +27,7 @@ export interface AppGlobalState extends AppInitializingState {
 	// Crucibles grouped by base currency
 	crucibles: { [k: string]: CrucibleInfo[] };
 	crucible: CrucibleInfo;
+	stake: StakingState;
 }
 
 export type CrucibleAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

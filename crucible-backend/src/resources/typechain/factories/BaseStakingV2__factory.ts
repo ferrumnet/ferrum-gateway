@@ -367,6 +367,25 @@ const _abi = [
         type: "address",
       },
     ],
+    name: "lockSeconds",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+    ],
     name: "name",
     outputs: [
       {
@@ -396,6 +415,30 @@ const _abi = [
     name: "renounceOwnership",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "id",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "rewardAddress",
+        type: "address",
+      },
+    ],
+    name: "rewardsTotal",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -443,7 +486,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "lockSeconds",
+        name: "_lockSeconds",
         type: "uint256",
       },
     ],

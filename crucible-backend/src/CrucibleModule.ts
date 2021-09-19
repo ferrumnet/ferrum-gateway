@@ -1,6 +1,5 @@
 import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { EthereumAddress } from "ferrum-chain-clients";
 import { Container, Module, ValidationUtils } from "ferrum-plumbing";
 import { CommonBackendModule, decryptKey } from "common-backend";
 import { CrucibleConfig, CrucibleContracts } from "./CrucibleTypes";
@@ -9,6 +8,8 @@ import { CrucibeService } from "./CrucibleService";
 import { UniswapPricingService } from "common-backend/dist/uniswapv2/UniswapPricingService";
 import { networkEnvConfig } from "common-backend/dist/dev/DevConfigUtils";
 import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
+import { StakingContracts } from "types";
+import { StakingConfig, StakingModule } from "./staking/StakingModule";
 
 export function getEnv(env: string) {
   const res = process.env[env];
@@ -38,6 +39,14 @@ export class CrucibleModule implements Module {
           (v) => {
             const [router, factory, staking] = v.split(",");
             return { router, factory, staking } as CrucibleContracts;
+          }
+        ),
+        stakingContracts: networkEnvConfig<StakingContracts>(
+          ["RINKEBY"],
+          "STAKING_CONTRACTS",
+          (v) => {
+            const [router, factory, openEnded, timed] = v.split(",");
+            return { router, factory, openEnded, timed,  } as StakingContracts;
           }
         ),
         actor: {
@@ -78,6 +87,10 @@ export class CrucibleModule implements Module {
       BasicAllocation,
       (c) => new BasicAllocation(c.get(EthereumSmartContractHelper))
     );
+
+		// Register staking...
+		await container.registerModule(
+			new StakingModule({ contracts: conf.stakingContracts } as StakingConfig));
 
 		await container.get<CrucibeService>(CrucibeService).init(conf.database);
   }

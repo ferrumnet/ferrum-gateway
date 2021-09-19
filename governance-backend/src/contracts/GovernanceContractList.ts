@@ -1,5 +1,5 @@
 import { RegisteredContract, GovernanceContract } from 'types';
-import CrucibleRouterJson from './crucible/CrucibleRouter.json';
+import * as CrucibleRouterJson from './crucible/CrucibleRouter.json';
 
 export const GovernanceContractDefinitions: { [k: string]: GovernanceContract } = {
 		'FERRUM_CRUCIBLE_ROUTER:000.001': CrucibleRouterJson,

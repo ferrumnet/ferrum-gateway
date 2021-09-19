@@ -31,11 +31,13 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     "fakeRewardsTotal(address,address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "isTokenizable(address)": FunctionFragment;
+    "lockSeconds(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "openEnded(address,address,string,uint32,uint256,uint32,address,address[],bool,address,address,address,bytes32,bytes,uint32)": FunctionFragment;
     "owner()": FunctionFragment;
     "publicStaking(address,string,address,uint32,bytes,uint32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "rewardsTotal(address,address)": FunctionFragment;
     "setAdmin(address,address,uint8)": FunctionFragment;
     "setCreationSigner(address)": FunctionFragment;
     "setLockSeconds(address,uint256)": FunctionFragment;
@@ -82,6 +84,7 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     functionFragment: "isTokenizable",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "lockSeconds", values: [string]): string;
   encodeFunctionData(functionFragment: "name", values: [string]): string;
   encodeFunctionData(
     functionFragment: "openEnded",
@@ -111,6 +114,10 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rewardsTotal",
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setAdmin",
@@ -187,6 +194,10 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     functionFragment: "isTokenizable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "lockSeconds",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "openEnded", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -196,6 +207,10 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rewardsTotal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
@@ -332,6 +347,8 @@ export class CommonFerrumInitiator extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<[boolean]>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     name(
       id: string,
       overrides?: CallOverrides
@@ -372,6 +389,12 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     setAdmin(
       id: string,
       admin: string,
@@ -386,7 +409,7 @@ export class CommonFerrumInitiator extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -495,6 +518,8 @@ export class CommonFerrumInitiator extends BaseContract {
 
   isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
+  lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   name(id: string, overrides?: CallOverrides): Promise<string>;
 
   openEnded(
@@ -532,6 +557,12 @@ export class CommonFerrumInitiator extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  rewardsTotal(
+    id: string,
+    rewardAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   setAdmin(
     id: string,
     admin: string,
@@ -546,7 +577,7 @@ export class CommonFerrumInitiator extends BaseContract {
 
   setLockSeconds(
     id: string,
-    lockSeconds: BigNumberish,
+    _lockSeconds: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -655,6 +686,8 @@ export class CommonFerrumInitiator extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(id: string, overrides?: CallOverrides): Promise<string>;
 
     openEnded(
@@ -690,6 +723,12 @@ export class CommonFerrumInitiator extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     setAdmin(
       id: string,
       admin: string,
@@ -704,7 +743,7 @@ export class CommonFerrumInitiator extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -874,6 +913,8 @@ export class CommonFerrumInitiator extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     openEnded(
@@ -911,6 +952,12 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     setAdmin(
       id: string,
       admin: string,
@@ -925,7 +972,7 @@ export class CommonFerrumInitiator extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1031,6 +1078,11 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    lockSeconds(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     name(id: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     openEnded(
@@ -1068,6 +1120,12 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     setAdmin(
       id: string,
       admin: string,
@@ -1082,7 +1140,7 @@ export class CommonFerrumInitiator extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

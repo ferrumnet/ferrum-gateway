@@ -9,26 +9,43 @@ export function stakeTypeToInt(t: StakeType): number {
 	return rv;
 }
 
-export interface StakingContract {
+export interface StakingContracts {
 	router: string;
 	openEnded: string;
 	timed: string;
 	factory: string;
 }
 
-export interface StakeInfo {
-	network: string;
-	stakeType: StakeType;
-	stakeId: string;
-	stakedTotal: string;
+export interface StakeRewardInfo {
+	rewardCurrency: string;
+	rewardSymbol: string;
 	rewardsTotal: string;
 }
 
-export interface userStakeInfo {
+export interface StakeInfo {
+	network: string;
+	stakeType: StakeType;
+	name: string;
+	stakeId: string;
+	baseCurrency: string;
+	baseSymbol: string;
+	stakedBalance: string;
+	lockPeriod: number;
+	rewards: StakeRewardInfo[];
+}
+
+export interface UserStakeRewardInfo {
+	rewardCurrency: string;
+	rewardSymbol: string;
+	rewardAmount: string;
+}
+
+export interface UserStakeInfo {
 	network: string;
 	stakeType: StakeType;
 	stakeId: string;
 	userAddress: string;
 	stake: string;
-	reward: string;
+	nextWithdrawalTime: number;
+	rewards: UserStakeRewardInfo[];
 }

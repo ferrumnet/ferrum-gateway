@@ -35,9 +35,11 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     "fakeRewardsTotal(address,address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "isTokenizable(address)": FunctionFragment;
+    "lockSeconds(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "rewardsTotal(address,address)": FunctionFragment;
     "setAdmin(address,address,uint8)": FunctionFragment;
     "setCreationSigner(address)": FunctionFragment;
     "setLockSeconds(address,uint256)": FunctionFragment;
@@ -104,11 +106,16 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "isTokenizable",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "lockSeconds", values: [string]): string;
   encodeFunctionData(functionFragment: "name", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rewardsTotal",
+    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "setAdmin",
@@ -231,10 +238,18 @@ interface StakeTimedInterface extends ethers.utils.Interface {
     functionFragment: "isTokenizable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "lockSeconds",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rewardsTotal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
@@ -408,6 +423,8 @@ export class StakeTimed extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<[boolean]>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
     name(
       id: string,
       overrides?: CallOverrides
@@ -418,6 +435,12 @@ export class StakeTimed extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     setAdmin(
       id: string,
@@ -433,7 +456,7 @@ export class StakeTimed extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -604,6 +627,8 @@ export class StakeTimed extends BaseContract {
 
   isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
+  lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
   name(id: string, overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -611,6 +636,12 @@ export class StakeTimed extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  rewardsTotal(
+    id: string,
+    rewardAddress: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   setAdmin(
     id: string,
@@ -626,7 +657,7 @@ export class StakeTimed extends BaseContract {
 
   setLockSeconds(
     id: string,
-    lockSeconds: BigNumberish,
+    _lockSeconds: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -797,11 +828,19 @@ export class StakeTimed extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<boolean>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(id: string, overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     setAdmin(
       id: string,
@@ -817,7 +856,7 @@ export class StakeTimed extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1059,12 +1098,20 @@ export class StakeTimed extends BaseContract {
 
     isTokenizable(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    lockSeconds(id: string, overrides?: CallOverrides): Promise<BigNumber>;
+
     name(id: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setAdmin(
@@ -1081,7 +1128,7 @@ export class StakeTimed extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1249,12 +1296,23 @@ export class StakeTimed extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    lockSeconds(
+      id: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     name(id: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    rewardsTotal(
+      id: string,
+      rewardAddress: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setAdmin(
@@ -1271,7 +1329,7 @@ export class StakeTimed extends BaseContract {
 
     setLockSeconds(
       id: string,
-      lockSeconds: BigNumberish,
+      _lockSeconds: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
