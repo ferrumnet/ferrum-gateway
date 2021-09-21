@@ -374,8 +374,8 @@ export class BridgeClient implements Injectable {
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
-            const response = await this.processRequest(dispatch, requestId);            
-            await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
+            const response = await this.processRequest(dispatch, requestId);
+            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
             return {
                 "status":'success',
                 "txId": requestId.split('|')[0],
