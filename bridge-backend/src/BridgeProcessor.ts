@@ -84,7 +84,7 @@ export class BridgeProcessor implements Injectable {
 						);
 						swapEvents.push(event);
 					} catch(e) {
-						console.warn('Could not retrieve swap event for transaction: ', network, tx);
+						console.warn('Could not retrieve swap event for transaction: ', network, tx, e);
 						await this.svc.failSwapTx(network, tx, e.toString());
 					}
         }
@@ -92,7 +92,7 @@ export class BridgeProcessor implements Injectable {
 
       console.log("Got icoming txs:", { ...incoming }, swapEvents);
 
-      if (swapEvents.length > 1) {
+      if (swapEvents.length > 0) {
         incoming = incoming.concat(swapEvents);
       }
 
@@ -107,6 +107,7 @@ export class BridgeProcessor implements Injectable {
         this.log.info(`Processing transaction ${tx.transactionId}`);
         const [existed, _] = await this.processSingleTransaction(tx);
         await this.svc.updateProcessedSwapTxs(network, tx.transactionId);
+        this.log.info(`Transaction ${tx.transactionId} processed.`);
         if (existed) {
           this.log.info(
             `Reached a transaction that was already processed: ${tx.transactionId}`

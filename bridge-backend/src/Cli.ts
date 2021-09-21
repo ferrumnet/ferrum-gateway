@@ -2,6 +2,9 @@ import { ValidationUtils } from "ferrum-plumbing";
 import { argv } from "process";
 import { processOneTx, processOneWay } from "./BridgeProcessor";
 console.log('Starting ');
+
+// const argv = ['0', '0', 'BSC_TESTNET', '--all'];
+
 const net = argv[2];
 // const net = 'RINKEBY';
 // const net = 'MUMBAI_TESTNET';
