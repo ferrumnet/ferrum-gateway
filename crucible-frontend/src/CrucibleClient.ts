@@ -109,6 +109,19 @@ export class CrucibleClient {
 		}
 	}
 
+	async stakeFor(dispatch: Dispatch<AnyAction>, stakeId: string, currency: string, amount: string) {
+		return await this.api.runServerTransaction(async () => {
+			const res = await this.api.api(
+			{ command: 'stakeForGetTransaction', params: [], data: {
+				currency,
+				stake: ,
+				amount,
+			}});
+			console.log('PRE RES', res)
+			return res;
+		});
+	}
+
 	async deploy(dispatch: Dispatch<AnyAction>,
 			baseCurrency: string,
 			feeOnTransfer: string,

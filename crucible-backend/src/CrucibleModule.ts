@@ -10,6 +10,7 @@ import { networkEnvConfig } from "common-backend/dist/dev/DevConfigUtils";
 import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { StakingContracts } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
+import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 
 export function getEnv(env: string) {
   const res = process.env[env];
@@ -77,6 +78,7 @@ export class CrucibleModule implements Module {
         new CrucibeService(
           c.get(EthereumSmartContractHelper),
           c.get(UniswapPricingService),
+					c.get(UniswapV2Client),
           conf,
           c.get(BasicAllocation),
           conf.actor,

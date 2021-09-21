@@ -27,6 +27,7 @@ export interface CrucibleInfo extends CrucibleBase, CrucibleAllocations, Crucibl
 	symbol: string;
 	name: string;
 	baseSymbol: string;
+	uniswapPairCurrency: string;
 	feeOnTransferRate: string;
 	feeOnWithdrawRate: string;
 	feeDescription: string;
@@ -35,6 +36,7 @@ export interface CrucibleInfo extends CrucibleBase, CrucibleAllocations, Crucibl
 export interface UserCrucibleInfo extends  CrucibleBase {
 	balance: string;
 	baseBalance: string;
+	uniswapPairBalance: string;
 	symbol: string;
 	baseSymbol: string;
 	allocations: UserContractAllocation[];

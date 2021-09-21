@@ -232,10 +232,10 @@ export class UniswapV2Client implements Injectable {
      * Return the cached token, or WETH if currency is ETH.
      */
     private async tok(currency: string) {
-        const [net, _] = Helper.parseCurrency(currency);
-        if (currency === ETH[net][0]) {
-            return this.getToken(WETH[net]);
-        }
-		return this.getToken(currency);
+			const [net, _] = Helper.parseCurrency(currency);
+			if (currency === Networks.for(net).baseCurrency) {
+					return this.getToken(WETH[net]);
+			}
+			return this.getToken(currency);
     }
 }

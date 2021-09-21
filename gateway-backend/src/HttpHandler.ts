@@ -15,6 +15,7 @@ import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/reques
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
+import { StakingRequestProcessor } from "crucible-backend/src/staking/StakingRequestProcessor";
 
 export class HttpHandler implements LambdaHttpHandler {
   // private adminHash: string;
@@ -24,6 +25,7 @@ export class HttpHandler implements LambdaHttpHandler {
     private bridgeProcessor: BridgeRequestProcessor,
     private leaderboardProcessor: LeaderboardRequestProcessor, // BridgeRequestProcessor,
     private crucibleProcessor: CrucibleRequestProcessor,
+    private stakingProcessor: StakingRequestProcessor,
 		private governanceProcessor: GovernanceRequestProcessor,
     private newtworkConfig: MultiChainConfig
   ) {
@@ -91,6 +93,7 @@ export class HttpHandler implements LambdaHttpHandler {
             this.bridgeProcessor.for(req.command) ||
             this.leaderboardProcessor.for(req.command) ||
             this.crucibleProcessor.for(req.command) ||
+						this.stakingProcessor.for(req.command) ||
             this.governanceProcessor.for(req.command);
           if (!!processor) {
             body = await processor(req, userId);

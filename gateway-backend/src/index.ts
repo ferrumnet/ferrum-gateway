@@ -13,6 +13,7 @@ import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-pro
 import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor, CrucibleModule } from 'crucible-backend';
 import { GovernanceModule, GovernanceRequestProcessor } from 'governance-backend';
+import { StakingRequestProcessor } from "crucible-backend/src/staking/StakingRequestProcessor";
 
 require('dotenv').config()
 export class GatewayModule implements Module {
@@ -28,6 +29,7 @@ export class GatewayModule implements Module {
           c.get(BridgeRequestProcessor),
           c.get(LeaderboardRequestProcessor),
 		  		c.get(CrucibleRequestProcessor),
+					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
           c.get("MultiChainConfig"),
         )

@@ -5,6 +5,7 @@ import { NetworkedConfig, StakeInfo, StakeRewardInfo,
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { RouterV2Staking__factory,
 	StakeOpen, StakeOpen__factory, StakeTimed__factory } from "../resources/typechain";
+import { PopulatedTransaction } from "ethers";
 
 const TEN_MINUTES_MILLI = 10 * 1000 * 60;
 
@@ -17,6 +18,15 @@ export class StakingService implements Injectable {
 
 	__name__() { return 'StakingService'; }
 
+	private fromTypechain(network: string, tx: PopulatedTransaction, from: string) {
+		try {
+			return this.helper.fromTypechainTransactionWithGas(network, tx, from);
+		} catch (e) {
+			console.warn('Error pre-processing tx', (e as Error).message);
+			return EthereumSmartContractHelper.fromTypechainTransaction(tx);
+		}
+	}
+
 	// TODO: Implement allocation...
 	async stakeGetTransaction(userAddress: string, stakeType: StakeType,
 			stakeId: string, currency: string, amount: string)
@@ -24,8 +34,10 @@ export class StakingService implements Injectable {
 		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
 		const router = this.router(network);
 		const amountBig = await this.helper.amountToMachine(currency, amount);
-		const tx = await router.populateTransaction.stake(userAddress, stakeTypeToInt(stakeType), stakeId, amountBig);
-		return this.helper.fromTypechainTransactionWithGas(network, tx, userAddress);
+		const tx = await router.populateTransaction.stake(userAddress, stakeTypeToInt(stakeType), stakeId, amountBig, { from: userAddress });
+		console.log('POPULATED TX ');
+			return EthereumSmartContractHelper.fromTypechainTransaction(tx);
+		// return this.fromTypechain(network, tx, userAddress);
 	}
 
 	async takeRewardsGetTransaction(userAddress: string, network: string,

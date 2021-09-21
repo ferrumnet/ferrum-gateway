@@ -104,13 +104,17 @@ export class StakingClient implements Injectable {
 	async stake(dispatch: Dispatch<AnyAction>,
 			stakeType: StakeType, stakeId: string, currency: string, amount: string) {
 		return this.wrap(dispatch, async () => {
-			const txId = await this.api.runServerTransaction(async () => 
-				this.api.api({ command: 'stakeGetTransaction', params: [], data: {
+			const txId = await this.api.runServerTransaction(async () => {
+				const res = await this.api.api(
+				{ command: 'stakeGetTransaction', params: [], data: {
 					stakeType,
 					stakeId,
 					currency,
 					amount,
-				}}));
+				}});
+				console.log('PRE RES', res)
+				return res;
+			});
 			if (txId) {
 				// TODO: register the stake transaction.
 				dispatch(StakingSlice.actions.newPendingStakeTx({transactionId: txId}));

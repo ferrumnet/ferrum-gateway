@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { CrucibleInfo, BigUtils, CRUCIBLE_ROUTER, inject,
-	UserCrucibleInfo, CrucibleAllocationMethods, } from "types";
+	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, } from "types";
 import {
-    Row, RegularBtn,
+    RegularBtn,
     // @ts-ignore
 } from 'component-library';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,24 +13,7 @@ import { ChainActionDlg } from './ChainActionDlg';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../CrucibleClient';
 import './CrucibleList.css';
-
-export const crucibleBoxSlice = createSlice({
-	name: 'CrucibleBox',
-	initialState: {
-		network: '',
-		activeTxId: '',
-	} as CrucibleBoxState,
-	reducers: {
-		registerTx: (state, action) => {
-			state.network = action.payload.network;
-			state.activeTxId = action.payload.transactionId;
-		},
-		unregisterTx: (state,) => {
-			state.network = '';
-			state.activeTxId = '';
-		}
-	}
-});
+import { StakingClient, stakingKey } from '../staking/StakingClient';
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
     async (payload: {
@@ -52,8 +35,17 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 
 const doStake = createAsyncThunk('crucibleBox/doStake',
     async (payload: {
-	}, ctx) => {
-		// TODO: Implement
+			crucible: string, 
+			amount: string;
+		}, ctx) => {
+	const client = inject<StakingClient>(StakingClient);
+	const [network, stakeId] = Utils.parseCurrency(payload.crucible);
+	const transactionId = await client.stake(ctx.dispatch, 'openEnded', stakeId, payload.crucible, payload.amount);
+	if (!!transactionId) {
+		ctx.dispatch(crucibleBoxSlice.actions.registerTx({
+			transactionId,
+			network }));
+	}
 });
 
 const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
@@ -74,6 +66,29 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
 	}
 });
 
+export const crucibleBoxSlice = createSlice({
+	name: 'CrucibleBox',
+	initialState: {
+		network: '',
+		activeTxId: '',
+	} as CrucibleBoxState,
+	reducers: {
+		registerTx: (state, action) => {
+			state.network = action.payload.network;
+			state.activeTxId = action.payload.transactionId;
+		},
+		unregisterTx: (state,) => {
+			state.network = '';
+			state.activeTxId = '';
+		}
+	},
+	extraReducers: builder => {
+		builder.addCase(doStake.rejected , (state, action) => {
+			console.error('Error staking', action);
+		});
+	},
+});
+
 export function CrucibleBox(params: {info: CrucibleInfo}) {
 	const [depositModal, showDepositModal] = useState(false);
 	const [stakeModal, showStakeModal] = useState(false);
@@ -90,6 +105,14 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		state.ui.crucibleBox.activeTxId);
 	const userAddr = useSelector<CrucibleAppState, string|undefined>(state =>
 		state.connection.account?.user?.userId);
+
+	const [crucibleNetwork, crucibleToken] = Utils.parseCurrency(crucible.currency || '');
+	const userStakeInfo = useSelector<CrucibleAppState, UserStakeInfo>(state => 
+		state.data.state.stake.userStakes[stakingKey(crucibleNetwork, 'openEnded', crucibleToken)] || {});
+
+	const lpUserStakeInfo = useSelector<CrucibleAppState, UserStakeInfo>(state => 
+		state.data.state.stake.userStakes[stakingKey(crucibleNetwork, 'openEnded', crucibleToken)] || {});
+
 	const depositOpen = params.info.activeAllocationCount > 0 ||
 		BigUtils.truthy(BigUtils.safeParse(params.info.openCap));
 
@@ -140,10 +163,10 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		  <ChainActionDlg
 		  	network={info.network as any}
 			title={`Stake your ${info.symbol}`}
-			contractAddress={''/*info.mainStaking*/}
+			contractAddress={CRUCIBLE_ROUTER[info.network]}
 			userAddress={userAddr!}
 			currency={info.currency}
-			balance={baseBalance || '0'}
+			balance={balance || '0'}
 			allocation={''}
 			balanceTitle={`Available balance`}
 			symbol={info.symbol}
@@ -153,7 +176,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			approvable={true}
 			onClose={() => showStakeModal(false)}
 			action={(total, amount, feeAmount) => dispatch(
-				doStake({ }))}
+				doStake({amount, crucible: info.currency }))}
 			pendingTxId={activeTxId}
 		  />
 	</Modal>
@@ -211,9 +234,23 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 				<span>Balance</span>
 				<span>{balance}</span>
 				<span>Staked</span>
-				<span>0</span>
+				<span>{userStakeInfo?.stake}</span>
 				<span>Rewards</span>
-				<span>0</span>
+				<span>
+					{(userStakeInfo?.rewards || [])[0]?.rewardAmount || ''}
+					{(userStakeInfo?.rewards || [])[0]?.rewardSymbol || ''}
+				</span>
+			</div>
+			<div className="crucible-box-row">
+				<span>LP</span>
+				<span>{userCrucible?.balance || ''}</span>
+				<span>LP Staked</span>
+				<span>{lpUserStakeInfo?.stake || ''}</span>
+				<span>LP Rewards</span>
+				<span>
+					{(lpUserStakeInfo?.rewards || [])[0]?.rewardAmount || ''}
+					{(lpUserStakeInfo?.rewards || [])[0]?.rewardSymbol || ''}
+				</span>
 			</div>
 			<div className="crucible-box-row">
 				<span>Mint: {depositOpen ? 'OPEN' : 'CLOSED'}</span>

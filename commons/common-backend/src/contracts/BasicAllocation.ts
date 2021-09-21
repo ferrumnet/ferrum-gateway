@@ -12,7 +12,7 @@ const ALLOC_FIELDS = [
   "expirySeconds",
 ];
 
-function parseAllocation(allocStr: string): UserContractAllocation {
+function parseAllocation(allocStr: string): UserContractAllocation | undefined {
   const alloc: UserContractAllocation = {} as any;
 	allocStr = allocStr.replace("\r", '');
 	const values = allocStr.split(",");
@@ -36,9 +36,12 @@ function parseAllocation(allocStr: string): UserContractAllocation {
   } as any as AllocationSignature;
 	alloc.expirySeconds = Number(alloc.expirySeconds);
 	const now = Math.round(Date.now() / 1000);
-	ValidationUtils.isTrue(alloc.expirySeconds > now && alloc.expirySeconds < (now + 3600 * 24 *60),
-		`Invalid expiry: ${allocStr}`);
-  return alloc;
+	const expired = alloc.expirySeconds < now; // || (now + 3600 * 24 *60)
+  return expired ? alloc : undefined;
+}
+
+function validateAllocation(alloc: UserContractAllocation) {
+	// TODO: Validate the allocation
 }
 
 /**
@@ -55,7 +58,6 @@ export class BasicAllocation implements Injectable {
   }
 
   async parse(allocCsv: string): Promise<UserContractAllocation[]> {
-		console.log('AL LO C C S V ', allocCsv)
-    return allocCsv.split("\n").map(parseAllocation).filter(Boolean);
+    return allocCsv.split("\n").map(parseAllocation).filter(Boolean).map(v => v!);
   }
 }
