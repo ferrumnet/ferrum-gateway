@@ -50,8 +50,10 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
     async updateProcessedSwapTxs(network:string, id:string){
 			this.verifyInit();
 			const tx = await this.swapTxModel.findOne({network,id});
-			let processed = await this.getWithdrawItem(tx.id);
-			if(processed) await this.swapTxModel.findOneAndUpdate({id:tx.id},{"status": "processed"})
+			if (!!tx) {
+				let processed = await this.getWithdrawItem(tx.id);
+				if(processed) await this.swapTxModel.findOneAndUpdate({id:tx.id},{"status": "processed"})
+			}
     }
 
     async logSwapTx(network:string,txId:string) {
