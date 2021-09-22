@@ -2,10 +2,10 @@ import Web3 from "web3";
 import schedule from "node-schedule";
 import { Schema, model, connect, Document } from 'mongoose';
 import { LocalCache } from "ferrum-plumbing";
+import { Console } from "console";
 require('dotenv').config();
 const GLOBAL_CACHE = new LocalCache();
 
-let cacheMemory = [];
 
 const options = {
   useCreateIndex: true,
@@ -56,7 +56,7 @@ const TransactionModel = model('Transaction', transactionsSchema);
 
 connect(process.env.MONGODB_URL, options).then(async () => {
   console.log('Connected to MongoDB');
-  cacheMemory = await TransactionModel.find();
+  // cacheMemory = await TransactionModel.find();
 });
 
 let networksCache = {
@@ -86,30 +86,10 @@ const getWeb3Providers = async() => {
   return ['RINKEBY'];
 };
 
-const checkCacheForTransactionStatus = (transactionHash:string) => {
-  if (cacheMemory?.length>0) {
-    const element = cacheMemory.find((item) => item.transactionHash === transactionHash);
-    if (element) {
-      return element.status;
-    }
-  }
-  return undefined;
-}
-
-const updateCacheForTransaction = (transaction: any) => {
-  const elementIndex = cacheMemory.findIndex((item) => item.transactionHash === transaction.transactionHash);
-  if (elementIndex >= 0) {
-    cacheMemory[elementIndex] = transaction;
-  } else {
-    cacheMemory.push(transaction);
-  }
-}
 
 const proccessNetworkLogs = async (logs:any,network:string) => {
   let web3 = networksCache[`${network}`];
   logs.forEach(async (log) => {
-    const status = checkCacheForTransactionStatus(log.transactionHash);
-      if (!status) {
         await web3.eth.getTransactionReceipt(log.transactionHash, async (err, result) => {
           if (err) console.log('Error')
           if (result) {
@@ -117,12 +97,71 @@ const proccessNetworkLogs = async (logs:any,network:string) => {
               if (!err && !data) {
                 const transaction = new TransactionModel(result);
                 await transaction.save();
-                updateCacheForTransaction(transaction);
+
+                  // const data = await web3.eth.abi.decodeLog([{"internalType":"address","name":"token","type":"address"}], log.data, log.topics)
+                  // console.log(data)
+                result.logs.forEach(async (log:any) => {
+                  // console.log(log,'log')
+    //               try {
+    //                 const decodeLog = await web3.eth.abi.decodeParameter({
+    //     "ParentStruct": {
+    //       "propertyOne": 'uint256',
+    //       "propertyTwo": 'uint256',
+    //       "childStruct": {
+    //         "propertyOne": 'uint256',
+    //         "propertyTwo": 'uint256'
+    //       }
+    //     }
+    // }, log.data)
+    //                 console.log(decodeLog,'decodelog')
+    //               } catch (err) { console.log(err) }
+
+                  try {
+                    const testABI = [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "signer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ]
+
+                    const decodeLog = await web3.eth.abi.decodeLog(testABI,log.data,log.topics);
+                                      console.log(decodeLog)
+
+                  }
+                  catch (e){
+                    console.log(e);
+                  }
+                })
               }
             })
           }
         })
-      }
     });
   
 }
@@ -170,11 +209,11 @@ schedule.scheduleJob('*/15 * * * * *', async () => {
 
   const web3ProvidersList = await getWeb3Providers();
 
-  console.log(cacheMemory.length, 'cache memory');
+  // console.log(cacheMemory.length, 'cache memory');
   // console.log(web3ProvidersList,"web3ProvidersList")
   
   web3ProvidersList.forEach(async (provider) => {
-    console.log('provider', provider)
+    // console.log('provider', provider)
     let web3 = networksCache[`${provider}`];
     const currentBlock = await web3.eth.getBlockNumber();
     let fromBlock = getfromBlockNumber(provider, currentBlock);
