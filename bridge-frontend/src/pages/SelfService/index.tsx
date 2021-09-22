@@ -282,90 +282,72 @@ export function SelfServicePage() {
             </div>
           </div>
           <Gap size="small" />
-          <div>
-            {pageProps.txStatus.swapStatus === "successful" &&
-              pageProps.txId != "" && (
-                <Timeline mode={"left"}>
-                  <Timeline.Item
+          <div className="centered">
+          {pageProps.txStatus.swapStatus === "successful" &&
+            pageProps.txId != "" && (
+              <Timeline mode={"left"}>
+                  <Timeline.Item 
+                    label={
+                      <p> 
+                      </p>
+                    }
                     color={
                       pageProps.txStatus.swapStatus === "successful"
                         ? "green"
                         : "#caa561"
                     }
-                    label={
-                      pageProps.txStatus.swapStatus === "successful" &&
-                      pageProps.txStatus.swapTimeStamp &&
-                      new Date(
-                        Number(pageProps.txStatus.swapTimeStamp) * 1000
-                      ).toLocaleString()
-                    }
-                  >
-                    {pageProps.txStatus.swapStatus === "successful"
-                      ? "Transaction (Swap) Processed"
-                      : pageProps.txStatus.swapStatus === "pending"
-                      ? "Swap Processing"
-                      : pageProps.txStatus.swapStatus === "failed"
-                      ? "Swap Failed"
-                      : ""}
-                  </Timeline.Item>
-                  {
-                    <Timeline.Item
-                      color={
-                        pageProps.txStatus.swapStatus === "successful" &&
-                        pageProps.txStatus.withdrawalItemStatus
-                          ? "green"
-                          : "#caa561"
-                      }
-                      label={
-                        pageProps.txStatus.withdrawalItemTimeStamp &&
-                        new Date(
-                          pageProps.txStatus.withdrawalItemTimeStamp
-                        ).toLocaleString()
-                      }
                     >
-                      {pageProps.txStatus.swapStatus === "successful" &&
-                        pageProps.txStatus.withdrawalItemStatus &&
-                        "Withdrawal Item Generated"}
-                      {pageProps.txStatus.swapStatus === "successful" &&
-                        !pageProps.txStatus.withdrawalItemStatus && (
-                          <div>
-                            <p>Withdrawal Item Not Generated</p>
-                            <SearchButton
-                              onclick={() =>
-                                logSwapTransaction(
-                                  dispatch,
-                                  pageProps.txId,
-                                  pageProps.network,
-                                  onSuccessMessage
-                                )
-                              }
-                              disabled={pageProps.txId === ""}
-                              service={"logTx"}
-                              style={{
-                                padding: "5px !important",
-                                marginTop: "1px !important",
-                                width: "50%",
-                                margin: "0px",
-                              }}
-                            />
-                          </div>
-                        )}
+                      {pageProps.txStatus.swapStatus === "successful"
+                        ? <p>Transaction (Swap) Processed</p>
+                        : pageProps.txStatus.swapStatus === "pending"
+                        ? <p>Swap Processing</p>
+                        : pageProps.txStatus.swapStatus === "failed"
+                        ? <p>"Swap Failed</p>
+                        : ""}
+                  </Timeline.Item>      
+                  {
+                    <Timeline.Item 
+                      color={(pageProps.txStatus.swapStatus === 'successful' && pageProps.txStatus.withdrawalItemStatus) ? "green" : '#caa561'}
+                      label={pageProps.txStatus.withdrawalItemTimeStamp && <p>
+                        {new Date(pageProps.txStatus.withdrawalItemTimeStamp).toLocaleString()}
+                      </p>}>
+                          {(pageProps.txStatus.swapStatus === 'successful' && pageProps.txStatus.withdrawalItemStatus) && <p>Withdrawal Item Generated</p>}
+                          {
+                              (pageProps.txStatus.swapStatus === 'successful' && !pageProps.txStatus.withdrawalItemStatus) && 
+                              <div>
+                                  <p>Withdrawal Item Not Generated</p>
+                                  <SearchButton
+                                      onclick = {()=>logSwapTransaction(dispatch,pageProps.txId,pageProps.network,onSuccessMessage)}                                        
+                                      disabled={(pageProps.txId === '')}
+                                      service={'logTx'}
+                                      style={
+                                          {
+                                              "padding": "5px !important",
+                                              "marginTop": "1px !important",
+                                              "width": "50%",
+                                              "margin": "0px"
+                                          }
+                                      }                    
+                                  />
+                              </div>
+                          }
                     </Timeline.Item>
-                  }
-                  {pageProps.txStatus.swapStatus === "successful" &&
-                    pageProps.txStatus.withdrawalItemStatus && (
+                  } 
+                  {pageProps.txStatus.swapStatus === "successful" && pageProps.txStatus.withdrawalItemStatus && (
                       <Timeline.Item
                         color={
                           pageProps.txStatus.withdrawn ? "green" : "#caa561"
                         }
                       >
                         {pageProps.txStatus.withdrawn
-                          ? "Swap Withdrawn"
-                          : "Withdrawal generated and not withdrawn"}
+                          ? <p>Swap Withdrawn</p>
+                          : <p>Withdrawal generated and not withdrawn</p>
+                        }
                       </Timeline.Item>
-                    )}
-                </Timeline>
-              )}
+                    )
+                  }      
+              </Timeline>
+            )}
           </div>
           <div className="liqu-details">
             {!(
