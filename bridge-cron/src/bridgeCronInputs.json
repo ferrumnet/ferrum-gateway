@@ -1,0 +1,112 @@
+{
+    "bridgeSwapInputs": [
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+        },
+        {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "token",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "targetNetwork",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetToken",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "targetAddrdess",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+        }
+    ],
+    "transferBySignatureInputs" : [
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "signer",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+        }
+    ],
+    "bridgeLiquidityAddedInputs" : [
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "actor",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+        }
+    ],
+    "bridgeLiquidityRemovedInputs": [
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "actor",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+        },
+        {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+        }
+    ]
+}
