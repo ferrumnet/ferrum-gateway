@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Row,
+    Row, Page,
     // @ts-ignore
 } from 'component-library';
 import { TextField } from '@fluentui/react/lib/TextField';
@@ -72,7 +72,7 @@ export function Deploy() {
 	const dispatch = useDispatch();
 	const props = useSelector<CrucibleAppState, DeployProps>(stateToProps);
 	return (
-		<>
+		<Page gap="true">
 			<Row>
 				<h3>Connected to {props.network}</h3>
 			</Row>
@@ -104,6 +104,6 @@ export function Deploy() {
 					onClick={() => dispatch(launchCrucible({props}))}
 				/>
 			</Row>
-		</>
+		</Page>
 	);
 }

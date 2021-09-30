@@ -2,7 +2,7 @@ import { JsonRpcRequest, ValidationUtils, Network } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { addAction, CommonActions } from './common/CommonActions';
-import { CrucibleInfo, Utils } from 'types';
+import { CrucibleInfo, CRUCIBLE_CONTRACTS, Utils } from 'types';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
@@ -109,17 +109,25 @@ export class CrucibleClient {
 		}
 	}
 
-	async stakeFor(dispatch: Dispatch<AnyAction>, stakeId: string, currency: string, amount: string) {
+	async stakeFor(dispatch: Dispatch<AnyAction>,
+			stakeId: string, currency: string, amount: string) {
 		return await this.api.runServerTransaction(async () => {
+			const [network,] = Utils.parseCurrency(currency);
 			const res = await this.api.api(
 			{ command: 'stakeForGetTransaction', params: [], data: {
 				currency,
-				stake: ,
+				stake: (await this.contract(network)).staking,
 				amount,
 			}});
 			console.log('PRE RES', res)
 			return res;
 		});
+	}
+
+	async contract(network: string) {
+		const cc = CRUCIBLE_CONTRACTS[network];
+		ValidationUtils.isTrue(!!cc, `Network "${network}" not supported`);
+		return cc;
 	}
 
 	async deploy(dispatch: Dispatch<AnyAction>,

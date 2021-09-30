@@ -1,13 +1,7 @@
 import { MongooseConfig } from "aws-lambda-helper";
 import { Schema, Document, Connection, } from "mongoose";
 import { StoredAllocationCsv, CrucibleInfo, NetworkedConfig, MultiSigActor,
- StakingContracts } from "types";
-
-export interface CrucibleContracts {
-	router: string;
-	factory: string;
-	staking: string;
-}
+ StakingContracts, CrucibleContracts } from "types";
 
 export interface CrucibleConfig {
 	database: MongooseConfig;

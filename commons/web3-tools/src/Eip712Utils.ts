@@ -98,6 +98,20 @@ export function privateKeyToAddress(sk: HexString): string {
 	return '0x' + privateToAddress(Buffer.from(sk.replace('0x',''), 'hex')).toString('hex');
 }
 
-export function multiSigToBytes(signatures: string[]) {
-	return abi.encode(['bytes[]'], [signatures]);
+export function multiSigToBytes(sigs: string[]): string {
+	let sig: string = '';
+	let vs: string = '';
+	for (let i = 0; i<sigs.length; i++) {
+		const rsv = fromRpcSig(Buffer.from(sigs[i], 'hex'));
+		sig = sig + `${rsv.r.toString('hex')}${rsv.s.toString('hex')}`;
+		vs = vs + rsv.v.toString(16);
+	}
+	const padding = (vs.length % 64) === 0 ? 0 : 64 - (vs.length % 64);
+	vs = vs + '0'.repeat(padding);
+	sig = sig + vs;
+	return sig;
 }
+
+// export function multiSigToBytes(signatures: string[]) {
+// 	return abi.encode(['bytes[]'], [signatures]);
+// }

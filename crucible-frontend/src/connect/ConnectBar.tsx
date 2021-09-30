@@ -27,7 +27,7 @@ export function ConnectBar(props: ConnectBarProps) {
     return (
         <TopBar
             left={<img alt="Ferrum Network"
-                src="https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"/>}
+                src="https://ferrum.network/wp-content/uploads/2021/05/image-1.png"/>}
             right={(
                 <>
                   {ConBot}
