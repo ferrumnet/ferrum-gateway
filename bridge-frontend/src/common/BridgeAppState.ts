@@ -7,6 +7,19 @@ import {liquidityPageProps} from './../pages/Liquidity';
 import { SidePanelProps} from '../components/SidePanel';
 import { BridgeTokenConfig } from 'types';
 
+export interface SwapTxStatus {
+	swapStatus: string,
+	swapTimeStamp: string,
+	withdrawalItemStatus: string,
+	withdrawalItemTimeStamp: string,
+	withdrawn: false,
+}
+
+export interface SelfServiceState {
+  network: string;
+  txId: string;
+	txStatus: SwapTxStatus;
+}
 
 export interface AppUiState {
     dashboard: DashboardProps;
@@ -14,6 +27,7 @@ export interface AppUiState {
     swapPage: swapPageProps;
     liquidityPage: liquidityPageProps;
     sidePanel: SidePanelProps;
+		selfServicePage: SelfServiceState;
 };
 
 export interface AppUserState {

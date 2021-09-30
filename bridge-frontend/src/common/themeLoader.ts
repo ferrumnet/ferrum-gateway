@@ -60,7 +60,7 @@ export const WebThemeLoader = () =>
     });
 
 export function loadThemeForGroup(customTheme: any) {
-    console.log('LOADING THEME ', customTheme)
+    //console.log('LOADING THEME ', customTheme)
     return loadTheme({
     //    ...BuilderVariables,
     //    ...myTheme,

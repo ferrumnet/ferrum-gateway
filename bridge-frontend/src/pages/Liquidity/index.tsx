@@ -117,8 +117,8 @@ const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (pa
 			return;
 		}
         const sc = inject<BridgeClient>(BridgeClient);
-		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
-
+		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);		
+        
 		// Get available liquidity for all pairs of the selected currency
 		const allCurrencies = new Set<string>();
 		const pairs = state.data.state.currencyPairs.filter(cp =>
@@ -142,14 +142,14 @@ async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase, cal
 	try {
 		const connect = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionKitClient);
 		const t = await connect.getTransaction(e.id);
-		console.log('Checking the transloota ', t)
+		//console.log('Checking the transloota ', t)
 		if (t &&t.blockNumber) {
-			console.log('Translo iso componte ', t)
+			//console.log('Translo iso componte ', t)
             updateData(dispatch);
             callback();
 			return {...e, status: 'completed'}; // TODO: Check for failed
 		}
-		console.log('Noting inderezding ', e)
+		//console.log('Noting inderezding ', e)
 		return {...e, status: 'pending'};
 	} catch(ex) {
 		console.error('Button.updateEvent', ex, e);
@@ -364,13 +364,14 @@ export function LiquidityPage() {
         message.success({
             icon: <></>,
             content: <Result
+                className="cardTheme confirmationModalTheme"
                 status="success"
                 title="Your Transaction is Processing"
                 subTitle={v}
                 extra={[
                     <>
                         <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                        <a className="text-vary-color" onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                         <p>
                             <Button className={'btn-pri'} key="buy" onClick={()=>{
                                     message.destroy('withdraw');
@@ -404,6 +405,7 @@ export function LiquidityPage() {
                 token={pageProps.symbol}
                 total={pageProps.amount}
                 liquidity={pageProps.availableLiquidity}
+                availableLiquidity={pageProps.TotalAvailableLiquidity}
                 processLiqAction={action ?
                     () => addLiquidity(dispatch,pageProps.amount,pageProps.balance,pageProps.currency,onSuccessMessage,pageProps.allowanceRequired)
                     : () => removeLiquidity(dispatch,pageProps.amount,pageProps.availableLiquidity,pageProps.currency,onSuccessMessage)
@@ -470,7 +472,7 @@ export function LiquidityPage() {
                                             addonStyle={styles.addon}
                                             groupAddonStyle={styles.groupAddon}
                                             balance={pageProps.balance}
-                                            setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
+                                            setMax={()=>dispatch(Actions.setMax({balance: action?pageProps.balance:pageProps.availableLiquidity,fee: 0}))}
                                             onChange={ (v:any) => amountChanged(dispatch,v.target.value)}
                                             onWheel={ (event:any) => event.currentTarget.blur() }
                                         />
@@ -523,6 +525,7 @@ export function LiquidityPage() {
                                         isAmountEntered= {(Number(pageProps.amount) <= 0)}
                                         isTokenSelected= {!pageProps.selectedToken }
                                         allowanceRequired={pageProps.allowanceRequired}
+                                        totalLiquidty={Number(pageProps.TotalAvailableLiquidity) > 0 ? (Number(pageProps.TotalAvailableLiquidity) - 1) : Number(pageProps.TotalAvailableLiquidity)}
                                     />
                             </ChainEventItem>
                         </div>                      

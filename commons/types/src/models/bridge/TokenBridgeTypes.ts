@@ -146,6 +146,26 @@ export function getEnv(env: string) {
   return res!;
 }
 
+export interface SwapTx {
+  id: string;
+  network: string;
+  status: "pending" | "processed" | "failed";
+	reason?: string;
+}
+
+const swapTxSchema = new Schema<SwapTx & Document>({
+  id: String,
+  network: String,
+  status: String,
+	reason: String,
+})
+
+export const SwapTxModel = (c: Connection) =>
+  c.model<SwapTx & Document>(
+    "swapTransactions",
+    swapTxSchema
+  )
+
 export const UserBridgeWithdrawableBalanceItemModel = (c: Connection) =>
   c.model<UserBridgeWithdrawableBalanceItem & Document>(
     "userBridgeWithdrawableBalanceItem",
@@ -226,6 +246,8 @@ export interface BridgeTokenConfig {
   feeConstant: string;
   fee: string;
 }
+
+
 
 export interface NetworkRelatedConfig {
   [network: string]: string;

@@ -7,10 +7,14 @@ export function logError(msg: string, err: Error) {
     console.error(msg, err);
 }
 
-export const getGroupIdFromHref=()=> {
+export function getGroupIdFromHref() {
     let base = window.location.pathname;
     const parts = base.split('/');
     return parts[1];
+}
+
+export function getWebstieIdFromHref() {
+    return window.location.host.split('.').reverse()[1];
 }
 
 export class CurrencyFormatter {

@@ -165,7 +165,7 @@ const executeWithrawItem = async (
 async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
     try {
         const c = inject<BridgeClient>(BridgeClient);
-        const res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
+        let res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
     } catch(e) {
         console.error('updateWithdrawItem ', e);
@@ -210,6 +210,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         message.success({
             icon: <></>,
             content: <Result
+                className="cardTheme confirmationModalTheme"
                 status="success"
                 title="Withdrawal Transaction Processing"
                 subTitle={v}
@@ -243,7 +244,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 
     return (
         <Drawer
-          title="Withdrawal Items"
+          title={<div className="text-vary-color">Withdrawal Items</div>}
           width={520}
           closable={false}
           onClose={props.dismissPanel}
@@ -270,11 +271,11 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 /> */}
                                                 {e.used === 'completed' && <CheckCircleTwoTone className={'finishThemed'} style={{ fontSize: '20px'}} />}
                                                 {e.used === 'pending' && <SyncOutlined spin className={'bodyText'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
-                                                {e.used === '' && <PlusOutlined className={'waitThemed'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === '' && <PlusOutlined className={'waitThemed text-vary-color'} style={{fontSize: '20px'}}/>}
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
-                                            <div style={styles.textStyles}>
+                                            <div className="text-vary-color">
                                                 Swap {e.receiveAmount} to {Utils.shorten(e.sendCurrency)}
                                             </div>
                                         </div> 

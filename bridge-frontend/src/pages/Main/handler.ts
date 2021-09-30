@@ -83,6 +83,10 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
     }
 }
 
+export const initialise = (dispatch:Dispatch<AnyAction>) => {
+    dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+}
+
 export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,
@@ -98,7 +102,7 @@ export const onSwap = async (
     ) => {
     try {
 		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
-        ValidationUtils.isTrue(!(Number(amount) > Number(availableLiquidity) ),'Not anough Liquidity available on destination network');
+        ValidationUtils.isTrue(!(Number(amount) >= (Number(availableLiquidity) - 1) ),'Not anough Liquidity available on destination network');
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);        
@@ -221,25 +225,6 @@ export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:b
        
     }
 }
-
-
-export const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number) => {
-    try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
-        if(res){
-            if(res === 'successful'){
-                // updateData(dispatch)
-            }
-            return res;
-        }
-        return '';
-    }catch(e) {
-		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
-    }
-};
 
 export const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string) => {
     try {

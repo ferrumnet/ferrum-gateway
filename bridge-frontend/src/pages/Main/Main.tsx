@@ -12,7 +12,7 @@ import { Steps } from 'antd';
 import {SwapModal} from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
-import { onSwap, executeWithdraw,changeNetwork,updateData,moveArrayItemForward,checkIfParamsExists} from './handler';
+import { onSwap, executeWithdraw,changeNetwork,updateData,moveArrayItemForward,initialise} from './handler';
 import { Alert } from 'antd';
 import { ConfirmationModal } from '../../components/confirmationModal';
 import { WithdrawNoti } from '../../components/withdrawalNoti';
@@ -57,7 +57,7 @@ export const MainPageSlice = createSlice({
         tokenValid: true,
         connected: false,
         reconnecting: false,
-        availableLiquidity: '',
+        availableLiquidity: '0',
         amount:'',
         swapId: '',
         itemId: '',
@@ -134,6 +134,7 @@ export const MainPageSlice = createSlice({
 export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
 	async (payload: {destNetwork: string,sourceCurrency:string}, ctx) => {
 	try {
+        ctx.dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
 		const client = inject<BridgeClient>(BridgeClient);
         await updateData(ctx.dispatch)
 		const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
@@ -144,6 +145,7 @@ export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
 			ctx.dispatch(addAction(CommonActions.ERROR_OCCURED,
 				{message: 'No target token available for the selected network'}));
 		}
+        ctx.dispatch(addAction(CommonActions.WAITING_DONE, { source: 'swap' }));
 	} catch (e) {
 		console.error('Load liquidity', e);
 		// ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable on Browser, manually switch network on metamask' }));
@@ -259,39 +261,44 @@ export const ConnectBridge = () => {
         }
     }, [unUsedItems, pageProps.withdrawSuccess]);
 
+    useEffect(()=>{
+        initialise(dispatch)
+    },[])
+
 	const {destNetwork,network,currency,isNetworkAllowed,currentPair} = pageProps;
 
 	//TODO: Initialize this without useEffect
 	useEffect(()=>{
-		dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
+            dispatch(loadLiquidity({destNetwork,sourceCurrency:currency}));
 	}, [destNetwork,currency,network,currentPair])
     
     const onWithdrawSuccessMessage = async (txNet:string, tx:string, txCur: string) => {  
         message.success({
             icon: <></>,
-            content: <Result
-                status="success"
-                title="Withdrawal Transaction Processing"
-                subTitle={txNet}
-                extra={[
-                    <>
-                        <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(txNet,tx), '_blank')}>
-							{tx}</a>
-                    </>,
-                    <p></p>,
-                    <AddTokenToMetamask tokenData={assets[txCur]} />,
-                    <p></p>,
-                    <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
-                        message.destroy('withdr');
-                        dispatch(Actions.resetSwap({}));
-                        dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
-                        dispatch(Actions.setProgressStatus({status:1}))
-                        dispatch(Actions.activeWithdrawSuccess({value: false}))
-                    }}>Close</Button>
-                ]}
-            />,
-            className: 'custom-class',
+            content: 
+                <Result
+                    className="cardTheme confirmationModalTheme"
+                    status="success"
+                    title="Withdrawal Transaction Processing"
+                    subTitle={txNet}
+                    extra={[
+                        <>
+                            <div> View Transaction Status </div>
+                            <a onClick={() => window.open(Utils.linkForTransaction(txNet,tx), '_blank')}>
+                                {tx}</a>
+                        </>,
+                        <p></p>,
+                        <AddTokenToMetamask tokenData={assets[txCur]} />,
+                        <p></p>,
+                        <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
+                            message.destroy('withdr');
+                            dispatch(Actions.resetSwap({}));
+                            dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
+                            dispatch(Actions.setProgressStatus({status:1}))
+                            dispatch(Actions.activeWithdrawSuccess({value: false}))
+                        }}>Close</Button>
+                    ]}
+                />,
             style: {
               marginTop: '20vh',
             },
@@ -307,7 +314,7 @@ export const ConnectBridge = () => {
     const onSuccessMessage = async (v:string) => {    
         addToast(v, { appearance: 'success',autoDismiss: true })        
     };
-
+    
     return (
         <>
          <WithdrawNoti
@@ -409,7 +416,7 @@ export const ConnectBridge = () => {
                             </InputGroup>
                             <div className="amount-rec-text">
                                 <small className="text-pri d-flex align-items-center text-vary-color">
-                                    Available Liquidity On {pageProps.destNetwork} ≈ {pageProps.availableLiquidity}
+                                    Available Liquidity On {pageProps.destNetwork} ≈ {Number(pageProps.availableLiquidity) > 1 ? (Number(pageProps.availableLiquidity) - 1) : pageProps.availableLiquidity}
                                     <span className="icon-network icon-sm mx-2">
                                         <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
                                     </span>

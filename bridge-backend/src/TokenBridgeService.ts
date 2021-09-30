@@ -6,7 +6,7 @@ import { Connection, Document, Model} from "mongoose";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
-    GroupInfo,
+    GroupInfo, SwapTxModel, SwapTx
 } from "types";
 import { Big } from 'big.js';
 import { GroupInfoModel } from './common/TokenBridgeTypes';
@@ -17,6 +17,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
     private groupInfoModel: Model<GroupInfo & Document> | undefined;
     private balanceItem?: Model<UserBridgeWithdrawableBalanceItem&Document>;
+    private swapTxModel?: Model<SwapTx&Document>
     private con: Connection|undefined;
     constructor(
         private helper: EthereumSmartContractHelper,
@@ -30,10 +31,52 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         this.signedPairAddressModel = SignedPairAddressSchemaModel(con);
         this.groupInfoModel = GroupInfoModel(con);
         this.balanceItem = UserBridgeWithdrawableBalanceItemModel(con);
+        this.swapTxModel = SwapTxModel(con);
         this.con = con;
     }
 
     __name__() { return 'TokenBridgeService'; }
+
+    async getPendingSwapTxIds(network:string){
+        const rv = await this.swapTxModel.find({network,status:"pending"})
+				return rv.map(r => r.toJSON());
+    }
+
+		async failSwapTx(network: string, txId: string, reason: string) {
+			this.verifyInit();
+			await this.swapTxModel.findOneAndUpdate({id: txId}, {"status": "failed", reason});
+		}
+
+    async updateProcessedSwapTxs(network:string, id:string){
+			this.verifyInit();
+			const tx = await this.swapTxModel.findOne({network,id});
+			if (!!tx) {
+				let processed = await this.getWithdrawItem(tx.id);
+				if(processed) await this.swapTxModel.findOneAndUpdate({id:tx.id},{"status": "processed"})
+			}
+    }
+
+    async logSwapTx(network:string,txId:string) {
+        ValidationUtils.isTrue(!!network, "network value is required");
+        ValidationUtils.isTrue(!!txId, "transactionId value is required");
+        this.verifyInit();
+        let data = {
+            network,
+            id: txId,
+            status: 'pending'
+        } 
+        const logged = await this.swapTxModel.find({"id":txId})
+        ValidationUtils.isTrue(!(logged.length > 0), "transaction already logged.");
+        //check that transaction is processed
+        const Item = await this.getWithdrawItem(txId);
+        if(!!Item){
+            data = {...data,status:'processed'}
+        }
+        //check if transaction is swap
+        //const swap = await this.contract.getSwapEventByTxId(network,txId);
+        //ValidationUtils.isTrue(!!swap.transactionId, "transaction is not a swap transaction.");
+        return await new this.swapTxModel(data).save()
+    }
 
     async withdrawSignedGetTransaction(receiveTransactionId: string, userAddress: string) {
         const w = await this.getWithdrawItem(receiveTransactionId);
@@ -144,7 +187,6 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         item = {...item};
         ValidationUtils.isTrue(!!item, "Withdraw item with the provided id not found.");
         const pendingTxs = (item.useTransactions || []).filter(t => t.status === 'pending');
-        console.log('PENDING TXS', pendingTxs);
 		if (!pendingTxs.length && item.used === 'pending') {
 			item.used = 'failed';
 		}
@@ -175,7 +217,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         if (!!txItem) {
             const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txItem.timestamp || Date.now());
             txItem.status = txStatus;
-            console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
+            // console.log(`Updating status for withdraw item ${id}: ${txStatus}-${tid}`);
             if(txStatus === ('timedout' || 'failed')){
                 item.used = 'failed';
             }else if(txStatus === 'successful'){
@@ -185,10 +227,14 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
             }
         } else {
             const txTime = Date.now();
-            const txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime || Date.now());
+            let txStatus = await this.helper.getTransactionStatus(item!.sendNetwork, tid, txTime);
+						if (txStatus === 'timedout') {
+							console.error('New transaction cannot be timed out: ', tid);
+							txStatus = 'pending';
+						}
             item.useTransactions = item.useTransactions || [];
             item.useTransactions.push({id: tid, status: txStatus, timestamp: txTime});
-            if(txStatus === ('timedout' || 'failed')){
+            if(txStatus === 'failed'){
                 item.used = 'failed';
             }else if(txStatus === 'successful'){
                 item.used = 'completed'
