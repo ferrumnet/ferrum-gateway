@@ -1,9 +1,14 @@
 import Web3 from "web3";
 import inputs from "./bridgeCronInputs.json";
 import { CronJob } from "cron";
-import { scheduleJob } from "node-schedule";
+// import { scheduleJob } from "node-schedule";
 import { connect } from "mongoose";
-import { Injectable, MetricsService } from "ferrum-plumbing";
+import {
+  Injectable,
+  LongRunningScheduler,
+  LongRunningSchedulerOptions,
+  MetricsService,
+} from "ferrum-plumbing";
 import { TransactionModel } from "../models/transaction";
 
 require("dotenv").config();
@@ -32,7 +37,10 @@ export class NetworkTransactionWatcher implements Injectable {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   };
-  constructor(private metricsService: MetricsService) {
+  constructor(
+    private metricsService: MetricsService,
+    private scheduler: LongRunningScheduler
+  ) {
     this.networksCache = {
       RINKEBY: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_RINKEBY)
@@ -64,39 +72,46 @@ export class NetworkTransactionWatcher implements Injectable {
       "TransferBySignature(address,address,address,uint256,uint256)"
     );
     // this.run.bind(this);
+    connect(process.env.MONGODB_URL, this.options).then(async () => {
+      console.log("Connected to MongoDB");
+    });
     this.run = this.run.bind(this);
   }
 
   async run() {
     console.log("run");
-    this.cronJob = new CronJob(
-      "5 14 * * *",
-      async () => {
-        try {
-          console.log("About to call processNetworkTransactions");
-          await this.processNetworkTransactions();
-        } catch (e) {
-          console.log(e);
-        }
-      },
-      null,
-      true,
-      "America/Los_Angeles"
+    // this.cronJob = new CronJob(
+    //   "* * * * * *",
+    //   async () => {
+    //     try {
+    //       console.log("About to call processNetworkTransactions");
+    //       await this.processNetworkTransactions();
+    //     } catch (e) {
+    //       console.log(e);
+    //     }
+    //   },
+    //   null,
+    //   true
+    // );
+    // if (!this.cronJob.running) {
+    //   console.log("job is not running starting new job");
+    //   this.cronJob.start();
+    // } else {
+    //   console.log("dead");
+    // }
+    const LongRunningSchedulerOptions = {
+      retry: { count: undefined, defaultTimeout: 3000 },
+      logErrors: true,
+      repeatPeriod: 3600,
+    } as LongRunningSchedulerOptions;
+    this.scheduler.schedulePeriodic(
+      "NodeWatcher.processLive",
+      this.processNetworkTransactions,
+      LongRunningSchedulerOptions
     );
-    this.cronJob;
-    if (!this.cronJob.running) {
-      console.log("job is not running starting new job");
-      await this.cronJob.start();
-    } else {
-      console.log("dead");
-    }
-    // await this.processNetworkTransactions();
   }
 
   async processNetworkTransactions() {
-    await connect(process.env.MONGODB_URL, this.options).then(async () => {
-      console.log("Connected to MongoDB");
-    });
     // scheduleJob("*/15 * * * * *", async () => {
     console.log("scheduler!");
     const web3ProvidersList = await this.getWeb3Providers();
@@ -105,8 +120,8 @@ export class NetworkTransactionWatcher implements Injectable {
       let web3 = this.networksCache[`${provider}`];
       let currentBlock = await web3.eth.getBlockNumber();
       console.log(currentBlock, "current block");
-      // const metric = this.metricsService.count("getBlockNumber", currentBlock);
-      // console.log(metric, "metric");
+      const metric = this.metricsService.count("getBlockNumber", currentBlock);
+      console.log(metric, "metric");
       let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
       console.log(provider, fromBlock, currentBlock);
       if (fromBlock > 0) {
@@ -186,7 +201,6 @@ export class NetworkTransactionWatcher implements Injectable {
             log.data,
             log.topics
           );
-
           log.decodeBy = this.transferBySignatureEventHash;
           log.decodeFor = "transferBySignaturedecodeLog";
           log.decodedLog = transferBySignaturedecodeLog;

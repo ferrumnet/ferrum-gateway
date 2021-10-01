@@ -60,8 +60,16 @@ export class Cli implements Injectable {
       (c) => new LoggerFactory(c.get("LoggerForClassName"))
     );
     container.registerSingleton(
+      LongRunningScheduler,
+      (c) => new LongRunningScheduler(c.get(LoggerFactory))
+    );
+    container.registerSingleton(
       NetworkTransactionWatcher,
-      (c) => new NetworkTransactionWatcher(c.get(MetricsService))
+      (c) =>
+        new NetworkTransactionWatcher(
+          c.get(MetricsService),
+          c.get(LongRunningScheduler)
+        )
     );
     const mu = container.get<MetricsService>(MetricsService);
     mu.start();
@@ -73,9 +81,15 @@ export class Cli implements Injectable {
     const watcher = container.get<NetworkTransactionWatcher>(
       NetworkTransactionWatcher
     );
+    const scheduler = container.get<LongRunningScheduler>(LongRunningScheduler);
+    scheduler.init();
     try {
       console.log("About to start worker");
       await watcher.run();
+      console.log("Woker completed");
+      console.log("going to sleep for 1");
+      await LongRunningScheduler.runForever(scheduler, 1);
+      console.log("sleep over");
     } catch (e) {
       console.error("MAIN", e);
       console.log("Killing the app due to error.", e);
