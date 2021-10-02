@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import inputs from "./bridgeCronInputs.json";
 import { CronJob } from "cron";
-// import { scheduleJob } from "node-schedule";
+import { scheduleJob } from "node-schedule";
 import { connect } from "mongoose";
 import {
   Injectable,
@@ -16,17 +16,37 @@ require("dotenv").config();
 export class NetworkTransactionWatcher implements Injectable {
   cronJob: CronJob;
   networksCache = {};
-  withdrawSignedEventdHash;
-  allowTargetEventdHash;
-  setFeeEventdHash;
-  removeLiquidityEventdHash;
-  addLiquidityEventHash;
-  bridgeSwapEventHash;
-  transferBySignatureEventHash;
+  withdrawSignedEventdHash: string;
+  allowTargetEventdHash: string;
+  setFeeEventdHash: string;
+  removeLiquidityEventdHash: string;
+  addLiquidityEventHash: string;
+  bridgeSwapEventHash: string;
+  transferBySignatureEventHash: string;
 
   networksBlockCache = {
     RINKEBY: {
       backLimit: 36000,
+      lastToBlock: undefined,
+    },
+    ETHEREUM: {
+      backLimit: 36000,
+      lastToBlock: undefined,
+    },
+    POLYGON: {
+      backLimit: 1000,
+      lastToBlock: undefined,
+    },
+    MUMBAI_TESTNET: {
+      backLimit: 1000,
+      lastToBlock: undefined,
+    },
+    BSC_TESTNET: {
+      backLimit: 5000,
+      lastToBlock: undefined,
+    },
+    BSC: {
+      backLimit: 5000,
       lastToBlock: undefined,
     },
   };
@@ -45,11 +65,21 @@ export class NetworkTransactionWatcher implements Injectable {
       RINKEBY: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_RINKEBY)
       ),
-      RINKEBY_WSS: new Web3(
-        new Web3.providers.WebsocketProvider(
-          "wss://rinkeby.infura.io/ws/v3/1129bcc9a4c549ee9d5a6d98ad40133e"
-        )
+      ETHEREUM: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_ETHEREUM)
       ),
+      POLYGON: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_POLYGON)
+      ),
+      MUMBAI_TESTNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_MUMBAI_TESTNET)
+      ),
+      BSC_TESTNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_BSC_TESTNET)
+      ),
+      BSC: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_BSC)
+      )
     };
 
     this.withdrawSignedEventdHash = Web3.utils.sha3(
@@ -71,7 +101,6 @@ export class NetworkTransactionWatcher implements Injectable {
     this.transferBySignatureEventHash = Web3.utils.sha3(
       "TransferBySignature(address,address,address,uint256,uint256)"
     );
-    // this.run.bind(this);
     connect(process.env.MONGODB_URL, this.options).then(async () => {
       console.log("Connected to MongoDB");
     });
@@ -79,62 +108,33 @@ export class NetworkTransactionWatcher implements Injectable {
   }
 
   async run() {
-    console.log("run");
-    // this.cronJob = new CronJob(
-    //   "* * * * * *",
-    //   async () => {
-    //     try {
-    //       console.log("About to call processNetworkTransactions");
-    //       await this.processNetworkTransactions();
-    //     } catch (e) {
-    //       console.log(e);
-    //     }
-    //   },
-    //   null,
-    //   true
-    // );
-    // if (!this.cronJob.running) {
-    //   console.log("job is not running starting new job");
-    //   this.cronJob.start();
-    // } else {
-    //   console.log("dead");
-    // }
-    const LongRunningSchedulerOptions = {
-      retry: { count: undefined, defaultTimeout: 3000 },
-      logErrors: true,
-      repeatPeriod: 3600,
-    } as LongRunningSchedulerOptions;
-    this.scheduler.schedulePeriodic(
-      "NodeWatcher.processLive",
-      this.processNetworkTransactions,
-      LongRunningSchedulerOptions
-    );
+    this.processNetworkTransactions();
   }
 
   async processNetworkTransactions() {
-    // scheduleJob("*/15 * * * * *", async () => {
-    console.log("scheduler!");
-    const web3ProvidersList = await this.getWeb3Providers();
-    console.log("provider", web3ProvidersList);
-    for (const provider of web3ProvidersList) {
-      let web3 = this.networksCache[`${provider}`];
-      let currentBlock = await web3.eth.getBlockNumber();
-      console.log(currentBlock, "current block");
-      const metric = this.metricsService.count("getBlockNumber", currentBlock);
-      console.log(metric, "metric");
-      let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
-      console.log(provider, fromBlock, currentBlock);
-      if (fromBlock > 0) {
-        const web3ProviderLogs = await web3.eth.getPastLogs({
-          fromBlock: fromBlock,
-          toBlock: currentBlock,
-          address: process.env.CONTRACT_ADDRESS,
-        });
-        console.log(provider, fromBlock, currentBlock, web3ProviderLogs.length);
-        await this.proccessNetworkLogs(web3ProviderLogs, provider);
+    scheduleJob("*/15 * * * * *", async () => {
+      const web3ProvidersList = await this.getWeb3Providers();
+      for (const provider of web3ProvidersList) {
+        console.log("provider", provider);
+        let web3 = this.networksCache[`${provider}`];
+        let currentBlock = await web3.eth.getBlockNumber();
+        console.log(currentBlock, "current block");
+        // const metric = this.metricsService.count("getBlockNumber");
+        // console.log(metric, "metric");
+        let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
+        console.log(provider, fromBlock, currentBlock);
+        if (fromBlock > 0) {
+          const web3ProviderLogs = await web3.eth.getPastLogs({
+            fromBlock: fromBlock,
+            toBlock: currentBlock,
+            address: process.env.CONTRACT_ADDRESS,
+          });
+          console.log(provider, fromBlock, currentBlock, web3ProviderLogs.length);
+          await this.proccessNetworkLogs(web3ProviderLogs, provider);
+        }
+        await this.updateToBlockNumer(currentBlock, provider);
       }
-      await this.updateToBlockNumer(currentBlock, provider);
-    }
+    });
   }
 
   async getfromBlockNumber(network: String, currentBlock: number) {
@@ -151,7 +151,7 @@ export class NetworkTransactionWatcher implements Injectable {
   }
 
   async getWeb3Providers() {
-    return ["RINKEBY"];
+    return ["RINKEBY", "ETHEREUM", "POLYGON","MUMBAI_TESTNET","BSC_TESTNET","BSC"];
   }
 
   async proccessNetworkLogs(logs: any, network: string) {

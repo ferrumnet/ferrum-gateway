@@ -87,8 +87,8 @@ export class Cli implements Injectable {
       console.log("About to start worker");
       await watcher.run();
       console.log("Woker completed");
-      console.log("going to sleep for 1");
-      await LongRunningScheduler.runForever(scheduler, 1);
+      console.log("going to sleep for 500");
+      await LongRunningScheduler.runForever(scheduler, 5000);
       console.log("sleep over");
     } catch (e) {
       console.error("MAIN", e);
