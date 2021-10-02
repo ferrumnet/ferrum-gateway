@@ -6,10 +6,11 @@ import { Connection, Document, Model} from "mongoose";
 import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { RequestMayNeedApprove, SignedPairAddress, SignedPairAddressSchemaModel, UserBridgeWithdrawableBalanceItem, UserBridgeWithdrawableBalanceItemModel,
-    GroupInfo, SwapTxModel, SwapTx
+    GroupInfo, SwapTxModel, SwapTx, liquidityNotificationConfigModel,liquidityNotificationConfig
 } from "types";
 import { Big } from 'big.js';
 import { GroupInfoModel } from './common/TokenBridgeTypes';
+import { BridgeNotificationSvc } from './BridgeNotificationService';
 
 const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
 
@@ -17,12 +18,14 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
     private signedPairAddressModel?: Model<SignedPairAddress&Document>;
     private groupInfoModel: Model<GroupInfo & Document> | undefined;
     private balanceItem?: Model<UserBridgeWithdrawableBalanceItem&Document>;
+    private liquidityNotificationConfigModel: Model<liquidityNotificationConfig & Document>;
     private swapTxModel?: Model<SwapTx&Document>
     private con: Connection|undefined;
     constructor(
         private helper: EthereumSmartContractHelper,
         private contract: TokenBridgeContractClinet,
         private verifyer: PairAddressSignatureVerifyre,
+        private notificationSvc: BridgeNotificationSvc
     ) {
         super();
     }
@@ -32,6 +35,7 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         this.groupInfoModel = GroupInfoModel(con);
         this.balanceItem = UserBridgeWithdrawableBalanceItemModel(con);
         this.swapTxModel = SwapTxModel(con);
+        this.liquidityNotificationConfigModel = liquidityNotificationConfigModel(con);
         this.con = con;
     }
 
@@ -103,6 +107,45 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         return await this.contract.removeLiquidityIfPossible(userAddress, currency, amount);
     }
 
+    async saveTokenNotificationDetails(data:liquidityNotificationConfig){
+        return await new this.liquidityNotificationConfigModel({...data,"lastNotifiedTime":Date.now()}).save()
+    }
+
+    async updateTokenNotificationDetails(data:liquidityNotificationConfig,id:string){
+        const {
+            currency,
+        } = data
+        return await this.liquidityNotificationConfigModel.findOneAndUpdate({currency},{ '$set': {...data,"lastNotifiedTime":Date.now()}});
+    }
+
+    async getTokenNotificationDetails(targetCurrency:string){
+        const rv = await this.liquidityNotificationConfigModel.findOne({currency:targetCurrency});
+        return rv ? rv.toJSON(): rv;
+    }
+
+    async runLiquidityCheckScript(targetCurrency:string){
+        const item = await this.liquidityNotificationConfigModel!.findOne({currency:targetCurrency})
+        const HOUR = 1000 * 60 * 60 * 6;
+        if(!!item){
+            const configItem = item.toJSON();
+            const destinationLiquidity = await this.contract.getAvaialableLiquidity(targetCurrency);
+            const pastAnHour = ((Date.now()) - (new Date(configItem.lastNotifiedTime||0).getTime())) >= (HOUR/2)
+            console.log("notified past an hour?",pastAnHour);
+            if((Number(destinationLiquidity) > Number(configItem.upperthreshold))){
+                await this.notificationSvc.sendLiquidityNotificationMail(configItem.projectAdminEmail,destinationLiquidity,false) 
+                await this.liquidityNotificationConfigModel.findOneAndUpdate({currency: configItem.currency}, { '$set': { "lastNotifiedTime": Date.now() } });
+                await this.notificationSvc.sendToListener(configItem.listenerUrl,destinationLiquidity,false);
+            }
+            else if((Number(destinationLiquidity) <= Number(configItem.lowerthreshold))){
+                await this.notificationSvc.sendLiquidityNotificationMail(configItem.projectAdminEmail,destinationLiquidity,true) 
+                await this.liquidityNotificationConfigModel.findOneAndUpdate({currency: configItem.currency}, { '$set': { lastNotifiedTime: Date.now() } });
+                await this.notificationSvc.sendToListener(configItem.listenerUrl,destinationLiquidity,true);
+            }
+
+        }
+        return
+    }
+
     async swapGetTransaction(userAddress: string, currency: string,
 			amount: string, targetCurrency: string) {
         const requests = await this.contract.approveIfRequired(userAddress, currency, amount);
@@ -115,12 +158,14 @@ export class TokenBridgeService extends MongooseConnection implements Injectable
         ValidationUtils.isTrue(new Big(balance).gte(new Big(amount)),
             `Not enough balance. ${amount} is required but there is only ${balance} available`);
         const req = await this.contract.swap(userAddress, currency, amount,  targetCurrency);
+        await this.runLiquidityCheckScript(targetCurrency); 
         return { isApprove: false, requests: [req] };
     }
 
     async withdrawSignedVerify(targetCurrency: string, payee: string, amount: string,
         hash: string, salt: string, signature: string, expectedAddress: string) {
         console.log('About to call withdrawSignedVerify')
+        await this.runLiquidityCheckScript(targetCurrency);
         return await this.contract.withdrawSignedVerify(targetCurrency,
             payee, amount, hash, salt, signature, expectedAddress);
     }
