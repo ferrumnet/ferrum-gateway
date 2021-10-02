@@ -8,7 +8,7 @@ import { swapageSlice} from '../pages/Swap';
 import { liquidityPageSlice } from '../pages/Liquidity';
 import { SidePanelSlice } from '../components/SidePanel';
 import { selfServicePageSlice } from '../pages/SelfService'
-
+import {notificationServicePageSlice} from './../pages/SelfService/notificationMgt'
 import { CommonActions } from './Actions';
 import { TokenBridgeClientActions } from "../clients/BridgeClient";
 import { TokenDetails, UserBridgeWithdrawableBalanceItem } from "types";
@@ -23,7 +23,8 @@ export const uiReducer = combineReducers({
     swapPage: swapageSlice.reducer,
     liquidityPage: liquidityPageSlice.reducer,
     sidePanel: SidePanelSlice.reducer,
-		selfServicePage: selfServicePageSlice.reducer
+	selfServicePage: selfServicePageSlice.reducer,
+	notificationServicePage: notificationServicePageSlice.reducer
 });
 
 export function userReducer(

@@ -71,6 +71,18 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         this.registerProcessor('getWithdrawItem',
             (req,userId) => this.getWithdrawItem(req));
 
+            this.registerProcessor('saveTokenNotificationDetails',
+            req => this.saveTokenNotificationDetails(req)
+        )
+
+        this.registerProcessor('updateTokenNotificationDetails',
+        req => this.updateTokenNotificationDetails(req)
+        )
+
+        this.registerProcessor('getTokenNotificationDetails',
+        req => this.svc.getTokenNotificationDetails(req.data.currency)
+        )
+
     }
 
     __name__() { return 'BridgeRequestProcessor'; }
@@ -109,6 +121,14 @@ export class BridgeRequestProcessor extends HttpRequestProcessor implements Inje
         ValidationUtils.isTrue(!!currency, "'currency' must be provided");
         ValidationUtils.isTrue(!!userAddress, "'addres' must be provided");
         return this.svc.getLiquidity(userAddress, currency);
+    }
+
+    async saveTokenNotificationDetails(req: HttpRequestData) {
+        return this.svc.saveTokenNotificationDetails(req.data)
+    }
+
+    async updateTokenNotificationDetails(req: HttpRequestData) {
+        return this.svc.updateTokenNotificationDetails(req.data,req.data.id)
     }
 
     async getGroupInfo(groupId:string) {

@@ -44,3 +44,36 @@ export function SearchButton(props: liquidityActionProps) {
         </>
     )
 } 
+
+export function NotificationActionButton(props: liquidityActionProps) {
+    const theme = useContext(ThemeContext);   
+
+    const btnContent =  (
+        <>
+            {props.service && <i className="mdi mdi-magnify" style={{"margin":"2.5px"}}></i>}
+            {props.service === 'UPDATE' ? 'UPDATE' : 'SAVE'}
+            {   
+                ( props.searching &&
+                    <span
+                        style={{"display":"flex","alignItems":"center","fontSize":"20px",padding:"0px 10px"}}
+                    >
+                        <LoadingOutlined/> 
+                    </span>
+                )
+            }
+        </>
+    )
+
+    return (
+        <>
+            <Button
+                onClick={() => props.onclick()}
+                className="btn-pri liqaction btn-icon btn-connect mt-4"
+                disabled={props.disabled}
+                style={{...props.style}}
+            >
+                {btnContent}
+            </Button>
+        </>
+    )
+} 

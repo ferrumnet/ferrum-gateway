@@ -10,6 +10,7 @@ import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { CommonBackendModule, decryptKey } from "common-backend";
+import { BridgeNotificationSvc } from './BridgeNotificationService';
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
 
@@ -103,12 +104,16 @@ export class BridgeModule implements Module {
         )
     );
     container.registerSingleton(
+      BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
+    )
+    container.registerSingleton(
       TokenBridgeService,
       (c) =>
         new TokenBridgeService(
           c.get(EthereumSmartContractHelper),
           c.get(TokenBridgeContractClinet),
-          c.get(PairAddressSignatureVerifyre)
+          c.get(PairAddressSignatureVerifyre),
+          c.get(BridgeNotificationSvc)
         )
     );
 

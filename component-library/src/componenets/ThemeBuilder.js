@@ -45,7 +45,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
   const [selectedHeading, setSelectedHeading] = useState("Heading Color");
   const [loading, setLoading] = useState(false);
 
-
+  
   const onColorChange = (targetName, gradientAttrs) => {
     setThemeConfig({
       ...themeConfig,
@@ -69,15 +69,15 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
 
   const handleThemeConfigChange = (e) => {
-
+    console.log(e.target.value)
     const value = e.target.value;
     setThemeConfig({
       ...themeConfig,
-      [e.target.name]: e.target.name === "btnBorderRadius" || "cardBorderRadius" ? +value : value,
+      [e.target.name]: e.target.name === "btnBorderRadius" || e.target.name === "cardBorderRadius" ? +value : value,
     });
     onChange({
       ...themeConfig,
-      [e.target.name]: e.target.name === "btnBorderRadius" || "cardBorderRadius" ? +value : value,
+      [e.target.name]: e.target.name === "btnBorderRadius" || e.target.name === "cardBorderRadius" ? +value : value,
     });
 
   };

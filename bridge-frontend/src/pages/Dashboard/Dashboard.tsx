@@ -40,6 +40,7 @@ import { setAllThemes, setToLS, removeFromLS, getFromLS } from "./../../storageU
 import * as defaultTheme from "./../../theme/schema.json";
 import { Alert } from 'antd';
 import { SelfServicePage } from "./../SelfService";
+import { NotificationServicePage } from "./../SelfService/notificationMgt";
 
 interface DashboardState {
     initialized: boolean,
@@ -362,6 +363,9 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
                 <ContentContainer>
                     <div className="landing-page">
                         <Switch>
+                            <Route path='/:gid/service/notification'>
+                                <NotificationServicePage/>
+                            </Route>
                             <Route path='/:gid/service/process'>
                                 <SelfServicePage/>
                             </Route>
