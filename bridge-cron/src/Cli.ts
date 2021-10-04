@@ -11,7 +11,6 @@ import {
   ConfigurableLogger,
 } from "ferrum-plumbing";
 import { Dimension } from "aws-sdk/clients/cloudwatch";
-import schedule from "node-schedule";
 import { getLogger } from "log4js";
 import { LongRunningScheduler } from "ferrum-plumbing/dist/scheduler/LongRunningScheduler";
 
@@ -84,11 +83,9 @@ export class Cli implements Injectable {
     const scheduler = container.get<LongRunningScheduler>(LongRunningScheduler);
     scheduler.init();
     try {
-      console.log("About to start worker");
       await watcher.run();
       console.log("Woker completed");
-      console.log("going to sleep for 500");
-      await LongRunningScheduler.runForever(scheduler, 5000);
+      await LongRunningScheduler.runForever(scheduler, 100);
       console.log("sleep over");
     } catch (e) {
       console.error("MAIN", e);

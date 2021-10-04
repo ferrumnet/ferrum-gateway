@@ -72,14 +72,16 @@ export class NetworkTransactionWatcher implements Injectable {
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_POLYGON)
       ),
       MUMBAI_TESTNET: new Web3(
-        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_MUMBAI_TESTNET)
+        new Web3.providers.HttpProvider(
+          process.env.WEB3_PROVIDER_MUMBAI_TESTNET
+        )
       ),
       BSC_TESTNET: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_BSC_TESTNET)
       ),
       BSC: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_BSC)
-      )
+      ),
     };
 
     this.withdrawSignedEventdHash = Web3.utils.sha3(
@@ -112,27 +114,36 @@ export class NetworkTransactionWatcher implements Injectable {
   }
 
   async processNetworkTransactions() {
-    scheduleJob("*/15 * * * * *", async () => {
-      const web3ProvidersList = await this.getWeb3Providers();
-      for (const provider of web3ProvidersList) {
-        console.log("provider", provider);
-        let web3 = this.networksCache[`${provider}`];
-        let currentBlock = await web3.eth.getBlockNumber();
-        console.log(currentBlock, "current block");
-        // const metric = this.metricsService.count("getBlockNumber");
-        // console.log(metric, "metric");
-        let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
-        console.log(provider, fromBlock, currentBlock);
-        if (fromBlock > 0) {
-          const web3ProviderLogs = await web3.eth.getPastLogs({
-            fromBlock: fromBlock,
-            toBlock: currentBlock,
-            address: process.env.CONTRACT_ADDRESS,
-          });
-          console.log(provider, fromBlock, currentBlock, web3ProviderLogs.length);
-          await this.proccessNetworkLogs(web3ProviderLogs, provider);
+    scheduleJob("*/30 * * * * *", async () => {
+      try {
+        const web3ProvidersList = await this.getWeb3Providers();
+        for (const provider of web3ProvidersList) {
+          console.log("provider", provider);
+          let web3 = this.networksCache[`${provider}`];
+          const metric = this.metricsService.count("getBlockNumber");
+          console.log(metric, "metric");
+          let currentBlock = await web3.eth.getBlockNumber();
+          console.log(currentBlock, "current block");
+          let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
+          console.log(provider, fromBlock, currentBlock);
+          if (fromBlock > 0) {
+            const web3ProviderLogs = await web3.eth.getPastLogs({
+              fromBlock: fromBlock,
+              toBlock: currentBlock,
+              address: process.env.CONTRACT_ADDRESS,
+            });
+            console.log(
+              provider,
+              fromBlock,
+              currentBlock,
+              web3ProviderLogs.length
+            );
+            await this.proccessNetworkLogs(web3ProviderLogs, provider);
+          }
+          await this.updateToBlockNumer(currentBlock, provider);
         }
-        await this.updateToBlockNumer(currentBlock, provider);
+      } catch (err) {
+        console.log(err.message);
       }
     });
   }
@@ -151,7 +162,14 @@ export class NetworkTransactionWatcher implements Injectable {
   }
 
   async getWeb3Providers() {
-    return ["RINKEBY", "ETHEREUM", "POLYGON","MUMBAI_TESTNET","BSC_TESTNET","BSC"];
+    return [
+      "RINKEBY",
+      "ETHEREUM",
+      "POLYGON",
+      "MUMBAI_TESTNET",
+      "BSC",
+      "BSC_TESTNET",
+    ];
   }
 
   async proccessNetworkLogs(logs: any, network: string) {
@@ -240,7 +258,7 @@ export class NetworkTransactionWatcher implements Injectable {
         // console.log("topic null");
       }
     } catch (e) {
-      console.log(e);
+      console.log(e.message);
     }
     return log;
   }
