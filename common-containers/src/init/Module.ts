@@ -18,8 +18,15 @@ export class CommonModule implements Module {
         c.registerSingleton(ApiClient, c => new ApiClient(this.apiUrl, c.get(UnifyreExtensionKitClient)));
         const client = c.get<ApiClient>(ApiClient);
         const providers = await client.loadHttpProviders();
-
-        c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(providers));
+        const mappedProviders = {
+            'ETHEREUM': providers['web3Provider'],
+            'RINKEBY': providers['web3ProviderRinkeby'],
+            'BSC': providers['web3ProviderBsc'],
+            'BSC_TESTNET': providers['web3ProviderBscTestnet'],
+            'MUMBAI_TESTNET': providers['web3ProviderMumbaiTestnet'],
+            'POLYGON': providers['web3ProviderPolygon'],
+        }
+        c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(mappedProviders));
 
         // c.registerSingleton(UserPreferenceService, () => new UserPreferenceService());
         // IntlManager.instance.load([stringsEn], 'en-US');
