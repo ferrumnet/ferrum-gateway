@@ -120,8 +120,6 @@ export class NetworkTransactionWatcher implements Injectable {
         for (const provider of web3ProvidersList) {
           console.log("provider", provider);
           let web3 = this.networksCache[`${provider}`];
-          const metric = this.metricsService.count("getBlockNumber");
-          console.log(metric, "metric");
           let currentBlock = await web3.eth.getBlockNumber();
           console.log(currentBlock, "current block");
           let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
@@ -138,6 +136,19 @@ export class NetworkTransactionWatcher implements Injectable {
               currentBlock,
               web3ProviderLogs.length
             );
+            this.metricsService.count(
+              `NETWORK : ${provider} : fromBlock`,
+              fromBlock
+            );
+            this.metricsService.count(
+              `NETWORK : ${provider} : currentBlock`,
+              fromBlock
+            );
+            this.metricsService.count(
+              `NETWORK : ${provider} : totalLogs`,
+              web3ProviderLogs.length
+            );
+
             await this.proccessNetworkLogs(web3ProviderLogs, provider);
           }
           await this.updateToBlockNumer(currentBlock, provider);

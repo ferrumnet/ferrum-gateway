@@ -1,5 +1,10 @@
-import { CloudWatchClient, LambdaGlobalContext } from "aws-lambda-helper";
+import {
+  CloudWatchClient,
+  LambdaGlobalContext,
+  AwsEnvs,
+} from "aws-lambda-helper";
 import { NetworkTransactionWatcher } from "./watcher/NetworkTransactionWatcher";
+import { CloudWatch } from "aws-sdk";
 import {
   Injectable,
   LoggerFactory,
@@ -8,6 +13,7 @@ import {
   MetricsServiceConfig,
   Network,
   ValidationUtils,
+  makeInjectable,
   ConfigurableLogger,
 } from "ferrum-plumbing";
 import { Dimension } from "aws-sdk/clients/cloudwatch";
@@ -80,6 +86,15 @@ export class Cli implements Injectable {
     const watcher = container.get<NetworkTransactionWatcher>(
       NetworkTransactionWatcher
     );
+    console.log(watcher, "watcher");
+    // makeInjectable("CloudWatch", CloudWatch);
+    // container.register(
+    //   CloudWatch,
+    //   (c) =>
+    //     new CloudWatch({
+    //       region: process.env[AwsEnvs.AWS_DEFAULT_REGION] || "us-east-1",
+    //     })
+    // );
     const scheduler = container.get<LongRunningScheduler>(LongRunningScheduler);
     scheduler.init();
     try {
