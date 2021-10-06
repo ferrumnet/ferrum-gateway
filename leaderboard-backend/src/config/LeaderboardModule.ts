@@ -4,6 +4,7 @@ import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { LeaderBoardConfig, getEnv } from "../types/LeaderboardTypes";
 import { LeaderboardRequestProcessor } from "../request-processor/LeaderboardRequestProcessor";
 import { LeaderboardService } from "../service/LeaderboardService";
+import corn from "cron";
 require("dotenv").config();
 export class LeaderboardModule implements Module {
   async configAsync(container: Container) {
@@ -16,7 +17,6 @@ export class LeaderboardModule implements Module {
 
     if (confArn) {
       conf = await new SecretsProvider(region, confArn).get();
-
     } else {
       conf = {
         database: {
