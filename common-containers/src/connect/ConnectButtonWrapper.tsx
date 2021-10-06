@@ -103,6 +103,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         if (payload.isAutoConnect && !provider.isCached()) {
             return; // Dont try to connect if we are not cached.
         }
+        console.log(connect,'connecttt')
         connect.setProvider(provider);
         await client.signInWithToken('');
         const net = await connect.getProvider()!.netId();
@@ -113,7 +114,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         }
         
         // Subscribe to session disconnection
-        // console.log('Provider is...', connect.getProvider())
+        console.log('Provider is...', connect.getProvider())
         connect.getProvider()!.addEventListener('disconnect', (reason: string) => {
             console.log('DISCONNECTED FROM WALLET CONNECT', reason);
             ctx.dispatch(Actions.disconnect());

@@ -288,13 +288,22 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
     const connected = useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
-    const titleText = document.getElementById("title"); // Accessing favicon element
+    const titleText = document.getElementsByClassName("metaTitleText"); // Accessing favicon element
+    const metaDescription = document.getElementsByClassName("metaDescriptionText"); // Accessing favicon element
+    const metaImage = document.getElementsByClassName("metaImageUrl"); // Accessing favicon element
+    const metaUrl = document.getElementsByClassName("metaUrlText"); // Accessing favicon element
 
     //@ts-ignore
     favicon.href = groupInfo.themeVariables?.faviconImg || groupInfo.themeVariables?.mainLogo;
     //@ts-ignore
-    titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
-    //
+    titleText.innerText = groupInfo.themeVariables?.projectTitle ? `${groupInfo.themeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
+    //@ts-ignore
+    metaDescription.innerText = groupInfo.themeVariables?.metaDescription ? `${groupInfo.themeVariables?.metaDescription}` : `The Ferrum Network Cross-Chain Token Bridge enables tokens to be swapped between Ethereum, BSC, Polygon (Matic) without any intermediary swap or chain. Start swapping your tokens across chains today.`;
+    //@ts-ignore
+    metaImage.innerText = groupInfo.themeVariables?.metaImage || "https://ferrum.network/wp-content/uploads/2021/06/Ferrum-Network-Cross-Chain-Token-Bridge-Taha-Abbasi.jpg";
+    //@ts-ignore
+    metaUrl.innerText = groupInfo.themeVariables?.metaUrl || "https://staging-token-bridge.netlify.app/frm";
+    
     const error = (initError && initError != '' && initError != 'Make sure to initialize the web3 client such as Metamask') && (
         <div className="error-msg"
         // style={{

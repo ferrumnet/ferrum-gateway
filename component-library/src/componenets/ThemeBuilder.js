@@ -71,7 +71,6 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
 
   const handleThemeConfigChange = (e) => {
-    console.log(e.target.value)
     const value = e.target.value;
     setThemeConfig({
       ...themeConfig,
@@ -197,7 +196,6 @@ export const ThemeBuilder = ({ config, onChange }) => {
     alert(JSON.stringify(exportJson));
   };
 
-  console.log(themeConfig)
   return (
     <>
       <Modal

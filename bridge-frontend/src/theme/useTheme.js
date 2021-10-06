@@ -34,7 +34,10 @@ export const themeMapper = (themeVariable) => {
           textPri: "#ffffff",
           text: "#dbb46e",
           inverse: themeVariable.bodyTextColor || "#ffffff",
+          inputTextColor: themeVariable.inputTextColor,
           textSec: "#afafaf",
+          alertErrorBackgoundColor: themeVariable?.alertErrorBackgoundColor,
+          alertErrorBodyTextColor:themeVariable?.alertErrorBodyTextColor,
           // Steps
           stepsFinishBackgroundColor: themeVariable?.stepsFinishBgColor,
           stepsFinishBorderColor: themeVariable?.stepsFinishBorderColor,
@@ -43,7 +46,7 @@ export const themeMapper = (themeVariable) => {
           stepsProcessBackgroundColor: themeVariable?.stepsProcessBgColor,
           stepsProcessBorderColor: themeVariable?.stepsProcessBorderColor,
           card: {
-            cardPri: themeVariable?.cardBgColor || themeVariable?.neutralDark,
+            cardPri: themeVariable?.cardPri || themeVariable?.cardBgColor || themeVariable?.neutralDark,
             cardTextPri: themeVariable?.cardTextPri || "#f3f3f3",
             cardSec: themeVariable?.cardSec || "#272a33",
             cardTextSec: themeVariable?.cardTextSec || "#f3f3f3",
