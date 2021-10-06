@@ -6,7 +6,6 @@ import { connect } from "mongoose";
 import {
   Injectable,
   LongRunningScheduler,
-  LongRunningSchedulerOptions,
   MetricsService,
 } from "ferrum-plumbing";
 import { TransactionModel } from "../models/transaction";
@@ -136,19 +135,9 @@ export class NetworkTransactionWatcher implements Injectable {
               currentBlock,
               web3ProviderLogs.length
             );
-            this.metricsService.count(
-              `NETWORK : ${provider} : fromBlock`,
-              fromBlock
-            );
-            this.metricsService.count(
-              `NETWORK : ${provider} : currentBlock`,
-              fromBlock
-            );
-            this.metricsService.count(
-              `NETWORK : ${provider} : totalLogs`,
-              web3ProviderLogs.length
-            );
-
+            this.metricsService.count(`fromBlock`, fromBlock);
+            this.metricsService.count(`currentBlock`, currentBlock);
+            this.metricsService.count(`totalLogs`, web3ProviderLogs.length);
             await this.proccessNetworkLogs(web3ProviderLogs, provider);
           }
           await this.updateToBlockNumer(currentBlock, provider);
