@@ -12,6 +12,7 @@ export const themeMapper = (themeVariable) => {
         id: "themeLight",
         name: "Light",
         useBgImage: themeVariable?.useBgImg ? true : false,
+        removeBgShadow: themeVariable?.removeBgShadow,
         BgImage:
           themeVariable?.bgImg ||
           "https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png",
@@ -39,6 +40,7 @@ export const themeMapper = (themeVariable) => {
           alertErrorBackgoundColor: themeVariable?.alertErrorBackgoundColor,
           alertErrorBodyTextColor:themeVariable?.alertErrorBodyTextColor,
           // Steps
+          stepsTailBackgroundColor: themeVariable?.stepsTailBackgroundColor,
           stepsFinishBackgroundColor: themeVariable?.stepsFinishBgColor,
           stepsFinishBorderColor: themeVariable?.stepsFinishBorderColor,
           stepsWaitBackgroundColor: themeVariable?.stepsWaitBgColor,

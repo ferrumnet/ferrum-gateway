@@ -352,7 +352,7 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
     a {
-      color: ${({ theme }) => theme.colors.textSec};
+      color: ${({ theme }) => theme.colors.textSec} !important;
       background-color: ${({ theme }) => theme.colors.body};
       &:hover {
         background: rgba(${({ theme }) => theme.colors.textPri}, .25);
@@ -392,19 +392,19 @@ export const GlobalStyles = createGlobalStyle`
   .ant-steps-item-finish {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || "#168416"};
-      border-color: ${({ theme }) => theme.colors.stepsFinishBorderColor || "#168416"};
+      border-color: transparent;
     }
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsWaitBackgroundColor || "#caa561"};
-      border-color: ${({ theme }) => theme.colors.stepsWaitBorderColor || "#caa561"};
+      border-color: transparent;
     }
   }
   .ant-steps-item-process {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsProcessBackgroundColor || "orange"};
-      border-color: ${({ theme }) => theme.colors.stepsProcessBorderColor || "orange"};
+      border-color: transparent;
     }
 
   .custom-class {
@@ -503,6 +503,10 @@ export const GlobalStyles = createGlobalStyle`
 
   .web3modal-provider-container{
     border-radius:  ${({ theme }) => theme.radius ? theme.radius : ""}px !important;
+  }
+
+  .ant-steps-item-tail::after{
+      background:  ${({ theme }) => theme.colors.stepsTailBackgroundColor} !important;
   }
 
   .web3modal-modal-card{
