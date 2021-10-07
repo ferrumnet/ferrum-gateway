@@ -27,6 +27,9 @@ export const themeMapper = (themeVariable) => {
           themePrimary: themeVariable?.themeDark,
           themeSecondary: themeVariable?.themeSecondary,
           borderColor: "#828282",
+          // Alerts
+          alertFailBgColor: themeVariable?.alertFailBgColor || "red",
+          alertFailTextColor: themeVariable?.alertFailTextColor || "white",
           // Text
           textPri: "#ffffff",
           text: "#dbb46e",

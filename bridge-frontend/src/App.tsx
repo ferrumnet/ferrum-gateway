@@ -55,7 +55,7 @@ function App() {
     cardSec: "", //"#110252",
     cardTextSec: "", //"#110252",
 
-    useBgImg: true,
+    useBgImage: undefined,
     faviconImg: "", //"https://paidnetwork.com/wp-content/uploads/2020/09/paidfav-150x150.jpg",
     mainLogo: "", //"https://i.imgur.com/2MtwKPi.png",
     bgImg: " ", //"https://i.imgur.com/b2gZEEX.jpg",
@@ -75,7 +75,7 @@ function App() {
             setThemeConfig({ ...value });
           }}
         />
-      } 
+      }
     </StoreBuilder.Provider>
   );
 }
