@@ -95,6 +95,17 @@ export const ThemeBuilder = ({ config, onChange }) => {
     });
   }
 
+  const updateRemoveBgShadow = (value) => {
+    setThemeConfig({
+      ...themeConfig,
+      removeBgShadow: value,
+    });
+    onChange({
+      ...themeConfig,
+      removeBgShadow: value,
+    });
+  }
+
   const buttonBgColorHandler = () => {
     setThemeConfig({ ...themeConfig, btnActiveColor: themeConfig.btnBgColor, btnTextSecColor: themeConfig.btnTextPriColor })
 
@@ -106,7 +117,9 @@ export const ThemeBuilder = ({ config, onChange }) => {
       useBgImage: themeConfig.useBgImage,
       BgImage: themeConfig.bgImage,
       pageBgColor: themeConfig.pageBgColor?.style,
+      removeBgShadow: themeConfig.removeBgShadow?.style,
       mainLogo: themeConfig.mainLogo,
+      faviconImg: themeConfig.faviconImg,
       metaDescription: themeConfig.metaDescription,
       metaImage: themeConfig.metaImage,
       metaUrl: themeConfig.metaUrl,
@@ -151,7 +164,9 @@ export const ThemeBuilder = ({ config, onChange }) => {
       useBgImage: themeConfig.useBgImage,
       BgImage: themeConfig.bgImage,
       pageBgColor: themeConfig.pageBgColor?.style,
+      removeBgShadow: themeConfig.removeBgShadow?.style,
       mainLogo: themeConfig.mainLogo,
+      faviconImg: themeConfig.faviconImg,
       metaDescription: themeConfig.metaDescription,
       metaImage: themeConfig.metaImage,
       metaUrl: themeConfig.metaUrl,
@@ -224,7 +239,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                 className="mb-0 display-12 font-weight-bold"
 
               >Background</h5> */}
-              <div className="input-group my-3">
+              <div className="radio-group my-3">
                 <div className="custom-control custom-radio custom-control-inline">
                   <input
                     type="radio"
@@ -235,14 +250,43 @@ export const ThemeBuilder = ({ config, onChange }) => {
                     checked={fieldName === "bgImage" ? true : false}
                     onChange={() => {
                       setFieldName("bgImage");
-                      setSelectedHeading("Background Image");
+                      setSelectedHeading("Page Background Image");
                       setBgImage(true);
                       updateUseBgImage(true);
 
                     }}
                   />
                   <label className="custom-control-label" htmlFor="bgImage">
-                    Background Image
+                    Page Background Image
+                  </label>
+                </div>
+                {bgImage ?
+                  <div className="input-group">
+                    {/* <label htmlFor="btn_bg_color">Background Image</label> */}
+                    <input
+                      type="text"
+                      id="bgImage"
+                      name="bgImage"
+                      placeholder="Enter image path here ..."
+                      value={themeConfig.bgImage}
+                      onChange={handleThemeConfigChange}
+                      className="form-control"
+                    />
+                  </div>
+                  :
+                  ""
+                }
+                <div className="custom-control custom-checkbox custom-control-inline">
+                  <input
+                    type="checkbox"
+                    id="removeBgShadow"
+                    name="pageBgColor"
+                    className="custom-control-input"
+                    // checked={(e) => updateRemoveBgShadow(e.target.value)}
+                    onChange={(e) => updateRemoveBgShadow(!e.target.checked)}
+                  />
+                  <label className="custom-control-label" for="removeBgShadow">
+                    Remove Page Background Shadow
                   </label>
                 </div>
                 <div className="custom-control custom-radio custom-control-inline">
@@ -267,22 +311,19 @@ export const ThemeBuilder = ({ config, onChange }) => {
                 </div>
               </div>
 
-              {bgImage ?
-                <div className="input-group">
-                  {/* <label htmlFor="btn_bg_color">Background Image</label> */}
-                  <input
-                    type="text"
-                    id="bgImage"
-                    name="bgImage"
-                    placeholder="Enter image path here ..."
-                    value={themeConfig.bgImage}
-                    onChange={handleThemeConfigChange}
-                    className="form-control"
-                  />
-                </div>
-                :
-                ""
-              }
+              <div className="form-group">
+                <label htmlFor="faviconImg">Favicon</label>
+                <input
+                  type="text"
+                  id="faviconImg"
+                  name="faviconImg"
+                  placeholder="Enter faviconImg path here ..."
+                  value={themeConfig.faviconImg}
+                  onChange={handleThemeConfigChange}
+                  className="form-control"
+                />
+              </div>
+
               <div className="form-group">
                 <label htmlFor="mainLogo">Logo</label>
                 <input

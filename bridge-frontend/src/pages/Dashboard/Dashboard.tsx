@@ -445,13 +445,14 @@ export function Dashboard(props: ThemeProps) {
     if (appInitialized && !stateData.initializeError) {
         // console.log(selectedTheme);
         // console.log(props.themeConfig.colors)
-        // console.log(props.themeConfig?.useBgImage)
+        console.log(props.themeConfig?.useBgImage)
         // console.log(props.themeConfig?.pageBgColor)
         return (
             <ThemeProvider theme={
                 {
                     ...selectedTheme,
                     useBgImage: props.themeConfig?.useBgImage !== undefined ? props.themeConfig?.useBgImage : selectedTheme.useBgImage,
+                    removeBgShadow: props.themeConfig?.removeBgShadow !== undefined ? props.themeConfig?.removeBgShadow : selectedTheme.removeBgShadow,
                     BgImage: props.themeConfig?.BgImage ?
                         props.themeConfig?.BgImage : selectedTheme.BgImage,
                     pageBgColor: props.themeConfig?.pageBgColor ?

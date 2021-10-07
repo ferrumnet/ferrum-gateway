@@ -13,7 +13,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
     box-shadow:  ${({ theme }) =>
-    theme.useBgImage ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
+    theme.removeBgShadow ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
     font-size: 1em;
     background-color: ${({ theme }) => theme.pageBgColor};
     background: ${({ theme }) =>
