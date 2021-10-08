@@ -9,25 +9,20 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   #root {
-    background-color: ${({ theme }) => theme.colors.body};
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
     box-shadow:  ${({ theme }) =>
-    theme.useBgImage ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
+    theme.removeBgShadow ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
     font-size: 1em;
+    background-color: ${({ theme }) => theme.pageBgColor};
     background: ${({ theme }) =>
-    theme.backgroundImage
-      ? `url(${theme.backgroundImage})`
-      : theme.useBgImage
-        ? `url(${theme.BgImage})`
-        : ""};
-    background-image: ${({ theme }) =>
-    theme.backgroundImage
-      ? `url(${theme.backgroundImage})`
-      : theme.useBgImage
-        ? `url(${theme.BgImage})`
-        : ""};
+    theme.useBgImage
+      ? `url(${theme.BgImage})`
+      : ""};
+    background-image: ${({ theme }) => theme.useBgImage
+    ? `url(${theme.BgImage})`
+    : ""};
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
@@ -300,8 +295,13 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
   .alertFailColor {
-    background-color: rgb(165 0 15) !Important;
+    margin: 1rem auto 0;
+    max-width: 700px;
+    text-align: center;
+    color: ${({ theme }) => theme.colors.alertFailTextColor};
+    background: ${({ theme }) => theme.colors.alertFailBgColor};
   }
+
   .text-vary-color: {
     color: ${({ theme }) => theme.colors.button.text};
   }

@@ -158,21 +158,21 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
         let groupId = getGroupIdFromHref();
-				let groupInfo: GroupInfo | undefined;
+        let groupInfo: GroupInfo | undefined;
         if (!groupId) {
-				groupId = getWebstieIdFromHref();
-				console.log('No groupId so trying the website ID: ', groupId);
-        		groupInfo = await client.loadGroupInfo(dispatch, groupId!);
-						if (!!groupInfo) {
-							history.replace('/' + groupId);
-						} else {
-							groupId = 'frm';
-							history.replace('/frm');
-						}
+            groupId = getWebstieIdFromHref();
+            console.log('No groupId so trying the website ID: ', groupId);
+            groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+            if (!!groupInfo) {
+                history.replace('/' + groupId);
+            } else {
+                groupId = 'frm';
+                history.replace('/frm');
+            }
         }
-				if (!groupInfo) {
-        	groupInfo = await client.loadGroupInfo(dispatch, groupId!);
-				}
+        if (!groupInfo) {
+            groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+        }
         if (!groupInfo) {
             dispatch(Actions.initializeError({ initError: 'Invalid group Info' }));
             return;
@@ -294,11 +294,12 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
     favicon.href = groupInfo.themeVariables?.faviconImg || groupInfo.themeVariables?.mainLogo;
     //@ts-ignore
     titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
-
+    //
     const error = (initError && initError != '' && initError != 'Make sure to initialize the web3 client such as Metamask') && (
-        <div style={{
-            ...styles.error
-        }}
+        <div className="error-msg"
+        // style={{
+        //     ...styles.error
+        // }}
         >
             <ErrorBar error={initError || 'error'} />
         </div>
@@ -364,10 +365,10 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
                     <div className="landing-page">
                         <Switch>
                             <Route path='/:gid/service/notification'>
-                                <NotificationServicePage/>
+                                <NotificationServicePage />
                             </Route>
                             <Route path='/:gid/service/process'>
-                                <SelfServicePage/>
+                                <SelfServicePage />
                             </Route>
                             <Route path='/:gid/liquidity/:action'>
                                 <LiquidityPage />
@@ -442,14 +443,20 @@ export function Dashboard(props: ThemeProps) {
     }, [appInitialized]);
 
     if (appInitialized && !stateData.initializeError) {
-       // console.log(selectedTheme);
-       // console.log(props.themeConfig.colors)
+        // console.log(selectedTheme);
+        // console.log(props.themeConfig.colors)
+        console.log(props.themeConfig?.useBgImage)
+        // console.log(props.themeConfig?.pageBgColor)
         return (
             <ThemeProvider theme={
                 {
                     ...selectedTheme,
+                    useBgImage: props.themeConfig?.useBgImage !== undefined ? props.themeConfig?.useBgImage : selectedTheme.useBgImage,
+                    removeBgShadow: props.themeConfig?.removeBgShadow !== undefined ? props.themeConfig?.removeBgShadow : selectedTheme.removeBgShadow,
                     BgImage: props.themeConfig?.BgImage ?
                         props.themeConfig?.BgImage : selectedTheme.BgImage,
+                    pageBgColor: props.themeConfig?.pageBgColor ?
+                        props.themeConfig?.pageBgColor : selectedTheme.pageBgColor,
                     mainLogo: props.themeConfig.mainLogo,
                     colors: {
                         ...selectedTheme.colors,
@@ -457,6 +464,8 @@ export function Dashboard(props: ThemeProps) {
                         stepsFinishBackgroundColor: props.themeConfig?.colors?.stepsFinishBackgroundColor ? props.themeConfig?.colors?.stepsFinishBackgroundColor : selectedTheme.colors.stepsFinishBackgroundColor,
                         stepsWaitBackgroundColor: props.themeConfig?.colors?.stepsWaitBackgroundColor ? props.themeConfig?.colors?.stepsWaitBackgroundColor : selectedTheme.colors.stepsWaitBackgroundColor,
                         stepsProgressBackgroundColor: props.themeConfig?.colors?.stepsProgressBackgroundColor ? props.themeConfig?.colors?.stepsProgressBackgroundColor : selectedTheme.colors.stepsProgressBackgroundColor,
+                        alertFailBgColor: props.themeConfig?.colors?.alertFailBgColor ? props.themeConfig?.colors?.alertFailBgColor : selectedTheme.colors.alertFailBgColor,
+                        alertFailTextColor: props.themeConfig?.colors?.alertFailTextColor ? props.themeConfig?.colors?.alertFailTextColor : selectedTheme.colors.alertFailTextColor,
                         button: props.themeConfig.button ?
                             { ...selectedTheme.colors.button, ...props.themeConfig.button } : selectedTheme.colors.button,
                         card: props.themeConfig.card ?
