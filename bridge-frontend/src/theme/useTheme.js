@@ -12,17 +12,21 @@ export const themeMapper = (themeVariable) => {
         id: "themeLight",
         name: "Light",
         useBgImage: themeVariable?.useBgImg ? true : false,
+        removeBgShadow: themeVariable?.removeBgShadow,
         BgImage:
           themeVariable?.bgImg ||
           "https://ferrum.network/wp-content/uploads/2021/05/FerrumNetwork__globe-1-min.png",
         colors: {
           themeColor: "#fff7e9",
           navbar: "transparent",
+          btnActiveBorderColor: themeVariable?.btnActiveBorderColor,
+          assetsDropDownBtnTextColor: themeVariable?.assetsDropDownBtnTextColor,
+          assetsDropDownBtnColor: themeVariable?.assetsDropDownBtnColor,
           mainHeaderColor: themeVariable?.headingColor || themeVariable?.themeDarker,
           topBannerTextColor: themeVariable?.topBannerTextColor,
           topBannerBgColor: themeVariable?.topBannerBgColor,
           topBannerIconColor: themeVariable?.topBannerIconColor,
-          body: themeVariable?.neutralLight,
+          body: themeVariable?.pageBackgroundColor,
           headercolor: "rgba(39, 42, 51,0)",
           themePrimary: themeVariable?.themeDark,
           themeSecondary: themeVariable?.themeSecondary,
@@ -34,8 +38,12 @@ export const themeMapper = (themeVariable) => {
           textPri: "#ffffff",
           text: "#dbb46e",
           inverse: themeVariable.bodyTextColor || "#ffffff",
+          inputTextColor: themeVariable.inputTextColor,
           textSec: "#afafaf",
+          alertErrorBackgoundColor: themeVariable?.alertErrorBackgoundColor,
+          alertErrorBodyTextColor:themeVariable?.alertErrorBodyTextColor,
           // Steps
+          stepsTailBackgroundColor: themeVariable?.stepsTailBackgroundColor,
           stepsFinishBackgroundColor: themeVariable?.stepsFinishBgColor,
           stepsFinishBorderColor: themeVariable?.stepsFinishBorderColor,
           stepsWaitBackgroundColor: themeVariable?.stepsWaitBgColor,
@@ -43,7 +51,7 @@ export const themeMapper = (themeVariable) => {
           stepsProcessBackgroundColor: themeVariable?.stepsProcessBgColor,
           stepsProcessBorderColor: themeVariable?.stepsProcessBorderColor,
           card: {
-            cardPri: themeVariable?.cardBgColor || themeVariable?.neutralDark,
+            cardPri: themeVariable?.cardPri || themeVariable?.cardBgColor || themeVariable?.neutralDark,
             cardTextPri: themeVariable?.cardTextPri || "#f3f3f3",
             cardSec: themeVariable?.cardSec || "#272a33",
             cardTextSec: themeVariable?.cardTextSec || "#f3f3f3",
@@ -66,6 +74,7 @@ export const themeMapper = (themeVariable) => {
             btnBorderRadius: themeVariable?.btnBorderRadius,
             backgroundSize: themeVariable?.btnBackgroundSize,
             btnActiveColor: themeVariable?.btnActiveColor,
+            btnActiveBorderStyled: themeVariable?.btnActiveBorderStyled,
             btnPadding: themeVariable?.btnPadding,
           },
 
