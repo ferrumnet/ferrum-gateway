@@ -19,11 +19,14 @@ export const themeMapper = (themeVariable) => {
         colors: {
           themeColor: "#fff7e9",
           navbar: "transparent",
+          btnActiveBorderColor: themeVariable?.btnActiveBorderColor,
+          assetsDropDownBtnTextColor: themeVariable?.assetsDropDownBtnTextColor,
+          assetsDropDownBtnColor: themeVariable?.assetsDropDownBtnColor,
           mainHeaderColor: themeVariable?.headingColor || themeVariable?.themeDarker,
           topBannerTextColor: themeVariable?.topBannerTextColor,
           topBannerBgColor: themeVariable?.topBannerBgColor,
           topBannerIconColor: themeVariable?.topBannerIconColor,
-          body: themeVariable?.neutralLight,
+          body: themeVariable?.pageBackgroundColor,
           headercolor: "rgba(39, 42, 51,0)",
           themePrimary: themeVariable?.themeDark,
           themeSecondary: themeVariable?.themeSecondary,
@@ -71,6 +74,7 @@ export const themeMapper = (themeVariable) => {
             btnBorderRadius: themeVariable?.btnBorderRadius,
             backgroundSize: themeVariable?.btnBackgroundSize,
             btnActiveColor: themeVariable?.btnActiveColor,
+            btnActiveBorderStyled: themeVariable?.btnActiveBorderStyled,
             btnPadding: themeVariable?.btnPadding,
           },
 

@@ -115,6 +115,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
 
     &.btn-asset{
+      color: ${({ theme }) => theme.colors.assetsDropDownBtnTextColor } !important;
       background: ${({ theme }) => theme.colors.assetsDropDownBtnColor || theme.colors.button.btnActiveColor || theme.colors.button.themePrimary} !important;
     } 
     &:focus,
