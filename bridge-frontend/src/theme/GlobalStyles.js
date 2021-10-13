@@ -13,7 +13,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
     box-shadow:  ${({ theme }) =>
-    theme.removeBgShadow ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
+    (theme.useBgImage && !theme.removeBgShadow) ? "inset 0 0 0 2000px rgba(0,0,0,0.4)" : ""};
     font-size: 1em;
     background-color: ${({ theme }) => theme.pageBgColor};
     background: ${({ theme }) =>
@@ -60,12 +60,17 @@ export const GlobalStyles = createGlobalStyle`
   }
   .btnTheme {
     background: ${({ theme }) => theme.colors.button.btnPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius}px !important;
     border-width: 0;
     &:focus,
     &:active,
     &:hover {
       background: ${({ theme }) => theme.colors.button.btnActiveColor || theme.colors.button.themePrimary} !important;
+      color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
+      border-width: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && '2px'}!important;
+      border-style: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && 'solid'} !important;
+      border-color: ${({ theme }) => theme.colors.button.btnActiveBorderColor} !important;
+      box-shadow: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && 'none'} !important;
     }
   }
   button {
@@ -108,11 +113,17 @@ export const GlobalStyles = createGlobalStyle`
     border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius} !important;
     padding: ${({ theme }) => theme.colors.button.btnPadding || "auto"} !important;
     color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
+
+    &.btn-asset{
+      color: ${({ theme }) => theme.colors.assetsDropDownBtnTextColor } !important;
+      background: ${({ theme }) => theme.colors.assetsDropDownBtnColor || theme.colors.button.btnActiveColor || theme.colors.button.themePrimary} !important;
+    } 
     &:focus,
     &:active,
     &:hover {
       background: ${({ theme }) => theme.colors.button.btnActiveColor || theme.colors.button.themePrimary} !important;
       color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
+      border-color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
     }
     &.action {
       margin-top: 0px;
@@ -133,6 +144,17 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.button.btnTextPriColor} !important;
       background-size: ${({ theme }) => theme.colors.button.backgroundSize || "auto"};
       border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius ? theme.colors.button.btnBorderRadius : theme.colors.button.btnBorderRadius}px !important;
+      
+      &:focus,
+      &:active,
+      &:hover {
+        background: ${({ theme }) => theme.colors.button.btnActiveColor || theme.colors.button.themePrimary} !important;
+        color: ${({ theme }) => theme.colors.button.btnTextSecColor} !important;
+        border-width: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && '2px'}!important;
+        border-style: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && 'solid'} !important;
+        border-color: ${({ theme }) => theme.colors.button.btnActiveBorderColor} !important;
+        box-shadow: ${({ theme }) => theme.colors.button.btnActiveBorderStyled && 'none'} !important;
+      }
     }
     &.btn-sec {
       background: ${({ theme }) => theme.colors.button.btnSec};
@@ -192,7 +214,7 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.inverse};
     }
     input {
-      color: ${({ theme }) => theme.colors.inverse} !important;
+      color: ${({ theme }) => theme.colors.inputTextColor || theme.colors.inverse} !important;
       &:placeholder {
         color: ${({ theme }) => theme.colors.input.inputPri};
       }
@@ -216,7 +238,7 @@ export const GlobalStyles = createGlobalStyle`
   }
   .cardTheme {
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0" + 2} !important;
+    border-radius:  ${({ theme }) => theme.colors.button.btnBorderRadius || "0" + 2}px !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
     background: ${({ theme }) => theme.colors.card.cardPri} !important;
@@ -257,6 +279,9 @@ export const GlobalStyles = createGlobalStyle`
   }
   .web3modal-provider-wrapper{
     border: none !important 
+  }
+  .web3modal-provider-name{
+    color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
   }
   .web3modal-modal-card{
     padding: 20px !important;
@@ -328,7 +353,7 @@ export const GlobalStyles = createGlobalStyle`
       }
     }
     a {
-      color: ${({ theme }) => theme.colors.textSec};
+      color: ${({ theme }) => theme.colors.textSec} !important;
       background-color: ${({ theme }) => theme.colors.body};
       &:hover {
         background: rgba(${({ theme }) => theme.colors.textPri}, .25);
@@ -368,19 +393,19 @@ export const GlobalStyles = createGlobalStyle`
   .ant-steps-item-finish {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsFinishBackgroundColor || "#168416"};
-      border-color: ${({ theme }) => theme.colors.stepsFinishBorderColor || "#168416"};
+      border-color: transparent;
     }
   }
   .ant-steps-item-wait {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsWaitBackgroundColor || "#caa561"};
-      border-color: ${({ theme }) => theme.colors.stepsWaitBorderColor || "#caa561"};
+      border-color: transparent;
     }
   }
   .ant-steps-item-process {
     .ant-steps-item-icon{
       background: ${({ theme }) => theme.colors.stepsProcessBackgroundColor || "orange"};
-      border-color: ${({ theme }) => theme.colors.stepsProcessBorderColor || "orange"};
+      border-color: transparent;
     }
 
   .custom-class {
@@ -479,6 +504,10 @@ export const GlobalStyles = createGlobalStyle`
 
   .web3modal-provider-container{
     border-radius:  ${({ theme }) => theme.radius ? theme.radius : ""}px !important;
+  }
+
+  .ant-steps-item-tail::after{
+      background:  ${({ theme }) => theme.colors.stepsTailBackgroundColor} !important;
   }
 
   .web3modal-modal-card{
