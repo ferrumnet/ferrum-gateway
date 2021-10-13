@@ -2,6 +2,7 @@ import Web3 from "web3";
 import inputs from "./bridgeCronInputs.json";
 import { scheduleJob } from "node-schedule";
 import { connect } from "mongoose";
+import moment from "moment";
 import {
   Injectable,
   LongRunningScheduler,
@@ -109,7 +110,6 @@ export class NetworkTransactionWatcher implements Injectable {
   async run() {
     this.processNetworkTransactions();
   }
-
   async processNetworkTransactions() {
     scheduleJob("*/30 * * * * *", async () => {
       try {
@@ -118,7 +118,11 @@ export class NetworkTransactionWatcher implements Injectable {
           console.log("provider", provider);
           let web3 = this.networksCache[`${provider}`];
           let currentBlock = await web3.eth.getBlockNumber();
-          console.log(currentBlock, "current block");
+          let blockTimestamp = await web3.eth.getBlock(currentBlock);
+          let age = moment(new Date(blockTimestamp.timestamp * 1000));
+          let start = moment(Date.now());
+          let duration = moment.duration(start.diff(age));
+          let days = duration.asDays().toFixed();
           let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
           console.log(provider, fromBlock, currentBlock);
           if (fromBlock > 0) {
@@ -133,10 +137,13 @@ export class NetworkTransactionWatcher implements Injectable {
               currentBlock,
               web3ProviderLogs.length
             );
-            this.metricsService.count(`fromBlock`, fromBlock);
-            this.metricsService.count(`currentBlock`, currentBlock);
-            this.metricsService.count(`totalLogs`, web3ProviderLogs.length);
-            await this.proccessNetworkLogs(web3ProviderLogs, provider);
+            this.metricsService.count(`fromBlock.${provider}`, fromBlock);
+            this.metricsService.count(`currentBlock.${provider}`, currentBlock);
+            this.metricsService.count(
+              `totalLogs.${provider}`,
+              web3ProviderLogs.length
+            );
+            await this.proccessNetworkLogs(web3ProviderLogs, provider, days);
           }
           await this.updateToBlockNumer(currentBlock, provider);
         }
@@ -170,7 +177,7 @@ export class NetworkTransactionWatcher implements Injectable {
     ];
   }
 
-  async proccessNetworkLogs(logs: any, network: string) {
+  async proccessNetworkLogs(logs: any, network: string, age) {
     let web3 = this.networksCache[`${network}`];
     for (let log of logs) {
       const transactionReceipt = await web3.eth.getTransactionReceipt(
@@ -188,6 +195,7 @@ export class NetworkTransactionWatcher implements Injectable {
           {
             ...transactionReceipt,
             network: network,
+            age,
           },
           { upsert: true }
         );
@@ -244,11 +252,19 @@ export class NetworkTransactionWatcher implements Injectable {
           log.decodedLog = bridgeLiquidityRemovesLog;
           // console.log(bridgeLiquidityRemovesLog);
         } else if (log.topics[0] === this.setFeeEventdHash) {
-          console.log("Set Fee");
+          // console.log("Set Fee");
         } else if (log.topics[0] === this.allowTargetEventdHash) {
-          console.log("Allow Target");
+          // console.log("Allow Target");
         } else if (log.topics[0] === this.withdrawSignedEventdHash) {
-          console.log("Withdraw Signed");
+          // console.log("Withdraw Signed");
+          const withdrawSignedEventdHash = await web3.eth.abi.decodeLog(
+            inputs.withdrawSignedVerify,
+            log.data,
+            log.topics
+          );
+          log.decodeBy = this.removeLiquidityEventdHash;
+          log.decodeFor = "withdrawSignedVerify";
+          log.decodedLog = withdrawSignedEventdHash;
         } else {
           // console.log("different");
         }
