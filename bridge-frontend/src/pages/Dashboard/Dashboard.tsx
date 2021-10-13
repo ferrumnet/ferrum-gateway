@@ -40,6 +40,7 @@ import { setAllThemes, setToLS, removeFromLS, getFromLS } from "./../../storageU
 import * as defaultTheme from "./../../theme/schema.json";
 import { Alert } from 'antd';
 import { SelfServicePage } from "./../SelfService";
+import { NotificationServicePage } from "./../SelfService/notificationMgt";
 
 interface DashboardState {
     initialized: boolean,
@@ -157,21 +158,21 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
         let groupId = getGroupIdFromHref();
-				let groupInfo: GroupInfo | undefined;
+        let groupInfo: GroupInfo | undefined;
         if (!groupId) {
-				groupId = getWebstieIdFromHref();
-				console.log('No groupId so trying the website ID: ', groupId);
-        		groupInfo = await client.loadGroupInfo(dispatch, groupId!);
-						if (!!groupInfo) {
-							history.replace('/' + groupId);
-						} else {
-							groupId = 'frm';
-							history.replace('/frm');
-						}
+            groupId = getWebstieIdFromHref();
+            console.log('No groupId so trying the website ID: ', groupId);
+            groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+            if (!!groupInfo) {
+                history.replace('/' + groupId);
+            } else {
+                groupId = 'frm';
+                history.replace('/frm');
+            }
         }
-				if (!groupInfo) {
-        	groupInfo = await client.loadGroupInfo(dispatch, groupId!);
-				}
+        if (!groupInfo) {
+            groupInfo = await client.loadGroupInfo(dispatch, groupId!);
+        }
         if (!groupInfo) {
             dispatch(Actions.initializeError({ initError: 'Invalid group Info' }));
             return;
@@ -287,17 +288,27 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
     const connected = useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
     const initError = useSelector<BridgeAppState, string | undefined>(state => state.data.state.error);
     const favicon = document.getElementById("dynfav"); // Accessing favicon element
-    const titleText = document.getElementById("title"); // Accessing favicon element
+    const titleText = document.getElementsByClassName("metaTitleText"); // Accessing favicon element
+    const metaDescription = document.getElementsByClassName("metaDescriptionText"); // Accessing favicon element
+    const metaImage = document.getElementsByClassName("metaImageUrl"); // Accessing favicon element
+    const metaUrl = document.getElementsByClassName("metaUrlText"); // Accessing favicon element
 
     //@ts-ignore
     favicon.href = groupInfo.themeVariables?.faviconImg || groupInfo.themeVariables?.mainLogo;
     //@ts-ignore
-    titleText.innerText = groupInfo.thethemeVariables?.projectTitle ? `${groupInfo.thethemeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
-
+    titleText.innerText = groupInfo.themeVariables?.projectTitle ? `${groupInfo.themeVariables?.projectTitle} Token Bridge` : 'Token Bridge';
+    //@ts-ignore
+    metaDescription.innerText = groupInfo.themeVariables?.metaDescription ? `${groupInfo.themeVariables?.metaDescription}` : `The Ferrum Network Cross-Chain Token Bridge enables tokens to be swapped between Ethereum, BSC, Polygon (Matic) without any intermediary swap or chain. Start swapping your tokens across chains today.`;
+    //@ts-ignore
+    metaImage.innerText = groupInfo.themeVariables?.metaImage || "https://ferrum.network/wp-content/uploads/2021/06/Ferrum-Network-Cross-Chain-Token-Bridge-Taha-Abbasi.jpg";
+    //@ts-ignore
+    metaUrl.innerText = groupInfo.themeVariables?.metaUrl || "https://staging-token-bridge.netlify.app/frm";
+    
     const error = (initError && initError != '' && initError != 'Make sure to initialize the web3 client such as Metamask') && (
-        <div style={{
-            ...styles.error
-        }}
+        <div className="error-msg"
+        // style={{
+        //     ...styles.error
+        // }}
         >
             <ErrorBar error={initError || 'error'} />
         </div>
@@ -362,8 +373,11 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
                 <ContentContainer>
                     <div className="landing-page">
                         <Switch>
+                            <Route path='/:gid/service/notification'>
+                                <NotificationServicePage />
+                            </Route>
                             <Route path='/:gid/service/process'>
-                                <SelfServicePage/>
+                                <SelfServicePage />
                             </Route>
                             <Route path='/:gid/liquidity/:action'>
                                 <LiquidityPage />
@@ -438,14 +452,20 @@ export function Dashboard(props: ThemeProps) {
     }, [appInitialized]);
 
     if (appInitialized && !stateData.initializeError) {
-       // console.log(selectedTheme);
-       // console.log(props.themeConfig.colors)
+        // console.log(selectedTheme);
+        // console.log(props.themeConfig.colors)
+        console.log(props.themeConfig?.useBgImage)
+        // console.log(props.themeConfig?.pageBgColor)
         return (
             <ThemeProvider theme={
                 {
                     ...selectedTheme,
+                    useBgImage: props.themeConfig?.useBgImage !== undefined ? props.themeConfig?.useBgImage : selectedTheme.useBgImage,
+                    removeBgShadow: props.themeConfig?.removeBgShadow !== undefined ? props.themeConfig?.removeBgShadow : selectedTheme.removeBgShadow,
                     BgImage: props.themeConfig?.BgImage ?
                         props.themeConfig?.BgImage : selectedTheme.BgImage,
+                    pageBgColor: props.themeConfig?.pageBgColor ?
+                        props.themeConfig?.pageBgColor : selectedTheme.pageBgColor,
                     mainLogo: props.themeConfig.mainLogo,
                     colors: {
                         ...selectedTheme.colors,
@@ -453,6 +473,8 @@ export function Dashboard(props: ThemeProps) {
                         stepsFinishBackgroundColor: props.themeConfig?.colors?.stepsFinishBackgroundColor ? props.themeConfig?.colors?.stepsFinishBackgroundColor : selectedTheme.colors.stepsFinishBackgroundColor,
                         stepsWaitBackgroundColor: props.themeConfig?.colors?.stepsWaitBackgroundColor ? props.themeConfig?.colors?.stepsWaitBackgroundColor : selectedTheme.colors.stepsWaitBackgroundColor,
                         stepsProgressBackgroundColor: props.themeConfig?.colors?.stepsProgressBackgroundColor ? props.themeConfig?.colors?.stepsProgressBackgroundColor : selectedTheme.colors.stepsProgressBackgroundColor,
+                        alertFailBgColor: props.themeConfig?.colors?.alertFailBgColor ? props.themeConfig?.colors?.alertFailBgColor : selectedTheme.colors.alertFailBgColor,
+                        alertFailTextColor: props.themeConfig?.colors?.alertFailTextColor ? props.themeConfig?.colors?.alertFailTextColor : selectedTheme.colors.alertFailTextColor,
                         button: props.themeConfig.button ?
                             { ...selectedTheme.colors.button, ...props.themeConfig.button } : selectedTheme.colors.button,
                         card: props.themeConfig.card ?

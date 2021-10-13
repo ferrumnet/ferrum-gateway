@@ -17,6 +17,7 @@ const color = {
 };
 
 export const ThemeBuilder = ({ config, onChange }) => {
+  const [bgImage, setBgImage] = useState(true);
   const [gradient, setGradient] = useState({
     points: [
       {
@@ -39,7 +40,8 @@ export const ThemeBuilder = ({ config, onChange }) => {
   })
   const [openThemeBuilder, setOpenThemeBuilder] = useState(false);
   const [themeConfig, setThemeConfig] = useState({ ...config });
-  const [fieldName, setFieldName] = useState("headingColor");
+  const [fieldName, setFieldName] = useState("bgImage");
+  const [isColorPicker, setIsColorPicker] = useState()
   const [isGradient, setIsGradient] = useState(false);
   const [colorId, setColorId] = useState("");
   const [selectedHeading, setSelectedHeading] = useState("Heading Color");
@@ -69,37 +71,71 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
 
   const handleThemeConfigChange = (e) => {
-
     const value = e.target.value;
     setThemeConfig({
       ...themeConfig,
-      [e.target.name]: e.target.name === "btnBorderRadius" || "cardBorderRadius" ? +value : value,
+      [e.target.name]: e.target.name === "btnBorderRadius" || e.target.name === "cardBorderRadius" ? +value : value,
     });
     onChange({
       ...themeConfig,
-      [e.target.name]: e.target.name === "btnBorderRadius" || "cardBorderRadius" ? +value : value,
+      [e.target.name]: e.target.name === "btnBorderRadius" || e.target.name === "cardBorderRadius" ? +value : value,
     });
 
   };
+
+  const updateUseBgImage = (value) => {
+    setThemeConfig({
+      ...themeConfig,
+      useBgImage: value,
+    });
+    onChange({
+      ...themeConfig,
+      useBgImage: value,
+    });
+  }
+
+  const updateRemoveBgShadow = (value) => {
+    setThemeConfig({
+      ...themeConfig,
+      removeBgShadow: value,
+    });
+    onChange({
+      ...themeConfig,
+      removeBgShadow: value,
+    });
+  }
 
   const buttonBgColorHandler = () => {
     setThemeConfig({ ...themeConfig, btnActiveColor: themeConfig.btnBgColor, btnTextSecColor: themeConfig.btnTextPriColor })
 
   }
 
+
   const savehandler = () => {
     let theme = {
-      BgImage: themeConfig.bgImg,
+      useBgImage: themeConfig.useBgImage,
+      BgImage: themeConfig.bgImage,
+      pageBgColor: themeConfig.pageBgColor?.style,
+      removeBgShadow: themeConfig.removeBgShadow?.style,
       mainLogo: themeConfig.mainLogo,
+      faviconImg: themeConfig.faviconImg,
+      metaDescription: themeConfig.metaDescription,
+      metaImage: themeConfig.metaImage,
+      metaUrl: themeConfig.metaUrl,
+      projectTitle: themeConfig.projectTitle,
+      bannerMainMessage: themeConfig.bannerMainMessage,
+      bannerSubMessage: themeConfig.bannerSubMessage,
       colors: {
         mainHeaderColor: themeConfig?.headingColor?.style,
-        // stepsBackgroundColor: themeConfig?.stepsBgColor?.style,
+        alertFailBgColor: themeConfig?.alertFailBgColor?.style,
+        alertFailTextColor: themeConfig?.alertFailTextColor?.style,
         stepsFinishBackgroundColor: themeConfig?.stepsFinishBgColor?.style,
         stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
         stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
         stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
         stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
         stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
+
       },
       button: {
         btnPri: themeConfig?.btnBgColor?.style,
@@ -115,8 +151,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
         cardTextSec: themeConfig?.cardTextSec?.style,
         cardBorderRadius: themeConfig?.cardBorderRadius,
       },
-      bannerMainMessage: themeConfig.bannerMainMessage,
-      bannerSubMessage: themeConfig.bannerSubMessage
+
     };
     onChange({ ...theme });
   };
@@ -125,16 +160,27 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
   const exportHandler = () => {
     const exportJson = {
-      bgImg: themeConfig.bgImg,
+      useBgImage: themeConfig.useBgImage,
+      BgImage: themeConfig.bgImage,
+      pageBgColor: themeConfig.pageBgColor?.style,
+      removeBgShadow: themeConfig.removeBgShadow?.style,
       mainLogo: themeConfig.mainLogo,
+      faviconImg: themeConfig.faviconImg,
+      metaDescription: themeConfig.metaDescription,
+      metaImage: themeConfig.metaImage,
+      metaUrl: themeConfig.metaUrl,
+      projectTitle: themeConfig.projectTitle,
+      bannerMainMessage: themeConfig.bannerMainMessage,
+      bannerSubMessage: themeConfig.bannerSubMessage,
       headingColor: themeConfig?.headingColor?.style,
-      // stepsBackgroundColor: themeConfig?.stepsBgColor?.style,
+      alertFailBgColor: themeConfig?.alertFailBgColor?.style,
+      alertFailTextColor: themeConfig?.alertFailTextColor?.style,
       stepsFinishBackgroundColor: themeConfig?.stepsFinishBgColor?.style,
-      stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
+      // stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
       stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
-      stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
+      // stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
       stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
-      stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
+      // stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
       cardPri: themeConfig?.cardPri?.style,
       cardTextPri: themeConfig?.cardTextPri?.style,
       cardSec: themeConfig?.cardSec?.style,
@@ -144,15 +190,12 @@ export const ThemeBuilder = ({ config, onChange }) => {
       btnTextPriColor: themeConfig?.btnTextPriColor?.style,
       btnTextSecColor: themeConfig?.btnTextSecColor?.style,
       btnActiveColor: themeConfig?.btnActiveColor?.style,
-      btnBorderRadius: themeConfig?.btnBorderRadius,
-      bannerMainMessage: themeConfig?.bannerMainMessage,
-      bannerSubMessage: themeConfig?.bannerSubMessage,
+      btnBorderRadius: themeConfig?.btnBorderRadius
     };
 
     alert(JSON.stringify(exportJson));
   };
 
-  console.log(themeConfig)
   return (
     <>
       <Modal
@@ -164,44 +207,123 @@ export const ThemeBuilder = ({ config, onChange }) => {
         }}
       >
         <Modal.Header closeButton className="pt-2 pb-0">
-          <h4 className="m-0 text-white">Theme Builder</h4>
+          <h4 className="text-white">Theme Builder</h4>
         </Modal.Header>
         <Modal.Body>
           <div className="position-sticky top-0">
             <h4
-              className="mb-0 text-center pt-3 text-dark"
+              className="mb-0 text-center py-2 text-dark"
             >{selectedHeading}</h4>
-            {!loading ? <ColorPicker
-              onStartChange={(e) => {
-                onColorChange(colorId, e);
-              }}
-              onEndChange={(e) => {
-                onColorChange(colorId, e);
-              }}
-              onChange={(e) => {
-                onColorChange(colorId, e);
-              }}
-              {...isGradient ? { isGradient: true, gradient: themeConfig[fieldName] ? themeConfig[fieldName] : gradient } : { color: themeConfig[fieldName] ? themeConfig[fieldName] : color }}
-            /> : null}
+            {!loading &&
+              fieldName !== "bgImage" &&
+              fieldName !== "mainLogo"
+              ? <ColorPicker
+                onStartChange={(e) => {
+                  onColorChange(colorId, e);
+                }}
+                onEndChange={(e) => {
+                  onColorChange(colorId, e);
+                }}
+                onChange={(e) => {
+                  onColorChange(colorId, e);
+                }}
+                {...isGradient ? { isGradient: true, gradient: themeConfig[fieldName] ? themeConfig[fieldName] : gradient } : { color: themeConfig[fieldName] ? themeConfig[fieldName] : color }}
+              /> : null}
 
           </div>
           <div className="theme-builder-form">
             <section className="theme-bulider-component global">
+              {/* <h5
+                className="mb-0 display-12 font-weight-bold"
 
-              <div className="input-group">
-                <label htmlFor="btn_bg_color">Background Image</label>
+              >Background</h5> */}
+              <div className="radio-group my-3">
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="bgImage"
+                    name="bgImage"
+                    className="custom-control-input"
+                    placeholder="Enter background image path here ..."
+                    checked={fieldName === "bgImage" ? true : false}
+                    onChange={() => {
+                      setFieldName("bgImage");
+                      setSelectedHeading("Page Background Image");
+                      setBgImage(true);
+                      updateUseBgImage(true);
+
+                    }}
+                  />
+                  <label className="custom-control-label" htmlFor="bgImage">
+                    Page Background Image
+                  </label>
+                </div>
+                {bgImage ?
+                  <div className="input-group">
+                    {/* <label htmlFor="btn_bg_color">Background Image</label> */}
+                    <input
+                      type="text"
+                      id="bgImage"
+                      name="bgImage"
+                      placeholder="Enter image path here ..."
+                      value={themeConfig.bgImage}
+                      onChange={handleThemeConfigChange}
+                      className="form-control"
+                    />
+                  </div>
+                  :
+                  ""
+                }
+                <div className="custom-control custom-checkbox custom-control-inline">
+                  <input
+                    type="checkbox"
+                    id="removeBgShadow"
+                    name="pageBgColor"
+                    className="custom-control-input"
+                    // checked={(e) => updateRemoveBgShadow(e.target.value)}
+                    onChange={(e) => updateRemoveBgShadow(!e.target.checked)}
+                  />
+                  <label className="custom-control-label" for="removeBgShadow">
+                    Remove Page Background Shadow
+                  </label>
+                </div>
+                <div className="custom-control custom-radio custom-control-inline">
+                  <input
+                    type="radio"
+                    id="pageBgColor"
+                    name="pageBgColor"
+                    className="custom-control-input"
+                    placeholder="Enter radius amount ..."
+                    checked={fieldName === "pageBgColor" ? true : false}
+                    onChange={() => {
+                      setFieldName("pageBgColor");
+                      setIsGradient(false);
+                      setSelectedHeading("Background Color");
+                      setBgImage(false);
+                      updateUseBgImage(false);
+                    }}
+                  />
+                  <label className="custom-control-label" for="pageBgColor">
+                    Page Background Color
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="faviconImg">Favicon</label>
                 <input
                   type="text"
-                  id="bgImg"
-                  name="bgImg"
-                  placeholder="Enter image path here ..."
-                  value={themeConfig.bgImg}
+                  id="faviconImg"
+                  name="faviconImg"
+                  placeholder="Enter faviconImg path here ..."
+                  value={themeConfig.faviconImg}
                   onChange={handleThemeConfigChange}
                   className="form-control"
                 />
               </div>
-              <div className="input-group">
-                <label htmlFor="btn_bg_color">Logo</label>
+
+              <div className="form-group">
+                <label htmlFor="mainLogo">Logo</label>
                 <input
                   type="text"
                   id="mainLogo"
@@ -212,8 +334,88 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   className="form-control"
                 />
               </div>
-            </section>
+              <div className="form-group">
+                <label htmlFor="metaDescription">Meta Description</label>
+                <textarea
+                  placeholder="Enter meta description here..."
+                  min="0"
+                  rows="3"
+                  id="metaDescription"
+                  name="metaDescription"
+                  value={themeConfig?.metaDescription}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, metaDescription: e.target.value })}
+                  className="form-control"
+                ></textarea>
+              </div>
+              <div className="form-group">
+                <label htmlFor="metaImage">Meta Image</label>
+                <input
+                  type="text"
+                  id="metaImage"
+                  name="metaImage"
+                  placeholder="Enter meta image here ..."
+                  value={themeConfig.metaImage}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, metaImage: e.target.value })}
+                  className="form-control"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="metaUrl">Meta URL</label>
+                <input
+                  type="text"
+                  id="metaUrl"
+                  name="metaUrl"
+                  placeholder="Enter meta url here ..."
+                  value={themeConfig?.metaUrl}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, metaUrl: e.target.value })}
+                  className="form-control"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="projectTitle">Project Title</label>
+                <input
+                  type="text"
+                  id="projectTitle"
+                  name="projectTitle"
+                  placeholder="Enter project title here ..."
+                  value={themeConfig?.projectTitle}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, projectTitle: e.target.value })}
+                  className="form-control"
+                />
+              </div>
 
+            </section>
+            <section className="theme-bulider-component">
+              <h5 style={{ color: "white" }}>
+                <span>Banner: </span>
+              </h5>
+              <div className="form-group">
+                <label htmlFor="alertMessage">Message</label>
+                <textarea
+                  placeholder="Enter message here..."
+                  min="0"
+                  rows="3"
+                  id="bannerMainMessage"
+                  name="bannerMainMessage"
+                  value={themeConfig?.bannerMainMessage}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, bannerMainMessage: e.target.value })}
+                  className="form-control"
+                ></textarea>
+              </div>
+              <div className="form-group">
+                <label htmlFor="alertDesc">Description</label>
+                <textarea
+                  placeholder="Enter description here..."
+                  min="0"
+                  rows="3"
+                  id="bannerSubMessage"
+                  name="bannerSubMessage"
+                  value={themeConfig?.bannerSubMessage}
+                  onChange={(e) => setThemeConfig({ ...themeConfig, bannerSubMessage: e.target.value })}
+                  className="form-control"
+                ></textarea>
+              </div>
+            </section>
             <section className="theme-bulider-component">
               <h5
                 className="mb-0 display-12 font-weight-bold"
@@ -518,7 +720,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           Background Color
                         </label>
                       </div>
-                      <div className="custom-control custom-radio custom-control-inline">
+                      {/* <div className="custom-control custom-radio custom-control-inline">
                         <input
                           type="radio"
                           id="stepsFinishBorderColor"
@@ -539,7 +741,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         >
                           Border Color
                         </label>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -611,7 +813,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           Background Color
                         </label>
                       </div>
-                      <div className="custom-control custom-radio custom-control-inline">
+                      {/* <div className="custom-control custom-radio custom-control-inline">
                         <input
                           type="radio"
                           id="stepsWaitBorderColor"
@@ -632,7 +834,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         >
                           Border Color
                         </label>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="custom-control custom-radio custom-control-inline">
                       <input
@@ -743,7 +945,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           Background Color
                         </label>
                       </div>
-                      <div className="custom-control custom-radio custom-control-inline">
+                      {/* <div className="custom-control custom-radio custom-control-inline">
                         <input
                           type="radio"
                           id="stepsProcessBorderColor"
@@ -764,7 +966,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         >
                           Border Color
                         </label>
-                      </div>
+                      </div> */}
                     </div>
                     <div className="custom-control custom-radio custom-control-inline">
                       <input
@@ -816,6 +1018,7 @@ export const ThemeBuilder = ({ config, onChange }) => {
                   max="20"
                   id="cardBorderRadius"
                   name="cardBorderRadius"
+                  placeholder="Enter radius amount ..."
                   value={themeConfig.cardBorderRadius}
                   onChange={handleThemeConfigChange}
                   className="form-control"
@@ -943,35 +1146,72 @@ export const ThemeBuilder = ({ config, onChange }) => {
 
             <section className="theme-bulider-component">
               <h5 style={{ color: "white" }}>
-                <span>Banner: </span>
+                <span>Alert Fail Design:</span>
               </h5>
-              <div className="form-group">
-                <label htmlFor="alertMessage">Message</label>
-                <textarea
-                  placeholder="Enter message here..."
-                  min="0"
-                  rows="5"
-                  id="bannerMainMessage"
-                  name="bannerMainMessage"
-                  value={themeConfig?.bannerMainMessage}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, bannerMainMessage: e.target.value })}
-                  className="form-control"
-                ></textarea>
-              </div>
-              <div className="form-group">
-                <label htmlFor="alertDesc">Description</label>
-                <textarea
-                  placeholder="Enter description here..."
-                  min="0"
-                  rows="5"
-                  id="bannerSubMessage"
-                  name="bannerSubMessage"
-                  value={themeConfig?.bannerSubMessage}
-                  onChange={(e) => setThemeConfig({ ...themeConfig, bannerSubMessage: e.target.value })}
-                  className="form-control"
-                ></textarea>
+
+
+              <div className="row">
+                <div className="col-12">
+                  <div
+                    className="alertFailColor p-2 mb-3"
+                    style={
+                      themeConfig.alertFailBgColor
+                        ? {
+                          background: themeConfig.alertFailBgColor
+                            ? `${themeConfig.alertFailBgColor.style}`
+                            : undefined,
+
+                        }
+                        : {}
+                    }
+                  >
+                    <span style={{
+                      fontSize: "1rem", color: themeConfig.alertFailTextColor
+                        ? `${themeConfig.alertFailTextColor.style}`
+                        : undefined,
+                    }}>Alert Fail</span>
+                  </div>
+                  <div className="radio-group">
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="alertFailBgColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={fieldName === "alertFailBgColor" ? true : false}
+                        onChange={() => {
+                          setFieldName("alertFailBgColor");
+                          setIsGradient(true);
+                          setSelectedHeading("Alert Fail Background Color")
+                        }}
+                      />
+                      <label className="custom-control-label" for="alertFailBgColor">
+                        Background Color
+                      </label>
+                    </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="alertFailTextColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={fieldName === "alertFailTextColor" ? true : false}
+                        onChange={() => {
+                          setFieldName("alertFailTextColor");
+                          setIsGradient(false);
+                          setSelectedHeading("Alert Fail Text Color")
+                        }}
+                      />
+                      <label className="custom-control-label" for="alertFailTextColor">
+                        Text Color
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
+
+
 
             <div className="btn-bar text-center p-3">
               <button className="btn btn-danger mr-2 ">Set Default</button>

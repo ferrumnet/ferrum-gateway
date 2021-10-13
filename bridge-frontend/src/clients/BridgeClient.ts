@@ -250,6 +250,68 @@ export class BridgeClient implements Injectable {
         }
     }
 
+     /**
+     * Save Token Notification Details
+     */
+      async saveTokenNotificationDetails(dispatch: Dispatch<AnyAction>,
+        projectAdminEmail:string,currency:string,highthreshold:string,
+        lowerthreshold:string,listenerUrl:string)
+    {
+         try {
+            dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+             const res = await this.api.api({
+                 command: 'saveTokenNotificationDetails', data: {
+                     projectAdminEmail,currency,listenerUrl,"upperthreshold":highthreshold,lowerthreshold
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
+     /**
+     * update Token Notification Details
+     */
+    async updateTokenNotificationDetails(dispatch: Dispatch<AnyAction>,
+        projectAdminEmail:string,currency:string,highthreshold:string,
+        lowerthreshold:string,listenerUrl:string)
+    {
+         try {
+             const res = await this.api.api({
+                 command: 'updateTokenNotificationDetails', data: {
+                     projectAdminEmail,currency,listenerUrl,"upperthreshold":highthreshold,lowerthreshold
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
+     /**
+     * update Token Notification Details
+     */
+    async getTokenNotificationDetails(dispatch: Dispatch<AnyAction>,currency:string)
+    {
+         try {
+             const res = await this.api.api({
+                 command: 'getTokenNotificationDetails', data: {
+                     currency
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
     /**
      * Loads liquidity added by user
      */

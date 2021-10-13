@@ -18,8 +18,15 @@ export class CurrencyListSvc implements Injectable {
 			const listFs = CURRENCY_LISTS.map(l => this.loadSingleList(l));
 			const listsOfLists = await Promise.all(listFs);
 			let lists: TokenDetails[] = [];
+			const curSet = new Set<string>();
 			listsOfLists.forEach(list => {
-				lists = lists.concat(list);
+				const filteredList = list.filter(l => {
+					const k = `${l.chainId.toString()}:${l.address}`;
+					if (curSet.has(k)) { return false; }
+					curSet.add(k);
+					return true;
+				});
+				lists = lists.concat(filteredList);
 			});
 			lists.forEach(l => {
 				try {

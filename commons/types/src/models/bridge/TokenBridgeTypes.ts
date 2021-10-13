@@ -20,6 +20,16 @@ export const PairedAddressType: Eip712TypeDefinition = {
   ],
 };
 
+export interface liquidityNotificationConfig{
+  projectAdminEmail: string,
+  currency: string,
+  listenerUrl: string,
+  upperthreshold: number,
+  lowerthreshold: number,
+  lastNotifiedTime: number
+}
+
+
 export interface PairedAddress {
   network1: string;
   address1: string;
@@ -95,6 +105,18 @@ const payBySignatureDataSchema: Schema = new Schema<
   hash: String,
 });
 
+///@ts-ignore
+const liquidityNotificationConfigSchema: Schema = new Schema<
+liquidityNotificationConfig & Document
+>({
+projectAdminEmail: String,
+currency: String,
+listenerUrl: String,
+upperthreshold: Number,
+lowerthreshold: Number,
+lastNotifiedTime: Number
+}) 
+
 //@ts-ignore
 const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   UserBridgeWithdrawableBalanceItem & Document
@@ -165,6 +187,13 @@ export const SwapTxModel = (c: Connection) =>
     "swapTransactions",
     swapTxSchema
   )
+
+export const liquidityNotificationConfigModel = (c: Connection) =>
+  c.model<liquidityNotificationConfig & Document>(
+    "liquidityNotificationConfig",
+    liquidityNotificationConfigSchema
+);
+
 
 export const UserBridgeWithdrawableBalanceItemModel = (c: Connection) =>
   c.model<UserBridgeWithdrawableBalanceItem & Document>(
