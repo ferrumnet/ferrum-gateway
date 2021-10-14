@@ -38,6 +38,7 @@ const transactionsSchema: Schema = new Schema<Document & Transactions>({
   transactionIndex: { type: Number },
   type: { type: String },
   network: { type: String },
+  age: { type: String },
 });
 
 // 3. Create a Model.

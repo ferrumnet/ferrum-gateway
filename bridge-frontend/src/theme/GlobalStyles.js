@@ -303,7 +303,7 @@ export const GlobalStyles = createGlobalStyle`
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
     }
     .text-vary-color{
-      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
+      color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"};
     }
     .ant-steps-item-title{
       color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;

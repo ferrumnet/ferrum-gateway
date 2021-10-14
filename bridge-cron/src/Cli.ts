@@ -40,7 +40,7 @@ export class Cli implements Injectable {
             } as Dimension,
             {
               Name: "Network",
-              Value: "ETHEREUM",
+              Value: "NETWORK",
             } as Dimension,
           ]
         )

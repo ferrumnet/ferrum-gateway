@@ -25,6 +25,7 @@
     "dotenv": "^8.2.0",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "log4js": "^6.3.0",
+    "moment": "^2.29.1",
     "node-hid": "^2.1.1",
     "types": "1.0.0",
     "web3": "^1.5.2",

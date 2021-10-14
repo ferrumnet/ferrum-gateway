@@ -175,11 +175,11 @@ export const ThemeBuilder = ({ config, onChange }) => {
       headingColor: themeConfig?.headingColor?.style,
       alertFailBgColor: themeConfig?.alertFailBgColor?.style,
       alertFailTextColor: themeConfig?.alertFailTextColor?.style,
-      stepsFinishBackgroundColor: themeConfig?.stepsFinishBgColor?.style,
+      stepsFinishBgColor: themeConfig?.stepsFinishBgColor?.style,
       // stepsFinishBorderColor: themeConfig?.stepsFinishBorderColor?.style,
-      stepsWaitBackgroundColor: themeConfig?.stepsWaitBgColor?.style,
+      stepsWaitBgColor: themeConfig?.stepsWaitBgColor?.style,
       // stepsWaitBorderColor: themeConfig?.stepsWaitBorderColor?.style,
-      stepsProcessBackgroundColor: themeConfig?.stepsProcessBgColor?.style,
+      stepsProcessBgColor: themeConfig?.stepsProcessBgColor?.style,
       // stepsProcessBorderColor: themeConfig?.stepsProcessBorderColor?.style,
       cardPri: themeConfig?.cardPri?.style,
       cardTextPri: themeConfig?.cardTextPri?.style,
@@ -193,7 +193,12 @@ export const ThemeBuilder = ({ config, onChange }) => {
       btnBorderRadius: themeConfig?.btnBorderRadius
     };
 
-    alert(JSON.stringify(exportJson));
+    const element = document.createElement("a");
+    const file = new Blob([JSON.stringify(exportJson)], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = "themeJson.txt";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
   };
 
   return (
@@ -387,8 +392,9 @@ export const ThemeBuilder = ({ config, onChange }) => {
             </section>
             <section className="theme-bulider-component">
               <h5 style={{ color: "white" }}>
-                <span>Banner: </span>
+                <span>Alert Warning Top Banner: </span>
               </h5>
+              <p>This banner is designed to warn community members about scam / phishing sites. It is shown on the top of the web page.</p>
               <div className="form-group">
                 <label htmlFor="alertMessage">Message</label>
                 <textarea
@@ -836,6 +842,27 @@ export const ThemeBuilder = ({ config, onChange }) => {
                         </label>
                       </div> */}
                     </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="stepsWaitBorderColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={
+                          fieldName === "stepsWaitBorderColor" ? true : false
+                        }
+                        onChange={() => {
+                          setFieldName("stepsWaitBorderColor");
+                          setIsGradient(false);
+                        }}
+                      />
+                      <label
+                        className="custom-control-label"
+                        for="stepsWaitBorderColor"
+                      >
+                        stepsWaitBorderColor
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <div className="col-6">
@@ -946,6 +973,27 @@ export const ThemeBuilder = ({ config, onChange }) => {
                           Border Color
                         </label>
                       </div> */}
+                    </div>
+                    <div className="custom-control custom-radio custom-control-inline">
+                      <input
+                        type="radio"
+                        id="stepsProcessBorderColor"
+                        name="customRadioInline"
+                        className="custom-control-input"
+                        checked={
+                          fieldName === "stepsProcessBorderColor" ? true : false
+                        }
+                        onChange={() => {
+                          setFieldName("stepsProcessBorderColor");
+                          setIsGradient(false);
+                        }}
+                      />
+                      <label
+                        className="custom-control-label"
+                        for="stepsProcessBorderColor"
+                      >
+                        stepsProcessBorderColor
+                      </label>
                     </div>
                   </div>
                 </div>
