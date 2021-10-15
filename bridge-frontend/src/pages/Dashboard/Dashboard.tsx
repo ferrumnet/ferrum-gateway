@@ -167,7 +167,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
                 history.replace('/' + groupId);
             } else {
                 groupId = 'frm';
-                history.replace('/frm');
+                history.replace('/bloxmove');
             }
         }
         if (!groupInfo) {
