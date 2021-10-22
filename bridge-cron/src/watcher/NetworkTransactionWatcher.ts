@@ -1,5 +1,7 @@
 import Web3 from "web3";
 import inputs from "./bridgeCronInputs.json";
+import { ETHEREUM_CHAIN_ID_FOR_NETWORK } from "ferrum-chain-clients";
+import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { scheduleJob } from "node-schedule";
 import { connect } from "mongoose";
 import moment from "moment";
@@ -9,6 +11,7 @@ import {
   MetricsService,
 } from "ferrum-plumbing";
 import { TransactionModel } from "../models/transaction";
+const IERC20_json_1 = require("./erc20.json");
 
 require("dotenv").config();
 
@@ -21,6 +24,8 @@ export class NetworkTransactionWatcher implements Injectable {
   addLiquidityEventHash: string;
   bridgeSwapEventHash: string;
   transferBySignatureEventHash: string;
+  symbol: string;
+  decimal: string;
 
   networksBlockCache = {
     RINKEBY: {
@@ -57,7 +62,7 @@ export class NetworkTransactionWatcher implements Injectable {
   };
   constructor(
     private metricsService: MetricsService,
-    private scheduler: LongRunningScheduler
+    private scheduler: LongRunningScheduler // private helper: EthereumSmartContractHelper
   ) {
     this.networksCache = {
       RINKEBY: new Web3(
@@ -119,10 +124,21 @@ export class NetworkTransactionWatcher implements Injectable {
           let web3 = this.networksCache[`${provider}`];
           let currentBlock = await web3.eth.getBlockNumber();
           let blockTimestamp = await web3.eth.getBlock(currentBlock);
-          let age = moment(new Date(blockTimestamp.timestamp * 1000));
-          let start = moment(Date.now());
-          let duration = moment.duration(start.diff(age));
-          let days = duration.asDays().toFixed();
+          let date = moment(new Date(blockTimestamp.timestamp * 1000)).format(
+            "MM-DD-YYYY"
+          );
+          // const NetworkNameByChainId: { [k: number]: string } = {};
+          // Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK).forEach(
+          //   (k) =>
+          //     (NetworkNameByChainId[
+          //       ETHEREUM_CHAIN_ID_FOR_NETWORK[k]
+          //     ] = `${provider}`)
+          // );
+          const NetworkNameByChainId = ETHEREUM_CHAIN_ID_FOR_NETWORK[provider];
+          // const NetworkNameByChainId: { [k: number]: string } = {
+          //   [ETHEREUM_CHAIN_ID_FOR_NETWORK[provider]]: `${provider}`,
+          // };
+          // console.log(NetworkNameByChainId);
           let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
           console.log(provider, fromBlock, currentBlock);
           if (fromBlock > 0) {
@@ -143,7 +159,12 @@ export class NetworkTransactionWatcher implements Injectable {
               `totalLogs.${provider}`,
               web3ProviderLogs.length
             );
-            await this.proccessNetworkLogs(web3ProviderLogs, provider, days);
+            await this.proccessNetworkLogs(
+              web3ProviderLogs,
+              provider,
+              date,
+              NetworkNameByChainId
+            );
           }
           await this.updateToBlockNumer(currentBlock, provider);
         }
@@ -177,7 +198,12 @@ export class NetworkTransactionWatcher implements Injectable {
     ];
   }
 
-  async proccessNetworkLogs(logs: any, network: string, age) {
+  async proccessNetworkLogs(
+    logs: any,
+    network: string,
+    date: string,
+    sent: string
+  ) {
     let web3 = this.networksCache[`${network}`];
     for (let log of logs) {
       const transactionReceipt = await web3.eth.getTransactionReceipt(
@@ -187,7 +213,6 @@ export class NetworkTransactionWatcher implements Injectable {
         for (let log of transactionReceipt.logs) {
           log = await this.parseLog(log, network);
         }
-        // console.log(transactionReceipt);
         await TransactionModel.findOneAndUpdate(
           {
             transactionHash: transactionReceipt.transactionHash,
@@ -195,7 +220,10 @@ export class NetworkTransactionWatcher implements Injectable {
           {
             ...transactionReceipt,
             network: network,
-            age,
+            date,
+            sent,
+            symbol: this.symbol,
+            decimal: this.decimal,
           },
           { upsert: true }
         );
@@ -212,44 +240,60 @@ export class NetworkTransactionWatcher implements Injectable {
           const BridgeSwapdecodeLog = await web3.eth.abi.decodeLog(
             inputs.bridgeSwapInputs,
             log.data,
-            log.topics
+            log.topics.slice(1)
           );
           log.decodeBy = this.bridgeSwapEventHash;
           log.decodeFor = "BridgeSwapdecodeLog";
           log.decodedLog = BridgeSwapdecodeLog;
           // console.log(BridgeSwapdecodeLog);
+          const currency = `${network}:${BridgeSwapdecodeLog.token.toLowerCase()}`;
+          let symbolAndDecimal = await this.symbolAndDecimal(currency);
+          this.symbol = symbolAndDecimal.symbol;
+          this.decimal = symbolAndDecimal.decimal;
         } else if (log.topics[0] === this.transferBySignatureEventHash) {
           // console.log("transfer");
           const transferBySignaturedecodeLog = await web3.eth.abi.decodeLog(
             inputs.transferBySignatureInputs,
             log.data,
-            log.topics
+            log.topics.slice(1)
           );
           log.decodeBy = this.transferBySignatureEventHash;
           log.decodeFor = "transferBySignaturedecodeLog";
           log.decodedLog = transferBySignaturedecodeLog;
+          const currency = `${network}:${transferBySignaturedecodeLog.token.toLowerCase()}`;
+          let symbolAndDecimal = await this.symbolAndDecimal(currency);
+          this.symbol = symbolAndDecimal.symbol;
+          this.decimal = symbolAndDecimal.decimal;
           // console.log(transferBySignaturedecodeLog);
         } else if (log.topics[0] === this.addLiquidityEventHash) {
           // console.log("Add Liquidity");
           const bridgeLiquidityAddedLog = await web3.eth.abi.decodeLog(
             inputs.bridgeLiquidityAddedInputs,
             log.data,
-            log.topics
+            log.topics.slice(1)
           );
           log.decodeBy = this.addLiquidityEventHash;
           log.decodeFor = "bridgeLiquidityAddedLog";
           log.decodedLog = bridgeLiquidityAddedLog;
+          const currency = `${network}:${bridgeLiquidityAddedLog.token.toLowerCase()}`;
+          let symbolAndDecimal = await this.symbolAndDecimal(currency);
+          this.symbol = symbolAndDecimal.symbol;
+          this.decimal = symbolAndDecimal.decimal;
           // console.log(bridgeLiquidityAddedLog);
         } else if (log.topics[0] === this.removeLiquidityEventdHash) {
           // console.log("Remove Liquidity");
           const bridgeLiquidityRemovesLog = await web3.eth.abi.decodeLog(
             inputs.bridgeLiquidityRemovedInputs,
             log.data,
-            log.topics
+            log.topics.slice(1)
           );
           log.decodeBy = this.removeLiquidityEventdHash;
           log.decodeFor = "bridgeLiquidityRemovesLog";
           log.decodedLog = bridgeLiquidityRemovesLog;
+          const currency = `${network}:${bridgeLiquidityRemovesLog.token.toLowerCase()}`;
+          let symbolAndDecimal = await this.symbolAndDecimal(currency);
+          this.symbol = symbolAndDecimal.symbol;
+          this.decimal = symbolAndDecimal.decimal;
           // console.log(bridgeLiquidityRemovesLog);
         } else if (log.topics[0] === this.setFeeEventdHash) {
           // console.log("Set Fee");
@@ -260,11 +304,15 @@ export class NetworkTransactionWatcher implements Injectable {
           const withdrawSignedEventdHash = await web3.eth.abi.decodeLog(
             inputs.withdrawSignedVerify,
             log.data,
-            log.topics
+            log.topics.slice(1)
           );
           log.decodeBy = this.removeLiquidityEventdHash;
           log.decodeFor = "withdrawSignedVerify";
           log.decodedLog = withdrawSignedEventdHash;
+          const currency = `${network}:${withdrawSignedEventdHash.token.toLowerCase()}`;
+          let symbolAndDecimal = await this.symbolAndDecimal(currency);
+          this.symbol = symbolAndDecimal.symbol;
+          this.decimal = symbolAndDecimal.decimal;
         } else {
           // console.log("different");
         }
@@ -275,6 +323,19 @@ export class NetworkTransactionWatcher implements Injectable {
       console.log(e.message);
     }
     return log;
+  }
+
+  async symbolAndDecimal(currency) {
+    const [network, token] =
+      EthereumSmartContractHelper.parseCurrency(currency);
+    const tokenCon = this.erc20(network, token);
+    const symbol = await tokenCon.methods.symbol().call();
+    const decimal = await tokenCon.methods.decimals().call();
+    return { symbol, decimal };
+  }
+  erc20(network, token) {
+    const web3 = this.networksCache[`${network}`];
+    return new web3.eth.Contract(IERC20_json_1, token);
   }
   __name__() {
     return "NetworkTransactionWatcher";

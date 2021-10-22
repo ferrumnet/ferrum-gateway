@@ -192,7 +192,9 @@ export class TokenBridgeService
   }
 
   async getNetworkTransactions(req) {
-    const txs = await this.transactionModel!.find({});
+    const txs = await this.transactionModel!.find().where(
+      "logs.decodeFor === BridgeSwapdecodeLog || logs.decodeFor === withdrawSignedVerify"
+    );
     return txs;
   }
 

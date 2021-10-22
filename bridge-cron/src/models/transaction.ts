@@ -17,6 +17,11 @@ export interface Transactions {
   transactionHash: String;
   transactionIndex: Number;
   type: String;
+  network: String;
+  date: String;
+  sent: String;
+  symbol: String;
+  decimal: String;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -38,7 +43,10 @@ const transactionsSchema: Schema = new Schema<Document & Transactions>({
   transactionIndex: { type: Number },
   type: { type: String },
   network: { type: String },
-  age: { type: String },
+  date: { type: String },
+  sent: { type: String },
+  symbol: { type: String },
+  decimal: { type: String },
 });
 
 // 3. Create a Model.
