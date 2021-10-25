@@ -8,6 +8,11 @@ import {
   MetricsServiceConfig,
   ConfigurableLogger,
 } from "ferrum-plumbing";
+import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
+import {
+  EthereumSmartContractHelper,
+  Web3ProviderConfig,
+} from "aws-lambda-helper/dist/blockchain";
 import { Dimension } from "aws-sdk/clients/cloudwatch";
 import { getLogger } from "log4js";
 import { LongRunningScheduler } from "ferrum-plumbing/dist/scheduler/LongRunningScheduler";
@@ -27,6 +32,24 @@ const Log4jsLogger = (name: string) =>
 export class Cli implements Injectable {
   async setupModule() {
     const container = await LambdaGlobalContext.container();
+    const networkProviders = {
+      ETHEREUM: process.env.WEB3_PROVIDER_ETHEREUM,
+      RINKEBY: process.env.WEB3_PROVIDER_RINKEBY,
+      BSC: process.env.WEB3_PROVIDER_BSC,
+      BSC_TESTNET: process.env.WEB3_PROVIDER_BSC_TESTNET,
+      POLYGON: process.env.WEB3_PROVIDER_POLYGON,
+      MUMBAI_TESTNET: process.env.WEB3_PROVIDER_MUMBAI_TESTNET,
+    };
+    // container.register("MultiChainConfig", () => netConfig);
+    // container.registerModule(new ChainClientsModule());
+    // const networkProviders = {
+    //   ETHEREUM: netConfig.web3Provider,
+    //   RINKEBY: netConfig.web3ProviderRinkeby,
+    //   BSC: netConfig.web3ProviderBsc,
+    //   BSC_TESTNET: netConfig.web3ProviderBscTestnet,
+    //   POLYGON: netConfig.web3ProviderPolygon,
+    //   MUMBAI_TESTNET: netConfig.web3ProviderMumbaiTestnet,
+    // } as Web3ProviderConfig;
     container.register(
       "MetricsUploader",
       (c) =>
@@ -65,10 +88,15 @@ export class Cli implements Injectable {
       (c) => new LongRunningScheduler(c.get(LoggerFactory))
     );
     container.registerSingleton(
+      EthereumSmartContractHelper,
+      (c) => new EthereumSmartContractHelper(c.get(networkProviders))
+    );
+    container.registerSingleton(
       NetworkTransactionWatcher,
       (c) =>
         new NetworkTransactionWatcher(
           c.get(MetricsService),
+          // c.get(EthereumSmartContractHelper),
           c.get(LongRunningScheduler)
         )
     );
@@ -77,7 +105,7 @@ export class Cli implements Injectable {
     return container;
   }
 
-  async main() {
+  async main(): Promise<void> {
     const container = await this.setupModule();
     const watcher = container.get<NetworkTransactionWatcher>(
       NetworkTransactionWatcher
@@ -97,7 +125,7 @@ export class Cli implements Injectable {
     process.exit(0);
   }
 
-  __name__(): string {
+  __name__() {
     return "Cli";
   }
 }
