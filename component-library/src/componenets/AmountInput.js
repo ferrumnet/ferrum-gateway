@@ -1,6 +1,7 @@
 import React from "react";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
 import IconCryptoTrx from "cryptocurrency-icons/svg/color/trx.svg";
+
 export const AmountInput = ({...rest}) => {
   return (
     <>
@@ -20,8 +21,8 @@ export const AmountInput = ({...rest}) => {
       <div className="amount-rec-text">
         <small className="text-pri d-flex align-items-center text-vary-color">
           You have ≈ {rest.balance} {rest.symbol}
-            <span className="icon-network icon-sm mx-2">
-              <img src={rest.icons[rest.symbol] || rest.icons['ETH'] } alt="loading"></img>
+            <span className="icon-network icon-sm mx-1">
+              <img src={rest.assets[rest.selectedCurrency].logoURI || rest.icons['ETH'] } alt="loading"></img>
             </span>
         </small>
       </div>

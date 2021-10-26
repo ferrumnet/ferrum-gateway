@@ -79,7 +79,7 @@ export const AssetsSelector = ({
 			>
               <div className="network-detail">
                 <div className="icon-network icon-lg">
-                  <img src={asset.logoURI} alt=""></img>
+                  <img style={{"width": "32px"}} src={asset.logoURI} alt=""></img>
                 </div>
                 <span>
                   <strong>{asset.symbol}</strong>

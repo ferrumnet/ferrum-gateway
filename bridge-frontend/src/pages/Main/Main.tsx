@@ -398,8 +398,10 @@ export const ConnectBridge = () => {
                             amount={pageProps.amount}
                             value={pageProps.amount}
                             fee={0}
+                            assets={assets||[]}
                             icons={supportedIcons}
                             addonStyle={styles.addon}
+                            selectedCurrency={pageProps.currency}
                             groupAddonStyle={styles.groupAddon}
                             balance={pageProps.balance}
                             setMax={() => dispatch(Actions.setMax({ balance: pageProps.balance, fee: 0 }))}
