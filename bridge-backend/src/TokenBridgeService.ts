@@ -385,10 +385,10 @@ export class TokenBridgeService
       "Withdraw item with the provided id not found."
     );
     const pendingTxs = (item.useTransactions || []).filter(
-      (t) => t.status === "pending"
+      (t) => t.status === "pending" || t.status === "failed"
     );
     if (!pendingTxs.length && item.used === "pending") {
-      item.used = "failed";
+      item.used = "pending";
     }
     for (const tx of pendingTxs) {
       const txStatus = await this.helper.getTransactionStatus(
@@ -400,7 +400,7 @@ export class TokenBridgeService
       console.log(
         `Updating status for withdraw item ${id}: ${item.sendNetwork} ${txStatus}-${tx.id}`
       );
-      if (txStatus === ("timedout" || "failed")) {
+      if (txStatus === ("failed")) {
         item.used = "failed";
       } else if (txStatus === "successful") {
         item.used = "completed";

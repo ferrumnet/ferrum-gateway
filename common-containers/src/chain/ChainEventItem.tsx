@@ -99,7 +99,7 @@ export function ChainEventItem(props: ChainEventItemProps) {
     const dispatch = useDispatch();
     const {network, id, initialStatus, updater} = props;
     useEffect(() => {
-        if ((initialStatus === '' || initialStatus === 'pending') && !!network && !!id) {
+        if (((initialStatus === 'pending') && !!network && !!id) || initialStatus === 'failed') {
             dispatch(chainEventsSlice.actions.watchEvent({...props}));
         }
         // if (myEvent && (myEvent?.status !== 'pending' && myEvent?.status !== ''
