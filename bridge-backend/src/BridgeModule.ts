@@ -38,7 +38,7 @@ export class BridgeModule implements Module {
             RINKEBY:
               env("TOKEN_BRDIGE_CONTRACT_RINKEBY") || GLOBAL_BRIDGE_CONTRACT,
             BSC:
-              env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
+              env("TOKEN_BRDIGE_CONTRACT_BSC") ||
               GLOBAL_BRIDGE_CONTRACT,
             BSC_TESTNET:
               env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
