@@ -468,8 +468,10 @@ export function LiquidityPage() {
                                             amount={pageProps.amount}
                                             value={pageProps.amount}
                                             fee={0}
+                                            selectedCurrency={pageProps.currency}
                                             icons={supportedIcons}
                                             addonStyle={styles.addon}
+                                            assets={assets||[]}
                                             groupAddonStyle={styles.groupAddon}
                                             balance={pageProps.balance}
                                             setMax={()=>dispatch(Actions.setMax({balance: action?pageProps.balance:pageProps.availableLiquidity,fee: 0}))}

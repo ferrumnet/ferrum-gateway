@@ -22,7 +22,7 @@ export const AmountInput = ({...rest}) => {
         <small className="text-pri d-flex align-items-center text-vary-color">
           You have ≈ {rest.balance} {rest.symbol}
             <span className="icon-network icon-sm mx-1">
-              <img src={rest.assets[rest.selectedCurrency].logoURI || rest.icons['ETH'] } alt="loading"></img>
+              <img src={(rest.assets && (rest.assets[rest.selectedCurrency]||{}).logoURI) || rest.icons['ETH'] } alt="loading"></img>
             </span>
         </small>
       </div>
