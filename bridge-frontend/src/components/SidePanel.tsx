@@ -292,10 +292,10 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                     Sender Network : {e.receiveNetwork}
                                 </p>
                                 <p style={{...styles.accInfo}}>
-                                    Reciever Network : {e.sendNetwork}
+                                    Receiver Network : {e.sendNetwork}
                                 </p>
                                 <p style={{...styles.accInfo}}>
-                                    Reciever Address : {e.receiveAddress}
+                                    Receiver Address : {e.receiveAddress}
                                 </p>
                                 <p style={{...styles.accInfo}}>
                                     Token Address : {e.payBySig.token}
