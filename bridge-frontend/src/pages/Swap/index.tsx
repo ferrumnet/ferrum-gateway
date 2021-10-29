@@ -185,7 +185,7 @@ const onSwap = async (
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const client = inject<BridgeClient>(BridgeClient);        
-        ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
+        ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not enough balance for this transaction');
         const res = await client.swap(dispatch,currency, amount, targetNet);
        
         if( res?.status === 'success'){
