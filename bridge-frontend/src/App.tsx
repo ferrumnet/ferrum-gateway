@@ -25,7 +25,7 @@ const store = StoreBuilder.build(
   Environment.defaultEndPoint(),
 );
 
-const showThemeBuilder = true
+const showThemeBuilder = false
 
 function App() {
   // const [themeConfig,setThemeConfig] = useState({primary:"",secondary:"",backgroud:"",radius:0,backgroundImage:"",logo:""});
