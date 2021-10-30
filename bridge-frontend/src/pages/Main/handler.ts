@@ -101,13 +101,13 @@ export const onSwap = async (
     availableLiquidity:string,
     ) => {
     try {
-		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
-        ValidationUtils.isTrue(!(Number(amount) > (Number(availableLiquidity) - 1) ),'Not anough Liquidity available on destination network');
+		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not enough balance for this transaction');
+        ValidationUtils.isTrue(!(Number(amount) > (Number(availableLiquidity) - 1) ),'Not enough Liquidity available on destination network');
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);        
        
-        ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
+        ValidationUtils.isTrue((destnetwork != network),'Destination network cannot be the same as the source network');
 
         const res = await client.swap(dispatch,currency, amount, targetCurrency);
        
