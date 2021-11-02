@@ -205,6 +205,8 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 			"Contract's method arg 'multiSignature' must be the last one");
 		values.push(multiSig);
 
+		console.log('ABOUT TO CALL METHOD', m.abi.name, {values});
+
 		const p = contract.methods[m.abi.name](...values);
 
 		const gas = await this.estimateGasOrDefault(p, userAddress, undefined);

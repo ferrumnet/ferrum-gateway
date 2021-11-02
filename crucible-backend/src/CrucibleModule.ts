@@ -2,13 +2,13 @@ import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Container, Module, ValidationUtils } from "ferrum-plumbing";
 import { CommonBackendModule, decryptKey } from "common-backend";
-import { CrucibleConfig, CrucibleContracts } from "./CrucibleTypes";
+import { CrucibleConfig } from "./CrucibleTypes";
 import { CrucibleRequestProcessor } from "./CrucibleRequestProcessor";
 import { CrucibeService } from "./CrucibleService";
 import { UniswapPricingService } from "common-backend/dist/uniswapv2/UniswapPricingService";
 import { networkEnvConfig } from "common-backend/dist/dev/DevConfigUtils";
 import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
-import { StakingContracts } from "types";
+import { StakingContracts, CRUCIBLE_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 
@@ -34,14 +34,7 @@ export class CrucibleModule implements Module {
         database: {
           connectionString: getEnv("MONGOOSE_CONNECTION_STRING"),
         } as MongooseConfig,
-        contracts: networkEnvConfig<CrucibleContracts>(
-          ["RINKEBY"],
-          "CRUCIBLE_CONTRACTS",
-          (v) => {
-            const [router, factory, staking] = v.split(",");
-            return { router, factory, staking } as CrucibleContracts;
-          }
-        ),
+        contracts: CRUCIBLE_CONTRACTS_V_0_1,
         stakingContracts: networkEnvConfig<StakingContracts>(
           ["RINKEBY"],
           "STAKING_CONTRACTS",

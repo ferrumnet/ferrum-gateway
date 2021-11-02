@@ -170,7 +170,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			contractAddress,
 			await this.helper.amountToMachine(currency, amount),
 			{from});
-		return EthereumSmartContractHelper.fromTypechainTransaction(t);
+		return this.helper.fromTypechainTransactionWithGas(network, t, from);
 	}
 
 	async depositAddLiquidityAndStake(
@@ -438,6 +438,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 
 	async factory(network: string): Promise<CrucibleFactory> {
 		const provider = await this.helper.ethersProvider(network);
+		console.log('GETTING FACTORY FOR CONFIG', this.config);
 		return CrucibleFactory__factory.connect(this.config.contracts[network].factory, provider);
 	}
 

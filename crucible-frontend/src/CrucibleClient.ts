@@ -2,7 +2,7 @@ import { JsonRpcRequest, ValidationUtils, Network } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { addAction, CommonActions } from './common/CommonActions';
-import { CrucibleInfo, CRUCIBLE_CONTRACTS, Utils } from 'types';
+import { CrucibleInfo, CRUCIBLE_CONTRACTS_V_0_1, Utils } from 'types';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
@@ -125,7 +125,7 @@ export class CrucibleClient {
 	}
 
 	async contract(network: string) {
-		const cc = CRUCIBLE_CONTRACTS[network];
+		const cc = CRUCIBLE_CONTRACTS_V_0_1[network];
 		ValidationUtils.isTrue(!!cc, `Network "${network}" not supported`);
 		return cc;
 	}

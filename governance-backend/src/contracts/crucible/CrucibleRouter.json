@@ -32,9 +32,9 @@
 						"type": "uint64"
 					},
 					{
-						"internalType": "uint16",
+						"internalType": "uint64",
 						"name": "expectedGroupId",
-						"type": "uint16"
+						"type": "uint64"
 					},
 					{
 						"internalType": "bytes",

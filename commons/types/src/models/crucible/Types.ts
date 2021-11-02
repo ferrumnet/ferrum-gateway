@@ -47,4 +47,3 @@ export const CrucibleAllocationMethods = {
 	DEPOSIT: 'DEPOSIT',
 	DEPOSIT_ADD_LIQUIDITY_STAKE: 'DEPOSIT_ADD_LIQUIDITY_STAKE',
 }
-

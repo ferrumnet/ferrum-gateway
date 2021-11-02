@@ -1,7 +1,16 @@
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 import { TokenDetails } from "../chain/ChainTypes";
 
-export type SwapProtocol = string;
+export type SwapProtocol = 'RINKEBY:UNISWAP_V2' |
+	'ETHEREUM:UNISWAP_V2' |
+	'BSC_TESTNET:CAKE' |
+	'BSC_TESTNET:PANCAKE' |
+	'MUMBAI_TESTNET:POLYGON_QUICKSWAP' | 
+	'MUMBAI_TESTNET:QUICK_SWAP' |
+	'BSC_TESTNET:PANCAKESWAP_V2' |
+	'BSC:PANCAKESWAP_V2' |
+	'POLYGON:POLYGON_QUICKSWAP'
+	;
 
 export interface SwapProtocolInfo {
 	network: string;

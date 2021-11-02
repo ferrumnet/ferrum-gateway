@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { CrucibleInfo, BigUtils, CRUCIBLE_ROUTER, inject,
-	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, } from "types";
+import { CrucibleInfo, BigUtils, inject,
+	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, CRUCIBLE_CONTRACTS_V_0_1, } from "types";
 import {
     RegularBtn,
     // @ts-ignore
@@ -24,6 +24,7 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 		isPublic: boolean,
 	}, ctx) => {
 	const {network, crucible, currency, amount, isPublic} = payload;
+	console.log('PL":', payload,)
 	const client = inject<CrucibleClient>(CrucibleClient);
 	const transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
 	if (!!transactionId) {
@@ -117,10 +118,12 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		BigUtils.truthy(BigUtils.safeParse(params.info.openCap));
 
 	const userDirectAllocation = (userCrucible?.allocations || []
-		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '0';
+		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
 	const userLpAllocation = (userCrucible?.allocations || []
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE)?.allocation || '0';
 	const info = params.info;
+
+	const router = CRUCIBLE_CONTRACTS_V_0_1[info.network]?.router || '';
 	const deposit = <Modal
         isOpen={depositModal}
         onDismiss={() => showDepositModal(false)}
@@ -131,7 +134,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		  <ChainActionDlg
 		  	network={info.network as any}
 			title={'Deposit and Mint'}
-			contractAddress={CRUCIBLE_ROUTER[info.network]}
+			contractAddress={router}
 			userAddress={userAddr!}
 			currency={info.baseCurrency}
 			balance={baseBalance || '0'}
@@ -163,7 +166,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 		  <ChainActionDlg
 		  	network={info.network as any}
 			title={`Stake your ${info.symbol}`}
-			contractAddress={CRUCIBLE_ROUTER[info.network]}
+			contractAddress={router}
 			userAddress={userAddr!}
 			currency={info.currency}
 			balance={balance || '0'}
