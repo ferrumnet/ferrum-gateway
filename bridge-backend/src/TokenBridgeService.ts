@@ -3,7 +3,6 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { ChainUtils } from "ferrum-chain-clients";
 import { Injectable, Network, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Document, Model } from "mongoose";
-import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import {
   transactionModel,
   Transactions,
@@ -43,7 +42,6 @@ export class TokenBridgeService
   constructor(
     private helper: EthereumSmartContractHelper,
     private contract: TokenBridgeContractClinet,
-    private verifyer: PairAddressSignatureVerifyre,
     private notificationSvc: BridgeNotificationSvc
   ) {
     super();
@@ -528,52 +526,6 @@ export class TokenBridgeService
       return r.toJSON();
     }
     return;
-  }
-
-  async updateUserPairedAddress(pair: SignedPairAddress) {
-    this.verifyInit();
-    ValidationUtils.isTrue(!!pair.pair, "Invalid pair (empty)");
-    ValidationUtils.isTrue(
-      !!pair.pair.address1 && !!pair.pair.address2,
-      "Both addresses are required"
-    );
-    ValidationUtils.isTrue(
-      !!pair.pair.network1 && !!pair.pair.network2,
-      "Both networks are required"
-    );
-    ValidationUtils.isTrue(
-      !!pair.signature1 || !!pair.signature2,
-      "At least one signature is required"
-    );
-    pair.pair.address1 = ChainUtils.canonicalAddress(
-      pair.pair.network1 as Network,
-      pair.pair.address1
-    );
-    pair.pair.address2 = ChainUtils.canonicalAddress(
-      pair.pair.network2 as Network,
-      pair.pair.address2
-    );
-    if (pair.signature1) {
-      //Verify signature
-      ValidationUtils.isTrue(
-        !!this.verifyer.verify1(pair),
-        "Invalid signature 1"
-      );
-    }
-    if (pair.signature2) {
-      //Verify signature
-      ValidationUtils.isTrue(
-        !!this.verifyer.verify2(pair),
-        "Invalid signature 2"
-      );
-    }
-    const res = await this.signedPairAddressModel!.updateOne(
-      { "pair.address1": pair.pair.address1 },
-      { $set: { ...pair } },
-      { upsert: true }
-    );
-    ValidationUtils.isTrue(!!res, "Could not update the item");
-    return res;
   }
 
   async close() {

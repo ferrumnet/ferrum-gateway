@@ -2,10 +2,10 @@ import React,{useContext} from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import {Page} from './Page';
 
-export function Row({children}) {
+export function Row({children, centered}) {
     return (
-            <div className="full-row">{children}</div>
-    )
+            <div className={`full-row ${centered ? 'row-centered' : ''}`}>{children}</div>
+    );
 }
 
 export function PageLayout({top, left, middle, right, bottom}) {

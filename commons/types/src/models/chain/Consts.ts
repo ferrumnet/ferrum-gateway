@@ -1,3 +1,6 @@
+import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
+
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -22,6 +25,7 @@ const _supportedNetworks: any = {
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
 };
+
 
 // TODO: Directly write the constants
 export const supportedNetworks: { [k: string]: NetworkDropdown } = {}
@@ -170,3 +174,30 @@ export const ETH: {[k: string]: [string, string]} = {
     'POLYGON': ['POLYGON:MATIC', 'MATIC'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:MATIC', 'MATIC'],
 };
+
+export const SWAP_PROTOCOL_ROUTERS: {[k: string]: string} = {
+	'RINKEBY:UNISWAP_V2': '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+	'ETHEREUM:UNISWAP_V2': '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+	'BSC_TESTNET:CAKE': '0x9ac64cc6e4415144c455bd8e4837fea55603e5c3',
+};
+
+export const WETH: NetworkedConfig<string> = {
+	'RINKEBY': 'RINKEBY:0xc778417e063141139fce010982780140aa0cd5ab',
+	'ETHEREUM': 'ETHEREUM:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+	'BSC': 'BSC:0xae13d989dac2f0debff460ac112a837c89baa7cd',
+	'POLYGON': 'POLYGON:0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+}
+
+export const USD_PAIR: NetworkedConfig<string> = {
+	'RINKEBY': 'RINKEBY:0xd92e713d051c37ebb2561803a3b5fbabc4962431',
+	'ETHEREUM': 'ETHEREUM:0xdac17f958d2ee523a2206206994597c13d831ec7',
+	'BSC': 'BSC:0xe9e7cea3dedca5984780bafc599bd69add087d56', // BUSD
+	'POLYGON': 'POLYGON:0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // PoS USDT
+}
+
+export const ONE_INCH_ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
+export const BridgeContractVersions = {
+	V1_0: '0.0.3',
+	V1_2: '001.200',
+}

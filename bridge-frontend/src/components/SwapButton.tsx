@@ -1,8 +1,8 @@
 import React, {useContext} from 'react';
 import { IApprovableButtonWrapperViewProps, ApprovableButtonWrapper } from 'common-containers';
-import { Button } from "react-bootstrap";
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { LoadingOutlined } from '@ant-design/icons';
+import { Button } from 'react-bootstrap';
 
 export interface SwapButtonProps {
 	contractAddress: string;

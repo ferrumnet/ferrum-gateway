@@ -1,8 +1,8 @@
 import { HttpRequestProcessor, HttpRequestData } from "types";
-import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
+import { CrossSwapService } from "./crossSwap/CrossSwapService";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor
@@ -10,7 +10,8 @@ export class BridgeRequestProcessor
 {
   constructor(
     private svc: TokenBridgeService,
-    private bgs: BridgeConfigStorage
+    private bgs: BridgeConfigStorage,
+		private crossSwap: CrossSwapService,
   ) {
     super();
 
@@ -26,10 +27,6 @@ export class BridgeRequestProcessor
       "removeLiquidityIfPossibleGetTransaction",
       (req, userId) =>
         this.removeLiquidityIfPossibleGetTransaction(req, userId!)
-    );
-
-    this.registerProcessor("getUserPairedAddress", (req, userId) =>
-      this.getUserPairedAddress(req, userId!)
     );
 
     this.registerProcessor("getAvaialableLiquidity", (req) =>
@@ -50,14 +47,6 @@ export class BridgeRequestProcessor
 
     this.registerProcessor("updateWithdrawItemPendingTransactions", (req) =>
       this.updateWithdrawItemPendingTransactions(req)
-    );
-
-    this.registerProcessor("updateUserPairedAddress", (req) =>
-      this.updateUserPairedAddress(req)
-    );
-
-    this.registerProcessor("unpairUserPairedAddress", (req) =>
-      this.unpairUserPairedAddress(req)
     );
 
     this.registerProcessor("swapGetTransaction", (req, userId) =>
@@ -112,6 +101,20 @@ export class BridgeRequestProcessor
     this.registerProcessor("getNetworkTransactions", (req) =>
       this.svc.getNetworkTransactions(req)
     );
+		this.registerProcessor('allProtocols',
+			req => this.allProtocols(req));
+
+		this.registerProcessor('crossChainQuote',
+			req => this.crossChainQuote(req));
+
+		this.registerProcessor('swapCrossGetTransaction',
+			(req, userId) => this.swapCrossGetTransaction(req, userId));
+
+		this.registerProcessor('registerSwapCross',
+			(req, userId) => this.registerSwapCross(req, userId));
+
+		this.registerProcessor('withdrawAndSwapGetTransaction',
+			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
   }
 
   __name__() {
@@ -211,27 +214,6 @@ export class BridgeRequestProcessor
     return this.svc.getSwapTransactionStatus(tid, sendNetwork, timestamp);
   }
 
-  async updateUserPairedAddress(req: HttpRequestData) {
-    const { pair } = req.data;
-    ValidationUtils.isTrue(!!pair, "'pair' must be provided");
-    return this.svc.updateUserPairedAddress(pair);
-  }
-
-  async unpairUserPairedAddress(req: HttpRequestData) {
-    const { pair } = req.data;
-    ValidationUtils.isTrue(!!pair, "'pair' must be provided");
-    return this.svc.unpairUserPairedAddress(pair);
-  }
-
-  async getUserPairedAddress(req: HttpRequestData, userId: string) {
-    const { network } = req.data;
-    ValidationUtils.isTrue(!!userId, "user must be signed in");
-    ValidationUtils.isTrue(!!network, "'network' must be provided");
-    return {
-      pairedAddress: await this.svc.getUserPairedAddress(network, userId),
-    };
-  }
-
   async addLiquidityGetTransaction(req: HttpRequestData, userId: string) {
     const { currency, amount } = req.data;
     ValidationUtils.isTrue(!!userId, "user must be signed in");
@@ -256,4 +238,82 @@ export class BridgeRequestProcessor
       targetCurrency
     );
   }
+
+	async crossChainQuote(req: HttpRequestData) {
+		const {
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			fromProtocols,
+			toProtocols,
+		} = req.data;
+		return this.crossSwap.crossChainQuote(fromCurrency, toCurrency,
+			throughCurrencies, amountIn, fromProtocols, toProtocols);
+	}
+
+	async allProtocols(req: HttpRequestData) {
+		return this.crossSwap.allProtocols();
+	}
+
+	async swapCrossGetTransaction(req: HttpRequestData, userId: string) {
+		const {
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			slippage,
+			fromProtocols,
+			toProtocols,
+		} = req.data;
+		return this.crossSwap.swapCross(
+			userId,
+			fromCurrency,
+			toCurrency,
+			throughCurrencies,
+			amountIn,
+			slippage,
+			fromProtocols,
+			toProtocols,);
+	}
+
+	async registerSwapCross(req: HttpRequestData, userId: string) {
+		const {
+			network,
+			transactionId,
+			fromCurrency,
+			toCurrency,
+			amountIn,
+			throughCurrency,
+			targetThroughCurrency,
+			fromProtocol,
+			toProtocol,
+		} = req.data;
+		return this.crossSwap.registerSwapCross(
+			userId,
+			userId,
+			network,
+			transactionId,
+			fromCurrency,
+			toCurrency,
+			amountIn,
+			throughCurrency,
+			targetThroughCurrency,
+			fromProtocol,
+			toProtocol,);
+	}
+
+	async withdrawAndSwapGetTransaction(req: HttpRequestData, userId: string) {
+		const {
+			swapNetwork,
+			swapTransactionId,
+			slippage,
+		} = req.data;
+		return this.crossSwap.withdrawAndSwap(
+			userId,
+			swapNetwork,
+			swapTransactionId,
+			slippage,
+		);
+	}
 }

@@ -9,10 +9,19 @@
   flex-direction: column;
 }
 
+.page-horizontal-gap {
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
 .full-row {
   display: flex;
   flex-direction: row;
   flex: 1;
+}
+
+.row-centered {
+	justify-content: center;
 }
 
 .top-row {

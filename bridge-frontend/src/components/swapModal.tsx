@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChainEventItem } from 'common-containers/dist/chain/ChainEventItem';
 import { BridgeClient } from "./../clients/BridgeClient";
 import { inject} from 'types';
-import {SidePanelSlice} from './../components/SidePanel';
+import { sidePanelSlice } from './../components/SidePanel';
 import { Connect } from 'unifyre-extension-web3-retrofit';
 import { UnifyreExtensionWeb3Client,CurrencyList } from 'unifyre-extension-web3-retrofit';
 import {connectSlice} from "common-containers";
@@ -51,12 +51,12 @@ async function updateFirstStage(item: ChainEventBase, dispatch: Dispatch<AnyActi
     let res = await sc.checkTxStatus(dispatch,item.id,item.network);
     if(res) {
       if(res && res === 'successful') {
-		    dispatch(SidePanelSlice.actions.moveToNext({step: 2}));
+		    dispatch(sidePanelSlice.actions.moveToNext({step: 2}));
         await updateData(dispatch)
         return { ...item, status: 'completed' };
       }
       if(res && res === 'failed'){
-		dispatch(SidePanelSlice.actions.moveToNext({step: -1}));
+		dispatch(sidePanelSlice.actions.moveToNext({step: -1}));
         return { ...item, status: 'failed' };
       }
     }
@@ -81,7 +81,7 @@ async function updateWithdrawStatus(id: string, dispatch: Dispatch<AnyAction>): 
     if(items && items.withdrawableBalanceItems.length > 0) {
         const findMatch = items.withdrawableBalanceItems.find((e:any)=>e.receiveTransactionId === id.replace('_STEP2', '')); // TODO: Hack! find a better way
         if(!!findMatch){
-		      dispatch(SidePanelSlice.actions.moveToNext({step: 3}));
+		      dispatch(sidePanelSlice.actions.moveToNext({step: 3}));
           dispatch(MainPageSlice.actions.setProgressStatus({status:3}));
           return 'completed';
         }
@@ -129,7 +129,6 @@ export function SwapModal (props: {
             className={styles.textStyles}
             direction="vertical" 
           >
-
               <Step 
                 className={styles.textStyles}
                 status={pageProps.step > 1 ? "finish" : "wait"} 
@@ -224,7 +223,6 @@ const themedStyles = (theme) => mergeStyleSets({
       'p:first-child': { marginTop: 0 },
       'p:last-child': { marginBottom: 0 },
       color: theme.get(Theme.Colors.textColor),
-
     },
     color: theme.get(Theme.Colors.textColor),
     marginTop: '0.5rem',

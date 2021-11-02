@@ -4,4 +4,6 @@ commons/web3-tools
 common-containers
 bridge-backend
 leaderboard-backend
+crucible-backend
+governance-backend
 gateway-backend

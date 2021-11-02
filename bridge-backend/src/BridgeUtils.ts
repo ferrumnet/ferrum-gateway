@@ -39,23 +39,29 @@ export function produceSignatureWithdrawHash(eth: Eth,
         token: HexString,
         payee: HexString,
         amountInt: string,
-        salt: string): PayBySignatureData {
+        swapTxId: string): PayBySignatureData {
 	// TODO: Try the sig utils
     const methodHash = Web3.utils.keccak256(
         Web3.utils.utf8ToHex('WithdrawSigned(address token,address payee,uint256 amount,bytes32 salt)'));
 
     const params = ['bytes32', 'address', 'address', 'uint256', 'bytes32'];
-    const structure = eth.abi.encodeParameters(params, [methodHash, token, payee, amountInt, salt]);
+    const structure = eth.abi.encodeParameters(params,
+		[methodHash, token, payee, amountInt, swapTxId]);
     const structureHash = Web3.utils.keccak256(structure);
     const ds = domainSeparator(eth, netId, contractAddress);
     const hash = Web3.utils.soliditySha3("\x19\x01", ds, structureHash);
     return {
+		contractName: NAME,
+		contractVersion: VERSION,
+		contractAddress: contractAddress,
         amount: amountInt,
         payee,
-        salt,
-        signature: '',
+        signatures: [],
         token,
-        hash,
+        swapTxId,
+		sourceChainId: 0,
+		toToken: '',
+		hash,
     } as PayBySignatureData;
 }
 

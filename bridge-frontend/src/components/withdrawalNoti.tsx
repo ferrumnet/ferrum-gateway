@@ -1,9 +1,9 @@
 
 import React, {useContext, useEffect,  useState } from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
-import { Modal, Button } from 'antd';
 //@ts-ignore
 import {WideTextField,RegularBtn} from 'component-library';
+import { Modal } from 'antd';
 
 export const WithdrawNoti = (props:
     {isModalVisible: boolean,setIsModalVisible: (v:boolean)=>void,

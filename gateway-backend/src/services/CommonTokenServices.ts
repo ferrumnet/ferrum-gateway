@@ -5,16 +5,23 @@ import { TokenDetails, UserContractAllocation } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 
 export class CommonTokenServices implements Injectable {
-	constructor(private helper: EthereumSmartContractHelper, private tokenListSvc: CurrencyListSvc) {}
+	constructor(
+		private helper: EthereumSmartContractHelper,
+		private tokenListSvc: CurrencyListSvc) {}
 	__name__() { return 'CommonTokenServices'; }
 
 	async allocation(userAddress: string, contractAddress: string, currency: string):
 	Promise<UserContractAllocation> {
 		const allocation = await this.helper.currentAllowance(currency, userAddress, contractAddress);
+		const [network, _] = EthereumSmartContractHelper.parseCurrency(currency)
 		return {
 			allocation: await this.helper.amountToHuman(currency, allocation.toFixed()),
 			contractAddress,
-			userAddress
+			userAddress,
+			currency,
+			expirySeconds: 0,
+			method: '',
+			network,
 		};
 	}
 

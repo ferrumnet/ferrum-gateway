@@ -382,6 +382,9 @@ export function AppWraper(props: ReponsivePageWrapperProps & ReponsivePageWrappe
                             <Route path='/:gid/liquidity/:action'>
                                 <LiquidityPage />
                             </Route>
+							<Route path='/:gird/cswap'>
+								<CrossSwap />
+							</Route>
                             <Route path='/:gid/'>
                                 <div className="steps-wrapper">
                                     <div className="row">

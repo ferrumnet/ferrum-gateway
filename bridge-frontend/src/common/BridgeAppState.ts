@@ -6,6 +6,7 @@ import {swapPageProps} from './../pages/Swap';
 import {liquidityPageProps} from './../pages/Liquidity';
 import { SidePanelProps} from '../components/SidePanel';
 import { BridgeTokenConfig } from 'types';
+import { CrossSwapState } from '../pages/CrossSwap/CrossSwap';
 import {notificationServiceProps} from './../pages/SelfService/notificationMgt'
 
 export interface SwapTxStatus {
@@ -28,8 +29,9 @@ export interface AppUiState {
     swapPage: swapPageProps;
     liquidityPage: liquidityPageProps;
     sidePanel: SidePanelProps;
-	selfServicePage: SelfServiceState;
+		selfServicePage: SelfServiceState;
     notificationServicePage:notificationServiceProps
+		crossSwap: CrossSwapState;
 };
 
 export interface AppUserState {

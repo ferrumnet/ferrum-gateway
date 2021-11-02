@@ -1,4 +1,6 @@
 import moment from 'moment';
+import { Big } from 'big.js';
+import { Networks } from 'ferrum-plumbing';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -19,7 +21,11 @@ export class Utils {
     }
 
     static getQueryparam(param: string): string | undefined {
-        const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));
+        return Utils._getQueryparam(href(), param);
+    }
+
+    static _getQueryparam(href: string, param: string): string | undefined {
+        const queryParams = (href.split('?')[1] || '').split('&').map(p => p.split('='));
         return (queryParams.find(p => p[0] === param) || [])[1];
     }
 
@@ -115,4 +121,61 @@ export class Utils {
         const pars = cur.split(':', 2);
         return [pars[0], pars[1]];
     }
+
+    static toCurrency(network: string, address: string): string | undefined {
+		if (!network || !address) return undefined;
+        return `${network.toUpperCase()}:${address.toLowerCase()}`
+    }
+
+	static isCurrencyValid(cur: string): boolean {
+		if (!cur) { return false; }
+		const [network, token] = Utils.parseCurrency(cur);
+		if (!token) { return false; }
+		if (!network) { return false; }
+		if (!token.startsWith('0x')) {
+			return false;
+		}
+		if (token.length != 42) {
+			return false;
+		}
+		if (!Networks.CHAINS_BY_ID.get(network)) {
+			return false;
+		}
+		return true;
+	}
+
+	static isNonzeroAddress(address: string) {
+		if(!address) { return false; }
+		const zero = address.replace('0x', '').replace(/0/g,'').length == 0;
+		return !zero;
+	}
+
+	static addressEqual(a1: string, a2: string) {
+		if (!a1 || !a2) return false;
+		return a1.toLowerCase() === a2.toLowerCase();
+	}
+}
+
+export class ParseBigError extends Error { }
+
+export class BigUtils {
+	static truthy(b?: Big): boolean {
+		return !!b && !(new Big(0).eq(b));
+	}
+
+	static safeParse(s: string): Big {
+		try {
+			return new Big(s);
+		} catch (e) {
+			return new Big('0');
+		}
+	}
+
+	static parseOrThrow(s: string, varName: string): Big {
+		try {
+			return new Big(s);
+		} catch (e) {
+			throw new ParseBigError(`Error parsing ${varName}. "${s}" is not a valid number`);
+		}
+	}
 }

@@ -25,6 +25,22 @@
       "path": "../gateway-backend"
     },
     {
+      "name": "crucible-backend",
+      "path": "../crucible-backend"
+    },
+    {
+      "name": "crucible-frontend",
+      "path": "../crucible-frontend"
+    },
+    {
+      "name": "governance-backend",
+      "path": "../governance-backend"
+    },
+    {
+      "name": "governance-frontend",
+      "path": "../governance-frontend"
+    },
+    {
       "name": "bridge-frontend",
       "path": "../bridge-frontend"
     },
@@ -56,6 +72,8 @@
       "leaderboard-backend/":true,
       "staking-frontend/": true,
       "staking-backend/": true,
+      "crucible-backend/": true,
+      "crucible-frontend/": true,
       "bridge-frontend/": true,
       "bridge-backend/": true,
       "gateway-frontend/": true,

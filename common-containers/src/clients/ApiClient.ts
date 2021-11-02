@@ -3,14 +3,14 @@ import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
 import { logError, ChainEventBase, UserContractAllocation, TokenDetails } from "types";
-import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
+import { CustomTransactionCallRequest, UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
     private jwtToken: string = '';
     private address: string = '';
     private network: string = '';
     constructor(private baseUrl: string,
-        protected client: UnifyreExtensionKitClient
+        public client: UnifyreExtensionKitClient
 		) { }
 
     __name__() { return 'ApiClient'; }
@@ -85,32 +85,46 @@ export class ApiClient implements Injectable {
 		}
 	}
 
-    async api(req: JsonRpcRequest): Promise<any> {
-        try {
-            const res = await fetch(this.baseUrl, {
-                method: 'POST',
-                mode: 'cors',
-                body: JSON.stringify(req),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.jwtToken}`
-                },
-            });
-            const resText = await res.text();
-            if (Math.round(res.status / 100) === 2) {
-                return resText ? JSON.parse(resText) : undefined;
-            }
-            const error = resText;
-            let jerror: any;
-            try {
-                jerror = JSON.parse(error);
-            } catch (e) { }
-            logError('Server returned an error when calling ' + req + JSON.stringify({
-                status: res.status, statusText: res.statusText, error}), new Error());
-            throw new Error(jerror?.error ? jerror.error : error);
-        } catch (e) {
-            logError('Error calling api with ' + JSON.stringify(req), e);
-            throw e;
-        }
-    }
+	async api(req: JsonRpcRequest): Promise<any> {
+			try {
+					const res = await fetch(this.baseUrl, {
+							method: 'POST',
+							mode: 'cors',
+							body: JSON.stringify(req),
+							headers: {
+									'Content-Type': 'application/json',
+									'Authorization': `Bearer ${this.jwtToken}`
+							},
+					});
+					const resText = await res.text();
+					if (Math.round(res.status / 100) === 2) {
+							return resText ? JSON.parse(resText) : undefined;
+					}
+					const error = resText;
+					let jerror: any;
+					try {
+							jerror = JSON.parse(error);
+					} catch (e) { }
+					logError('Server returned an error when calling ' + req + JSON.stringify({
+							status: res.status, statusText: res.statusText, error}), new Error());
+					throw new Error(jerror?.error ? jerror.error : error);
+			} catch (e) {
+					logError('Error calling api with ' + JSON.stringify(req), (e as Error));
+					throw e;
+			}
+	}
+
+	async runServerTransaction(
+		fun: () => Promise<CustomTransactionCallRequest>,
+	) {
+		ValidationUtils.isTrue(!!this.network, 'Not commected to a network');
+		const res = await fun();
+		console.log('RES ISO', res);
+		ValidationUtils.isTrue(!!res, 'Error calling deposit. No requests');
+		const requestId = await this.client.sendTransactionAsync(this.network as Network, [res], {});
+		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+		const txId = requestId.split('|')[0];
+		console.log('Deposit generated tx id ', txId);
+		return txId;
+	}
 }

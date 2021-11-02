@@ -7,6 +7,7 @@ import { MainPageSlice } from '../pages/Main/Main';
 import { swapageSlice} from '../pages/Swap';
 import { liquidityPageSlice } from '../pages/Liquidity';
 import { SidePanelSlice } from '../components/SidePanel';
+import { crossSwapSlice } from "../pages/CrossSwap/CrossSwap";
 import { selfServicePageSlice } from '../pages/SelfService'
 import {notificationServicePageSlice} from './../pages/SelfService/notificationMgt'
 import { CommonActions } from './Actions';
@@ -24,7 +25,8 @@ export const uiReducer = combineReducers({
     liquidityPage: liquidityPageSlice.reducer,
     sidePanel: SidePanelSlice.reducer,
 	selfServicePage: selfServicePageSlice.reducer,
-	notificationServicePage: notificationServicePageSlice.reducer
+	notificationServicePage: notificationServicePageSlice.reducer,
+	crossSwap: crossSwapSlice.reducer,
 });
 
 export function userReducer(

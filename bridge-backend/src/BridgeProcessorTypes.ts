@@ -1,16 +1,19 @@
 import { MongooseConfig } from "aws-lambda-helper";
 import { Connection, Document, Schema } from "mongoose";
 import {ValidationUtils} from "ferrum-plumbing";
-import { BridgeTokenConfig } from 'types';
+import { BridgeTokenConfig, BridgeV12Contracts, NetworkedConfig, SwapProtocol } from 'types';
 
 export interface TokenBridgeConfig {
     contractClient: {[k: string]: string};
 }
+
 export interface BridgeProcessorConfig {
     database: MongooseConfig;
     addressManagerEndpoint: string;
     addressManagerSecret: string;
     bridgeConfig: TokenBridgeConfig;
+	bridgeV12Config: NetworkedConfig<BridgeV12Contracts>;
+	swapProtocols?: NetworkedConfig<SwapProtocol[]>;
 }
 
 export function env(env: string) {

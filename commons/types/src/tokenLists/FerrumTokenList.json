@@ -1,5 +1,5 @@
 {
-	"name": "1inch",
+	"name": "frm",
 	"timestamp": "2021-07-28T18:24:17+00:00",
 	"version": {
 		"major": 1,
@@ -15,6 +15,54 @@
 		"symbol": "RVF",
 		"decimals": 18,
 		"logoURI": "https://etherscan.io/token/images/rocketvault_32.png"
+		},
+		{
+		"address": "0xd99bafe5031cc8b345cb2e8c80135991f12d7130",
+		"chainId": 137,
+		"name": "Ferrum Network Token",
+		"symbol": "FRM",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/ferrumnetworktoken_32.png"
+		},
+		{
+		"address": "0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
+		"chainId": 4,
+		"name": "Ferrum Network Token",
+		"symbol": "FRM",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/ferrumnetworktoken_32.png"
+		},
+		{
+		"address": "0xfe00ee6f00dd7ed533157f6250656b4e007e7179",
+		"chainId": 97,
+		"name": "Ferrum Network Token",
+		"symbol": "FRM",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/ferrumnetworktoken_32.png"
+		},
+		{
+		"address": "0xc7b58945a08aa90f6db6440fb0bcc22fb45e6e98",
+		"chainId": 4,
+		"name": "Rocket Vault (PoS) (RVF)",
+		"symbol": "RVF",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/rocketvault_32.png"
+		},
+		{
+		"address": "0x10528015eb4a47765acafd7711f96042ad75ee4d",
+		"chainId": 4,
+		"name": "Inverse Project Token",
+		"symbol": "XIV",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/projectinverse_32.png?v=2"
+		},
+		{
+		"address": "0x82d47ab64dfa31d833d07ef35759d3ef694d21cc",
+		"chainId": 4,
+		"name": "Evolution Network Token",
+		"symbol": "EVN",
+		"decimals": 18,
+		"logoURI": "https://etherscan.io/token/images/evolutionfinance_32.png"
 		}
 	]
 }

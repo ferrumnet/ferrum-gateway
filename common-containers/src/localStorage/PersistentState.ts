@@ -1,5 +1,4 @@
 import { AnyAction } from "@reduxjs/toolkit";
-import { Injectable } from "ferrum-plumbing";
 import { Dispatch } from "redux";
 
 export interface PersistentAction {

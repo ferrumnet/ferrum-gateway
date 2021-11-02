@@ -5,6 +5,10 @@ import {
   DomainSeparator,
   Eip712TypeDefinition,
 } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
+import { MultiSigSignature, TransactionTrackable } from "../chain/ChainTypes";
+import { Networks } from 'ferrum-plumbing';
+
+// TODO: Remove mongoose types out of this repo
 
 export interface RequestMayNeedApprove {
   isApprove: boolean;
@@ -59,9 +63,14 @@ export interface PayBySignatureData {
   token: string;
   payee: string;
   amount: string;
-  salt: string;
-  signature: string;
+  toToken: string;
+  sourceChainId: number;
+  swapTxId: string;
+  contractName: string;
+  contractVersion: string;
+  contractAddress: string;
   hash: string;
+  signatures: MultiSigSignature[];
 }
 
 // Every transaction sent by user using a paired address to the bridge contract,
@@ -81,9 +90,13 @@ export interface UserBridgeWithdrawableBalanceItem {
   sendCurrency: string;
   sendAmount: string;
   payBySig: PayBySignatureData;
+  originCurrency: string;
+  sendToCurrency: string;
 
+	// TODO: Refactor and use the transaction trackeble
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];
+	execution: TransactionTrackable;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -93,16 +106,24 @@ export interface UserBridgeLiquidityItem {
   liquidity: string;
 }
 
-//@ts-ignore
-const payBySignatureDataSchema: Schema = new Schema<
-  PayBySignatureData & Document
->({
+const signatureSchema = new Schema<MultiSigSignature & Document>({
+  creationTime: Number,
+  creator: String,
+  signature: String,
+});
+
+const payBySignatureDataSchema = new Schema<PayBySignatureData & Document>({
   token: String,
   payee: String,
   amount: String,
-  salt: String,
-  signature: String,
+  toToken: String,
+  sourceChainId: Number,
+  swapTxId: String,
+  contractName: String,
+  contractVersion: String,
+  contractAddress: String,
   hash: String,
+  signatures: [signatureSchema],
 });
 
 ///@ts-ignore
@@ -208,11 +229,10 @@ export const SignedPairAddressSchemaModel = (c: Connection) =>
   );
 
 export function domainSeparator(network: string): DomainSeparator {
-  const chainId = CHAIN_ID_FOR_NETWORK[network];
+  const chainId = Networks.for(network).chainId;
   return {
-    chainId: chainId,
+    chainId: chainId.toString(),
     name: "PairedUnifyreWallet",
-    salt: TOKEN_BRIDGE_DOMAIN_SALT,
     verifyingContract: BRIDGE_CONTRACT[network],
     version: "0.1.0",
   };
@@ -276,7 +296,9 @@ export interface BridgeTokenConfig {
   fee: string;
 }
 
-
+export interface NetworkedConfig<T> {
+  [network: string]: T;
+}
 
 export interface NetworkRelatedConfig {
   [network: string]: string;

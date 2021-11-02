@@ -2,17 +2,46 @@ import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientFactory, EthereumAddress } from "ferrum-chain-clients";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
-import { PairAddressSignatureVerifyre } from "./common/PairAddressSignatureVerifyer";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { BridgeProcessor } from "./BridgeProcessor";
 import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { CommonBackendModule, decryptKey } from "common-backend";
+import { CommonBackendModule, CurrencyListSvc, decryptKey } from "common-backend";
+import { CrossSwapService } from "./crossSwap/CrossSwapService";
+import { OneInchClient } from "./crossSwap/OneInchClient";
+import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
+
+export class BridgeModuleCommons implements Module {
+	constructor(private conf: MongooseConfig) { }
+
+  async configAsync(container: Container) {
+    container.registerSingleton(
+      BridgeConfigStorage,
+      () => new BridgeConfigStorage()
+    );
+    container.registerSingleton(
+      TokenBridgeService,
+      (c) =>
+        new TokenBridgeService(
+          c.get(EthereumSmartContractHelper),
+          c.get(TokenBridgeContractClinet),
+					c.get(BridgeNotificationSvc),
+        )
+    );
+
+    await container
+      .get<TokenBridgeService>(TokenBridgeService)
+      .init(this.conf);
+    await container
+      .get<BridgeConfigStorage>(BridgeConfigStorage)
+      .init(this.conf);
+	}
+}
 
 export class BridgeModule implements Module {
   async configAsync(container: Container) {
@@ -50,6 +79,12 @@ export class BridgeModule implements Module {
               GLOBAL_BRIDGE_CONTRACT,
           },
         },
+				bridgeV12Config: {
+
+				},
+				swapProtocols: {
+
+				}
       } as BridgeProcessorConfig;
     }
 
@@ -87,41 +122,32 @@ export class BridgeModule implements Module {
         )
     );
 
-    container.register(
-      PairAddressSignatureVerifyre,
-      () => new PairAddressSignatureVerifyre()
-    );
-    container.registerSingleton(
-      BridgeConfigStorage,
-      () => new BridgeConfigStorage()
-    );
     container.registerSingleton(
       BridgeRequestProcessor,
       (c) =>
         new BridgeRequestProcessor(
           c.get(TokenBridgeService),
-          c.get(BridgeConfigStorage)
+          c.get(BridgeConfigStorage),
+					c.get(CrossSwapService),
         )
     );
     container.registerSingleton(
       BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
     )
-    container.registerSingleton(
-      TokenBridgeService,
-      (c) =>
-        new TokenBridgeService(
-          c.get(EthereumSmartContractHelper),
-          c.get(TokenBridgeContractClinet),
-          c.get(PairAddressSignatureVerifyre),
-          c.get(BridgeNotificationSvc)
-        )
-    );
 
-    await container
-      .get<TokenBridgeService>(TokenBridgeService)
-      .init(conf.database);
-    await container
-      .get<BridgeConfigStorage>(BridgeConfigStorage)
-      .init(conf.database);
+		container.register(OneInchClient,
+			c => new OneInchClient(c.get(EthereumSmartContractHelper), c.get(LoggerFactory)));
+		container.register(UniswapV2Client, c => new UniswapV2Client(c.get(EthereumSmartContractHelper)));
+		container.registerSingleton(CrossSwapService, c => new CrossSwapService(
+			c.get(OneInchClient),
+			c.get(CurrencyListSvc),
+			c.get(UniswapV2Client),
+			c.get(EthereumSmartContractHelper),
+			c.get(BridgeConfigStorage),
+			c.get(TokenBridgeService),
+			conf.swapProtocols!,
+			conf.bridgeV12Config,));
+
+		await container.registerModule(new BridgeModuleCommons(conf.database));
   }
 }

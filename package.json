@@ -9,6 +9,10 @@
     "staking-backend",
     "bridge-frontend",
     "bridge-backend",
+    "crucible-backend",
+    "crucible-frontend",
+    "governance-backend",
+    "governance-frontend",
     "gateway-frontend",
     "gateway-backend",
     "bridge-frontend",
@@ -20,6 +24,8 @@
   "scripts": {},
   "resolutions": {
     "got": "^11.3.0",
-    "jest": "26.6.0"
+    "jest": "26.6.0",
+    "babel-jest": "26.6.0",
+    "bitcore-lib": "8.17.0" 
   }
 }

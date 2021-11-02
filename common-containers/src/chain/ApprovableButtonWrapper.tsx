@@ -3,7 +3,7 @@ import React,{Dispatch, useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ApprovalState, AppState } from '../store/AppState';
 import { Big } from 'big.js';
-import { ChainEventBase, inject } from 'types';
+import { BigUtils, ChainEventBase, inject, Utils } from 'types';
 import { ApiClient } from '../clients/ApiClient';
 import { ChainEventItem, } from './ChainEventItem';
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
@@ -130,7 +130,7 @@ export function ApprovableButtonWrapper(ownProps: IApprovableButtonWrapperOwnPro
 	const currentApproval = props.approvals[approvalKey(userAddress, contractAddress, currency)];
 
 	useEffect(() => {
-		if (userAddress && contractAddress && currency) {
+		if (userAddress && contractAddress && currency && Utils.isCurrencyValid(currency)) {
 			dispatch(doGetApproval({userAddress, contractAddress, currency}));
 		}
 	}, [userAddress, contractAddress, currency, status]);
@@ -145,7 +145,7 @@ export function ApprovableButtonWrapper(ownProps: IApprovableButtonWrapperOwnPro
 			updater={e => updateEvent(dispatch, e)}>
 
 			<ownProps.View
-				isApprovalMode={new Big(currentApproval || '0').lt(new Big(ownProps.amount || '0.0001'))}
+				isApprovalMode={BigUtils.safeParse(currentApproval).lt(BigUtils.safeParse(ownProps.amount || '0.0001'))}
 				pendingApproval={props.status === 'pending'}
 				approvalTransactionId={props.approveTransactionId}
 				onApproveClick={() => dispatch(doApprove({ ...ownProps }))}

@@ -1,0 +1,25 @@
+
+.contracts {
+	padding: 15px;
+}
+
+.contract-item {
+	border-radius: 15px;
+	border-style: solid;
+	border-width: 3px;
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	max-width: 600px;
+}
+
+.contract-item-sub {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.method-contract {
+	width: 100%;
+	flex: 1;
+}

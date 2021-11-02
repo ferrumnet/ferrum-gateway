@@ -186,7 +186,7 @@ export class BridgeClient implements Injectable {
         dispatch: Dispatch<AnyAction>,
         w: UserBridgeWithdrawableBalanceItem,
         network:Network
-        ) {
+        ): Promise<[string, string]> {
         dispatch(addAction(CommonActions.WAITING, { source: 'withdraw' }));
         try {
             ValidationUtils.isTrue(network === w.sendNetwork, 
@@ -207,7 +207,7 @@ export class BridgeClient implements Injectable {
 						// This needs a proper fix from backend side.
 						await sleep(15 * 1000);
             dispatch(addAction(CommonActions.WAITING, { source: 'withdrawableBalanceItemAddTransaction' }));
-            await this.withdrawableBalanceItemUpdateTransaction(dispatch, w.receiveTransactionId, txIds[0]);
+            await this.withdrawableBalanceItemAddTransaction(dispatch, w.receiveTransactionId, txIds[0]);
             return ['success',txIds[0]];
         } catch(e) {
             dispatch(addAction(CommonActions.ERROR_OCCURED, {
@@ -215,6 +215,7 @@ export class BridgeClient implements Injectable {
             dispatch(addAction(Actions.BRIDGE_SWAP_FAILED, {
                 message: (e as Error).message || '' }));
                 console.error('withdraw', e);
+			return ['', ''];
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
@@ -232,7 +233,7 @@ export class BridgeClient implements Injectable {
         return withdrawableBalanceItem;
     }
 
-    public async withdrawableBalanceItemUpdateTransaction(dispatch: Dispatch<AnyAction>,
+    public async withdrawableBalanceItemAddTransaction(dispatch: Dispatch<AnyAction>,
         id: string,
         transactionId: string) {
         try {

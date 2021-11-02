@@ -26,4 +26,5 @@ export * from "./src/images";
 
 export * from './src/chain/AddTokenToMetamask';
 
+export * from './src/swap/SwapComponent';
 export * from './src/componenets/ThemeBuilder';
