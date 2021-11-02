@@ -228,8 +228,8 @@ export class BridgeProcessor implements Injectable {
         targetAddress,
         targetAmount,
         payBySig.hash,
-        payBySig.salt,
-        payBySig.signature,
+        '',
+        payBySig.signatures[0].signature,
         this.processorAddress
       );
       await this.svc.newWithdrawItem(processed);
@@ -292,9 +292,9 @@ export class BridgeProcessor implements Injectable {
       toRpcSig(baseV, Buffer.from(sigP.r, "hex"), Buffer.from(sigP.s, "hex"), 1)
     );
 
-    payBySig.signature = rpcSig;
+    payBySig.signatures = [{ signature: rpcSig } as any];
     ValidationUtils.isTrue(
-      !!payBySig.signature,
+      !!payBySig.signatures[0].signature,
       `Error generating signature for ${{
         network,
         address,

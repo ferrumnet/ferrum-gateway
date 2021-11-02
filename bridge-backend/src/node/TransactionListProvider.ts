@@ -89,6 +89,6 @@ export class TransactionListProvider implements Injectable {
 			tx.amount,
 			Utils.toCurrency(tx.network, tx.token),
 			Utils.toCurrency(tx.targetNetwork, tx.targetToken),
-			'', '',);  // Unknown from and to protocols
+			'' as any, '' as any,);  // Unknown from and to protocols
 	}
 }

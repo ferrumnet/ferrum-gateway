@@ -30,6 +30,7 @@ export class BridgeModuleCommons implements Module {
         new TokenBridgeService(
           c.get(EthereumSmartContractHelper),
           c.get(TokenBridgeContractClinet),
+					c.get(BridgeNotificationSvc),
         )
     );
 

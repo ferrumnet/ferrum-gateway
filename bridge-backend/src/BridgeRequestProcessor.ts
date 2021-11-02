@@ -29,10 +29,6 @@ export class BridgeRequestProcessor
         this.removeLiquidityIfPossibleGetTransaction(req, userId!)
     );
 
-    this.registerProcessor("getUserPairedAddress", (req, userId) =>
-      this.getUserPairedAddress(req, userId!)
-    );
-
     this.registerProcessor("getAvaialableLiquidity", (req) =>
       this.getAvailableLiquidity(req)
     );
@@ -51,14 +47,6 @@ export class BridgeRequestProcessor
 
     this.registerProcessor("updateWithdrawItemPendingTransactions", (req) =>
       this.updateWithdrawItemPendingTransactions(req)
-    );
-
-    this.registerProcessor("updateUserPairedAddress", (req) =>
-      this.updateUserPairedAddress(req)
-    );
-
-    this.registerProcessor("unpairUserPairedAddress", (req) =>
-      this.unpairUserPairedAddress(req)
     );
 
     this.registerProcessor("swapGetTransaction", (req, userId) =>
@@ -224,27 +212,6 @@ export class BridgeRequestProcessor
     ValidationUtils.isTrue(!!sendNetwork, "sendNetwork not found.");
     ValidationUtils.isTrue(!!timestamp, "timestamp not found.");
     return this.svc.getSwapTransactionStatus(tid, sendNetwork, timestamp);
-  }
-
-  async updateUserPairedAddress(req: HttpRequestData) {
-    const { pair } = req.data;
-    ValidationUtils.isTrue(!!pair, "'pair' must be provided");
-    return this.svc.updateUserPairedAddress(pair);
-  }
-
-  async unpairUserPairedAddress(req: HttpRequestData) {
-    const { pair } = req.data;
-    ValidationUtils.isTrue(!!pair, "'pair' must be provided");
-    return this.svc.unpairUserPairedAddress(pair);
-  }
-
-  async getUserPairedAddress(req: HttpRequestData, userId: string) {
-    const { network } = req.data;
-    ValidationUtils.isTrue(!!userId, "user must be signed in");
-    ValidationUtils.isTrue(!!network, "'network' must be provided");
-    return {
-      pairedAddress: await this.svc.getUserPairedAddress(network, userId),
-    };
   }
 
   async addLiquidityGetTransaction(req: HttpRequestData, userId: string) {

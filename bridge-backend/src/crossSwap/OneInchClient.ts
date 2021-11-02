@@ -100,7 +100,7 @@ export class OneInchClient implements Injectable {
 
 		ValidationUtils.isTrue(protocols.length === 1, 'Only one protocol supported for this version!');
 
-		protocols = protocols.map(p => p.split(':')[1]);
+		protocols = protocols.map(p => p.split(':')[1]) as any;
 		try {
 			const url = `${QUOTE_API_BASE.replace('{CHAIN_ID}', chainId)}?fromTokenAddress=${fromToken}` + 
 				`&toTokenAddress=${toToken}&amount=${amountInBig}&protocols=${protocols.join(',')}`;
@@ -170,8 +170,8 @@ export class OneInchClient implements Injectable {
 			return res.protocols.map((p: SwapProtocolInfo) => ({
 				...p,
 				network,
-				id: `${network}:${p.id}`,
-			}));
+				id: `${network}:${p.id}` as any as SwapProtocol,
+			} as SwapProtocolInfo));
 		});
 	}
 }

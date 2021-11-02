@@ -23,6 +23,7 @@ import { CurrencyListSvc } from "./CurrencyListSvc";
 import { UniswapV2Client } from "./uniswapv2/UniswapV2Client";
 import { UniswapPricingService } from "./uniswapv2/UniswapPricingService";
 import { TransactionTracker } from "./contracts/TransactionTracker";
+import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 
 export class CommonBackendModule implements Module {
   constructor(private chainConfig?: MultiChainConfig) {}
@@ -81,8 +82,13 @@ export class CommonBackendModule implements Module {
       () => new LoggerFactory((name: string) => new ConsoleLogger(name))
     );
 
+		container.registerSingleton(UniswapV2Router,
+			c => new UniswapV2Router(c.get(EthereumSmartContractHelper)));
+
 		container.registerSingleton(UniswapPricingService,
-			c => new UniswapPricingService(c.get(UniswapV2Client)));
+			c => new UniswapPricingService(
+				c.get(EthereumSmartContractHelper),
+				c.get(UniswapV2Router)));
 		container.register(TransactionTracker,
 			c => new TransactionTracker(c.get(EthereumSmartContractHelper)));
 
