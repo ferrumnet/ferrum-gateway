@@ -134,15 +134,6 @@ export class BridgeModule implements Module {
     container.registerSingleton(
       BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
     )
-    container.registerSingleton(
-      TokenBridgeService,
-      (c) =>
-        new TokenBridgeService(
-          c.get(EthereumSmartContractHelper),
-          c.get(TokenBridgeContractClinet),
-          c.get(BridgeNotificationSvc)
-        )
-    );
 
 		container.register(OneInchClient,
 			c => new OneInchClient(c.get(EthereumSmartContractHelper), c.get(LoggerFactory)));
