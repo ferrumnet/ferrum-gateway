@@ -1,17 +1,18 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { AnyAction } from "redux";
 import { DashboardSlice } from "../pages/Dashboard/Dashboard";
-import {connectSlice } from 'common-containers'
-import { AppGlobalState, AppUserState} from "./BridgeAppState";
+import {connectSlice, tokenListSlice } from 'common-containers'
+import { AppGlobalState, AppUserState, FilteredTokenDetails} from "./BridgeAppState";
 import { MainPageSlice } from '../pages/Main/Main';
 import { swapageSlice} from '../pages/Swap';
 import { liquidityPageSlice } from '../pages/Liquidity';
-import { sidePanelSlice } from '../components/SidePanel';
-
+import { SidePanelSlice } from '../components/SidePanel';
+import { crossSwapSlice } from "../pages/CrossSwap/CrossSwap";
+import { selfServicePageSlice } from '../pages/SelfService'
+import {notificationServicePageSlice} from './../pages/SelfService/notificationMgt'
 import { CommonActions } from './Actions';
 import { TokenBridgeClientActions } from "../clients/BridgeClient";
-import { UserBridgeWithdrawableBalanceItem } from "types";
-import { crossSwapSlice } from "../pages/CrossSwap/CrossSwap";
+import { TokenDetails, UserBridgeWithdrawableBalanceItem } from "types";
 // Each UI component or page will manage its own slice of state. We purposefully 
 // make thiss of type 'any' to avoid a centralized typing for UI state. 
 // However the data and user state which will be shared by various selectors
@@ -22,7 +23,9 @@ export const uiReducer = combineReducers({
     pairPage: MainPageSlice.reducer,
     swapPage: swapageSlice.reducer,
     liquidityPage: liquidityPageSlice.reducer,
-    sidePanel: sidePanelSlice.reducer,
+    sidePanel: SidePanelSlice.reducer,
+	selfServicePage: selfServicePageSlice.reducer,
+	notificationServicePage: notificationServicePageSlice.reducer,
 	crossSwap: crossSwapSlice.reducer,
 });
 
@@ -72,6 +75,7 @@ export function dataReducer(state: AppGlobalState = {
         groupInfo: {} as any,
 		currencyPairs: [],
 		bridgeLiquidity: {},
+		filteredAssets: {},
         error: ''
     }, action: AnyAction) {
     switch (action.type) {
@@ -80,11 +84,26 @@ export function dataReducer(state: AppGlobalState = {
         case CommonActions.WAITING_DONE:
             return { ...state,waiting: false };
         case CommonActions.GROUP_INFO_LOADED:
-            return {...state,groupInfo: action.payload}
+            return { ...state, groupInfo: action.payload };
+		case CommonActions.FILTERED_TOKEN_LIST_UPDATED:
+			return { ...state, filteredAssets: action.payload };
+		case 'tokenList/listLoaded': // This is the action when token list is loaded
+			if (state.filteredAssets.length) {
+				// Filtered assets are already loaded
+				return state;
+			}
+			const assets: FilteredTokenDetails = {};
+			const gid = new Set<string>(state.groupInfo.bridgeCurrencies || []);
+			(action.payload.list || []).forEach((tl: TokenDetails) => {
+				if (gid.has(tl.currency)) {
+					assets[tl.currency] = tl;
+				}
+			});
+			return { ...state, filteredAssets: assets}
         case CommonActions.ERROR_OCCURED:
-            return {...state,error: action.payload.message}
+            return {...state,error: action.payload.message};
         case CommonActions.RESET_ERROR:
-            return {...state,error: ''}
+            return {...state,error: ''};
         default:
 			return clientReducer(state, action);
     }

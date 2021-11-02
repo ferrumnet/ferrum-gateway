@@ -2,9 +2,9 @@ import React, { useState,useContext, useEffect } from 'react';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { useToasts } from 'react-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
-import { BridgeAppState } from './../../common/BridgeAppState';
+import { BridgeAppState, FilteredTokenDetails } from './../../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
-import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig } from 'types';
+import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig, TokenDetails } from 'types';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import { Big } from 'big.js';
 //@ts-ignore
@@ -35,6 +35,7 @@ import { Dropdown } from "react-bootstrap";
 import { changeNetwork } from "./../Main/handler";
 import { LiquidityConfirmationModal } from './../../components/confirmationModal';
 import { useBoolean } from '@fluentui/react-hooks';
+import { Networks } from 'ferrum-plumbing';
 
 export interface liquidityPageProps{
     network: string,
@@ -116,8 +117,8 @@ const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (pa
 			return;
 		}
         const sc = inject<BridgeClient>(BridgeClient);
-		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
-
+		await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);		
+        
 		// Get available liquidity for all pairs of the selected currency
 		const allCurrencies = new Set<string>();
 		const pairs = state.data.state.currencyPairs.filter(cp =>
@@ -141,14 +142,14 @@ async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase, cal
 	try {
 		const connect = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionKitClient);
 		const t = await connect.getTransaction(e.id);
-		console.log('Checking the transloota ', t)
+		//console.log('Checking the transloota ', t)
 		if (t &&t.blockNumber) {
-			console.log('Translo iso componte ', t)
+			//console.log('Translo iso componte ', t)
             updateData(dispatch);
             callback();
 			return {...e, status: 'completed'}; // TODO: Check for failed
 		}
-		console.log('Noting inderezding ', e)
+		//console.log('Noting inderezding ', e)
 		return {...e, status: 'pending'};
 	} catch(ex) {
 		console.error('Button.updateEvent', ex, e);
@@ -191,8 +192,18 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
     const liquidityData = ( liqArr.length > 0 && liqArr.filter((e:any) => e[0]?.split(':')[1] === currency?.split(':')[1])  || []);
     const TotalAvailableLiquidity = appState.data.state
 		.bridgeLiquidity[currency || 'N/A'] || '0';
+
+	// TODO: Move this to a reducer to speed up rendering
+	const assets: { [k: string]: TokenDetails } = {};
+	const gid = new Set<string>(appState.data.state?.groupInfo?.bridgeCurrencies || []);
+	appState.data.tokenList.list.forEach(tl => {
+		if (gid.has(tl.currency) &&
+			tl.chainId === Networks.for(currNet || 'ETHEREUM').chainId) {
+			assets[tl.currency] = tl;
+		}
+	});
+
     return {
-        
         symbol: address.symbol,
         network: address.network,
         baseAddress: state.baseAddress,
@@ -216,7 +227,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): l
         liquidityData,
         TotalAvailableLiquidity: TotalAvailableLiquidity,
         allowanceRequired: new Big(allocation || '0').lte(new Big('0')),
-        reconnecting: state.reconnecting
+        reconnecting: state.reconnecting,
     } as liquidityPageProps;
 };
 
@@ -252,7 +263,8 @@ export const liquidityPageSlice = createSlice({
         TotalAvailableLiquidity: '0',
         AllowedNetworks: [],
         liquidityData: [],
-        reconnecting: false
+        reconnecting: false,
+		assets: {} as any,
     } as liquidityPageProps,
     reducers: {
         currencyChanged: (state, action) => {
@@ -331,35 +343,35 @@ const Actions = liquidityPageSlice.actions;
 export function LiquidityPage() {
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);   
-    const { addToast } = useToasts();
     const dispatch = useDispatch();
-    const connected =  useSelector<BridgeAppState, boolean>(state => !!state.connection.account?.user?.userId);
-    const Pairs =  useSelector<BridgeAppState, BridgeTokenConfig[]>(state => state.data.state.currencyPairs);
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, liquidityPageProps>(state => stateToProps(state,userAccounts));
+    const assets =  useSelector<BridgeAppState, FilteredTokenDetails>(state => state.data.state.filteredAssets);
     const [refreshing,setRefreshing] = useState(false)
     const [isConfirmModalOpen, { setTrue: showConfirmModal, setFalse: hideConfirmModal }] = useBoolean(false);
     const action = window.location.pathname.split('/')[3] === 'add';
+	const { currency } = pageProps;
 
     useEffect(()=>{
-		if (pageProps.currency) {
-			dispatch(tokenSelectedThunk({currency: pageProps.currency}));
+		if (currency) {
+			dispatch(tokenSelectedThunk({currency: currency}));
 		}
-	}, [pageProps.currency])
+	}, [currency])
     
-    console.log('LIQPRP',pageProps);
+    // console.log('LIQPRP',pageProps, {assets});
 
     const onSuccessMessage = async (v:string,tx:string) => {  
         message.success({
             icon: <></>,
             content: <Result
+                className="cardTheme confirmationModalTheme"
                 status="success"
                 title="Your Transaction is Processing"
                 subTitle={v}
                 extra={[
                     <>
                         <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
+                        <a className="text-vary-color" onClick={() => window.open(Utils.linkForTransaction(pageProps.network,tx), '_blank')}>{tx}</a>
                         <p>
                             <Button className={'btn-pri'} key="buy" onClick={()=>{
                                     message.destroy('withdraw');
@@ -393,6 +405,7 @@ export function LiquidityPage() {
                 token={pageProps.symbol}
                 total={pageProps.amount}
                 liquidity={pageProps.availableLiquidity}
+                availableLiquidity={pageProps.TotalAvailableLiquidity}
                 processLiqAction={action ?
                     () => addLiquidity(dispatch,pageProps.amount,pageProps.balance,pageProps.currency,onSuccessMessage,pageProps.allowanceRequired)
                     : () => removeLiquidity(dispatch,pageProps.amount,pageProps.availableLiquidity,pageProps.currency,onSuccessMessage)
@@ -414,10 +427,11 @@ export function LiquidityPage() {
                                 <div className="text-sec text-left">Asset</div>
                                     <div>
                                         <AssetsSelector 
-                                            assets={pageProps.addresses}
-                                            icons={supportedIcons}
+											assets={assets}
+											network={pageProps.network}
+											defaultLogo={networkImages[pageProps.network]}
                                             onChange={(v:any)=> {dispatch(Actions.currencyChanged({currency: v.currency})); handleRefresh(v.symbol)}}
-                                            selectedToken={pageProps.symbol}
+                                            selectedCurrency={pageProps.currency}
                                         />
                                     </div>
                                 </div>
@@ -454,11 +468,13 @@ export function LiquidityPage() {
                                             amount={pageProps.amount}
                                             value={pageProps.amount}
                                             fee={0}
+                                            selectedCurrency={pageProps.currency}
                                             icons={supportedIcons}
                                             addonStyle={styles.addon}
+                                            assets={assets||[]}
                                             groupAddonStyle={styles.groupAddon}
                                             balance={pageProps.balance}
-                                            setMax={()=>dispatch(Actions.setMax({balance: pageProps.balance,fee: 0}))}
+                                            setMax={()=>dispatch(Actions.setMax({balance: action?pageProps.balance:pageProps.availableLiquidity,fee: 0}))}
                                             onChange={ (v:any) => amountChanged(dispatch,v.target.value)}
                                             onWheel={ (event:any) => event.currentTarget.blur() }
                                         />
@@ -511,6 +527,7 @@ export function LiquidityPage() {
                                         isAmountEntered= {(Number(pageProps.amount) <= 0)}
                                         isTokenSelected= {!pageProps.selectedToken }
                                         allowanceRequired={pageProps.allowanceRequired}
+                                        totalLiquidty={Number(pageProps.TotalAvailableLiquidity) > 0 ? (Number(pageProps.TotalAvailableLiquidity) - 1) : Number(pageProps.TotalAvailableLiquidity)}
                                     />
                             </ChainEventItem>
                         </div>                      

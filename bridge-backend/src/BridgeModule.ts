@@ -12,6 +12,7 @@ import { CommonBackendModule, CurrencyListSvc, decryptKey } from "common-backend
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
+import { BridgeNotificationSvc } from './BridgeNotificationService';
 require('dotenv').config()
 const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
 
@@ -65,7 +66,7 @@ export class BridgeModule implements Module {
             RINKEBY:
               env("TOKEN_BRDIGE_CONTRACT_RINKEBY") || GLOBAL_BRIDGE_CONTRACT,
             BSC:
-              env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
+              env("TOKEN_BRDIGE_CONTRACT_BSC") ||
               GLOBAL_BRIDGE_CONTRACT,
             BSC_TESTNET:
               env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
@@ -127,6 +128,18 @@ export class BridgeModule implements Module {
           c.get(TokenBridgeService),
           c.get(BridgeConfigStorage),
 					c.get(CrossSwapService),
+        )
+    );
+    container.registerSingleton(
+      BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
+    )
+    container.registerSingleton(
+      TokenBridgeService,
+      (c) =>
+        new TokenBridgeService(
+          c.get(EthereumSmartContractHelper),
+          c.get(TokenBridgeContractClinet),
+          c.get(BridgeNotificationSvc)
         )
     );
 

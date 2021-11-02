@@ -1,0 +1,61 @@
+name: deploy to lambda
+on:
+  push:
+    branches:
+      - staging
+jobs:
+  deploy_source:
+    name: build and deploy lambda
+    defaults:
+      run:
+        working-directory: ./
+    strategy:
+      matrix:
+        node-version: [12.x]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Configure CI Git User
+        run: |
+          git config --global user.name ${{secrets.GIT_USERNAME}}
+          git config --global user.email ${{secrets.GIT_EMAIL}}
+      - name: Clean install dependencies
+        uses: fusion-engineering/setup-git-credentials@v2
+        with:
+          credentials: ${{secrets.GIT_CREDENTIALS}}
+      - run: |
+          git config --global user.name ${{secrets.GIT_USERNAME}}
+          yarn install
+      - name: Build types
+        run: |
+          yarn run build
+        working-directory: './commons/types'
+      - name: Build common-backend
+        run: |
+          yarn run build
+        working-directory: './commons/common-backend'
+      - name: Build web3-tools
+        run: |
+          yarn run build
+        working-directory: './commons/web3-tools'
+      - name: Go to gateway-backend
+        run: |
+          yarn run build
+        working-directory: './gateway-backend/'
+      - name: zip
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./gateway-backend/dist/bundle.zip ./gateway-backend/dist/index.js
+      - name: default deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ap-south-1
+          function_name: testBackend
+          zip_file: ./gateway-backend/dist/bundle.zip
+      

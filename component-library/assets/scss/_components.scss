@@ -9,7 +9,6 @@
     border: 0;
     text-decoration: none;
     position: relative;
-
     .step-circle {
       background: #ddd;
       border-radius: 100%;
@@ -71,6 +70,15 @@
     }
   }
 }
+.ant-steps-icon {
+  width: 100%;
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+}
 
 .network-swap {
   margin: 1.8rem 0;
@@ -108,5 +116,35 @@
     &:focus {
       background: none;
     }
+  }
+}
+
+.top-banner {
+  text-align: left;
+  display: flex;
+  align-items: center !important;
+  &.btn.btn-pri {
+    border-radius: 0 !important;
+  }
+  .ant-alert-message {
+    line-height: 1;
+    font-weight: 600;
+  }
+  .ant-alert-description {
+    line-height: 1 !important;
+  }
+  .anticon-close {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-width: 1px;
+    border-style: 1px;
+  }
+  &.ant-alert-warning {
+    padding: 10px 15px 15px 24px !important;
+    //   margin: 3px;
+    //   margin-right: 10px;
   }
 }

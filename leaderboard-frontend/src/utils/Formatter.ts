@@ -27,9 +27,8 @@ export const formatData = (
   // console.log(frmx.length);
   // console.log(frm);
   // console.log(frmx);
-
   frm.forEach((item) => {
-    let balance = new Big(item.address.balance);
+    let balance = new Big(item.address.balance ?item.address.balance : "0" );
     toReturn.push({
       rank: 0,
       address: item.address.address,
@@ -55,7 +54,7 @@ export const formatData = (
       toReturn[xItem].frmx_holiday = +newBalance
         .div(1000000000000000000)
         .toFixed(2);
-      toReturn[xItem].usd_frm_and_frmx = +new Big(toReturn[xItem].frm_holiday)
+      toReturn[xItem].usd_frm_and_frmx = +new Big(toReturn[xItem].usd_frm_and_frmx)
         .add(new Big(toReturn[xItem].frmx_holiday).mul(frmxUSD))
         .toFixed(2);
     } else {

@@ -24,6 +24,16 @@ export const PairedAddressType: Eip712TypeDefinition = {
   ],
 };
 
+export interface liquidityNotificationConfig{
+  projectAdminEmail: string,
+  currency: string,
+  listenerUrl: string,
+  upperthreshold: number,
+  lowerthreshold: number,
+  lastNotifiedTime: number
+}
+
+
 export interface PairedAddress {
   network1: string;
   address1: string;
@@ -116,7 +126,20 @@ const payBySignatureDataSchema = new Schema<PayBySignatureData & Document>({
   signatures: [signatureSchema],
 });
 
-const userBridgeWithdrawableBalanceItemSchema = new Schema<
+///@ts-ignore
+const liquidityNotificationConfigSchema: Schema = new Schema<
+liquidityNotificationConfig & Document
+>({
+projectAdminEmail: String,
+currency: String,
+listenerUrl: String,
+upperthreshold: Number,
+lowerthreshold: Number,
+lastNotifiedTime: Number
+}) 
+
+//@ts-ignore
+const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   UserBridgeWithdrawableBalanceItem & Document
 >({
   id: String, // same as signedWithdrawHash
@@ -165,6 +188,33 @@ export function getEnv(env: string) {
   );
   return res!;
 }
+
+export interface SwapTx {
+  id: string;
+  network: string;
+  status: "pending" | "processed" | "failed";
+	reason?: string;
+}
+
+const swapTxSchema = new Schema<SwapTx & Document>({
+  id: String,
+  network: String,
+  status: String,
+	reason: String,
+})
+
+export const SwapTxModel = (c: Connection) =>
+  c.model<SwapTx & Document>(
+    "swapTransactions",
+    swapTxSchema
+  )
+
+export const liquidityNotificationConfigModel = (c: Connection) =>
+  c.model<liquidityNotificationConfig & Document>(
+    "liquidityNotificationConfig",
+    liquidityNotificationConfigSchema
+);
+
 
 export const UserBridgeWithdrawableBalanceItemModel = (c: Connection) =>
   c.model<UserBridgeWithdrawableBalanceItem & Document>(

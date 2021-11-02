@@ -1,15 +1,15 @@
 import { Injectable, LocalCache, Networks, ValidationUtils } from "ferrum-plumbing";
-import { ETH, TokenDetails } from "types";
-import { tokens } from 'types/dist/tokenLists/FerrumTokenList';
+import { TokenDetails } from "types";
 import fetch from 'cross-fetch';
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 
 const CURRENCY_LISTS = [
+	'https://raw.githubusercontent.com/ferrumnet/ferrum-token-list/main/FerrumTokenList.json',
 	'https://tokens.coingecko.com/uniswap/all.json',
 	'https://tokens.pancakeswap.finance/pancakeswap-extended.json',
 	'https://unpkg.com/quickswap-default-token-list@1.0.82/build/quickswap-default.tokenlist.json',
 ];
-const HOUR =  1 * 3600 * 1000;
+const HOUR = 1 * 3600 * 1000;
 
 export class CurrencyListSvc implements Injectable {
 	private cache = new LocalCache();
@@ -23,16 +23,23 @@ export class CurrencyListSvc implements Injectable {
 			const listFs = CURRENCY_LISTS.map(l => this.loadSingleList(l));
 			const listsOfLists = await Promise.all(listFs);
 			let lists: TokenDetails[] = [];
+			const curSet = new Set<string>();
 			listsOfLists.forEach(list => {
-				lists = lists.concat(list);
+				const filteredList = list.filter(l => {
+					const k = `${l.chainId.toString()}:${l.address}`;
+					if (curSet.has(k)) { return false; }
+					curSet.add(k);
+					return true;
+				});
+				lists = lists.concat(filteredList);
 			});
-			lists = lists.concat(tokens as any);
 			lists.forEach(l => {
 				try {
 					const network = Networks.forChainId(l.chainId).id;
 					l.currency = `${network}:${(l.address || '').toLowerCase()}`;
 				} catch(e) { } 
 			});
+			ValidationUtils.isTrue(!!lists.length, 'Error getting currency list. No data was downloaded');
 			return lists;
 		}, HOUR);
 	}
@@ -72,13 +79,12 @@ export class CurrencyListSvc implements Injectable {
 	}
 
 	private async loadSingleList(url: string): Promise<TokenDetails[]> {
-			const res = await fetch(url);
-			const resT = await res.text();
 		try {
-			const resJ = JSON.parse(resT);
+			const res = await fetch(url);
+			const resJ = await res.json();
 			return resJ.tokens;
-		} catch(e) {
-			console.log('ERROR GETTING ', url, resT);
+		} catch (e) {
+			console.error(`Error getting currency list ${url}`, e);
 			return [];
 		}
 	}

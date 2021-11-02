@@ -17,6 +17,7 @@ import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
+import { formatter } from './../common/Utils';
 
 const images = {
   "BSC":IconCryptoBNB,
@@ -47,9 +48,6 @@ export function ConfirmationModal (props: {
     processSwap: ()=> Promise<void>,
     setIsModalClose: () => void
 }) {
-	console.log('CONFIRMMI MODALO', {
-		props
-	})
   const theme = useContext(ThemeContext);
   const styles = themedStyles(theme);    
   const [refreshing,setRefreshing] = useState(false)
@@ -64,9 +62,9 @@ export function ConfirmationModal (props: {
         isBlocking={false}
         containerClassName={`${styles.container} cardTheme`}
         isClickableOutsideFocusTrap={false}
-        responsiveMode={ResponsiveMode.medium}
+        responsiveMode={ResponsiveMode.small}
       >
-        <div className={styles.header}>
+        <div className={`${styles.header}`}>
             <h5 className="text-vary-color text-center">
               Confirm
               <Divider
@@ -76,7 +74,7 @@ export function ConfirmationModal (props: {
 
         </div>
         <div className={styles.body}>
-            <div className={styles.headerAmount}>{props.amount} {props.token}</div>
+            <div className={`${styles.headerAmount} text-vary-color`}>{props.amount} {props.token}</div>
             <div className={styles.itemList}>
               <div className={`${styles.tabbedBtn} cardSecTheme`}>
                 <div className={styles.centered}>
@@ -88,7 +86,7 @@ export function ConfirmationModal (props: {
                   <p>{props.sourceNetwork}</p>
                 </div>
                 <span>
-                  <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+                  <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold text-vary-color"></i>
                 </span>
                 <div className={styles.centered}>
                   <img 
@@ -100,19 +98,19 @@ export function ConfirmationModal (props: {
                 </div>
               </div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Asset</div>
                 <div className={styles.listItem}>{props.token}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Destination</div>
                 <div className={styles.listItem}>{shorten(props.destination)}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>Fee ({props.fee}%)</div>
                 <div className={styles.listItem}>{((Number(props.fee)/100)*Number(props.total))} {props.token}</div>
             </div>
-            <div className={styles.itemList}>
+            <div className={`${styles.itemList} listTheme`}>
                 <div className={styles.listLabel}>You will receive</div>
                 <div className={styles.listItem}>{(Number(props.total) - ((Number(props.fee)/100)*Number(props.total)))} {props.token}</div>
             </div>
@@ -155,17 +153,16 @@ export function LiquidityConfirmationModal (props: {
   total: string,
   action:string,
   liquidity:string,
+  availableLiquidity:string,
   processLiqAction: ()=> void,
   setIsModalClose: () => void
 }) {
-console.log('CONFIRMMI MODALO', {
-  props
-})
 const theme = useContext(ThemeContext);
 const styles = themedStyles(theme);    
 const [refreshing,setRefreshing] = useState(false)
 const titleId = useId('title');
-
+const liquidityToBeRemoved = ((Number(props.total)) > (Number(props.availableLiquidity))) ? (Number(props.availableLiquidity)) : (Number(props.total));
+const liquidityValue = props.action === 'Added' ? (Number(props.total)) : liquidityToBeRemoved;
 return (
   <div>    
     <Modal
@@ -178,7 +175,7 @@ return (
       responsiveMode={ResponsiveMode.medium}
     >
       <div className={styles.header}>
-          <h5 className="text-inverse text-center">
+          <h5 className="text-vary-color text-center">
             Confirm
             <Divider
               style={{"margin":"12px 0px"}}
@@ -186,13 +183,13 @@ return (
           </h5>
       </div>
       <div className={styles.body}>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
             <div className={`${styles.tabbedBtn} cardSecTheme`}>
               <div className={styles.centered}>
-                <div className={styles.headerAmount}>{props.amount} {props.token}</div>
+                <div className={`${styles.headerAmount} text-vary-color`}>{props.amount} {props.token}</div>
               </div>
               <span>
-                <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold"></i>
+                <i style={{"fontSize":"24px"}} className="mdi mdi-arrow-right-bold text-vary-color"></i>
               </span>
               <div className={styles.centered}>
                 <img 
@@ -204,17 +201,21 @@ return (
               </div>
             </div>
           </div>
-          <div className={styles.itemList}>
+          <div className={`${styles.itemList} listTheme`}>
               <div className={styles.listLabel2}>Asset</div>
               <div className={styles.listItem2}>{props.token}</div>
           </div>
-          <div className={styles.itemList}>
-              <div className={styles.listLabel2}>Current Destination Liquidity</div>
-              <div className={styles.listItem2}>{props.liquidity}</div>
+          <div className={`${styles.itemList} listTheme`}>
+              <div className={styles.listLabel2}>Your deposited liquidity</div>
+              <div className={styles.listItem2}>{formatter.format(props.liquidity,false)}</div>
           </div>
-          <div className={styles.itemList}>
-              <div className={styles.listLabel2}>Liquidity to be {props.action}</div>
+          <div className={`${styles.itemList} listTheme`}>
+              <div className={styles.listLabel2}>Liquidity Requested to be {props.action}</div>
               <div className={styles.listItem2}>{(Number(props.total))} {props.token}</div>
+          </div>
+          <div className={`${styles.itemList} listTheme`}>
+              <div className={styles.listLabel2}>Liquidity to be {props.action}</div>
+              <div className={styles.listItem2}>{(liquidityValue)} {props.token}</div>
           </div>
           {/* <div className={styles.btnList}>
               <Alert
@@ -229,6 +230,7 @@ return (
                       marginBottom: '5px',
                       minWidth: '45%'
                   }}
+                  disabled={(Number(liquidityValue) <= 0)}
                   onClick={()=>{props.processLiqAction();props.setIsModalClose()}}
               />
               <RegularBtn text={'Cancel'}

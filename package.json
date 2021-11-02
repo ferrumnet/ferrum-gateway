@@ -18,7 +18,8 @@
     "bridge-frontend",
     "leaderboard-frontend",
     "leaderboard-backend",
-    "commons/*"
+    "commons/*",
+    "bridge-cron"
   ],
   "scripts": {},
   "resolutions": {

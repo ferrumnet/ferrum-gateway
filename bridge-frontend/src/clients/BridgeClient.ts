@@ -1,4 +1,4 @@
-import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, JsonRpcRequest, Network, ValidationUtils, sleep } from "ferrum-plumbing";
 import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
@@ -107,10 +107,10 @@ export class BridgeClient implements Injectable {
         return currencyPairs;
     }
 
-    async checkTxStatus(dispatch: Dispatch<AnyAction>,txId: string,sendNetwork: string,timestamp: number) {
+    async checkTxStatus(dispatch: Dispatch<AnyAction>,txId: string,sendNetwork: string) {
         try {
         const res = await this.api.api({
-            command: 'GetSwapTransactionStatus', data: {tid: txId,sendNetwork,timestamp}, params: [] } as JsonRpcRequest);
+            command: 'GetSwapTransactionStatus', data: {tid: txId, sendNetwork, timestamp: Date.now()}, params: [] } as JsonRpcRequest);
         return res;
         } catch(e) {
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
@@ -202,6 +202,10 @@ export class BridgeClient implements Injectable {
                 throw new Error((response as any).reason || 'Request was rejected');
             }
             const txIds = (response.response || []).map(r => r.transactionId);
+						// Sleep some time before adding tx.
+						// TODO: This is a hack for quickly improving the situation with txs auto failing.
+						// This needs a proper fix from backend side.
+						await sleep(15 * 1000);
             dispatch(addAction(CommonActions.WAITING, { source: 'withdrawableBalanceItemAddTransaction' }));
             await this.withdrawableBalanceItemAddTransaction(dispatch, w.receiveTransactionId, txIds[0]);
             return ['success',txIds[0]];
@@ -247,6 +251,68 @@ export class BridgeClient implements Injectable {
         }
     }
 
+     /**
+     * Save Token Notification Details
+     */
+      async saveTokenNotificationDetails(dispatch: Dispatch<AnyAction>,
+        projectAdminEmail:string,currency:string,highthreshold:string,
+        lowerthreshold:string,listenerUrl:string)
+    {
+         try {
+            dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+             const res = await this.api.api({
+                 command: 'saveTokenNotificationDetails', data: {
+                     projectAdminEmail,currency,listenerUrl,"upperthreshold":highthreshold,lowerthreshold
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
+     /**
+     * update Token Notification Details
+     */
+    async updateTokenNotificationDetails(dispatch: Dispatch<AnyAction>,
+        projectAdminEmail:string,currency:string,highthreshold:string,
+        lowerthreshold:string,listenerUrl:string)
+    {
+         try {
+             const res = await this.api.api({
+                 command: 'updateTokenNotificationDetails', data: {
+                     projectAdminEmail,currency,listenerUrl,"upperthreshold":highthreshold,lowerthreshold
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
+     /**
+     * update Token Notification Details
+     */
+    async getTokenNotificationDetails(dispatch: Dispatch<AnyAction>,currency:string)
+    {
+         try {
+             const res = await this.api.api({
+                 command: 'getTokenNotificationDetails', data: {
+                     currency
+                 }, params: [] } as JsonRpcRequest);
+             return res;
+         } catch(e) {
+             dispatch(addAction(Actions.BRIDGE_ADDING_TRANSACTION_FAILED, {
+                 message: (e as Error).message || '' }));
+         } finally {
+             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
+         }
+     }
+
     /**
      * Loads liquidity added by user
      */
@@ -278,6 +344,12 @@ export class BridgeClient implements Injectable {
         } finally {
           //dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
+    }
+
+    async getWithdrawItem(dispatch: Dispatch<AnyAction>, network: string, txId: string):
+		Promise<UserBridgeWithdrawableBalanceItem|undefined> {
+			return await this.api.api({command: 'getWithdrawItem', data: {
+				network, receiveTransactionId: txId }, params: [] } as JsonRpcRequest);
     }
 
     public async addLiquidity(
@@ -336,6 +408,15 @@ export class BridgeClient implements Injectable {
         }
     }
 
+    /**
+     * Logs a swap transactions
+     */
+     async logSwapTransaction(txId:string, network:string) {
+        const res = await this.api.api({
+            command: 'logSwapTransaction', data: {txId,network}, params: [] } as JsonRpcRequest);
+        return res;
+    }
+
     public async swap(
         dispatch: Dispatch<AnyAction>,
         currency: string,
@@ -344,7 +425,7 @@ export class BridgeClient implements Injectable {
         ) {
         try {
             dispatch(addAction(CommonActions.WAITING, { source: 'swapGetTransaction' }));
-            console.log(targetCurrency,'targetCurrency',currency);    
+            //console.log(targetCurrency,'targetCurrency',currency);    
 			const sourceNetwork = Utils.parseCurrency(currency);
 			const targetNetwork = Utils.parseCurrency(targetCurrency);
 			ValidationUtils.isTrue(sourceNetwork !== targetNetwork, 'Source and target networks cannot be the same');
@@ -356,7 +437,8 @@ export class BridgeClient implements Injectable {
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
-            const response = await this.processRequest(dispatch, requestId);            
+            const response = await this.processRequest(dispatch, requestId);
+            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
             return {
                 "status":'success',
                 "txId": requestId.split('|')[0],

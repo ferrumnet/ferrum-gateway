@@ -9,7 +9,7 @@ export interface ReponsivePageWrapperProps {
     footerHtml?: string;
     homepage?: string;
     navBarContent?: any;
-   
+    tempTheme?: any;
     children: any;
     authError?: string;
     setter?: any;
@@ -20,6 +20,7 @@ export interface ThemeProps {
 
     setter?: any;
     newTheme?: any;
+    themeConfig: any;
 }
 
 export interface ReponsivePageWrapperDispatch {

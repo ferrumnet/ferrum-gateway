@@ -31,8 +31,23 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
     }
 }
 
+
+export const moveArrayItemForward = (arr:any[],params:string) : any => {
+    const Item = params && arr.filter(item => (item.currency.split(':')[1]) === params  || (item.symbol=== params))[0];
+    if (!Item) return
+    const orderedItem = arr.filter(item => ((item.currency.split(':')[1]) !== params)  && (item.symbol != params));
+    (params && Item) && orderedItem?.unshift(Item);
+    return (orderedItem) && orderedItem
+}
+
+export const checkIfParamsExists = (arr:any[],params:string,prop:string) : any => {
+    const Item = (arr.filter(item => item[prop] === params) || [])[0];
+    return Item
+}
+
 export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
-    success:(v:string,tx:string)=>void,error:(v:string)=>void,setStatus:(v:number)=>void) => {
+    success:(network:string, tx:string, txCurrency: string) => void,
+	error:(v:string)=>void,setStatus:(v:number)=>void) => {
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         const sc = inject<BridgeClient>(BridgeClient);
@@ -41,11 +56,12 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
         dispatch(Actions.activeWithdrawSuccess({value: true}))
         const items = await sc.getUserWithdrawItems(dispatch,network);
         if(items && items.withdrawableBalanceItems.length > 0){
-            const findMatch = items.withdrawableBalanceItems.filter((e:any)=>e.receiveTransactionId === item);
-            if(findMatch.length > 0){
-                const res:any = await sc.withdraw(dispatch,findMatch[0],network);
+            const findMatch = items.withdrawableBalanceItems.find(e =>
+					e.receiveTransactionId === item);
+            if(!!findMatch) {
+                const res = await sc.withdraw(dispatch, findMatch, network);
                 if(!!res && !!res[0]){
-                    success(network,res[1]);
+                    success(network, res[1], findMatch!.sendCurrency);
                     dispatch(Actions.resetSwap({}))
                     setStatus(1)
                     await sc.getUserWithdrawItems(dispatch,network);
@@ -67,6 +83,10 @@ export const executeWithdraw = async (dispatch: Dispatch<AnyAction>,item:string,
     }
 }
 
+export const initialise = (dispatch:Dispatch<AnyAction>) => {
+    dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
+}
+
 export const onSwap = async (
     dispatch:Dispatch<AnyAction>,
     amount:string,
@@ -81,13 +101,13 @@ export const onSwap = async (
     availableLiquidity:string,
     ) => {
     try {
-		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not anough balance for this transaction');
-        ValidationUtils.isTrue(!(Number(amount) > Number(availableLiquidity) ),'Not anough Liquidity available on destination network');
+		ValidationUtils.isTrue(!(Number(balance) < Number(amount) ),'Not enough balance for this transaction');
+        ValidationUtils.isTrue(!(Number(amount) > (Number(availableLiquidity) - 1) ),'Not enough Liquidity available on destination network');
         dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
         dispatch(addAction(CommonActions.RESET_ERROR, {message: '' }));
         const client = inject<BridgeClient>(BridgeClient);        
        
-        ValidationUtils.isTrue((destnetwork != network),'Destination netowkr cannot be the same source networks');
+        ValidationUtils.isTrue((destnetwork != network),'Destination network cannot be the same as the source network');
 
         const res = await client.swap(dispatch,currency, amount, targetCurrency);
        
@@ -205,25 +225,6 @@ export const connect = async (dispatch: Dispatch<AnyAction>,showNotiModal?: (v:b
        
     }
 }
-
-
-export const checkTxStatus = async (dispatch: Dispatch<AnyAction>,txId:string,sendNetwork:string,timestamp:number) => {
-    try {
-        const sc = inject<BridgeClient>(BridgeClient);
-        const res = await sc.checkTxStatus(dispatch,txId,sendNetwork,timestamp);
-        if(res){
-            if(res === 'successful'){
-                // updateData(dispatch)
-            }
-            return res;
-        }
-        return '';
-    }catch(e) {
-		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
-    }finally {
-        dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
-    }
-};
 
 export const checkifItemIsCreated = async (dispatch: Dispatch<AnyAction>,itemId:string) => {
     try {

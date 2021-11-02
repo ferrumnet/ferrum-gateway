@@ -61,24 +61,86 @@ footer {
 
 // REACT DATA TABLE -- START
 .rdt_Table {
-  border-radius: 0 0 0 0 !important;
+  border-radius: $border-radius-base $border-radius-base 0 0 !important;
   overflow: hidden;
+  background: $tableColor !important;
+  font-size: 1rem;
   .rdt_TableHead {
     .rdt_TableCol {
-      background: $themePrimaryColor;
-      color: $dark;
-      font-size: 1rem;
+      background: $tableColor !important;
+      color: $light;
+      // padding: 0 calc(1rem + 0.25rem);
       div {
         font-weight: 600;
       }
+    }
+  }
+
+  .rdt_TableBody {
+    .rdt_TableRow {
+      .rdt_TableCell {
+        background: $tableColor;
+        position: relative;
+        &:first-child {
+          // padding-left: 1.5rem;
+          div {
+            width: 2rem;
+            text-align: center;
+            &:before {
+              content: "";
+              width: 1rem;
+              height: 1rem;
+              background: $tableColor;
+              position: absolute;
+              left: 0;
+              bottom: -0.5rem;
+              z-index: 1;
+            }
+          }
+        }
+        &:last-child {
+          &:before {
+            content: "";
+            width: 1rem;
+            height: 1rem;
+            background: $tableColor;
+            position: absolute;
+            right: 0;
+            bottom: -0.5rem;
+            z-index: 1;
+          }
+        }
+      }
+    }
+  }
+  .col-mobile {
+    display: none;
+  }
+  @media screen and (max-width: 991px) {
+    .col-web {
+      display: none;
+    }
+    .col-mobile {
+      display: block;
     }
   }
 }
 .rdt_Pagination {
   border-radius: 0 0 $border-radius-base $border-radius-base !important;
   overflow: hidden;
+  background: $tableColor !important;
+  select {
+    border: 1px solid $themePrimaryColor;
+    border-radius: $border-radius-base;
+  }
   span {
-    color: $themePrimaryColor;
+    color: #535355;
+  }
+  div {
+    &:last-child {
+      order: -1;
+      margin-right: auto;
+    }
   }
 }
 

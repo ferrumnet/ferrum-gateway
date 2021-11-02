@@ -202,7 +202,7 @@ async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAc
     try {
 		console.log('Updating item ', item);
         const c = inject<BridgeClient>(BridgeClient);
-        const res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
+        let res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
     } catch(e) {
         console.error('updateWithdrawItem ', e);
@@ -217,11 +217,9 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const dispatch = useDispatch();
     const userAccounts =  useSelector<BridgeAppState, AppAccountState>(state => state.connection.account);
     const pageProps =  useSelector<BridgeAppState, SidePanelProps>(state => stateToProps(state,userAccounts));
-    const appInitialized = useSelector<BridgeAppState, boolean>(appS => appS.data.init.initialized);
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
-    const groupInfo = useSelector<BridgeAppState, any>(appS => !!appS.data.state.groupInfo);
-	const {errorMessage, successMessage, showWithdrawPopup, slippage} = pageProps;
+    const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
 
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
@@ -233,10 +231,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     
     useEffect(() => {
         if(connected && groupId){
-            if(appInitialized && !pageProps.dataLoaded){
-				console.log('Synching withdraw')
-               handleSync()
-            }
+            handleSync()
         }
     }, [connected, groupId]);
 
@@ -252,52 +247,45 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 		}
 	}, [successMessage]);
 
-	useEffect(() => {
-		// TODO: Move this to a modal
-		if (showWithdrawPopup) {
-			message.success({
-				icon: <></>,
-				content: <Result
-					status="success"
-					title="Withdrawal Transaction Processing"
-					subTitle={pageProps.withdrawSuccessMessage?.network}
-					extra={[
-						<>
-							<div> View Transaction Status </div>
-							<a onClick={() => window.open(
-								Utils.linkForTransaction(pageProps.Network,
-								pageProps.withdrawSuccessMessage?.txId!), '_blank')}>{
-									pageProps.withdrawSuccessMessage?.txId
-								}</a>
-						</>,
-						<p></p>,
-						<AddTokenToMetamask currency={
-							pageProps.withdrawSuccessMessage?.currency} tokenData={groupInfo.tokenData}/>,
-						<p>
-						<Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
-							message.destroy('withdr');
-							getData(dispatch);
-							dispatch(MainPageAction.resetSwap({}));
-							dispatch(sidePanelSlice.actions.moveToNext({step: 1}));
-							dispatch(MainPageAction.setProgressStatus({status:1}))
-							}}>Close</Button>
-						</p>
-					]}
-				/>,
-				className: 'custom-class',
-				style: {
-				marginTop: '20vh',
-				},
-				duration: 0,
-				key: 'withdr'
-			},
-			12);  
-		}
-	}, [showWithdrawPopup])
+    const onWithdrawSuccessMessage = async (v:string, tx:string, currency:string) => {  
+        message.success({
+            icon: <></>,
+            content: <Result
+                className="cardTheme confirmationModalTheme"
+                status="success"
+                title="Withdrawal Transaction Processing"
+                subTitle={v}
+                extra={[
+                    <>
+                        <div> View Transaction Status </div>
+                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
+                    </>,
+                    <p></p>,
+					<AddTokenToMetamask tokenData={assets[currency]}/>,
+                    <p>
+                      <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
+                          message.destroy('withdr');
+                          getData(dispatch);
+                          dispatch(MainPageAction.resetSwap({}));
+                          dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
+                          dispatch(MainPageAction.setProgressStatus({status:1}))
+                        }}>Close</Button>
+                    </p>
+                ]}
+            />,
+            className: 'custom-class',
+            style: {
+              marginTop: '20vh',
+            },
+            duration: 0,
+            key: 'withdr'
+        },
+        12);  
+    };
 
     return (
         <Drawer
-          title="Withdrawal Items"
+          title={<div className="text-vary-color">Withdrawal Items</div>}
           width={520}
           closable={false}
           onClose={props.dismissPanel}
@@ -323,12 +311,12 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 alt="token"
                                                 /> */}
                                                 {e.used === 'completed' && <CheckCircleTwoTone className={'finishThemed'} style={{ fontSize: '20px'}} />}
-                                                {e.used === 'pending' && <SyncOutlined spin style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
-                                                {e.used === '' && <PlusOutlined className={'waitThemed'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === 'pending' && <SyncOutlined spin className={'bodyText'} style={{color: `${theme.get(Theme.Colors.textColor)}` || "#52c41a",fontSize: '20px'}}/>}
+                                                {e.used === '' && <PlusOutlined className={'waitThemed text-vary-color'} style={{fontSize: '20px'}}/>}
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
-                                            <div style={styles.textStyles}>
+                                            <div className="text-vary-color">
                                                 Swap {e.receiveAmount} to {Utils.shorten(e.sendCurrency)}
                                             </div>
                                         </div> 
@@ -345,10 +333,10 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                     Sender Network : {e.receiveNetwork}
                                 </p>
                                 <p style={{...styles.accInfo}}>
-                                    Reciever Network : {e.sendNetwork}
+                                    Receiver Network : {e.sendNetwork}
                                 </p>
                                 <p style={{...styles.accInfo}}>
-                                    Reciever Address : {e.receiveAddress}
+                                    Receiver Address : {e.receiveAddress}
                                 </p>
                                 <p style={{...styles.accInfo}}>
                                     Token Address : {e.payBySig.token}

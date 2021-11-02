@@ -52,28 +52,34 @@ const CustomMenu = React.forwardRef(
 
 export const AssetsSelector = ({
   assets,
-  icons = {},
-  selectedToken,
+  network,
+  selectedCurrency,
+  defaultLogo,
   onChange
 }) => {
-	console.log('SELTOK ', {icons, selectedToken,assets})
+  const asset = assets[selectedCurrency] || {};
+  const assetList = (Object.values(assets) || []).filter(a =>
+	a.currency.startsWith(network + ':'));
+// console.log('ASSETS', {assetList, asset, selectedCurrency, defaultLogo, network, assets})
   return (
     <Dropdown className="assets-dropdown ">
       <Dropdown.Toggle as={CustomToggle} variant="pri" id="dropdown-basic">
         <span>
           <img 
             style={{"width": "35px"}}
-            src={icons[selectedToken] || icons['ETH']} alt="loading"></img> {selectedToken}
+            src={asset.logoURI || defaultLogo} alt=""></img> {asset.symbol}
         </span>
         <i className="mdi mdi-chevron-down"></i>
       </Dropdown.Toggle>
-      {assets.length > 1 &&
+      {assetList.length > 1 &&
         <Dropdown.Menu as={CustomMenu}  className={ `cardTheme`}>
-          {assets?.map((asset, index) => (
-            <Dropdown.Item eventKey={index} active={asset.symbol === selectedToken} key={index} onClick={()=>onChange(asset)}>
+          {assetList.map((asset, index) => (
+            <Dropdown.Item eventKey={index} active={asset.currency === selectedCurrency}
+				key={index} onClick={()=>onChange(asset)}
+			>
               <div className="network-detail">
                 <div className="icon-network icon-lg">
-                  {/* <img src={icons[asset]} alt="loading"></img> */}
+                  <img style={{"width": "32px"}} src={asset.logoURI} alt=""></img>
                 </div>
                 <span>
                   <strong>{asset.symbol}</strong>

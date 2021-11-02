@@ -34,12 +34,15 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "@ethersproject/contracts": "^5.4.1",
+    "@ethersproject/providers": "^5.4.5",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "abi-decoder": "^2.4.0",
     "aws-lambda-helper": "git+https://github.com/ferrumnet/aws-lambda-helper.git",
     "aws-sdk": "^2.572.0",
     "big.js": "^5.2.2",
     "bridge-backend": "1.0.0",
-    "leaderboard-backend": "1.0.0",
+    "common-backend": "1.0.0",
     "crucible-backend": "1.0.0",
     "governance-backend": "1.0.0",
     "cross-fetch": "^3.0.4",
@@ -48,11 +51,12 @@
     "ferrum-chain-clients": "git+https://github.com/ferrumnet/ferrum-chain-clients.git",
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
     "got": "^11.3.0",
+    "leaderboard-backend": "1.0.0",
     "mongoose": "^5.7.7",
+    "node-hid": "^2.1.1",
     "swarm-js": "^0.1.40",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
-    "web3": "^1.2.9",
-    "common-backend": "1.0.0"
+    "web3": "^1.2.9"
   },
   "resolutions": {
     "got": "^11.3.0"
