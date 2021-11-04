@@ -124,7 +124,8 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 	const info = params.info;
 
 	const router = CRUCIBLE_CONTRACTS_V_0_1[info.network]?.router || '';
-	const deposit = <Modal
+	const deposit =
+			<Modal
         isOpen={depositModal}
         onDismiss={() => showDepositModal(false)}
         isBlocking={false}
@@ -143,7 +144,8 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			symbol={info.baseSymbol}
 			feeRatio={'0'}
 			feeDeducts={true}
-			actionText={`Mint ${info.symbol}`}
+			actionText={`Continue to mint ${info.symbol}`}
+			actionButton={`Mint`}
 			approvable={true}
 			onClose={() => showDepositModal(false)}
 			action={(total, amount, feeAmount) => dispatch(
@@ -155,7 +157,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 				}))}
 			pendingTxId={activeTxId}
 		  />
-	</Modal>
+	 </Modal>
 	const stake = <Modal
         isOpen={stakeModal}
         onDismiss={() => showStakeModal(false)}

@@ -1,7 +1,4 @@
 import React, { useEffect } from 'react';
-// @ts-ignore
-import { Page, PageLayout } from 'component-library';
-import { ConnectBar } from '../connect/ConnectBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../common/CrucibleAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
@@ -13,6 +10,18 @@ import { CrucibleList } from './CrucibleList';
 import { Route, Switch } from 'react-router';
 import { Deploy } from './Deploy';
 import { Crucible } from './Crucible';
+import {
+    Page, Row, Header, CnctButton, WithdrawlsButton,
+    SwitchNetworkButton, AppContainer,
+    ContentContainer, TokenBridge,
+    // @ts-ignore
+} from 'component-library';
+import { ConnectButtonWapper } from 'common-containers';
+import { WaitingComponent } from '../common/WebWaiting';
+import '../app.scss'
+import { GlobalStyles } from "../common/GlobalStyles";
+import { ThemeProvider } from "styled-components";
+import { DefaultTheme } from '../common/DefaultTheme';
 
 interface DashboardState {
 }
@@ -56,6 +65,22 @@ export function Dashboard(props: DashboardProps) {
 			dispatch(initializeDashboardThunk({connected}));
 		}
 	}, [initialized, connected]);
+	const ConBot = <ConnectButtonWapper View={CnctButton} />
+
+	const header = (<Header
+                ConnectButton={ConBot}
+                WithdrawlsButton={<></>}
+                SwitchNetworkButton={<></>}
+                ThemeSelector={() => <></>}
+                //     () => <ThemeSelector setter={props.setter}
+                //         newTheme={props.newTheme}
+                //         setIsLight={() => setIsLight(!isLight)}
+                //         group={groupInfo.groupId}
+                //         isLight={isLight} />
+                // }
+                logo={'https://ferrum.network/wp-content/uploads/2021/05/image-1.png'}
+                altText={'Ferrum Crucible Labs'}
+            />);
     return (
         <>
             {!!initError ? (
@@ -64,33 +89,31 @@ export function Dashboard(props: DashboardProps) {
                     <p>{initError}</p>
                 </Page>
             ):(
-                <PageLayout
-                    top={(
-                        <ConnectBar />
-                    )}
-                    left={(
-						<></>
-                    )}
-                    middle={(
-											 <Switch>
-											  <Route path="/deploy">
-                        	<Deploy />
-												</Route>
-											  <Route path="/crucible/:network/:contractAddress">
-                        	<Crucible />
-												</Route>
-											  <Route>
-                        	<CrucibleList />
-												</Route>
-											 </Switch>
-                    )}
-                    bottom={(
-                        <div style={{justifyContent: 'center', display: 'flex', flex: 1}}>
-                            <p>(c) Copyright Ironworks ltd.</p></div>
-                    )}
-                />
+						<>
+					<ThemeProvider theme={DefaultTheme}>
+						<GlobalStyles />
+						{header}
+            <AppContainer>
+							<ContentContainer>
+								<div className="landing-page">
+									<Switch>
+									<Route path="/deploy">
+										<Deploy />
+									</Route>
+									<Route path="/crucible/:network/:contractAddress">
+										<Crucible />
+									</Route>
+									<Route>
+										<CrucibleList />
+									</Route>
+									</Switch>
+									<WaitingComponent />
+								</div>
+							</ContentContainer>
+						</AppContainer>
+					</ThemeProvider>
+							</>
             ) }
         </>
     );
 }
-
