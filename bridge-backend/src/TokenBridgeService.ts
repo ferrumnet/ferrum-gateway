@@ -6,7 +6,7 @@ import { Connection, Document, Model } from "mongoose";
 import {
   transactionModel,
   Transactions,
-} from "../../bridge-cron/src/models/transaction";
+} from "bridge-cron/src/models/transaction";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import {
   RequestMayNeedApprove,

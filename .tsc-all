@@ -1,6 +1,6 @@
 commons/types
-commons/common-backend
 commons/web3-tools
+commons/common-backend
 common-containers
 bridge-backend
 leaderboard-backend

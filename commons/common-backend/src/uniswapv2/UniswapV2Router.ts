@@ -2,7 +2,7 @@ import { abi as IUniswapV2Router01ABI } from "@uniswap/v2-periphery/build/IUnisw
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { CurrencyValue, SWAP_PROTOCOL_ROUTERS, Utils } from "types";
-import { SwapProtocol } from "../../../types/src/models/crossSwap/CrossSwapTypes";
+import { SwapProtocol } from "types";
 
 export class UniswapV2Router implements Injectable {
 	constructor(

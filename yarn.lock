@@ -3588,9 +3588,9 @@
     classnames "*"
 
 "@types/cron@^1.8.2":
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/@types/cron/-/cron-1.7.2.tgz#e9fb420da616920dae82d13adfca53282ffaab6e"
-  integrity sha512-AEpNLRcsVSc5AdseJKNHpz0d4e8+ow+abTaC0fKDbAU86rF1evoFF0oC2fV9FdqtfVXkG2LKshpLTJCFOpyvTg==
+  version "1.7.3"
+  resolved "https://registry.yarnpkg.com/@types/cron/-/cron-1.7.3.tgz#993db7d54646f61128c851607b64ba4495deae93"
+  integrity sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA==
   dependencies:
     "@types/node" "*"
     moment ">=2.14.0"
@@ -6138,6 +6138,11 @@ ci-info@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
+
+ci-info@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.2.0.tgz#2876cb948a498797b5236f0095bc057d0dca38b6"
+  integrity sha512-dVqRX7fLUm8J6FgHJ418XuIgDLZDkYcDFTeL6TA2gt5WlIZUQrrH6EZrNClwT/H0FateUsZkGIOPRrLbP+PR9A==
 
 cids@^0.7.1:
   version "0.7.5"
@@ -10972,6 +10977,18 @@ jest-util@^26.1.0, jest-util@^26.6.0, jest-util@^26.6.2:
     is-ci "^2.0.0"
     micromatch "^4.0.2"
 
+jest-util@^27.0.0:
+  version "27.3.1"
+  resolved "https://registry.yarnpkg.com/jest-util/-/jest-util-27.3.1.tgz#a58cdc7b6c8a560caac9ed6bdfc4e4ff23f80429"
+  integrity sha512-8fg+ifEH3GDryLQf/eKZck1DEs2YuVPBCMOaHQxVVLmQwl/CDhWzrvChTX4efLZxGrw+AA0mSXv78cyytBt/uw==
+  dependencies:
+    "@jest/types" "^27.2.5"
+    "@types/node" "*"
+    chalk "^4.0.0"
+    ci-info "^3.2.0"
+    graceful-fs "^4.2.4"
+    picomatch "^2.2.3"
+
 jest-validate@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-validate/-/jest-validate-26.6.2.tgz#23d380971587150467342911c3d7b4ac57ab20ec"
@@ -11603,7 +11620,7 @@ lodash.isstring@^4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.isstring/-/lodash.isstring-4.0.1.tgz#d527dfb5456eca7cc9bb95d5daeaf88ba54a5451"
   integrity sha1-1SfftUVuynzJu5XV2ur4i6VKVFE=
 
-lodash.memoize@^4.1.2:
+lodash.memoize@4.x, lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
@@ -17257,7 +17274,7 @@ tryer@^1.0.1:
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.1.tgz#f2c85406800b9b0f74c9f7465b81eaad241252f8"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
 
-ts-jest@^26.0.0, ts-jest@^26.6.0:
+ts-jest@^26.0.0:
   version "26.5.6"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-26.5.6.tgz#c32e0746425274e1dfe333f43cd3c800e014ec35"
   integrity sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==
@@ -17270,6 +17287,20 @@ ts-jest@^26.0.0, ts-jest@^26.6.0:
     lodash "4.x"
     make-error "1.x"
     mkdirp "1.x"
+    semver "7.x"
+    yargs-parser "20.x"
+
+ts-jest@^26.6.0:
+  version "27.0.7"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.7.tgz#fb7c8c8cb5526ab371bc1b23d06e745652cca2d0"
+  integrity sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==
+  dependencies:
+    bs-logger "0.x"
+    fast-json-stable-stringify "2.x"
+    jest-util "^27.0.0"
+    json5 "2.x"
+    lodash.memoize "4.x"
+    make-error "1.x"
     semver "7.x"
     yargs-parser "20.x"
 
