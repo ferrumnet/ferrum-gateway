@@ -12,3 +12,5 @@ export const CommonActions = {
 export function addAction(type: string, payload: any) {
     return { type, payload };
 }
+
+export const APPLICATION_NAME = 'CRUCIBLE';

@@ -24,6 +24,7 @@ import { UniswapV2Client } from "./uniswapv2/UniswapV2Client";
 import { UniswapPricingService } from "./uniswapv2/UniswapPricingService";
 import { TransactionTracker } from "./contracts/TransactionTracker";
 import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
+import { ChainEventService } from "./events/ChainEventsService";
 
 export class CommonBackendModule implements Module {
   constructor(private chainConfig?: MultiChainConfig) {}
@@ -91,6 +92,9 @@ export class CommonBackendModule implements Module {
 				c.get(UniswapV2Router)));
 		container.register(TransactionTracker,
 			c => new TransactionTracker(c.get(EthereumSmartContractHelper)));
+
+		container.registerSingleton(ChainEventService,
+			c => new ChainEventService(c.get(EthereumSmartContractHelper)));
 
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")

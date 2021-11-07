@@ -4,11 +4,17 @@ export type ChainEventStatus = '' | 'pending' | 'failed' | 'completed';
 
 export interface ChainEventBase {
     id: string;
+		userAddress: string;
     network: Network;
+		application: string;
     status: ChainEventStatus;
-    stater?: (v:number) => void,
     callback?: any,
     eventType: string;
+		transactionType: string;
+		createdAt: number;
+		lastUpdate: number;
+		reason?: string;
+		retry: number;
 }
 
 export interface AllocationSignature extends MultiSignable {

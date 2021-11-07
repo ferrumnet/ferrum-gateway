@@ -4,8 +4,8 @@ import {
     AmountInput, supportedIcons,
     // @ts-ignore
 } from 'component-library';
-import { BigUtils, ChainEventBase, inject } from 'types';
-import { ApiClient, ApprovableButtonWrapper, ChainEventItem,
+import { BigUtils, } from 'types';
+import { ApprovableButtonWrapper,
 	IApprovableButtonWrapperViewProps } from 'common-containers';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { Card } from "react-bootstrap";
@@ -32,21 +32,6 @@ export interface ChainActionDlgProps {
 	approvable: boolean;
 	onClose: () => void;
 	action: (total: string, amount: string, feeAmount: string) => void;
-	pendingTxId?: string;
-}
-
-async function updateTransaction(item: ChainEventBase): Promise<ChainEventBase> {
-    try {
-        const c = inject<ApiClient>(ApiClient);
-        const res = await c.updateChainEvent('transaction', [{ network: item.network, id: item.id}]);
-		if (!res) {
-			return item;
-		}
-		return { ...item, status: res.status, };
-    } catch(e) {
-        console.error('updateWithdrawItem ', e);
-        return item;
-    }
 }
 
 export function ChainActionDlg(props: ChainActionDlgProps) {
@@ -122,7 +107,7 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 					<div className="crucible-box-row">
 						{ props.approvable ? (
 							<ApprovableButton
-								disabled={!amount || !!props.pendingTxId}
+								disabled={!amount}
 								text={props.actionButton || props.actionText}
 								onClick={() => props.action(total, amount, feeAmount)}
 								amount={total}
@@ -132,7 +117,7 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 							/>
 						) : (
 							<Button
-								disabled={!amount || !!props.pendingTxId}
+								disabled={!amount}
                 className="btn-pri liqaction btn-icon btn-connect mt-4"
 								style={styles.btnCont}
 								onClick={() => props.action(total, amount, feeAmount)}>
@@ -144,19 +129,6 @@ export function ChainActionDlg(props: ChainActionDlgProps) {
 								style={styles.btnCont}
 							onClick={() => props.onClose()}
 						>Close</Button>
-					</div>
-					<div className="crucible-box-row">
-					{props.pendingTxId && (
-						<ChainEventItem
-							eventType="transaction"
-							id={props.pendingTxId}
-							initialStatus={'pending'}
-							network={props.network}
-							updater={updateTransaction}
-						>
-							<span>Transaction ID: <br/>{props.pendingTxId}</span>
-						</ChainEventItem>
-					)}
 					</div>
 				</div>
 				</div>

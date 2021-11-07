@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { CrucibleInfo, BigUtils, inject,
-	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, CRUCIBLE_CONTRACTS_V_0_1, } from "types";
-import {
-    RegularBtn,
-    // @ts-ignore
-} from 'component-library';
+	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, CRUCIBLE_CONTRACTS_V_0_1, ChainEventBase, } from "types";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState, CrucibleBoxState } from '../common/CrucibleAppState';
 import Modal from 'office-ui-fabric-react/lib/Modal';
@@ -14,6 +10,10 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../CrucibleClient';
 import './CrucibleList.css';
 import { StakingClient, stakingKey } from '../staking/StakingClient';
+import { CrucibleView } from './CrucibleView';
+import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
+import { APPLICATION_NAME } from '../common/CommonActions';
+import { ApiClient } from 'common-containers';
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
     async (payload: {
@@ -26,11 +26,23 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 	const {network, crucible, currency, amount, isPublic} = payload;
 	console.log('PL":', payload,)
 	const client = inject<CrucibleClient>(CrucibleClient);
+	const api = inject<ApiClient>(ApiClient);
 	const transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
 	if (!!transactionId) {
 		ctx.dispatch(crucibleBoxSlice.actions.registerTx({
 			transactionId,
 			network }));
+		const event = {
+			createdAt: 0,
+			id: transactionId,
+			network,
+			eventType: 'transaction',
+			application: APPLICATION_NAME,
+			status: 'pending',
+			transactionType: 'deposit',
+			userAddress: api.getAddress(),
+		} as ChainEventBase;
+		ctx.dispatch(transactionListSlice.actions.addTransaction(event));
 	}
 });
 
@@ -64,6 +76,16 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
 		ctx.dispatch(crucibleBoxSlice.actions.registerTx({
 			transactionId,
 			network }));
+		const event = {
+			createdAt: 0,
+			id: transactionId,
+			network,
+			eventType: 'transaction',
+			application: APPLICATION_NAME,
+			status: 'pending',
+			transactionType: 'withdraw',
+		} as ChainEventBase;
+		ctx.dispatch(transactionListSlice.actions.addTransaction(event));
 	}
 });
 
@@ -155,7 +177,6 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 					currency: info.baseCurrency,
 					isPublic: !!info.openCap && !userDirectAllocation,
 				}))}
-			pendingTxId={activeTxId}
 		  />
 	 </Modal>
 	const stake = <Modal
@@ -182,7 +203,6 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			onClose={() => showStakeModal(false)}
 			action={(total, amount, feeAmount) => dispatch(
 				doStake({amount, crucible: info.currency }))}
-			pendingTxId={activeTxId}
 		  />
 	</Modal>
 	const withdraw = <Modal
@@ -213,13 +233,41 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 					crucible: info.currency,
 					currency: info.baseCurrency,
 				}))}
-			pendingTxId={activeTxId}
 		  />
 	</Modal>
+
+	const view = <CrucibleView
+			title={params.info.name}
+			symbol={params.info.symbol}
+			baseSymbol={params.info.baseSymbol}
+			feeOnTx={BigUtils.safeParse(params.info.feeOnTransferRate).times(100).toString()}
+			feeOnWithdraw={BigUtils.safeParse(params.info.feeOnWithdrawRate).times(100).toString()}
+			totalSupply={params.info.totalSupply}
+			priceUsd={params.info.priceUsdt}
+			basePriceUsd={params.info.basePriceUsdt}
+			balance={balance}
+			baseBalance={baseBalance}
+			directAllocation={userDirectAllocation}
+			lpAllocation={userLpAllocation}
+			mint={'open'}
+			enableMint={depositOpen}
+			openMintCap={params.info.openCap}
+			onMint={() => {
+						dispatch(crucibleBoxSlice.actions.unregisterTx());
+						showDepositModal(true);
+					}}
+			enableWithdraw={balance !== '' && balance !== '0'}
+			onWithdraw={() => {
+						dispatch(crucibleBoxSlice.actions.unregisterTx());
+						showWithdrawModal(true);
+			}}
+		/>;
+
 	return (
 		<>
 		{deposit}{stake}{withdraw}
-		<div className="crucible-box-container">
+		{view}
+		{/* <div className="crucible-box-container">
 			<div className="crucible-box-row">
 				<span><b>{params.info.name}</b></span>
 			</div>
@@ -295,7 +343,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 					}}
 				/>
 			</div>
-		</div>
+		</div> */}
 		</>
 	);
 }

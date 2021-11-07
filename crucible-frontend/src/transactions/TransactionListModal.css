@@ -1,0 +1,16 @@
+
+.transaction-list-container {
+	min-width: 300px;
+	max-width: 500px;
+	min-height: 250px;
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+}
+
+.transaction-list {
+	border: 2px;
+	border-style: solid;
+	flex: 1;
+	border-radius: 5px;
+}

@@ -6,7 +6,7 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { CommonBackendModule, CurrencyListSvc } from "common-backend";
+import { ChainEventService, CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
@@ -26,6 +26,7 @@ export class GatewayModule implements Module {
         new HttpHandler(
           c.get(UnifyreBackendProxyService),
           c.get(CommonTokenServices),
+					c.get(ChainEventService),
           c.get(BridgeRequestProcessor),
           c.get(LeaderboardRequestProcessor),
 		  		c.get(CrucibleRequestProcessor),

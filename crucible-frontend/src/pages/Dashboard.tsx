@@ -11,9 +11,9 @@ import { Route, Switch } from 'react-router';
 import { Deploy } from './Deploy';
 import { Crucible } from './Crucible';
 import {
-    Page, Row, Header, CnctButton, WithdrawlsButton,
-    SwitchNetworkButton, AppContainer,
-    ContentContainer, TokenBridge,
+    Page, Header, CnctButton,
+    AppContainer,
+    ContentContainer,
     // @ts-ignore
 } from 'component-library';
 import { ConnectButtonWapper } from 'common-containers';
@@ -22,6 +22,8 @@ import '../app.scss'
 import { GlobalStyles } from "../common/GlobalStyles";
 import { ThemeProvider } from "styled-components";
 import { DefaultTheme } from '../common/DefaultTheme';
+import { TransactionSummary } from 'common-containers/dist/chain/TransactionList';
+import { TransactionSummaryButton } from '../transactions/TransactionSummaryButton';
 
 interface DashboardState {
 }
@@ -69,7 +71,7 @@ export function Dashboard(props: DashboardProps) {
 
 	const header = (<Header
                 ConnectButton={ConBot}
-                WithdrawlsButton={<></>}
+                WithdrawlsButton={<TransactionSummaryButton />}
                 SwitchNetworkButton={<></>}
                 ThemeSelector={() => <></>}
                 //     () => <ThemeSelector setter={props.setter}

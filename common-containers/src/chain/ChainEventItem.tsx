@@ -4,6 +4,7 @@ import { Network } from 'ferrum-plumbing';
 import { useSelector, useDispatch } from 'react-redux';
 import { ChainEventStatus, ChainEventBase, inject, } from 'types';
 import { AppState } from '../store/AppState';
+import { ApiClient } from '../clients/ApiClient';
 
 const FETCH_TIMEOUT: number = 1000 * 25;
 
@@ -13,7 +14,7 @@ export interface ChainEventItemProps {
     children: any;
     initialStatus: ChainEventStatus;
     eventType: string;
-    stater?: (v:number) => void,
+		event?: ChainEventBase,
     callback?: any,
     updater: (item: ChainEventBase, dispatch: Dispatch<AnyAction>) => Promise<ChainEventBase>;
 }
@@ -51,7 +52,8 @@ const refreshPendingThunk = createAsyncThunk('data/refreshPending', async (paylo
     // Group by event type..
     items.forEach(async et => {
         const eventItem = et;
-        const res = await (eventItem as any).updater(eventItem, thunk.dispatch);
+				const updater: (i: ChainEventBase, d: Dispatch<AnyAction>) => Promise<ChainEventBase> = (eventItem as any).updater;
+        const res = await updater(eventItem, thunk.dispatch);
         console.log('UPDATED EVENT', {res});
         if (!!res) {
             if (res.status !== 'pending') {
@@ -92,20 +94,16 @@ function kickOff(dispatch: any) {
  *  </ChainEventItem>
  */
 export function ChainEventItem(props: ChainEventItemProps) {
-    const myEvent = useSelector<AppState<any, any, any>, ChainEventBase>(
-        st => {
-            return st.data.watchEvents[props.id]
-        });
     const dispatch = useDispatch();
-    const {network, id, initialStatus, updater} = props;
+    const {network, id, initialStatus, event} = props;
     useEffect(() => {
         if (((initialStatus === 'pending') && !!network && !!id) || initialStatus === 'failed') {
-            dispatch(chainEventsSlice.actions.watchEvent({...props}));
+            dispatch(chainEventsSlice.actions.watchEvent(
+							event ?  {...event, updater: props.updater} :
+							{ id: props.id, status: props.initialStatus, network: props.network,
+								eventType: props.eventType, updater: props.updater }
+							));
         }
-        // if (myEvent && (myEvent?.status !== 'pending' && myEvent?.status !== ''
-        //         && myEvent?.status !== undefined)) {
-        //     dispatch(chainEventsSlice.actions.unwatchEvent({id: id}))
-        // }
     }, [network, id, initialStatus]);
     useEffect(() => {
         kickOff(dispatch);

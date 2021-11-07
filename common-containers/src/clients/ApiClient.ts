@@ -37,11 +37,27 @@ export class ApiClient implements Injectable {
     getNetwork() { return this.network; }
     getAddress() { return this.address; }
 
-    async updateChainEvent(eventType: string, events: {network: Network, id: string}[]):
+		async getUserEvents(application: string) {
+        ValidationUtils.isTrue(!!this.getAddress(), 'must be signed in');
+        ValidationUtils.isTrue(!!application, 'application must be provided');
+        const res = await this.api({
+            command: 'getUserEvents', data: {userAddress: this.getAddress(), application}, params: [] } as JsonRpcRequest);
+        return res;
+		}
+
+    async updateChainEvents(eventType: string, events: {network: Network, id: string}[]):
     Promise<ChainEventBase> {
         ValidationUtils.isTrue(!!this.getAddress(), 'must be signed in');
         const res = await this.api({
             command: 'updateChainEvents', data: {eventType, events}, params: [] } as JsonRpcRequest);
+        return res;
+    }
+
+    async updateChainEvent(event: ChainEventBase):
+    Promise<ChainEventBase> {
+        ValidationUtils.isTrue(!!this.getAddress(), 'must be signed in');
+        const res = await this.api({
+            command: 'updateChainEvent', data: {event}, params: [] } as JsonRpcRequest);
         return res;
     }
 

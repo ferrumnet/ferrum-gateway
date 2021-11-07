@@ -1,7 +1,7 @@
 import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Container, Module, ValidationUtils } from "ferrum-plumbing";
-import { CommonBackendModule, decryptKey } from "common-backend";
+import { ChainEventService, CommonBackendModule, decryptKey } from "common-backend";
 import { CrucibleConfig } from "./CrucibleTypes";
 import { CrucibleRequestProcessor } from "./CrucibleRequestProcessor";
 import { CrucibeService } from "./CrucibleService";
@@ -82,6 +82,8 @@ export class CrucibleModule implements Module {
       BasicAllocation,
       (c) => new BasicAllocation(c.get(EthereumSmartContractHelper))
     );
+
+		await container.get<ChainEventService>(ChainEventService).init(conf.database);
 
 		// Register staking...
 		await container.registerModule(

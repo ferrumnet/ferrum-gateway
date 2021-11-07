@@ -16,12 +16,14 @@ import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestPro
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/src/staking/StakingRequestProcessor";
+import { ChainEventService } from "common-backend";
 
 export class HttpHandler implements LambdaHttpHandler {
   // private adminHash: string;
   constructor(
     private uniBack: UnifyreBackendProxyService,
     private commonTokenServices: CommonTokenServices,
+		private chainEventService: ChainEventService,
     private bridgeProcessor: BridgeRequestProcessor,
     private leaderboardProcessor: LeaderboardRequestProcessor, // BridgeRequestProcessor,
     private crucibleProcessor: CrucibleRequestProcessor,
@@ -61,9 +63,17 @@ export class HttpHandler implements LambdaHttpHandler {
           const resp = await this.signInAdmin(secret);
           body = { session: resp };
           break;
+        case "updateChainEvent":
+          ValidationUtils.isTrue(!!userId, '"userId" os requried');
+          body = await this.chainEventService.updateChainEvent(userId, req.data.event);
+          break;
         case "updateChainEvents":
           ValidationUtils.isTrue(!!userId, '"userId" os requried');
           body = await this.updateChainEvents(userId, req);
+          break;
+        case "getUserEvents":
+          ValidationUtils.isTrue(!!userId, '"userId" os requried');
+          body = await this.chainEventService.getUserEvents(userId, req.data.application);
           break;
         case "getHttpProviders":
           body = this.newtworkConfig;
@@ -197,12 +207,12 @@ export class HttpHandler implements LambdaHttpHandler {
   async updateChainEvents(
     userId: string,
     req: JsonRpcRequest
-  ): Promise<ChainEventBase> {
+  ): Promise<ChainEventBase[]> {
     const { eventType, events } = req.data;
     ValidationUtils.allRequired(["eventType", "events"], req.data);
     switch (eventType) {
       case "transaction":
-      // TODO: Code to update a specific transaction, and save it back to database
+				return await this.chainEventService.updateChainEvents(userId, req.data.events);
       case "stakeEvent":
       // TODO: Update the specific stake event...
       default:

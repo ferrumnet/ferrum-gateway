@@ -11,6 +11,7 @@ import {
   PersistentState,
   PersistentStateMiddleware,
 } from "../localStorage/PersistentState";
+import { transactionListSlice } from "../chain/TransactionList";
 
 export class StoreBuilder {
   static build<TUserState, TGlobalState extends AppInitializingState, TUiState>(
@@ -35,6 +36,7 @@ export class StoreBuilder {
           watchEvents: chainEventsSlice.reducer,
           approval: approvableButtonSlice.reducer,
           tokenList: tokenListSlice.reducer,
+					transactions: transactionListSlice.reducer,
         }),
         ui: uiReducer,
       }),

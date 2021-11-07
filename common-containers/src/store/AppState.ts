@@ -43,11 +43,12 @@ export interface AppState<TUserState, TGlobalState, TUiState> {
         userState: TUserState;
     };
     data: {
-        init: AppInitializingState;
-        state: TGlobalState;
-        watchEvents: { [k: string]: ChainEventBase };
-		approval: ApprovalState;
-		tokenList: { list: TokenDetails[] };
+			init: AppInitializingState;
+			state: TGlobalState;
+			watchEvents: { [k: string]: ChainEventBase };
+			transactions: ChainEventBase[];
+			approval: ApprovalState;
+			tokenList: { list: TokenDetails[] };
     };
     ui: TUiState;
 }
