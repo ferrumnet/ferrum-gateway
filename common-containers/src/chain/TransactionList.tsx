@@ -64,7 +64,9 @@ export const transactionListSlice = createSlice({
 	initialState: [] as ChainEventBase[],
 	reducers: {
 		transactionsLoaded: (state, action) => {
-			console.log('LOADED TXS:', action.payload);
+			// Reset the state without assigning a new instance to keep redux happy
+			const cl = state.length;
+			for(let i=0; i<cl; i++) {state.pop();}
 			action.payload.transactions.forEach((t: any) => state.push(t));
 		},
 		transactionUpdated: (state, action) => {
