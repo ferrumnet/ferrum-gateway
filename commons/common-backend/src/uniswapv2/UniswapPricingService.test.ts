@@ -18,12 +18,11 @@ async function pricingSvc() {
 }
 
 test('renders learn react link', async function() {
-  // expect(linkElement).toBeInTheDocument();
 	const svc = await pricingSvc();
-	const frmxPriceEth = await svc.ethPrice(UNISWAP, 'ETHEREUM:0xf6832ea221ebfdc2363729721a146e6745354b14');
-	const frmxPriceUsdt = await svc.usdPrice(UNISWAP, 'ETHEREUM:0xf6832ea221ebfdc2363729721a146e6745354b14');
-	const frmPriceUsdt = await svc.usdPrice(UNISWAP, 'ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c');
-	console.log('Price for FRMX/ETH: ', frmxPriceEth);
-	console.log('Price for FRMX/USDT: ', frmxPriceUsdt);
-	console.log('Price for FRM/USDT: ', frmPriceUsdt);
+	const frmxPriceEth = await svc.ethPrice(UNISWAP, 'ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c');
+	console.log('Price for FRM/ETH: ', frmxPriceEth);
+	const frmxPriceUsdt = await svc.usdPrice(UNISWAP, 'ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c');
+	console.log('Price for FRM/USDT: ', frmxPriceUsdt);
+	// const frmPriceUsdt = await svc.usdPrice(UNISWAP, 'ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c');
+	// console.log('Price for FRM/USDT: ', frmPriceUsdt);
 });

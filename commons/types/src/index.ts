@@ -21,3 +21,6 @@ export * from './governance/GovernanceTypes';
 
 export * from './staking/Types';
 export * from './Environment';
+
+export * from './models/chain/consts/DefaultTokenPriceConfig';
+export * from './models/chain/consts/SwapProtocolConfigs';

@@ -17,7 +17,7 @@ import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUnisw
 import { abi as IUniswapV2Pair } from "@uniswap/v2-core/build/IUniswapV2Pair.json";
 import { Big } from "big.js";
 import { toWei } from "./Common";
-import { ETH, SWAP_PROTOCOL_ROUTERS, WETH } from "types";
+import { ETH, SwapProtocolConfigs, WETH } from "types";
 const Helper = EthereumSmartContractHelper;
 
 /**
@@ -268,7 +268,7 @@ export class UniswapV2Client implements Injectable {
     const web3 = this.helper.web3(network);
     return new web3.Contract(
       IUniswapV2Router02ABI as any,
-      SWAP_PROTOCOL_ROUTERS[protocol]
+      SwapProtocolConfigs[protocol]?.router
     );
   }
 

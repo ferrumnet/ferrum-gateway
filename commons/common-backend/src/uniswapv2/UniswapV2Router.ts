@@ -1,7 +1,7 @@
 import { abi as IUniswapV2Router01ABI } from "@uniswap/v2-periphery/build/IUniswapV2Router01.json";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
-import { CurrencyValue, SWAP_PROTOCOL_ROUTERS, Utils } from "types";
+import { CurrencyValue, SwapProtocolConfigs, Utils } from "types";
 import { SwapProtocol } from "types";
 
 export class UniswapV2Router implements Injectable {
@@ -34,7 +34,7 @@ export class UniswapV2Router implements Injectable {
 	private router(protocol: SwapProtocol) {
 		const [network,] = Utils.parseCurrency(protocol);
 		const web3 = this.helper.web3(network);
-		const contractAddress = SWAP_PROTOCOL_ROUTERS[protocol];
+		const contractAddress = SwapProtocolConfigs[protocol]?.router;
 		ValidationUtils.isTrue(!!contractAddress, `${protocol} has no router defined`);
 		return new web3.Contract(IUniswapV2Router01ABI as any, contractAddress);
 	}

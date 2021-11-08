@@ -7,7 +7,7 @@ import { BigUtils, BRIDGE_NETWORKS, CrossChainBridgeQuote,
 	FRM, NetworkedConfig,
 	SwapProtocol, SwapProtocolInfo, SwapQuote,
 	BridgeV12Contracts, 
-	SWAP_PROTOCOL_ROUTERS,
+	SwapProtocolConfigs,
 	CrossSwapRequest,
 	UserBridgeWithdrawableBalanceItem,
 	SwapQuoteProtocol,
@@ -156,7 +156,7 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 				userAddress, {from: userAddress});
 			return EthereumSmartContractHelper.fromTypechainTransaction(swap);
 		} else {
-			const protocolRouter = SWAP_PROTOCOL_ROUTERS[fromProtocols[0]];
+			const protocolRouter = SwapProtocolConfigs[fromProtocols[0]]?.router;
 			const amountCrossMin = this.calculateAmountCrossMin(slippage, quote.bridge.amountIn);
 			console.log('GOT amountCrossMin', amountCrossMin)
 			const path = this.protocolToPath(quote.fromNetwork, quote.protocols);
@@ -262,7 +262,7 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 		const router = this.router(item.sendNetwork);
 		const isETH = Networks.for(item.sendNetwork).baseCurrency === item.sendToCurrency;
 		const protocol = registered?.toProtocol || this.defaultProtocols[item.sendNetwork][0];
-		const swapRouter = SWAP_PROTOCOL_ROUTERS[protocol];
+		const swapRouter = SwapProtocolConfigs[protocol]?.router;
 		ValidationUtils.isTrue(!!swapRouter,
 			`No swap router found in item, and there was no default protocol configured : ${JSON.stringify(item)}`);
 		// to token amount
