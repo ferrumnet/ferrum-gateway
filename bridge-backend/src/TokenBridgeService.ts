@@ -278,7 +278,11 @@ export class TokenBridgeService
       amount,
       targetCurrency
     );
-    await this.runLiquidityCheckScript(targetCurrency);
+    try {
+      await this.runLiquidityCheckScript(targetCurrency);
+    } catch (e) {
+      console.error('Error running runLiquidityCheckScript', e as Error);
+    }
     return { isApprove: false, requests: [req] };
   }
 

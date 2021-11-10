@@ -23,7 +23,7 @@ import { openPanelHandler } from './../Swap';
 import { message, Result } from 'antd';
 import { Card, Button } from "react-bootstrap";
 import { InputGroup, FormControl, Form } from "react-bootstrap";
-import { SidePanelSlice } from './../../components/SidePanel';
+import { sidePanelSlice } from './../../components/SidePanel';
 import { SwapButton } from '../../components/SwapButton';
 import { approvalKey } from 'common-containers/dist/chain/ApprovableButtonWrapper';
 import { Big } from 'big.js';
@@ -295,7 +295,7 @@ export const ConnectBridge = () => {
                         <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={() => {
                             message.destroy('withdr');
                             dispatch(Actions.resetSwap({}));
-                            dispatch(SidePanelSlice.actions.moveToNext({ step: 1 }));
+                            dispatch(sidePanelSlice.actions.moveToNext({ step: 1 }));
                             dispatch(Actions.setProgressStatus({ status: 1 }))
                             dispatch(Actions.activeWithdrawSuccess({ value: false }))
                         }}>Close</Button>

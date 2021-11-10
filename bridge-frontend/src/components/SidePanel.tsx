@@ -224,6 +224,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
 		appS => appS.data.state.balanceItems);
+    const {errorMessage, successMessage, slippage} = pageProps;
 
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
@@ -267,7 +268,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                           message.destroy('withdr');
                           getData(dispatch);
                           dispatch(MainPageAction.resetSwap({}));
-                          dispatch(SidePanelSlice.actions.moveToNext({step: 1}));
+                          dispatch(sidePanelSlice.actions.moveToNext({step: 1}));
                           dispatch(MainPageAction.setProgressStatus({status:1}))
                         }}>Close</Button>
                     </p>

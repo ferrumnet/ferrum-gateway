@@ -15,7 +15,7 @@ import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/reques
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
-import { StakingRequestProcessor } from "crucible-backend/src/staking/StakingRequestProcessor";
+import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 import { ChainEventService } from "common-backend";
 
 export class HttpHandler implements LambdaHttpHandler {

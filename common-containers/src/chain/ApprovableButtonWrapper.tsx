@@ -124,7 +124,7 @@ async function updateEvent(dispatch: Dispatch<AnyAction>, e: ChainEventBase): Pr
 export function ApprovableButtonWrapper(ownProps: IApprovableButtonWrapperOwnProps) {
     const dispatch = useDispatch();
 	const props = useSelector(mapStateToProps);
-	const network = (ownProps.currency || '').split(' ')[0];
+	const [network,] = Utils.parseCurrency(ownProps.currency || '');
 	const {userAddress, contractAddress, currency} = ownProps;
 	const {status} = props;
 	const currentApproval = props.approvals[approvalKey(userAddress, contractAddress, currency)];

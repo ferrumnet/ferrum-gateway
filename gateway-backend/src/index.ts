@@ -9,11 +9,11 @@ import { LeaderboardModule } from "leaderboard-backend";
 import { ChainEventService, CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { LeaderboardRequestProcessor } from "leaderboard-backend/src/request-processor/LeaderboardRequestProcessor";
-import { BridgeRequestProcessor } from "bridge-backend/src/BridgeRequestProcessor";
+import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
+import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor, CrucibleModule } from 'crucible-backend';
 import { GovernanceModule, GovernanceRequestProcessor } from 'governance-backend';
-import { StakingRequestProcessor } from "crucible-backend/src/staking/StakingRequestProcessor";
+import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 
 require('dotenv').config()
 export class GatewayModule implements Module {

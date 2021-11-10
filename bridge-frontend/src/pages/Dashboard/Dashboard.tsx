@@ -41,6 +41,7 @@ import * as defaultTheme from "./../../theme/schema.json";
 import { Alert } from 'antd';
 import { SelfServicePage } from "./../SelfService";
 import { NotificationServicePage } from "./../SelfService/notificationMgt";
+import { CrossSwap } from '../CrossSwap/CrossSwap';
 
 interface DashboardState {
     initialized: boolean,
@@ -457,7 +458,7 @@ export function Dashboard(props: ThemeProps) {
     if (appInitialized && !stateData.initializeError) {
         // console.log(selectedTheme);
         // console.log(props.themeConfig.colors)
-        console.log(props.themeConfig?.useBgImage)
+        // console.log(props.themeConfig?.useBgImage)
         // console.log(props.themeConfig?.pageBgColor)
         return (
             <ThemeProvider theme={
