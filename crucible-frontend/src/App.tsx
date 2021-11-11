@@ -10,11 +10,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { CrucibleModule } from './common/CrucibleModule';
 import { TransactionListProvider } from 'common-containers/dist/chain/TransactionList';
 import { APPLICATION_NAME } from './common/CommonActions';
+import { Environment } from 'types';
 
 const _module = new CrucibleModule();
-const BASE_URL = 'http://localhost:8080';
 const store = StoreBuilder.build(
-            userReducer, dataReducer, uiReducer, _module, BASE_URL);
+            userReducer, dataReducer, uiReducer, _module, Environment.defaultEndPoint());
 
 function App() {
   return (

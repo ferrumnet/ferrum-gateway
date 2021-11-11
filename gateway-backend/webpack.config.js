@@ -24,6 +24,6 @@ module.exports = {
 			},
 	externals: {
 		// 'swarm-js': 'swarm-js',
-	}
+	},
 };
 

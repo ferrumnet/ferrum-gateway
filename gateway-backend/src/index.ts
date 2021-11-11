@@ -15,6 +15,14 @@ import { CrucibleRequestProcessor, CrucibleModule } from 'crucible-backend';
 import { GovernanceModule, GovernanceRequestProcessor } from 'governance-backend';
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 
+// To solve webpack issue with ethers
+// see: https://github.com/ethers-io/ethers.js/issues/1312
+import fetch from "node-fetch";
+// tslint:disable-next-line:no-any
+declare var global: any;
+global.fetch = fetch;
+
+
 require('dotenv').config()
 export class GatewayModule implements Module {
   async configAsync(container: Container) {
