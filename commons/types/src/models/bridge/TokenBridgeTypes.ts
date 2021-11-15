@@ -124,6 +124,10 @@ const payBySignatureDataSchema = new Schema<PayBySignatureData & Document>({
   contractAddress: String,
   hash: String,
   signatures: [signatureSchema],
+
+  // Bacward compatibility - TODO: deprecated. Remove with caution
+  signature: String,
+  salt: String,
 });
 
 ///@ts-ignore
