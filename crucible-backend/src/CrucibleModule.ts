@@ -6,14 +6,13 @@ import { CrucibleConfig } from "./CrucibleTypes";
 import { CrucibleRequestProcessor } from "./CrucibleRequestProcessor";
 import { CrucibeService } from "./CrucibleService";
 import { UniswapPricingService } from "common-backend/dist/uniswapv2/UniswapPricingService";
-import { networkEnvConfig } from "common-backend/dist/dev/DevConfigUtils";
 import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
-import { StakingContracts, CRUCIBLE_CONTRACTS_V_0_1 } from "types";
+import { CRUCIBLE_CONTRACTS_V_0_1, STAKING_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 
-export function getEnv(env: string) {
-  const res = process.env[env];
+export function getEnv(env: string, def?: string) {
+  const res = process.env[env] || def;
   ValidationUtils.isTrue(
     !!res,
     `Make sure to set environment variable '${env}'`
@@ -35,19 +34,12 @@ export class CrucibleModule implements Module {
           connectionString: getEnv("MONGOOSE_CONNECTION_STRING"),
         } as MongooseConfig,
         contracts: CRUCIBLE_CONTRACTS_V_0_1,
-        stakingContracts: networkEnvConfig<StakingContracts>(
-          ["RINKEBY"],
-          "STAKING_CONTRACTS",
-          (v) => {
-            const [router, factory, openEnded, timed] = v.split(",");
-            return { router, factory, openEnded, timed,  } as StakingContracts;
-          }
-        ),
+        stakingContracts: STAKING_CONTRACTS_V_0_1,
         actor: {
-          address: getEnv("CRUCIBLE_ACTOR_ADDRESS"),
-					contractAddress: '',
-					groupId: Number(getEnv("CRUCIBLE_ACTOR_GROUP_ID")),
-					quorum: getEnv("CRUCIBLE_ACTOR_QUORUM"),
+          address: getEnv("CRUCIBLE_ACTOR_ADDRESS", 'N/A'),
+					contractAddress: '', // Contract will be taken  from other configs
+					groupId: Number(getEnv("CRUCIBLE_ACTOR_GROUP_ID", 'N/A')),
+					quorum: getEnv("CRUCIBLE_ACTOR_QUORUM", 'N/A'),
         },
       } as CrucibleConfig;
     }
@@ -57,12 +49,13 @@ export class CrucibleModule implements Module {
       (c) => new CrucibleRequestProcessor(c.get(CrucibeService))
     );
 
-    const privateKey =
-      getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
+    const cleanTextPrivateKey = getEnv("CRUCIBLE_ACTOR_PRIVATE_KEY_CLEAN_TEXT", 'N/A') 
+
+    const privateKey = cleanTextPrivateKey === 'N/A' ? cleanTextPrivateKey :
       (await decryptKey(
         region,
-        getEnv("KEY_ID"),
-        getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
+        getEnv("PROCESSOR_PRIVATE_KEY_ID"),
+        getEnv("CRUCIBLE_ACTOR_PRIVATE_KEY_ENCRYPTED")
       ));
 
     container.registerSingleton(
