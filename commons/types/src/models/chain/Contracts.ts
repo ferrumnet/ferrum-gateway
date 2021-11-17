@@ -1,3 +1,4 @@
+import { StakingContracts } from "src";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
 export interface CrucibleContracts {
@@ -21,5 +22,14 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 		factory: '',
 		router: '',
 		staking: '',
+	},
+};
+
+export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts> = {
+	'RINKEBY': {
+		router: '',
+		factory: '',
+		openEnded: '',
+		timed: '',
 	},
 };

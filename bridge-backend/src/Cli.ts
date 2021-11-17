@@ -3,7 +3,7 @@ import { argv } from "process";
 import { processOneTx, processOneWay } from "./BridgeProcessor";
 console.log('Starting ');
 
-// const argv = ['0', '0', 'BSC_TESTNET', '--all'];
+// const argv = ['0', '0', 'RINKEBY', '0x8b2efe5656e4f011ca8fa6a7a29047932404ad6ae15dad5ce8fbf0361bfc8920'];
 
 const net = argv[2];
 // const net = 'RINKEBY';
