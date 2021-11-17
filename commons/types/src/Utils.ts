@@ -84,6 +84,8 @@ export class Utils {
                 return `https://mumbai.polygonscan.com/tx/${tid}`;
             case 'polygon':
                 return `https://polygonscan.com/tx/${tid}`;
+            case 'avax_testnet':
+                return `https://testnet.snowtrace.io//tx/${tid}`;
         }
         return '';
     }

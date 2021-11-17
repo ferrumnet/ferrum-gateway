@@ -23,6 +23,8 @@ export const DEFAULT_TOKENS_FOR_WEB3_MODE = [
     ETH['BSC'][0],
     ETH['POLYGON'][0],
     ETH['MUMBAI_TESTNET'][0],
+    ETH['AVAX_TESTNET'][0],
+
 ];
 
 export const connectSlice = createSlice({

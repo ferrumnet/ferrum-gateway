@@ -52,6 +52,8 @@ export class CommonBackendModule implements Module {
             web3ProviderBscTestnet: getEnv("WEB3_PROVIDER_BSC_TESTNET"),
             web3ProviderPolygon: getEnv("WEB3_PROVIDER_POLYGON"),
             web3ProviderMumbaiTestnet: getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
+            web3ProviderAvaxTestnet: getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
+
           } as any as MultiChainConfig));
 
     container.register("MultiChainConfig", () => netConfig);
@@ -63,6 +65,8 @@ export class CommonBackendModule implements Module {
       BSC_TESTNET: netConfig.web3ProviderBscTestnet,
       POLYGON: netConfig.web3ProviderPolygon,
       MUMBAI_TESTNET: netConfig.web3ProviderMumbaiTestnet,
+      AVAX_TESTNET: netConfig.web3ProviderAvaxTestnet,
+
     } as Web3ProviderConfig;
     container.registerSingleton(
       CurrencyListSvc,

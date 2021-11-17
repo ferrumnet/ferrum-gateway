@@ -25,6 +25,8 @@ export class CommonModule implements Module {
             'BSC_TESTNET': providers['web3ProviderBscTestnet'],
             'MUMBAI_TESTNET': providers['web3ProviderMumbaiTestnet'],
             'POLYGON': providers['web3ProviderPolygon'],
+            'AVAX_TESTNET': providers['web3ProviderAvaxTestnet'],
+
         }
         c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(mappedProviders));
 

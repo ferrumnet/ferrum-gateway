@@ -52,6 +52,10 @@ export class NetworkTransactionWatcher implements Injectable {
       backLimit: 5000,
       lastToBlock: undefined,
     },
+    AVAX_TESTNET:{
+      backLimit: 5000,
+      lastToBlock: undefined,
+    }
   };
 
   options = {
@@ -84,6 +88,9 @@ export class NetworkTransactionWatcher implements Injectable {
       ),
       BSC: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_BSC)
+      ),
+      AVAX_TESTNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_AVAX_TESTNET)
       ),
     };
 
@@ -195,6 +202,7 @@ export class NetworkTransactionWatcher implements Injectable {
       "MUMBAI_TESTNET",
       "BSC",
       "BSC_TESTNET",
+      "AVAX_TESTNET"
     ];
   }
 
