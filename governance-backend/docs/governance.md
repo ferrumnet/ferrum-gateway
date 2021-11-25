@@ -81,6 +81,27 @@ Each method configured in the json has the following fields:
 - args: List if arguments to be ued in the signature. Each arg has the following fields: `{"type": "...", "name": "..."}`.
 - abi: The method inputs `abi`.
 
- Note: By convention, every governance method has the follwing parameters as the last parameters: *uint64 expiry, uint64 expectedGroupId, bytes multiSignature*
+ Note: By convention, every governance method has the follwing parameters as the last parameters: *uint64 expiry, uint64 expectedGroupId, bytes32 salt, bytes multiSignature*
 
 
+### Full example
+
+To show how easy it is to add governance functionality to your contracts, lets design a token with a mint function controlled by the governance:
+
+```
+contract GovernanceMintableToken is ERC20, MultisigCheckable {
+
+  // Define the EIP712 signature here as below...
+  constant MINT = keccack256("Mint(address to,uint256 amount,bytes32 salt,uint64 expiry)");
+
+  function mint(address to, uint256 amount, bytes32 salt, uint64 expiry, uint64 expectedGroupId, bytes sig) external {
+    // The next two lines verify the signature.
+    bytes32 msg = keccack256(abi.encode(MINT, to, amount, salt, expiry));
+    verifyUniqueSalt(msg, salt, expectedGroupId);
+
+    // Continue with the normal functionality of the method
+    _mint(to, amount);
+  }
+}
+
+```
