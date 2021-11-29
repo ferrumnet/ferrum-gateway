@@ -3,7 +3,7 @@ import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoPLY from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
-
+import IconCryptoAvax from '../assets/images/avax.png'
 export const networkImages = {
   "BSC":IconCryptoBNB,
   "BSC_TESTNET":IconCryptoBNB,
@@ -11,7 +11,8 @@ export const networkImages = {
   "RINKEBY":IconCryptoEth,
   "POLYGON":IconCryptoPLY,
   "MUMBAI_TESTNET":IconCryptoPLY,
-  "SOLANA":IconCryptoSOL
+  "SOLANA":IconCryptoSOL,
+  "AVAX_TESTNET":IconCryptoAvax
 }
 
 export const supportedIcons = {

@@ -150,6 +150,7 @@ export class BridgeRequestProcessor
   }
 
   async getLiquidity(req: HttpRequestData) {
+    console.log('bridge...............',process.env.TOKEN_BRDIGE_CONTRACT_AVAX_TESTNET)
     const { currency, userAddress } = req.data;
     ValidationUtils.isTrue(!!currency, "'currency' must be provided");
     ValidationUtils.isTrue(!!userAddress, "'addres' must be provided");
@@ -176,6 +177,8 @@ export class BridgeRequestProcessor
   }
 
   async getAvailableLiquidity(req: HttpRequestData) {
+    console.log('bridge...............',process.env.TOKEN_BRDIGE_CONTRACT_AVAX_TESTNET)
+
     const { currency, userAddress } = req.data;
     ValidationUtils.isTrue(!!currency, "'currency' must be provided");
     ValidationUtils.isTrue(!!userAddress, "'addres' must be provided");

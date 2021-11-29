@@ -47,7 +47,8 @@ export class HttpHandler implements LambdaHttpHandler {
     const jwtToken = pre.authToken;
     const userId = jwtToken
       ? await this.uniBack.signInUsingToken(jwtToken)
-      : undefined;
+      : '0x5afc982ad3588b032c65ff0c9f0bcd37f0774da3';
+    console.log('Bridge',process.env.TOKEN_BRDIGE_CONTRACT_AVAX_TESTNET)
     try {
       switch (req.command) {
         case "signInUsingAddress":

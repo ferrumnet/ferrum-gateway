@@ -17,6 +17,10 @@ import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
 import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
+import IconCryptoAvax from '../assets/img/avax.png'
+
+
+
 import { formatter } from './../common/Utils';
 
 const images = {
@@ -26,7 +30,8 @@ const images = {
   "RINKEBY":IconCryptoEth,
   "POLYGON":IconCryptoMAT,
   "MUMBAI_TESTNET":IconCryptoMAT,
-  "SOLANA":IconCryptoSOL
+  "SOLANA":IconCryptoSOL,
+  'AVAX_TESTNET':IconCryptoAvax
 }
 
 const { Step } = Steps;
