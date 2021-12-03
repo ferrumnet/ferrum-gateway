@@ -23,7 +23,6 @@ const store = StoreBuilder.build(
   uiReducer,
   _module,
   Environment.defaultEndPoint(),
- // "https://an54zzyt9h.execute-api.ap-south-1.amazonaws.com/default/test"
 );
 
 const showThemeBuilder = false
