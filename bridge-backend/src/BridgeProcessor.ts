@@ -153,8 +153,6 @@ export class BridgeProcessor implements Injectable {
     event: BridgeSwapEvent
   ): Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
     try {
-      const datwaw = this.chain.forNetwork('AVAX_TESTNET')
-      console.log('sigp------------------',datwaw )
       ValidationUtils.isTrue(!!event.transactionId, "No transaction ID");
       let processed = await this.svc.getWithdrawItem(event.transactionId);
       if (!!processed) {
@@ -180,7 +178,7 @@ export class BridgeProcessor implements Injectable {
         targetNetwork,
         sourcecurrency
       );
-      console.log('confg----------',conf)
+      
       const targetCurrency = `${targetNetwork}:${ChainUtils.canonicalAddress(
         event.targetNetwork as any,
         event.targetToken
@@ -209,7 +207,7 @@ export class BridgeProcessor implements Injectable {
         targetAmount,
         salt
       );
-      console.log('paybysigwithdraw',payBySig)
+      
       processed = {
         id: payBySig.hash, // same as signedWithdrawHash
         timestamp: new Date().valueOf(),
@@ -229,7 +227,7 @@ export class BridgeProcessor implements Injectable {
         used: "",
         useTransactions: [],
       } as UserBridgeWithdrawableBalanceItem;
-      console.log('processed',processed)
+      
       await this.svc.withdrawSignedVerify(
         conf!.targetCurrency,
         targetAddress,
@@ -269,7 +267,7 @@ export class BridgeProcessor implements Injectable {
       salt
     );
 
-    console.log('paybysig-----------------',payBySig);
+    
 
     const params = {
       contractName: "FERRUM_TOKEN_BRIDGE_POOL",
@@ -290,25 +288,18 @@ export class BridgeProcessor implements Injectable {
       params
     );
 
-    console.log('sig2-----------',this.config.bridgeConfig.contractClient);
-    console.log('network----------------',network)
-    const datwaw = await this.chain.forNetwork(network as any)
-    console.log('sigp------------------',this.chain )
     // console.log("SIG 2 WAS ", sig2);
     // Create signature. TODO: Use a more secure method. Address manager is not secure enough.
     // E.g. Have an ecnrypted SK as ENV. Configure KMS to only work with a certain IP
     const sigP = await this.chain
       .forNetwork(network as any)
       .sign(this.privateKey, payBySig.hash.replace("0x", ""), true);
-    console.log('sigp----------------=============',sigP)
     const baseV = sigP.v - chainId * 2 - 8;
-    console.log('baseV',baseV)
-    console.log('chain0d---------',chainId)
     //@ts-ignore
     const rpcSig = fixSig(
       toRpcSig(baseV, Buffer.from(sigP.r, "hex"), Buffer.from(sigP.s, "hex"), 1)
     );
-    console.log('rpc signature...........',rpcSig)
+    
     payBySig.signatures = [{ signature: rpcSig } as any];
     ValidationUtils.isTrue(
       !!payBySig.signatures[0].signature,
