@@ -24,7 +24,7 @@ export class NodeModule implements Module {
 		brigeContracts[net] = conf.bridgeContracts[net].bridge;
 	});
 
-	await container.registerModule(new CommonBackendModule());
+	await container.registerModule(new CommonBackendModule(conf.database));
 
     await container.registerModule(new BridgeModuleCommons(conf.database,),);
 
@@ -41,7 +41,8 @@ export class NodeModule implements Module {
 			conf.twoFa?.uri,
 			c.get(LoggerFactory),
 			conf.twoFa?.secretKey,
-			conf.twoFa?.accessKey));*/
+			conf.twoFa?.accessKey,
+			false));
 
 	container.register(DoubleEncryptiedSecret, 
 		c => new DoubleEncryptiedSecret(
