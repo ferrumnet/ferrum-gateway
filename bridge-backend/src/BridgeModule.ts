@@ -77,6 +77,9 @@ export class BridgeModule implements Module {
             MUMBAI_TESTNET:
               env("TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET") ||
               GLOBAL_BRIDGE_CONTRACT,
+            AVAX_TESTNET:
+              env("TOKEN_BRDIGE_CONTRACT_AVAX_TESTNET") ||
+              GLOBAL_BRIDGE_CONTRACT,
           },
         },
 				bridgeV12Config: {

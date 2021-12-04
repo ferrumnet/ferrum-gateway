@@ -160,6 +160,8 @@ export class BridgeProcessor implements Injectable {
       } else {
       }
 
+      
+
       // Creating a new process option.
       // Find the relevant token config for the pair
       // Calculate the target amount
@@ -176,6 +178,7 @@ export class BridgeProcessor implements Injectable {
         targetNetwork,
         sourcecurrency
       );
+      
       const targetCurrency = `${targetNetwork}:${ChainUtils.canonicalAddress(
         event.targetNetwork as any,
         event.targetToken
@@ -204,6 +207,7 @@ export class BridgeProcessor implements Injectable {
         targetAmount,
         salt
       );
+      
       processed = {
         id: payBySig.hash, // same as signedWithdrawHash
         timestamp: new Date().valueOf(),
@@ -223,6 +227,7 @@ export class BridgeProcessor implements Injectable {
         used: "",
         useTransactions: [],
       } as UserBridgeWithdrawableBalanceItem;
+      
       await this.svc.withdrawSignedVerify(
         conf!.targetCurrency,
         targetAddress,
@@ -232,6 +237,7 @@ export class BridgeProcessor implements Injectable {
         payBySig.signatures[0].signature,
         this.processorAddress
       );
+      console.log('withdrawsignedverify')
       await this.svc.newWithdrawItem(processed);
       return [true, processed];
     } catch (e) {
@@ -260,6 +266,8 @@ export class BridgeProcessor implements Injectable {
       amountStr,
       salt
     );
+
+    
 
     const params = {
       contractName: "FERRUM_TOKEN_BRIDGE_POOL",
@@ -291,7 +299,7 @@ export class BridgeProcessor implements Injectable {
     const rpcSig = fixSig(
       toRpcSig(baseV, Buffer.from(sigP.r, "hex"), Buffer.from(sigP.s, "hex"), 1)
     );
-
+    
     payBySig.signatures = [{ signature: rpcSig } as any];
     ValidationUtils.isTrue(
       !!payBySig.signatures[0].signature,

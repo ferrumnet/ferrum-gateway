@@ -134,7 +134,7 @@ export class TokenBridgeContractClinet implements Injectable {
 		const block = await web3.getBlockNumber();
 		const firstBlock = process.env.BLOCK_LOOK_BACK ?
 			Number(process.env.BLOCK_LOOK_BACK) :
-			(network === 'MUMBAI_TESTNET' ? 990 : 1000);
+			(network === 'MUMBAI_TESTNET' ? 990 : 'AVAX_TESTNET'? 277:1000);
 		const events = await this.bridgePool(network, address)
 			.getPastEvents('BridgeSwap', {fromBlock:
 				block - firstBlock});
@@ -159,7 +159,7 @@ export class TokenBridgeContractClinet implements Injectable {
         try {
             return await method.estimateGas({from});
         } catch(e) {
-            console.info('Error estimating gas. Tx might be reverting');
+            console.info('Error estimating gas. Tx might be reverting..');
             return defaultGas;
         }
     }
@@ -167,11 +167,12 @@ export class TokenBridgeContractClinet implements Injectable {
     async withdrawSigned(w: UserBridgeWithdrawableBalanceItem,
             from: string): Promise<CustomTransactionCallRequest>{
         console.log(`About to withdrawSigned`, w);
+
         const address = this.contractAddress[w.sendNetwork];
         const p = this.instance(w.sendNetwork).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
             w.payBySig.amount,
 			(w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
-			(w.payBySig as any).signature || w.payBySig.signatures[0]
+			(w.payBySig as any).signature || w.payBySig.signatures[0].signature
 			);
         const gas = await this.estimateGasOrDefault(p, from, undefined as any);
         const nonce = await this.helper.web3(w.sendNetwork).getTransactionCount(from, 'pending');

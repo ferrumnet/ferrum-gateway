@@ -1,6 +1,6 @@
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
-export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET'];
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -8,6 +8,7 @@ export const FRM: {[k: string]: [string, string,string]} = {
     'POLYGON': ['POLYGON:0xd99bafe5031cc8b345cb2e8c80135991f12d7130', 'FRM','MATIC'],
     'BSC_TESTNET': ['BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','BSC_TESTNET'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','MUMBAI_TESTNET'],
+    'AVAX_TESTNET': ['AVAX_TESTNET:0xd401a6140885fcDBD240426603696E2E7Ff2de46', 'AFRM','AVAX_TESTNET'],
 };
 
 export interface NetworkDropdown {
@@ -24,6 +25,7 @@ const _supportedNetworks: any = {
     'BSC': ['active', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
+    'AVAX_TESTNET':['active', 'Avax testnet','testnet']
 };
 
 
@@ -136,6 +138,13 @@ export const TokenInfo = {
         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
         type: 'ERC20'
     },
+    "AVAX_TESTNET:0xeB2C7A8409840C0Fc35a3230cd6e81b4F27b3aAC":{
+        tokenAddress:'0xeB2C7A8409840C0Fc35a3230cd6e81b4F27b3aAC',
+        tokenSymbol:'AFRM',
+        tokenDecimal:'18',
+        tokenImage:'',
+        type:'ERC20'
+    }
 } as any;
 
 export const chainData = {
@@ -160,6 +169,9 @@ export const chainData = {
     'SOLANA': chainContent('0x38',
     'Binance Smart Chain', 'BNB','BNB',
     18, ['https://bsc-dataseed.binance.org/'],['https://bscscan.com/']),
+    'AVAX_TESTNET': chainContent('0xA869',
+    'Avax testnet', 'AVAX','AVAX',
+    43113,[' https://api.avax-test.network/ext/bc/C/rpc'],['https://testnet.snowtrace.io/']),
 }
 
 export const FRMX: {[k: string]: [string, string]} = {
@@ -173,6 +185,7 @@ export const ETH: {[k: string]: [string, string]} = {
     'BSC': ['BSC:BNB', 'BNB'],
     'POLYGON': ['POLYGON:MATIC', 'MATIC'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:MATIC', 'MATIC'],
+    'AVAX_TESTNET':['AVAX_TESTNET:AVAX','AVAX']
 };
 
 export const WETH: NetworkedConfig<string> = {
