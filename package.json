@@ -25,10 +25,10 @@
   "resolutions": {
     "got": "^11.3.0",
     "jest": "26.6.0",
+    "ts-jest": "26.5.6",
     "babel-jest": "26.6.0",
     "bitcore-lib": "8.17.0",
     "typescript": "^4.2.3",
-    "ts-jest": "26.5.6",
     "@types/cron": "1.7.3"
   }
 }
