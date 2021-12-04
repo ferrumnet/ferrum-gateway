@@ -15,6 +15,8 @@ import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
 import {
   AwsEnvs,
   KmsCryptor,
+  MongooseConfig,
+  MongooseConnection,
   SecretsProvider,
   UnifyreBackendProxyModule,
 } from "aws-lambda-helper";
@@ -25,9 +27,13 @@ import { UniswapPricingService } from "./uniswapv2/UniswapPricingService";
 import { TransactionTracker } from "./contracts/TransactionTracker";
 import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
+import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 
 export class CommonBackendModule implements Module {
-  constructor(private chainConfig?: MultiChainConfig) {}
+  constructor(
+    private dbConfig?: MongooseConfig,
+    private chainConfig?: MultiChainConfig,
+  ) {}
 
   static awsRegion(): string {
     return (
@@ -53,7 +59,6 @@ export class CommonBackendModule implements Module {
             web3ProviderPolygon: getEnv("WEB3_PROVIDER_POLYGON"),
             web3ProviderMumbaiTestnet: getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
             web3ProviderAvaxTestnet: getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
-
           } as any as MultiChainConfig));
 
     container.register("MultiChainConfig", () => netConfig);
@@ -100,9 +105,16 @@ export class CommonBackendModule implements Module {
 		container.registerSingleton(ChainEventService,
 			c => new ChainEventService(c.get(EthereumSmartContractHelper)));
 
+    container.registerSingleton(HmacApiKeyStore,
+      c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
+
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")
     );
+
+    if (this.dbConfig) {
+      await container.get<MongooseConnection>(HmacApiKeyStore).init(this.dbConfig);
+    }
 
     // makeInjectable('CloudWatch', CloudWatch);
     // container.register('MetricsUploader', c =>

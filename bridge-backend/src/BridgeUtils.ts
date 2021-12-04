@@ -1,7 +1,6 @@
 import { HexString } from 'ferrum-plumbing';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
-import {AbiCoder} from 'web3-eth-abi';
 import { PayBySignatureData } from 'types';
 import {ValidationUtils} from "ferrum-plumbing";
 
