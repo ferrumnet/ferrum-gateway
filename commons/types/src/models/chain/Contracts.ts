@@ -1,5 +1,6 @@
 import { StakingContracts } from "src";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
+import { BridgeV12Contracts } from "../crossSwap/CrossSwapTypes";
 
 export interface CrucibleContracts {
 	router: string;
@@ -31,5 +32,22 @@ export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts> = {
 		factory: '',
 		openEnded: '',
 		timed: '',
+	},
+};
+
+export const BRIDGE_V1_CONTRACTS: NetworkedConfig<string> = {
+	'RINKEBY': '',
+	'BSC_TESTNET': '',
+	'MULMBAI_TESTNET': '',
+	'ETHEREUM': '',
+	'BSC': '',
+	'POLYGON': '',
+};
+
+export const BRIDGE_V12_CONTRACTS: NetworkedConfig<BridgeV12Contracts> = {
+	'RINKEBY': {
+		bridge: '',
+		staking: '',
+		router: '',
 	},
 };

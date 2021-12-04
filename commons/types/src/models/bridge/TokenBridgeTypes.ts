@@ -77,11 +77,14 @@ export interface PayBySignatureData {
 // Every transaction sent by user using a paired address to the bridge contract,
 // will produced a Withdrawable Balance Item
 export interface UserBridgeWithdrawableBalanceItem {
-  id: string; // same as signedWithdrawHash
+  version: string; // The schema version
+  v: number;  // The optimistic locking v
+  id: string; // DEPRECATED. do not use anymore
   timestamp: number;
   receiveNetwork: string;
   receiveCurrency: string;
   receiveTransactionId: string;
+  receiveTransactionTimestamp: number;
   receiveAddress: string;
   receiveAmount: string;
 
@@ -89,7 +92,7 @@ export interface UserBridgeWithdrawableBalanceItem {
   sendAddress: string;
   sendTimestamp: number;
   sendCurrency: string;
-  sendAmount: string;
+  sendAmount: string; //
   payBySig: PayBySignatureData;
   originCurrency: string;
   sendToCurrency: string;
@@ -98,6 +101,8 @@ export interface UserBridgeWithdrawableBalanceItem {
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];
 	execution: TransactionTrackable;
+  signatures: number; // No of signatures
+  creator: string;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -106,6 +111,17 @@ export interface UserBridgeLiquidityItem {
   currency: string;
   liquidity: string;
 }
+
+const transactionTrackableSchema = new Schema<TransactionTrackable & Document>({
+  status: String,
+  transactions: [{
+    network: String,
+    transactionId: String,
+    timestamp: Number,
+    status: String,
+    message: String,
+  }]
+});
 
 const signatureSchema = new Schema<MultiSigSignature & Document>({
   creationTime: Number,
@@ -147,6 +163,8 @@ lastNotifiedTime: Number
 const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   UserBridgeWithdrawableBalanceItem & Document
 >({
+  version: String,
+  v: Number,
   id: String, // same as signedWithdrawHash
   timestamp: Number,
   receiveNetwork: String,
@@ -154,9 +172,11 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   receiveAddress: String,
   receiveAmount: String,
   receiveTransactionId: String,
-  salt: String,
+  receiveTransactionTimestamp: Number,
   signedWithdrawHash: String,
   signedWithdrawSignature: String,
+  signatures: Number,
+  creator: String,
 
   sendNetwork: String,
   sendAddress: String,
@@ -167,8 +187,12 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
 
   payBySig: payBySignatureDataSchema,
 
+  originCurrency: String,
+  sendToCurrency: String,
+
   used: String,
   useTransactions: [{ id: String, status: String, timestamp: Number }],
+	execution: transactionTrackableSchema,
 });
 
 //@ts-ignore
@@ -261,30 +285,6 @@ export interface PairedAddress {
 }
 
 // Balance related types
-
-// Every transaction sent by user using a paired address to the bridge contract,
-// will produced a Withdrawable Balance Item
-export interface UserBridgeWithdrawableBalanceItem {
-  id: string; // same as signedWithdrawHash
-  timestamp: number;
-  receiveNetwork: string;
-  receiveCurrency: string;
-  receiveAddress: string;
-  receiveAmount: string;
-  salt: string;
-  signedWithdrawHash: string;
-  signedWithdrawSignature: string;
-
-  sendNetwork: string;
-  sendAddress: string;
-  sendTimestamp: number;
-  sendTransactionId: string;
-  sendCurrency: string;
-  sendAmount: string;
-
-  used: "" | "pending" | "failed" | "completed";
-  useTransactionIds: string[];
-}
 
 export interface UserBridgeLiquidityItem {
   network: string;

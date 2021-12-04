@@ -208,3 +208,13 @@ export const BridgeContractVersions = {
 	V1_0: '0.0.3',
 	V1_2: '001.200',
 }
+
+export const BridgeContractNames = {
+	V1_0: 'FERRUM_TOKEN_BRIDGE_POOL',
+	V1_2: 'FERRUM_TOKEN_BRIDGE_POOL',
+}
+
+export const TRANSACTION_MINIMUM_CONFIRMATION = {
+    'RINKEBY': 1,
+    'DEFAULT': 3
+}
