@@ -22,7 +22,6 @@ import fetch from "node-fetch";
 declare var global: any;
 global.fetch = fetch;
 
-
 require('dotenv').config()
 export class GatewayModule implements Module {
   async configAsync(container: Container) {
@@ -42,7 +41,7 @@ export class GatewayModule implements Module {
 					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
           c.get(AuthTokenParser),
-          c.get("MultiChainConfig"),
+          c.get("NetworksConfig"),
         )
     );
     container.registerSingleton(

@@ -3,86 +3,17 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationError, ValidationUtils, Networks } from "ferrum-plumbing";
 import { Connection, Model, Document } from "mongoose";
 import {
-    BridgeContractNames,
-    BridgeContractVersions,
-  BRIDGE_V12_CONTRACTS,
-  BRIDGE_V1_CONTRACTS,
   TransactionTrackable,
   UserBridgeWithdrawableBalanceItem,
   UserBridgeWithdrawableBalanceItemModel,
-  Utils,
   TRANSACTION_MINIMUM_CONFIRMATION,
 } from "types";
-import { NodeUtils } from "../node/common/NodeUtils";
+import { EXPECTED_WI_SCHEMA_VERSIONS, NodeUtils } from "../node/common/NodeUtils";
 import { TokenBridgeService } from "../TokenBridgeService";
-
-const EXPECTED_VERSIONS = ["0.1", "1.0", "1.2"];
 
 function validateWithdrawItem(wi: UserBridgeWithdrawableBalanceItem): string {
   try {
-    ValidationUtils.isTrue(
-      EXPECTED_VERSIONS.indexOf(wi.version) >= 0,
-      "Invalid schema version"
-    );
-    ValidationUtils.allRequired(
-      [
-        "receiveNetwork",
-        "receiveCurrency",
-        "receiveTransactionId",
-        "receiveAddress",
-        "receiveAmount",
-
-        "sendNetwork",
-        "sendAddress",
-        "sendCurrency",
-        "payBySig",
-      ],
-      wi
-    );
-    ValidationUtils.allRequired(
-      [
-        "token",
-        "payee",
-        "amount",
-        "toToken",
-        "sourceChainId",
-        "swapTxId",
-        "contractName",
-        "contractVersion",
-        "contractAddress",
-        "hash",
-        "signatures",
-      ],
-      wi.payBySig
-    );
-    const contractVer = (wi.version === '0.1' || wi.version == '1.0') ?
-        BridgeContractVersions.V1_0 : BridgeContractVersions.V1_2;
-    ValidationUtils.isTrue(wi.payBySig.payee === wi.sendAddress, 'Invalid payBySig.payee');
-    ValidationUtils.isTrue(wi.payBySig.token === 
-        Utils.parseCurrency(wi.sendToCurrency)[0], 'Invalid payBySig.token');
-    ValidationUtils.isTrue(wi.payBySig.sourceChainId ===
-        Networks.for(wi.receiveNetwork).chainId, 'Invalid payBySig.sourceChainId');
-    ValidationUtils.isTrue(wi.payBySig.toToken ===
-        Utils.parseCurrency(wi.sendToCurrency)[0], 'Invalid payBySig.toToken');
-    const expectedSwapTxId = contractVer == BridgeContractVersions.V1_0 ?
-        NodeUtils.bridgeV1Salt(wi) : wi.receiveTransactionId;
-    ValidationUtils.isTrue(wi.payBySig.swapTxId === expectedSwapTxId,
-        'Invalid payBySig.swapTxId');
-    ValidationUtils.isTrue(wi.payBySig.contractVersion === contractVer, 
-        'Invalid payBySig.contractVersion');
-    const expectedContractName = contractVer === BridgeContractVersions.V1_0 ?
-        BridgeContractNames.V1_0 : BridgeContractNames.V1_2;
-    ValidationUtils.isTrue(wi.payBySig.contractName === expectedContractName,
-        'Invalid payBySig.contractName');
-    const expectedContractAddress = contractVer === BridgeContractVersions.V1_0 ?
-        BRIDGE_V1_CONTRACTS[wi.sendNetwork] :
-        BRIDGE_V12_CONTRACTS[wi.sendNetwork]?.router;
-    ValidationUtils.isTrue(wi.payBySig.contractAddress === expectedContractAddress,
-        'Invalid payBySig.contractAddress');
-    const expectedHash = contractVer === BridgeContractVersions.V1_0 ?
-        NodeUtils.bridgeV1Hash(wi) : NodeUtils.bridgeV12Hash(wi);
-    ValidationUtils.isTrue(wi.payBySig.hash === expectedHash,
-        'Invalid payBySig.hash');
+    NodeUtils.validateWithdrawItem(wi);
   } catch (e) {
     if (e instanceof ValidationError) {
       return (e as ValidationError).message;
@@ -144,7 +75,7 @@ export class BridgeNodesRemoteAccessService
     schemaVersioin: string,
     network: string,
   ) {
-    ValidationUtils.isTrue(EXPECTED_VERSIONS.indexOf(schemaVersioin) >= 0,
+    ValidationUtils.isTrue(EXPECTED_WI_SCHEMA_VERSIONS.indexOf(schemaVersioin) >= 0,
       'invalid schemaVersion');
     ValidationUtils.isTrue(!!network, 'network is required');
     const wis = await this.balanceItem!.find({

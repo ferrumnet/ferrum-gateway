@@ -2,12 +2,16 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { EncryptedData, Injectable, Network, Networks, panick, ValidationError, ValidationUtils } from "ferrum-plumbing";
 import { BridgeContractVersions, PayBySignatureData, UserBridgeWithdrawableBalanceItem, Utils } from "types";
 import { Eip712Params, produceSignature, signWithPrivateKey } from "web3-tools";
-import { BridgeSwapEvent } from "../common/TokenBridgeTypes";
+import { BridgeSwapEvent, NodeProcessor } from "../common/TokenBridgeTypes";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { TokenBridgeService } from "../TokenBridgeService";
 import { TransactionListProvider } from "./TransactionListProvider";
 import { CreateNewAddressFactory } from "ferrum-chain-clients";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
+import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
+import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
+import { WithdrawItemValidator } from "./WithdrawItemValidator";
+import { BridgeNodeRole } from "./BridgeNodeConfig";
 
 interface SignerSecret {
 	address: string;
@@ -18,62 +22,61 @@ export class BridgeNodeV12 implements Injectable {
 	private lookBackSeconds: number = 3600;
 	private signer: SignerSecret | undefined;
 	constructor(
-		private list: TransactionListProvider, 
-		private svc: TokenBridgeService,
-		private cross: CrossSwapService,
-		private helper: EthereumSmartContractHelper,
-		private addressFactory: CreateNewAddressFactory,
+		// private list: TransactionListProvider, 
+		// private svc: TokenBridgeService,
+		// private cross: CrossSwapService,
+		// private helper: EthereumSmartContractHelper,
+		// private addressFactory: CreateNewAddressFactory,
 		private doubleEncryptedData: DoubleEncryptiedSecret,
+		private privateKeyProvider: PrivateKeyProvider,
+		private processor: NodeProcessor,
 		private encPrivateKey: EncryptedData,
+		private role: BridgeNodeRole,
 	) {
-		if (process.env.LOOK_BACK_SECONDS) {
-			this.lookBackSeconds = Number(process.env.LOOK_BACK_SECONDS);
-			ValidationUtils.isTrue(Number.isInteger(this.lookBackSeconds), 'Invalid loop back seconds');
-		}
+		// if (process.env.LOOK_BACK_SECONDS) {
+		// 	this.lookBackSeconds = Number(process.env.LOOK_BACK_SECONDS);
+		// 	ValidationUtils.isTrue(Number.isInteger(this.lookBackSeconds), 'Invalid loop back seconds');
+		// }
 	}
 
 	__name__() { return 'BridgeNodeV12'; }
-	
+
+	getRole() { return this.role; }
+
+	/**
+	 * Initialize the private key in memory. For prod, private key must be
+	 * encrypted with 2fa encryption service, and optionally with AWS KMS
+	 * as a second leyer.
+	 * For test environment we can use clear text private key.
+	 */
 	async init(twoFaId: string, twoFa: string) {
 		let privateKey = process.env.PROCESSOR_PRIVATE_KEY_CLEAN_TEXT;
-		let address = '';
 		if (process.env.NODE_ENV === 'production') {
 			await this.doubleEncryptedData.init(twoFaId, twoFa, this.encPrivateKey);
 		} else {
-			address = (await this.addressFactory.create('ETHEREUM').addressFromSk(privateKey)).address;
+			this.privateKeyProvider.overridePrivateKey(privateKey);
 		}
-		this.signer = {
-			address,
-			privateKey
-		};
 	}
 
 	async processFromHistory(network: Network) {
-		const txs = await this.list.listNewTransactions(network, this.lookBackSeconds);
-		for (const tx of txs) {
-			await this.processSingleTx(tx);
-		}
+		await this.processor.processForNetwork(network);
 	}
 
-	async processFromTx(network: Network, txId: string) {
-		const tx = await this.list.listSingleTransaction(network, txId);
-		ValidationUtils.isTrue(!!tx, 'Transaction not found!');
-		await this.processSingleTx(tx);
-	}
-
-	getSignerAddress(): string {
-		return this.signer.address;
-	}
+	// async processFromTx(network: Network, txId: string) {
+	// 	const tx = await this.list.listSingleTransaction(network, txId);
+	// 	ValidationUtils.isTrue(!!tx, 'Transaction not found!');
+	// 	await this.processSingleTx(tx);
+	// }
 
 	/**
 	 * Validate tx from network to ensure db is not modified.
 	 * Create the withdraw item if not existing.
 	 * Add signature on the
 	 */
-	private async processSingleTx(tx: BridgeSwapEvent) {
-		await this.list.validateFromNetwork(tx);
-		const withdrawItem = await this.getOrCreateWithdrawItem(tx);
-	}
+	// private async processSingleTx(tx: BridgeSwapEvent) {
+	// 	await this.list.validateFromNetwork(tx);
+	// 	const withdrawItem = await this.getOrCreateWithdrawItem(tx);
+	// }
 
 	/**
 	 * Get the withdraw item. create if does not exist.

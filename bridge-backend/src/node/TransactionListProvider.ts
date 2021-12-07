@@ -18,6 +18,7 @@ function dbToEvent(db: CrossSwapRequest): BridgeSwapEvent {
 	} as BridgeSwapEvent;
 }
 
+// TODO: DEPRECATED. Node does not directly use database anymore
 export class TransactionListProvider implements Injectable {
 	constructor(
 		private crossSwap: CrossSwapService,

@@ -7,18 +7,8 @@ import {
   LambdaHttpHandler,
   LambdaHttpHandlerHelper,
 } from "aws-lambda-helper/dist/HandlerFactory";
-import {
-  HmacApiKeyStore
-} from 'aws-lambda-helper/dist/security/HmacApiKeyStore';
-import {
-  EcdsaAuthProvider
-} from 'aws-lambda-helper/dist/security/EcdsaAuthProvider';
-import {
-  HmacAuthProvider
-} from 'aws-lambda-helper/dist/security/HmacAuthProvider';
-import { JsonRpcRequest, ValidationUtils } from "ferrum-plumbing";
+import { JsonRpcRequest, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { ChainEventBase, UserContractAllocation } from "types";
-import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
@@ -39,7 +29,7 @@ export class HttpHandler implements LambdaHttpHandler {
     private stakingProcessor: StakingRequestProcessor,
 		private governanceProcessor: GovernanceRequestProcessor,
     private authToken: AuthTokenParser,
-    private newtworkConfig: MultiChainConfig
+    private newtworkConfig: NetworkedConfig<string>,
   ) {
   }
 

@@ -8,7 +8,6 @@ import {
   MetricsServiceConfig,
   ConfigurableLogger,
 } from "ferrum-plumbing";
-import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
 import {
   EthereumSmartContractHelper,
   Web3ProviderConfig,
@@ -42,16 +41,6 @@ export class Cli implements Injectable {
       AVAX_TESTNET: process.env.WEB3_PROVIDER_AVAX_TESTNET,
 
     };
-    // container.register("MultiChainConfig", () => netConfig);
-    // container.registerModule(new ChainClientsModule());
-    // const networkProviders = {
-    //   ETHEREUM: netConfig.web3Provider,
-    //   RINKEBY: netConfig.web3ProviderRinkeby,
-    //   BSC: netConfig.web3ProviderBsc,
-    //   BSC_TESTNET: netConfig.web3ProviderBscTestnet,
-    //   POLYGON: netConfig.web3ProviderPolygon,
-    //   MUMBAI_TESTNET: netConfig.web3ProviderMumbaiTestnet,
-    // } as Web3ProviderConfig;
     container.register(
       "MetricsUploader",
       (c) =>

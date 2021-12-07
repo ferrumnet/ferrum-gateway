@@ -5,13 +5,14 @@ import {
   LoggerFactory,
   Module,
   ValidationUtils,
+  NetworkedConfig,
 } from "ferrum-plumbing";
 import { getEnv } from "types";
 import {
   EthereumSmartContractHelper,
   Web3ProviderConfig,
 } from "aws-lambda-helper/dist/blockchain";
-import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
+import { ChainClientsModule } from "ferrum-chain-clients";
 import {
   AwsEnvs,
   KmsCryptor,
@@ -32,7 +33,7 @@ import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore
 export class CommonBackendModule implements Module {
   constructor(
     private dbConfig?: MongooseConfig,
-    private chainConfig?: MultiChainConfig,
+    private chainConfig?: NetworkedConfig<string>,
   ) {}
 
   static awsRegion(): string {
@@ -47,32 +48,24 @@ export class CommonBackendModule implements Module {
     const region = CommonBackendModule.awsRegion();
     const chainConfArn =
       process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + "CHAIN_CONFIG"];
-    const netConfig: MultiChainConfig =
+    const netConfig: NetworkedConfig<string> =
       this.chainConfig ||
       (!!chainConfArn
         ? await new SecretsProvider(region, chainConfArn).get()
         : ({
-            web3Provider: getEnv("WEB3_PROVIDER_ETHEREUM"),
-            web3ProviderRinkeby: getEnv("WEB3_PROVIDER_RINKEBY"),
-            web3ProviderBsc: getEnv("WEB3_PROVIDER_BSC"),
-            web3ProviderBscTestnet: getEnv("WEB3_PROVIDER_BSC_TESTNET"),
-            web3ProviderPolygon: getEnv("WEB3_PROVIDER_POLYGON"),
-            web3ProviderMumbaiTestnet: getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
-            web3ProviderAvaxTestnet: getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
-          } as any as MultiChainConfig));
+            'ETHEREUM': getEnv("WEB3_PROVIDER_ETHEREUM"),
+            'RINKEBY': getEnv("WEB3_PROVIDER_RINKEBY"),
+            'BSC': getEnv("WEB3_PROVIDER_BSC"),
+            'BSC_TESTNET': getEnv("WEB3_PROVIDER_BSC_TESTNET"),
+            'POLYGON': getEnv("WEB3_PROVIDER_POLYGON"),
+            'MUMBAI_TESTNET': getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
+            'AVAX_TESTNET': getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
+          } as NetworkedConfig<string>));
 
-    container.register("MultiChainConfig", () => netConfig);
     container.registerModule(new ChainClientsModule());
-    const networkProviders = {
-      ETHEREUM: netConfig.web3Provider,
-      RINKEBY: netConfig.web3ProviderRinkeby,
-      BSC: netConfig.web3ProviderBsc,
-      BSC_TESTNET: netConfig.web3ProviderBscTestnet,
-      POLYGON: netConfig.web3ProviderPolygon,
-      MUMBAI_TESTNET: netConfig.web3ProviderMumbaiTestnet,
-      AVAX_TESTNET: netConfig.web3ProviderAvaxTestnet,
+    container.register('NetworksConfig', () => netConfig);
 
-    } as Web3ProviderConfig;
+    const networkProviders = netConfig as Web3ProviderConfig;
     container.registerSingleton(
       CurrencyListSvc,
       (c) => new CurrencyListSvc(c.get(EthereumSmartContractHelper))

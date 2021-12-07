@@ -31,6 +31,26 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
         return await this.api(body, auth);
     }
 
+    async getWithdrawItemTransactionIds(
+        apiPublicKey: string,
+        apiSecretKey: string,
+        network: string,
+        lookBackMillis: number): Promise<string[]> {
+        const req = {
+            command: 'getWithdrawItemTransactionIds',
+            data: {network},
+            params: [],
+        } as JsonRpcRequest;
+        const body = JSON.stringify(req);
+        const auth = new HmacAuthProvider(
+            '', // this.endpoint,
+            body,
+            Date.now(),
+            apiSecretKey,
+            apiPublicKey);
+        return await this.api(body, auth);
+    }
+
     async getPendingSwapTxIds(
         apiPublicKey: string,
         apiSecretKey: string,

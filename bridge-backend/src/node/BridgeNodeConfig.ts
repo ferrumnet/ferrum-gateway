@@ -1,17 +1,18 @@
-import { MongooseConfig } from "aws-lambda-helper";
-import { MultiChainConfig } from "ferrum-chain-clients";
-import { EncryptedData } from "ferrum-plumbing";
-import { BridgeV12Contracts, NetworkedConfig } from "types";
+import { EncryptedData, NetworkedConfig } from "ferrum-plumbing";
+
+export type BridgeNodeRole = 'gnerator' | 'validator';
 
 export interface BridgeNodeConfig {
-	chain: MultiChainConfig;
-	bridgeContracts: NetworkedConfig<BridgeV12Contracts>;
+	role: BridgeNodeRole;
+	chain: NetworkedConfig<string>;
 	encryptedSignerKey: EncryptedData;
-	database: MongooseConfig;
 	cmkKeyId: string;
 	twoFa: {
 		uri: string;
 		accessKey: string;
 		secretKey: string;
-	}
+	},
+	lookBackMillis: number;
+	publicAccessKey: string;
+	secretAccessKey: string;
 }
