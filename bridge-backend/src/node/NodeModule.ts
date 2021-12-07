@@ -35,13 +35,13 @@ export class NodeModule implements Module {
 		new KMS({region: process.env.DEFAULT_AWS_REGION}),
 		conf.cmkKeyId,));
 
-	container.register(TwoFaEncryptionClient,
+	/*container.register(TwoFaEncryptionClient,
 		c => new TwoFaEncryptionClient(
 			c.get(KmsCryptor),
 			conf.twoFa?.uri,
 			c.get(LoggerFactory),
 			conf.twoFa?.secretKey,
-			conf.twoFa?.accessKey));
+			conf.twoFa?.accessKey));*/
 
 	container.register(DoubleEncryptiedSecret, 
 		c => new DoubleEncryptiedSecret(

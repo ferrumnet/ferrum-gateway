@@ -1261,6 +1261,8 @@
   integrity sha512-opcuVEsM24BrKLMZM1fNQWbUdqdfqBWjbQpr2ixqUbUKaDvsn6zwLCeXyC0xiEMGOxa3Xqim2PYtExgUM/hUsQ==
   dependencies:
     "@babel/runtime" "^7.4.4"
+    "@ledgerhq/hw-transport-u2f" "^4.78.0"
+    "@ledgerhq/hw-transport-web-ble" "^4.78.0"
     axios "^0.19.0"
     bech32 "^1.1.3"
     big.js "^5.2.2"
@@ -3585,7 +3587,7 @@
   dependencies:
     classnames "*"
 
-"@types/cron@^1.8.2":
+"@types/cron@1.7.3", "@types/cron@^1.8.2":
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/@types/cron/-/cron-1.7.3.tgz#993db7d54646f61128c851607b64ba4495deae93"
   integrity sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA==
@@ -5192,10 +5194,10 @@ available-typed-arrays@^1.0.2:
 
 "aws-lambda-helper@git+https://github.com/ferrumnet/aws-lambda-helper.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#e34f4a23131cbbf13dc3d4a3718a7a8ffe27c33a"
+  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#5bd1695d74e1b8ae85b6d9ae3d4661b0bc5d9331"
   dependencies:
     "@oclif/command" "^1.8.0"
-    aws-sdk "^2.572.0"
+    aws-sdk "2.903.0"
     big.js "^5.2.2"
     ethers "^5.4.1"
     ferrum-crypto "git+https://github.com/ferrumnet/ferrum-crypto.git"
@@ -5205,7 +5207,7 @@ available-typed-arrays@^1.0.2:
     unifyre-extension-sdk "git+https://github.com/ferrumnet/unifyre-extension-sdk.git"
     web3 "^1.2.11"
 
-aws-sdk@^2.572.0:
+aws-sdk@2.903.0, aws-sdk@^2.572.0:
   version "2.903.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.903.0.tgz#4c8252723370ebbdaffe69f4dfddc5973b1dab4a"
   integrity sha512-BP/giYLP8QJ63Jta59kph1F76oPITxRt/wNr3BdoEs9BtshWlGKk149UaseDB4wJtI+0TER5jtzBIUBcP6E+wA==
@@ -6288,11 +6290,6 @@ ci-info@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-2.0.0.tgz#67a9e964be31a51e15e5010d58e6f12834002f46"
   integrity sha512-5tK7EtrZ0N+OLFMthtqOj4fI2Jeb88C4CAZPu25LDVUgXJ0A3Js4PMGqrn0JU1W0Mh1/Z8wZzYPxqUrXeBboCQ==
-
-ci-info@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.2.0.tgz#2876cb948a498797b5236f0095bc057d0dca38b6"
-  integrity sha512-dVqRX7fLUm8J6FgHJ418XuIgDLZDkYcDFTeL6TA2gt5WlIZUQrrH6EZrNClwT/H0FateUsZkGIOPRrLbP+PR9A==
 
 cids@^0.7.1:
   version "0.7.5"
@@ -8942,7 +8939,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-chain-clients@git+https://github.com/ferrumnet/ferrum-chain-clients.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-chain-clients.git#f0d078cc6ec24e2d940b334b3fd8ea1574679b7e"
+  resolved "git+https://github.com/ferrumnet/ferrum-chain-clients.git#daedb4607ebabc017e18be922587883eb0f07c33"
   dependencies:
     "@binance-chain/javascript-sdk" "^2.15.0"
     abi-decoder latest
@@ -8959,7 +8956,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-crypto@git+https://github.com/ferrumnet/ferrum-crypto.git":
   version "0.0.1"
-  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#d770be6b5681e6c2768a1ae4a42e70371e423590"
+  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#e3a5389e357b9c93bea94e49e6a9eb951b12a35a"
   dependencies:
     bech32 "^1.1.3"
     bs58 "^4.0.1"
@@ -8972,7 +8969,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#6c7b0c0750aa02bb35e9a2a70ebabdee2c5235b3"
+  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#548185eb45fbd912dc50440d9df80dda219ee5c8"
   dependencies:
     cross-fetch "^3.0.4"
 
@@ -11145,18 +11142,6 @@ jest-util@^26.1.0, jest-util@^26.6.0, jest-util@^26.6.2:
     is-ci "^2.0.0"
     micromatch "^4.0.2"
 
-jest-util@^27.0.0:
-  version "27.3.1"
-  resolved "https://registry.yarnpkg.com/jest-util/-/jest-util-27.3.1.tgz#a58cdc7b6c8a560caac9ed6bdfc4e4ff23f80429"
-  integrity sha512-8fg+ifEH3GDryLQf/eKZck1DEs2YuVPBCMOaHQxVVLmQwl/CDhWzrvChTX4efLZxGrw+AA0mSXv78cyytBt/uw==
-  dependencies:
-    "@jest/types" "^27.2.5"
-    "@types/node" "*"
-    chalk "^4.0.0"
-    ci-info "^3.2.0"
-    graceful-fs "^4.2.4"
-    picomatch "^2.2.3"
-
 jest-validate@^26.6.2:
   version "26.6.2"
   resolved "https://registry.yarnpkg.com/jest-validate/-/jest-validate-26.6.2.tgz#23d380971587150467342911c3d7b4ac57ab20ec"
@@ -11802,7 +11787,7 @@ lodash.isstring@^4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.isstring/-/lodash.isstring-4.0.1.tgz#d527dfb5456eca7cc9bb95d5daeaf88ba54a5451"
   integrity sha1-1SfftUVuynzJu5XV2ur4i6VKVFE=
 
-lodash.memoize@4.x, lodash.memoize@^4.1.2:
+lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
@@ -17512,7 +17497,7 @@ tryer@^1.0.1:
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.1.tgz#f2c85406800b9b0f74c9f7465b81eaad241252f8"
   integrity sha512-c3zayb8/kWWpycWYg87P71E1S1ZL6b6IJxfb5fvsUgsf0S2MVGaDhDXXjDMpdCpfWXqptc+4mXwmiy1ypXqRAA==
 
-ts-jest@^26.0.0:
+ts-jest@26.5.6, ts-jest@^26.0.0, ts-jest@^26.6.0:
   version "26.5.6"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-26.5.6.tgz#c32e0746425274e1dfe333f43cd3c800e014ec35"
   integrity sha512-rua+rCP8DxpA8b4DQD/6X2HQS8Zy/xzViVYfEs2OQu68tkCuKLV0Md8pmX55+W24uRIyAsf/BajRfxOs+R2MKA==
@@ -17525,20 +17510,6 @@ ts-jest@^26.0.0:
     lodash "4.x"
     make-error "1.x"
     mkdirp "1.x"
-    semver "7.x"
-    yargs-parser "20.x"
-
-ts-jest@^26.6.0:
-  version "27.0.7"
-  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-27.0.7.tgz#fb7c8c8cb5526ab371bc1b23d06e745652cca2d0"
-  integrity sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==
-  dependencies:
-    bs-logger "0.x"
-    fast-json-stable-stringify "2.x"
-    jest-util "^27.0.0"
-    json5 "2.x"
-    lodash.memoize "4.x"
-    make-error "1.x"
     semver "7.x"
     yargs-parser "20.x"
 
@@ -17867,7 +17838,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-sdk@git+https://github.com/ferrumnet/unifyre-extension-sdk.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#48c2416283e22e662a2c2a76f8779c79bc0dac6c"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-sdk.git#71b7e8bee98eaf2e3e225a7d33edc812af44126b"
   dependencies:
     cross-fetch "^3.0.4"
     elliptic "git+https://github.com/ferrumnet/elliptic.git"
@@ -17876,7 +17847,7 @@ unicode-property-aliases-ecmascript@^1.0.4:
 
 "unifyre-extension-web3-retrofit@git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git#ecc11b4d329361190269f19fa2135738dfbbcd89"
+  resolved "git+https://github.com/ferrumnet/unifyre-extension-web3-retrofit.git#28eff8cd8193f91f64e5574b06dc4b2e9f50d234"
   dependencies:
     "@walletconnect/client" "^1.3.1"
     "@walletconnect/qrcode-modal" "^1.3.1"
