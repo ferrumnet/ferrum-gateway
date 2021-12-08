@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { HexString, Networks, ValidationUtils } from "ferrum-plumbing";
 import { BridgeContractNames, BridgeContractVersions, BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, PayBySignatureData, UserBridgeWithdrawableBalanceItem, Utils } from "types";
@@ -8,13 +7,6 @@ import { Eip712Params, produceSignature } from "web3-tools";
 import { BridgeSwapEvent } from "../../common/TokenBridgeTypes";
 
 export const EXPECTED_WI_SCHEMA_VERSIONS = ["0.1", "1.0", "1.2"];
-=======
-import { HexString, Networks } from "ferrum-plumbing";
-import { UserBridgeWithdrawableBalanceItem } from "types";
-import Web3 from "web3";
-import * as Eip712 from "web3-tools";
-import { Eip712Params, produceSignature } from "web3-tools";
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
 
 export class NodeUtils {
     static bridgeV1Salt(wi: UserBridgeWithdrawableBalanceItem): HexString {
@@ -75,7 +67,6 @@ export class NodeUtils {
 			params);
         return sig.hash!;
     }
-<<<<<<< HEAD
 
     static async withdrawItemFromSwap(
             schemaVersion: string,
@@ -274,6 +265,4 @@ export class NodeUtils {
         ValidationUtils.isTrue(wi.payBySig.hash === expectedHash,
             'Invalid payBySig.hash');
     }
-=======
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
 }

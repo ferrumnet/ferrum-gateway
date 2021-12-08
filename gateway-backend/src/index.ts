@@ -41,11 +41,7 @@ export class GatewayModule implements Module {
 					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
           c.get(AuthTokenParser),
-<<<<<<< HEAD
           c.get("NetworksConfig"),
-=======
-          c.get("MultiChainConfig"),
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
         )
     );
     container.registerSingleton(

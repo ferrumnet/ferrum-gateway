@@ -33,11 +33,7 @@ import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore
 export class CommonBackendModule implements Module {
   constructor(
     private dbConfig?: MongooseConfig,
-<<<<<<< HEAD
     private chainConfig?: NetworkedConfig<string>,
-=======
-    private chainConfig?: MultiChainConfig,
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
   ) {}
 
   static awsRegion(): string {
@@ -57,7 +53,6 @@ export class CommonBackendModule implements Module {
       (!!chainConfArn
         ? await new SecretsProvider(region, chainConfArn).get()
         : ({
-<<<<<<< HEAD
             'ETHEREUM': getEnv("WEB3_PROVIDER_ETHEREUM"),
             'RINKEBY': getEnv("WEB3_PROVIDER_RINKEBY"),
             'BSC': getEnv("WEB3_PROVIDER_BSC"),
@@ -69,18 +64,6 @@ export class CommonBackendModule implements Module {
 
     container.register('MultiChainConfig', () => netConfig);
     container.register('NetworksConfig', () => netConfig);
-=======
-            web3Provider: getEnv("WEB3_PROVIDER_ETHEREUM"),
-            web3ProviderRinkeby: getEnv("WEB3_PROVIDER_RINKEBY"),
-            web3ProviderBsc: getEnv("WEB3_PROVIDER_BSC"),
-            web3ProviderBscTestnet: getEnv("WEB3_PROVIDER_BSC_TESTNET"),
-            web3ProviderPolygon: getEnv("WEB3_PROVIDER_POLYGON"),
-            web3ProviderMumbaiTestnet: getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
-            web3ProviderAvaxTestnet: getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
-          } as any as MultiChainConfig));
-
-    container.register("MultiChainConfig", () => netConfig);
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
     container.registerModule(new ChainClientsModule());
 
     const networkProviders = netConfig as Web3ProviderConfig;

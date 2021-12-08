@@ -22,7 +22,6 @@ export class NodeModule implements Module {
     let conf: BridgeNodeConfig = loadConfigFromFile();
 	await container.registerModule(new CommonBackendModule(undefined, conf.chain));
 
-<<<<<<< HEAD
     container.registerSingleton(
       TokenBridgeContractClinet,
       (c) =>
@@ -30,11 +29,6 @@ export class NodeModule implements Module {
           c.get(EthereumSmartContractHelper),
           BRIDGE_V1_CONTRACTS
         ));
-=======
-	await container.registerModule(new CommonBackendModule(conf.database));
-
-    await container.registerModule(new BridgeModuleCommons(conf.database,),);
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
 
 	container.registerSingleton(TransactionListProvider,
 		c => new TransactionListProvider(c.get(CrossSwapService)));
