@@ -25,6 +25,7 @@ import * as Eip712 from "web3-tools";
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
 import { AppConfig, CommonBackendModule, WithDatabaseConfig } from "common-backend";
 import Web3 from "web3";
+import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 
 export class BridgeProcessor implements Injectable {
   private log: Logger;
@@ -119,6 +120,10 @@ export class BridgeProcessor implements Injectable {
     } finally {
       await this.svc.close();
       await this.tokenConfig.close();
+	    const c = await LambdaGlobalContext.container();
+      await (c.get<HmacApiKeyStore>(HmacApiKeyStore) as any).close();
+
+      console.log('All closed!!!')     
     }
   }
 

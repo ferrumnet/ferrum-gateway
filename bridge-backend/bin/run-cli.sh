@@ -5,4 +5,4 @@ if [ "$1" == "" ]; then
   exit -1
 fi
 
-docker run --rm --env-file $1 --name bridge-cli naiemk/bridge-cli:0.0.10 node ./index.js $2
+docker run --rm --env-file $1 --name bridge-cli naiemk/bridge-cli:0.0.12 node ./index.js $2
