@@ -23,7 +23,7 @@ import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from "web3-tools";
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
-import { CommonBackendModule } from "common-backend";
+import { AppConfig, CommonBackendModule, WithDatabaseConfig } from "common-backend";
 import Web3 from "web3";
 
 export class BridgeProcessor implements Injectable {
@@ -325,6 +325,19 @@ async function closeIfInitialized(c: Container, t: any) {
 async function prepProcess() {
 	const c = await LambdaGlobalContext.container();
 	try {
+    await AppConfig.instance().forChainProviders();
+    await AppConfig.instance().fromSecret('', 'BRIDGE');
+    await AppConfig.instance().fromSecret('', 'CRUCIBLE');
+    await AppConfig.instance().fromSecret('', 'LEADERBOARD');
+    await AppConfig.instance().fromSecret('', 'GOVERNANCE');
+    AppConfig.instance().orElse('', () => ({
+      database: {
+        connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
+      },
+      cmkKeyId: AppConfig.env('CMK_KEY_ID'),
+    }));
+      
+    await BridgeModule.configuration();
 		await c.registerModule(new CommonBackendModule());
 		await c.registerModule(new BridgeModule());
 		return c.get<BridgeProcessor>(BridgeProcessor);
