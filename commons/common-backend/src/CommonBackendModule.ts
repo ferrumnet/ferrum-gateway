@@ -5,7 +5,6 @@ import {
   LoggerFactory,
   Module,
   ValidationUtils,
-  NetworkedConfig,
 } from "ferrum-plumbing";
 import { getEnv } from "types";
 import {
@@ -14,12 +13,10 @@ import {
 } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientsModule } from "ferrum-chain-clients";
 import {
-  AwsEnvs,
   KmsCryptor,
-  MongooseConfig,
   MongooseConnection,
-  SecretsProvider,
   UnifyreBackendProxyModule,
+  UnifyreBackendProxyService,
 } from "aws-lambda-helper";
 import { KMS } from "aws-sdk";
 import { CurrencyListSvc } from "./CurrencyListSvc";
@@ -29,41 +26,16 @@ import { TransactionTracker } from "./contracts/TransactionTracker";
 import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
+import { AppConfig, WithDatabaseConfig, WithKmsConfig } from "./app/AppConfig";
+import { AuthTokenParser } from "./auth/AuthTokenParser";
 
 export class CommonBackendModule implements Module {
-  constructor(
-    private dbConfig?: MongooseConfig,
-    private chainConfig?: NetworkedConfig<string>,
-  ) {}
-
-  static awsRegion(): string {
-    return (
-      process.env.AWS_REGION ||
-      process.env[AwsEnvs.AWS_DEFAULT_REGION] ||
-      "us-east-2"
-    );
-  }
+  constructor() {}
 
   async configAsync(container: Container): Promise<void> {
-    const region = CommonBackendModule.awsRegion();
-    const chainConfArn =
-      process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + "CHAIN_CONFIG"];
-    const netConfig: NetworkedConfig<string> =
-      this.chainConfig ||
-      (!!chainConfArn
-        ? await new SecretsProvider(region, chainConfArn).get()
-        : ({
-            'ETHEREUM': getEnv("WEB3_PROVIDER_ETHEREUM"),
-            'RINKEBY': getEnv("WEB3_PROVIDER_RINKEBY"),
-            'BSC': getEnv("WEB3_PROVIDER_BSC"),
-            'BSC_TESTNET': getEnv("WEB3_PROVIDER_BSC_TESTNET"),
-            'POLYGON': getEnv("WEB3_PROVIDER_POLYGON"),
-            'MUMBAI_TESTNET': getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
-            'AVAX_TESTNET': getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
-          } as NetworkedConfig<string>));
+    const netConfig = AppConfig.instance().getChainProviders();
 
     container.register('MultiChainConfig', () => netConfig);
-    container.register('NetworksConfig', () => netConfig);
     container.registerModule(new ChainClientsModule());
 
     const networkProviders = netConfig as Web3ProviderConfig;
@@ -99,6 +71,10 @@ export class CommonBackendModule implements Module {
 		container.registerSingleton(ChainEventService,
 			c => new ChainEventService(c.get(EthereumSmartContractHelper)));
 
+    const conf = AppConfig.instance().get<WithDatabaseConfig&WithKmsConfig>();
+    container.register(KmsCryptor, () => new KmsCryptor(
+      new KMS({region: AppConfig.awsRegion()}) as any, conf.cmkKeyId,));
+
     container.registerSingleton(HmacApiKeyStore,
       c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
 
@@ -106,8 +82,12 @@ export class CommonBackendModule implements Module {
       new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")
     );
 
-    if (this.dbConfig) {
-      await container.get<MongooseConnection>(HmacApiKeyStore).init(this.dbConfig);
+    container.register(AuthTokenParser, c => new AuthTokenParser(
+        c.get(UnifyreBackendProxyService), c.get(HmacApiKeyStore)));
+
+    // NOTE: Database should be configured on the field "database".
+    if (conf?.database) {
+      await container.get<MongooseConnection>(HmacApiKeyStore).init(conf.database);
     }
 
     // makeInjectable('CloudWatch', CloudWatch);

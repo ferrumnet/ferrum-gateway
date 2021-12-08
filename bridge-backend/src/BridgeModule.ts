@@ -8,13 +8,12 @@ import { BridgeProcessor } from "./BridgeProcessor";
 import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { CommonBackendModule, CurrencyListSvc, decryptKey } from "common-backend";
+import { AppConfig, CurrencyListSvc, decryptKey } from "common-backend";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
-require('dotenv').config()
-const GLOBAL_BRIDGE_CONTRACT = "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877";
+import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -44,57 +43,26 @@ export class BridgeModuleCommons implements Module {
 }
 
 export class BridgeModule implements Module {
-  async configAsync(container: Container) {
-    const confArn =
-      process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + "BRIDGE_PROCESSOR"];
-    let conf: BridgeProcessorConfig = {} as any;
-    const region = CommonBackendModule.awsRegion();
+  static async configuration() {
+    (await AppConfig.instance()
+      .fromSecret('', 'BRIDGE_BACKEND'))
 
-
-    if (confArn) {
-      conf = await new SecretsProvider(region, confArn).get();
-    } else {
-      conf = {
-        database: {
-          connectionString: getEnv("MONGOOSE_CONNECTION_STRING"),
-        } as MongooseConfig,
-        addressManagerEndpoint: getEnv("ADDRESS_MANAGER_ENDPOINT"),
-        addressManagerSecret: getEnv("ADDRESS_MANAGER_SECRET"),
+      .orElse('', () => ({
         bridgeConfig: {
-          contractClient: {
-            ETHEREUM:
-              env("TOKEN_BRDIGE_CONTRACT_ETHEREUM") || GLOBAL_BRIDGE_CONTRACT,
-            RINKEBY:
-              env("TOKEN_BRDIGE_CONTRACT_RINKEBY") || GLOBAL_BRIDGE_CONTRACT,
-            BSC:
-              env("TOKEN_BRDIGE_CONTRACT_BSC") ||
-              GLOBAL_BRIDGE_CONTRACT,
-            BSC_TESTNET:
-              env("TOKEN_BRDIGE_CONTRACT_BSC_TESTNET") ||
-              GLOBAL_BRIDGE_CONTRACT,
-            POLYGON:
-              env("TOKEN_BRDIGE_CONTRACT_POLYGON") || GLOBAL_BRIDGE_CONTRACT,
-            MUMBAI_TESTNET:
-              env("TOKEN_BRDIGE_CONTRACT_MUMBAI_TESTNET") ||
-              GLOBAL_BRIDGE_CONTRACT,
-            AVAX_TESTNET:
-              env("TOKEN_BRDIGE_CONTRACT_AVAX_TESTNET") ||
-              GLOBAL_BRIDGE_CONTRACT,
-          },
+          contractClient: BRIDGE_V1_CONTRACTS,
         },
-				bridgeV12Config: {
+        bridgeV12Config: BRIDGE_V12_CONTRACTS,
+        swapProtocols: {},
+      } as BridgeProcessorConfig));
+  }
 
-				},
-				swapProtocols: {
-
-				}
-      } as BridgeProcessorConfig;
-    }
+  async configAsync(container: Container) {
+    const conf = AppConfig.instance().get<BridgeProcessorConfig>();
 
     const privateKey =
       getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
       (await decryptKey(
-        region,
+        AppConfig.awsRegion(),
         getEnv("KEY_ID"),
         getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
       ));

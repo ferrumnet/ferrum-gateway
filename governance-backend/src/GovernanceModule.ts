@@ -1,36 +1,13 @@
-import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Container, Module, ValidationUtils } from "ferrum-plumbing";
-import { CommonBackendModule, decryptKey } from "common-backend";
+import { Container, Module } from "ferrum-plumbing";
 import { GovernanceConfig } from "../GovernanceTypes";
 import { GovernanceRequestProcessor } from "./GovernanceRequestProcessor";
 import { GovernanceService } from "./GovernanceService";
 import { TransactionTracker } from "common-backend/dist/contracts/TransactionTracker";
-
-export function getEnv(env: string) {
-  const res = process.env[env];
-  ValidationUtils.isTrue(
-    !!res,
-    `Make sure to set environment variable '${env}'`
-  );
-  return res!;
-}
+import { AppConfig } from "common-backend";
 
 export class GovernanceModule implements Module {
   async configAsync(container: Container) {
-    const confArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + "GOVERNANCE"];
-    let conf: GovernanceConfig = {} as any;
-    const region = CommonBackendModule.awsRegion();
-
-    if (confArn) {
-      conf = await new SecretsProvider(region, confArn).get();
-    } else {
-      conf = {
-        database: {
-          connectionString: getEnv("MONGOOSE_CONNECTION_STRING"),
-        } as MongooseConfig,
-      } as GovernanceConfig;
-    }
 
     container.registerSingleton(
       GovernanceRequestProcessor,
@@ -42,6 +19,7 @@ export class GovernanceModule implements Module {
 				c.get(EthereumSmartContractHelper),
 				c.get(TransactionTracker)));
 
+    const conf = AppConfig.instance().get<GovernanceConfig>();
 		await container.get<GovernanceService>(GovernanceService).init(conf.database);
   }
 }

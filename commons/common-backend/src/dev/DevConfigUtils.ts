@@ -23,6 +23,6 @@ export function loadConfigFromFile<T>(): T {
 			const conf = JSON.parse(fs.readFileSync(f).toString('utf-8'));
 			rv = {...(rv || {}), ...conf};
 		});
-	ValidationUtils.isTrue(!!rv, 'No config file was found. Consider setting CONFIG_FILES env');
+	ValidationUtils.isTrue(!!rv, 'No config file was found. Consider setting CONFIG_FILES env or create ./config.json');
 	return rv!;
 }

@@ -1,13 +1,12 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { BRIDGE_V1_CONTRACTS } from "types";
-import { loadConfigFromFile } from "common-backend/dist/dev/DevConfigUtils";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
 import { BridgeNodeV12 } from "./BridgeNodeV12";
 import { TransactionListProvider } from "./TransactionListProvider";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
-import { CommonBackendModule } from "common-backend";
+import { AppConfig, CommonBackendModule } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
 import { KMS } from "aws-sdk";
@@ -19,8 +18,8 @@ import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRe
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
-    let conf: BridgeNodeConfig = loadConfigFromFile();
-	await container.registerModule(new CommonBackendModule(undefined, conf.chain));
+    const conf: BridgeNodeConfig = AppConfig.instance().fromFile().get<BridgeNodeConfig>();
+	await container.registerModule(new CommonBackendModule());
 
     container.registerSingleton(
       TokenBridgeContractClinet,
@@ -33,9 +32,9 @@ export class NodeModule implements Module {
 	container.registerSingleton(TransactionListProvider,
 		c => new TransactionListProvider(c.get(CrossSwapService)));
 
-	container.register(KmsCryptor, () => new KmsCryptor(
-		new KMS({region: process.env.DEFAULT_AWS_REGION}) as any,
-		conf.cmkKeyId,));
+	// container.register(KmsCryptor, () => new KmsCryptor(
+	// 	new KMS({region: AppConfig.awsRegion()}) as any,
+	// 	conf.cmkKeyId,));
 
 	container.register(TwoFaEncryptionClient,
 		c => new TwoFaEncryptionClient(
