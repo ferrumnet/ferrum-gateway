@@ -36,12 +36,13 @@ export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts> = {
 };
 
 export const BRIDGE_V1_CONTRACTS: NetworkedConfig<string> = {
-	'RINKEBY': '',
-	'BSC_TESTNET': '',
-	'MULMBAI_TESTNET': '',
-	'ETHEREUM': '',
-	'BSC': '',
-	'POLYGON': '',
+	'RINKEBY': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
+	'BSC_TESTNET': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
+	'MULMBAI_TESTNET': '0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877',
+	'ETHEREUM': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+	'BSC': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+	'POLYGON': '0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+	'AVAX_TESTNET': '',
 };
 
 export const BRIDGE_V12_CONTRACTS: NetworkedConfig<BridgeV12Contracts> = {
