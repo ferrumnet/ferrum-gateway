@@ -31,7 +31,6 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
         return await this.api(body, auth);
     }
 
-<<<<<<< HEAD
     async getWithdrawItemTransactionIds(
         apiPublicKey: string,
         apiSecretKey: string,
@@ -52,8 +51,6 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
         return await this.api(body, auth);
     }
 
-=======
->>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
     async getPendingSwapTxIds(
         apiPublicKey: string,
         apiSecretKey: string,
