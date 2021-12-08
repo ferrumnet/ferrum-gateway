@@ -3,9 +3,6 @@ import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 // @ts-ignore
 import {ecsign, toRpcSig, fromRpcSig, ecrecover, privateToAddress, publicToAddress} from 'ethereumjs-util';
-import { ethers } from 'ethers';
-
-const abi = ethers.utils.defaultAbiCoder;
 
 export interface Eip712Params {
     contractName: string;

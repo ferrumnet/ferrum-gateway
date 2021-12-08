@@ -12,6 +12,10 @@ export const PairedAddressType: Eip712TypeDefinition =  {
     ],
 };
 
+export interface NodeProcessor {
+    processForNetwork(network: string): Promise<void>;
+}
+
 export interface BridgeSwapEvent {
 	network: Network;
 	transactionId: string;

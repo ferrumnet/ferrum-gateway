@@ -6,7 +6,7 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { ChainEventService, CommonBackendModule, CurrencyListSvc } from "common-backend";
+import { AuthTokenParser, ChainEventService, CommonBackendModule, CurrencyListSvc } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
@@ -22,11 +22,11 @@ import fetch from "node-fetch";
 declare var global: any;
 global.fetch = fetch;
 
-
 require('dotenv').config()
 export class GatewayModule implements Module {
   async configAsync(container: Container) {
-    await container.registerModule(new CommonBackendModule());
+    // Already registered in the bridge module!
+    // await container.registerModule(new CommonBackendModule());
 
     container.registerSingleton(
       "LambdaHttpHandler",
@@ -40,7 +40,12 @@ export class GatewayModule implements Module {
 		  		c.get(CrucibleRequestProcessor),
 					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
+          c.get(AuthTokenParser),
+<<<<<<< HEAD
+          c.get("NetworksConfig"),
+=======
           c.get("MultiChainConfig"),
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
         )
     );
     container.registerSingleton(

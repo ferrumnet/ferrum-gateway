@@ -1,8 +1,8 @@
-import { Network } from "ferrum-plumbing";
-import { PairAddressUtils } from "./PairAddressUtils";
+import { Network, Injectable } from "ferrum-plumbing";
+import { PairAddressUtils } from "./common/PairAddressUtils";
 import { SignedPairAddress } from "types";
 
-export class PairAddressSignatureVerifyre {
+export class PairAddressSignatureVerifyre implements Injectable {
     constructor() {
     }
 

@@ -1,47 +1,56 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { CreateNewAddressFactory } from "ferrum-chain-clients";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
-import { NetworkedConfig } from "types";
+import { BRIDGE_V1_CONTRACTS } from "types";
 import { loadConfigFromFile } from "common-backend/dist/dev/DevConfigUtils";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
 import { BridgeNodeV12 } from "./BridgeNodeV12";
 import { TransactionListProvider } from "./TransactionListProvider";
-import { TokenBridgeService } from "../TokenBridgeService";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
-import { BridgeConfigStorage } from "../BridgeConfigStorage";
 import { CommonBackendModule } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
 import { KMS } from "aws-sdk";
-import { BridgeModuleCommons } from "../BridgeModule";
+import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
+import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
+import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
+import { WithdrawItemValidator } from "./WithdrawItemValidator";
+import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
     let conf: BridgeNodeConfig = loadConfigFromFile();
-	const brigeContracts: NetworkedConfig<string> = {};
-	Object.keys(conf.bridgeContracts).forEach(net => {
-		brigeContracts[net] = conf.bridgeContracts[net].bridge;
-	});
+	await container.registerModule(new CommonBackendModule(undefined, conf.chain));
 
-	await container.registerModule(new CommonBackendModule());
+<<<<<<< HEAD
+    container.registerSingleton(
+      TokenBridgeContractClinet,
+      (c) =>
+        new TokenBridgeContractClinet(
+          c.get(EthereumSmartContractHelper),
+          BRIDGE_V1_CONTRACTS
+        ));
+=======
+	await container.registerModule(new CommonBackendModule(conf.database));
 
     await container.registerModule(new BridgeModuleCommons(conf.database,),);
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
 
 	container.registerSingleton(TransactionListProvider,
 		c => new TransactionListProvider(c.get(CrossSwapService)));
 
 	container.register(KmsCryptor, () => new KmsCryptor(
-		new KMS({region: process.env.DEFAULT_AWS_REGION}),
+		new KMS({region: process.env.DEFAULT_AWS_REGION}) as any,
 		conf.cmkKeyId,));
 
-	/*container.register(TwoFaEncryptionClient,
+	container.register(TwoFaEncryptionClient,
 		c => new TwoFaEncryptionClient(
 			c.get(KmsCryptor),
 			conf.twoFa?.uri,
 			c.get(LoggerFactory),
 			conf.twoFa?.secretKey,
-			conf.twoFa?.accessKey));*/
+			conf.twoFa?.accessKey,
+			false));
 
 	container.register(DoubleEncryptiedSecret, 
 		c => new DoubleEncryptiedSecret(
@@ -49,25 +58,36 @@ export class NodeModule implements Module {
 		c.get(TwoFaEncryptionClient)));
 
 	container.registerSingleton(
+		PrivateKeyProvider,
+		c => new PrivateKeyProvider(c.get(DoubleEncryptiedSecret)));
+
+	container.register(WithdrawItemGeneratorV1,
+		c => new WithdrawItemGeneratorV1(
+			c.get(BridgeNodesRemoteAccessClient),
+			c.get(TokenBridgeContractClinet),
+			c.get(EthereumSmartContractHelper),
+			conf,
+			conf.publicAccessKey,
+			conf.secretAccessKey,));
+
+	container.register(WithdrawItemValidator,
+		c => new WithdrawItemValidator(
+			c.get(BridgeNodesRemoteAccessClient),
+			c.get(TokenBridgeContractClinet),
+			c.get(EthereumSmartContractHelper),
+			c.get(PrivateKeyProvider)));
+
+	container.registerSingleton(
 		BridgeNodeV12,
 		c => new BridgeNodeV12(
-			c.get(TransactionListProvider),
-			c.get(TokenBridgeService),
-			c.get(CrossSwapService),
-			c.get(EthereumSmartContractHelper),
-			c.get(CreateNewAddressFactory),
 			c.get(DoubleEncryptiedSecret),
+			c.get(PrivateKeyProvider),
+			conf.role === 'gnerator' ?
+				c.get(WithdrawItemGeneratorV1) :
+				c.get(WithdrawItemValidator),
 			conf.encryptedSignerKey,
+			conf.role,
 		),
 	);
-
-    await container
-      .get<TokenBridgeService>(TokenBridgeService)
-      .init(conf.database);
-    await container
-      .get<BridgeConfigStorage>(BridgeConfigStorage)
-      .init(conf.database);
-	await container
-	  .get<CrossSwapService>(CrossSwapService).init(conf.database);
   }
 }

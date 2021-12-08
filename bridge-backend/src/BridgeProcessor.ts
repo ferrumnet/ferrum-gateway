@@ -1,7 +1,6 @@
 import {
   ChainClientFactory,
   ChainUtils,
-  SimpleTransferTransaction,
 } from "ferrum-chain-clients";
 import {
 	Container,

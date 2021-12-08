@@ -5,16 +5,19 @@ import {
   LoggerFactory,
   Module,
   ValidationUtils,
+  NetworkedConfig,
 } from "ferrum-plumbing";
 import { getEnv } from "types";
 import {
   EthereumSmartContractHelper,
   Web3ProviderConfig,
 } from "aws-lambda-helper/dist/blockchain";
-import { ChainClientsModule, MultiChainConfig } from "ferrum-chain-clients";
+import { ChainClientsModule } from "ferrum-chain-clients";
 import {
   AwsEnvs,
   KmsCryptor,
+  MongooseConfig,
+  MongooseConnection,
   SecretsProvider,
   UnifyreBackendProxyModule,
 } from "aws-lambda-helper";
@@ -25,9 +28,17 @@ import { UniswapPricingService } from "./uniswapv2/UniswapPricingService";
 import { TransactionTracker } from "./contracts/TransactionTracker";
 import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
+import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 
 export class CommonBackendModule implements Module {
-  constructor(private chainConfig?: MultiChainConfig) {}
+  constructor(
+    private dbConfig?: MongooseConfig,
+<<<<<<< HEAD
+    private chainConfig?: NetworkedConfig<string>,
+=======
+    private chainConfig?: MultiChainConfig,
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
+  ) {}
 
   static awsRegion(): string {
     return (
@@ -41,11 +52,24 @@ export class CommonBackendModule implements Module {
     const region = CommonBackendModule.awsRegion();
     const chainConfArn =
       process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + "CHAIN_CONFIG"];
-    const netConfig: MultiChainConfig =
+    const netConfig: NetworkedConfig<string> =
       this.chainConfig ||
       (!!chainConfArn
         ? await new SecretsProvider(region, chainConfArn).get()
         : ({
+<<<<<<< HEAD
+            'ETHEREUM': getEnv("WEB3_PROVIDER_ETHEREUM"),
+            'RINKEBY': getEnv("WEB3_PROVIDER_RINKEBY"),
+            'BSC': getEnv("WEB3_PROVIDER_BSC"),
+            'BSC_TESTNET': getEnv("WEB3_PROVIDER_BSC_TESTNET"),
+            'POLYGON': getEnv("WEB3_PROVIDER_POLYGON"),
+            'MUMBAI_TESTNET': getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
+            'AVAX_TESTNET': getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
+          } as NetworkedConfig<string>));
+
+    container.register('MultiChainConfig', () => netConfig);
+    container.register('NetworksConfig', () => netConfig);
+=======
             web3Provider: getEnv("WEB3_PROVIDER_ETHEREUM"),
             web3ProviderRinkeby: getEnv("WEB3_PROVIDER_RINKEBY"),
             web3ProviderBsc: getEnv("WEB3_PROVIDER_BSC"),
@@ -53,21 +77,13 @@ export class CommonBackendModule implements Module {
             web3ProviderPolygon: getEnv("WEB3_PROVIDER_POLYGON"),
             web3ProviderMumbaiTestnet: getEnv("WEB3_PROVIDER_MUMBAI_TESTNET"),
             web3ProviderAvaxTestnet: getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
-
           } as any as MultiChainConfig));
 
     container.register("MultiChainConfig", () => netConfig);
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
     container.registerModule(new ChainClientsModule());
-    const networkProviders = {
-      ETHEREUM: netConfig.web3Provider,
-      RINKEBY: netConfig.web3ProviderRinkeby,
-      BSC: netConfig.web3ProviderBsc,
-      BSC_TESTNET: netConfig.web3ProviderBscTestnet,
-      POLYGON: netConfig.web3ProviderPolygon,
-      MUMBAI_TESTNET: netConfig.web3ProviderMumbaiTestnet,
-      AVAX_TESTNET: netConfig.web3ProviderAvaxTestnet,
 
-    } as Web3ProviderConfig;
+    const networkProviders = netConfig as Web3ProviderConfig;
     container.registerSingleton(
       CurrencyListSvc,
       (c) => new CurrencyListSvc(c.get(EthereumSmartContractHelper))
@@ -100,9 +116,16 @@ export class CommonBackendModule implements Module {
 		container.registerSingleton(ChainEventService,
 			c => new ChainEventService(c.get(EthereumSmartContractHelper)));
 
+    container.registerSingleton(HmacApiKeyStore,
+      c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
+
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")
     );
+
+    if (this.dbConfig) {
+      await container.get<MongooseConnection>(HmacApiKeyStore).init(this.dbConfig);
+    }
 
     // makeInjectable('CloudWatch', CloudWatch);
     // container.register('MetricsUploader', c =>
@@ -125,5 +148,5 @@ export async function decryptKey(
 ): Promise<string> {
   ValidationUtils.isTrue(!!keyJson, "Private key must be provided");
   const key = JSON.parse(keyJson) as EncryptedData;
-  return await new KmsCryptor(new KMS({ region }), keyId).decryptToHex(key);
+  return await new KmsCryptor(new KMS({ region }) as any, keyId).decryptToHex(key);
 }

@@ -7,16 +7,28 @@ import {
   LambdaHttpHandler,
   LambdaHttpHandlerHelper,
 } from "aws-lambda-helper/dist/HandlerFactory";
+<<<<<<< HEAD
+import { JsonRpcRequest, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
+=======
+import {
+  HmacApiKeyStore
+} from 'aws-lambda-helper/dist/security/HmacApiKeyStore';
+import {
+  EcdsaAuthProvider
+} from 'aws-lambda-helper/dist/security/EcdsaAuthProvider';
+import {
+  HmacAuthProvider
+} from 'aws-lambda-helper/dist/security/HmacAuthProvider';
 import { JsonRpcRequest, ValidationUtils } from "ferrum-plumbing";
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
 import { ChainEventBase, UserContractAllocation } from "types";
-import { MultiChainConfig } from "ferrum-chain-clients";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
-import { ChainEventService } from "common-backend";
+import { AuthTokenParser, ChainEventService } from "common-backend";
 
 export class HttpHandler implements LambdaHttpHandler {
   // private adminHash: string;
@@ -29,9 +41,13 @@ export class HttpHandler implements LambdaHttpHandler {
     private crucibleProcessor: CrucibleRequestProcessor,
     private stakingProcessor: StakingRequestProcessor,
 		private governanceProcessor: GovernanceRequestProcessor,
+    private authToken: AuthTokenParser,
+<<<<<<< HEAD
+    private newtworkConfig: NetworkedConfig<string>,
+=======
     private newtworkConfig: MultiChainConfig
+>>>>>>> 8c1c36fde8bb79ceaf5f41da2b6e07072f9dc8b5
   ) {
-    // this.adminHash = Web3.utils.sha3('__ADMIN__' + this.adminSecret)!;
   }
 
   async handle(
@@ -44,11 +60,9 @@ export class HttpHandler implements LambdaHttpHandler {
     if (pre.preFlight) {
       return pre.preFlight;
     }
-    const jwtToken = pre.authToken;
-    const userId = jwtToken
-      ? await this.uniBack.signInUsingToken(jwtToken)
-      : undefined
     try {
+      const auth = await this.authToken.authTokens(request);
+      const userId = auth.userId;
       switch (req.command) {
         case "signInUsingAddress":
           let { userAddress } = req.data;
@@ -106,7 +120,7 @@ export class HttpHandler implements LambdaHttpHandler {
 						this.stakingProcessor.for(req.command) ||
             this.governanceProcessor.for(req.command);
           if (!!processor) {
-            body = await processor(req, userId);
+            body = await processor(req, userId, );
           } else {
             return {
               body: JSON.stringify({ error: "bad request" }),

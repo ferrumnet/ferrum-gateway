@@ -9,6 +9,7 @@ import {
   Injectable,
   LongRunningScheduler,
   MetricsService,
+  Networks,
 } from "ferrum-plumbing";
 import { TransactionModel } from "../models/transaction";
 const IERC20_json_1 = require("./erc20.json");
@@ -140,7 +141,7 @@ export class NetworkTransactionWatcher implements Injectable {
           //       ETHEREUM_CHAIN_ID_FOR_NETWORK[k]
           //     ] = `${provider}`)
           // );
-          const NetworkNameByChainId = ETHEREUM_CHAIN_ID_FOR_NETWORK[provider];
+          const NetworkNameByChainId = Networks.for(provider).chainId;
           // const NetworkNameByChainId: { [k: number]: string } = {
           //   [ETHEREUM_CHAIN_ID_FOR_NETWORK[provider]]: `${provider}`,
           // };
