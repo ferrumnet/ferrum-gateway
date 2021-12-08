@@ -1,5 +1,6 @@
+import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { HexString, Networks, ValidationUtils } from "ferrum-plumbing";
-import { UserBridgeWithdrawableBalanceItem } from "types";
+import { BridgeContractNames, BridgeContractVersions, BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, PayBySignatureData, UserBridgeWithdrawableBalanceItem, Utils } from "types";
 import Web3 from "web3";
 import * as Eip712 from "web3-tools";
 import { Eip712Params, produceSignature } from "web3-tools";
@@ -67,7 +68,136 @@ export class NodeUtils {
         return sig.hash!;
     }
 
-    static withdrawItemFromSwap(swap: BridgeSwapEvent): UserBridgeWithdrawableBalanceItem {
+    static async withdrawItemFromSwap(
+            schemaVersion: string,
+            creator: string,
+            swap: BridgeSwapEvent,
+            helper: EthereumSmartContractHelper,): Promise<UserBridgeWithdrawableBalanceItem> {
+        ValidationUtils.isTrue(
+            EXPECTED_WI_SCHEMA_VERSIONS.indexOf(schemaVersion) >= 0,
+            "Invalid schema version");
+        const isV12 = schemaVersion === '1.2';
+        const txSummary = await helper.getTransactionSummary(swap.network, swap.transactionId);
+		const payBySig = isV12 ?
+            await NodeUtils.createSignedPaymentV12(swap, helper) :
+            await NodeUtils.createSignedPaymentV1(swap, helper);
+		const newItem = {
+			id: swap.transactionId,
+			timestamp: new Date().valueOf(),
+			receiveNetwork: swap.network,
+			receiveCurrency: Utils.toCurrency(swap.network, swap.token),
+			receiveTransactionId: swap.transactionId,
+			receiveAddress: swap.targetAddress,
+			receiveAmount: swap.amount,
+			payBySig,
+			sendNetwork: swap.targetNetwork,
+			sendAddress: swap.targetAddress,
+			sendTimestamp: 0,
+			sendCurrency: Utils.toCurrency(swap.targetNetwork, swap.targetToken),
+			sendAmount: swap.amount,
+
+			originCurrency: Utils.toCurrency(swap.network, swap.originToken),
+			sendToCurrency: Utils.toCurrency(swap.targetNetwork, swap.swapTargetTokenTo),
+
+			used: '',
+			useTransactions: [],
+            creator,
+            execution: { status: '', transactions: [] },
+            receiveTransactionTimestamp: txSummary.confirmationTime,
+            v: 0,
+            version: schemaVersion,
+            signatures: 0,
+		} as UserBridgeWithdrawableBalanceItem;
+
+        // Update version specific fields
+        if (isV12) {
+            newItem.payBySig.hash = NodeUtils.bridgeV12Hash(newItem);
+        } else {
+            newItem.payBySig.swapTxId = NodeUtils.bridgeV1Salt(newItem);
+            newItem.payBySig.hash = NodeUtils.bridgeV1Hash(newItem);
+        }
+		return newItem;
+    }
+
+    private static async createSignedPaymentV12(
+            tx: BridgeSwapEvent,
+            helper: EthereumSmartContractHelper,)
+        : Promise<PayBySignatureData> {
+        const sourceChainId = Networks.for(tx.network).chainId;
+        const chainId = Networks.for(tx.targetNetwork).chainId;
+		const amountStr = await helper.amountToMachine(
+			Utils.toCurrency(tx.targetNetwork, tx.targetToken), tx.amount);
+		// WithdrawSigned(address token,address payee,
+		//  uint256 amount,address toToken,uint32 sourceChainId,bytes32 swapTxId)
+		const params = {
+			contractName: 'FERRUM_TOKEN_BRIDGE_POOL',
+			contractVersion: BridgeContractVersions.V1_2,
+			method: 'WithdrawSigned',
+			args: [
+				{ type: 'address', name: 'token', value: tx.targetToken },
+				{ type: 'address', name: 'payee', value: tx.targetAddress },
+				{ type: 'uint256', name: 'amount', value: amountStr },
+				{ type: 'address', name: 'toToken', value: tx.swapTargetTokenTo },
+				{ type: 'uint32', name: 'sourceChainId', value: sourceChainId },
+				{ type: 'bytes32', name: 'swapTxId', value: tx.transactionId },
+			]
+		} as Eip712Params;
+
+		const bridgeContractAddress = BRIDGE_V12_CONTRACTS[tx.targetNetwork].bridge;
+		return {
+			token: tx.targetToken,
+			payee: tx.targetAddress,
+			amount: amountStr,
+			toToken: tx.swapTargetTokenTo,
+			sourceChainId: sourceChainId,
+			swapTxId: tx.transactionId,
+			contractName: params.contractName,
+			contractVersion: params.contractVersion,
+			contractAddress: bridgeContractAddress,
+			hash: '',
+			signatures: [],
+		} as PayBySignatureData;
+    }
+
+
+    private static async createSignedPaymentV1(
+            tx: BridgeSwapEvent,
+            helper: EthereumSmartContractHelper,)
+        : Promise<PayBySignatureData> {
+        const sourceChainId = Networks.for(tx.network).chainId;
+        const chainId = Networks.for(tx.targetNetwork).chainId;
+		const amountStr = await helper.amountToMachine(
+			Utils.toCurrency(tx.targetNetwork, tx.targetToken), tx.amount);
+		// WithdrawSigned(address token,address payee,
+		//  uint256 amount,address toToken,uint32 sourceChainId,bytes32 swapTxId)
+		const params = {
+			contractName: 'FERRUM_TOKEN_BRIDGE_POOL',
+			contractVersion: BridgeContractVersions.V1_0,
+			method: 'WithdrawSigned',
+			args: [
+				{ type: 'address', name: 'token', value: tx.targetToken },
+				{ type: 'address', name: 'payee', value: tx.targetAddress },
+				{ type: 'uint256', name: 'amount', value: amountStr },
+				{ type: 'address', name: 'toToken', value: tx.swapTargetTokenTo },
+				{ type: 'uint32', name: 'sourceChainId', value: sourceChainId },
+				{ type: 'bytes32', name: 'swapTxId', value: tx.transactionId },
+			]
+		} as Eip712Params;
+
+		const bridgeContractAddress = BRIDGE_V1_CONTRACTS[tx.targetNetwork];
+		return {
+			token: tx.targetToken,
+			payee: tx.targetAddress,
+			amount: amountStr,
+			toToken: tx.swapTargetTokenTo,
+			sourceChainId: sourceChainId,
+			swapTxId: '',
+			contractName: params.contractName,
+			contractVersion: params.contractVersion,
+			contractAddress: bridgeContractAddress,
+			hash: '',
+			signatures: [],
+		} as PayBySignatureData;
     }
 
     static validateWithdrawItem(wi: UserBridgeWithdrawableBalanceItem) {

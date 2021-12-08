@@ -62,8 +62,9 @@ export class CommonBackendModule implements Module {
             'AVAX_TESTNET': getEnv("WEB3_PROVIDER_AVAX_TESTNET"),
           } as NetworkedConfig<string>));
 
-    container.registerModule(new ChainClientsModule());
+    container.register('MultiChainConfig', () => netConfig);
     container.register('NetworksConfig', () => netConfig);
+    container.registerModule(new ChainClientsModule());
 
     const networkProviders = netConfig as Web3ProviderConfig;
     container.registerSingleton(
@@ -130,5 +131,5 @@ export async function decryptKey(
 ): Promise<string> {
   ValidationUtils.isTrue(!!keyJson, "Private key must be provided");
   const key = JSON.parse(keyJson) as EncryptedData;
-  return await new KmsCryptor(new KMS({ region }), keyId).decryptToHex(key);
+  return await new KmsCryptor(new KMS({ region }) as any, keyId).decryptToHex(key);
 }

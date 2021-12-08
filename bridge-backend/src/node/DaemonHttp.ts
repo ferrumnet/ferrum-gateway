@@ -34,7 +34,8 @@ async function syncForNetwork(
   const node = c.get<BridgeNodeV12>(BridgeNodeV12);
   if (!!txId) {
     ValidationUtils.isTrue(!!txId, '"txId" is required');
-    await node.processFromTx(network as any, txId!);
+    // TODO: Implement
+    // await node.processFromTx(network as any, txId!);
     return "Processed sucessfully";
   } else {
     await node.processFromHistory(network as any);

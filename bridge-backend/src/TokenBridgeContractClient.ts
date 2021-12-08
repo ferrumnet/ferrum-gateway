@@ -5,15 +5,12 @@ import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
 import { UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeSwapEvent, BridgeTransaction } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
-import { ChainUtils, ETHEREUM_CHAIN_ID_FOR_NETWORK } from 'ferrum-chain-clients';
+import { ChainUtils } from 'ferrum-chain-clients';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 
 const GLOB_CACHE = new LocalCache();
 const Helper = EthereumSmartContractHelper;
-const NetworkNameByChainId: {[k:number]: string} = {};
-Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK)
-	.forEach(k => NetworkNameByChainId[ETHEREUM_CHAIN_ID_FOR_NETWORK[k]] = k);
 
 async function BridgeSwapEventAbi() {
 	return GLOB_CACHE.getAsync('fun.BridgeSwapEventAbi',

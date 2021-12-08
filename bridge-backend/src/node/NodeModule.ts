@@ -34,10 +34,10 @@ export class NodeModule implements Module {
 		c => new TransactionListProvider(c.get(CrossSwapService)));
 
 	container.register(KmsCryptor, () => new KmsCryptor(
-		new KMS({region: process.env.DEFAULT_AWS_REGION}),
+		new KMS({region: process.env.DEFAULT_AWS_REGION}) as any,
 		conf.cmkKeyId,));
 
-	/*container.register(TwoFaEncryptionClient,
+	container.register(TwoFaEncryptionClient,
 		c => new TwoFaEncryptionClient(
 			c.get(KmsCryptor),
 			conf.twoFa?.uri,
@@ -59,6 +59,7 @@ export class NodeModule implements Module {
 		c => new WithdrawItemGeneratorV1(
 			c.get(BridgeNodesRemoteAccessClient),
 			c.get(TokenBridgeContractClinet),
+			c.get(EthereumSmartContractHelper),
 			conf,
 			conf.publicAccessKey,
 			conf.secretAccessKey,));
@@ -67,8 +68,8 @@ export class NodeModule implements Module {
 		c => new WithdrawItemValidator(
 			c.get(BridgeNodesRemoteAccessClient),
 			c.get(TokenBridgeContractClinet),
-			c.get(PrivateKeyProvider),
-			conf,));
+			c.get(EthereumSmartContractHelper),
+			c.get(PrivateKeyProvider)));
 
 	container.registerSingleton(
 		BridgeNodeV12,

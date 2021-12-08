@@ -1,3 +1,4 @@
+import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { NodeProcessor } from "../common/TokenBridgeTypes";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
@@ -11,6 +12,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
+        private helper: EthereumSmartContractHelper,
         private config: BridgeNodeConfig,
         private publicApiKey: string,
         private secretApiKey: string,
@@ -57,7 +59,11 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
     async processSingleTransactionById(network: string, txId: string) {
         try {
             const swap = await this.bridgeContract.getSwapEventByTxId(network, txId);
-            const wi = await NodeUtils.withdrawItemFromSwap(swap);
+            const wi = await NodeUtils.withdrawItemFromSwap(
+                '1.0',
+                this.publicApiKey,
+                swap,
+                this.helper);
             NodeUtils.validateWithdrawItem(wi);
             await this.client.registerWithdrawItem(
                 this.publicApiKey,
