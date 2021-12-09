@@ -28,6 +28,7 @@ import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 import { AppConfig, WithDatabaseConfig, WithKmsConfig } from "./app/AppConfig";
 import { AuthTokenParser } from "./auth/AuthTokenParser";
+import { randomSalt } from "web3-tools";
 
 export class CommonBackendModule implements Module {
   constructor() {}
@@ -79,7 +80,8 @@ export class CommonBackendModule implements Module {
       c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
 
     await container.registerModule(
-      new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")
+      new UnifyreBackendProxyModule("DUMMY",
+        AppConfig.env("JWT_RANDOM_KEY") || randomSalt(), "")
     );
 
     container.register(AuthTokenParser, c => new AuthTokenParser(

@@ -2,6 +2,7 @@ import { AuthenticationProvider, Injectable, JsonRpcRequest } from 'ferrum-plumb
 import { HmacAuthProvider } from "aws-lambda-helper/dist/security/HmacAuthProvider";
 import { EcdsaAuthProvider } from "aws-lambda-helper/dist/security/EcdsaAuthProvider";
 import { SwapTx, UserBridgeWithdrawableBalanceItem } from 'types';
+import fetch from 'cross-fetch';
 
 export class BridgeNodesRemoteAccessClient implements Injectable {
     constructor(
@@ -132,7 +133,7 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
                     body,
                     headers: {
                             'Content-Type': 'application/json',
-                            ...authHead,
+                            [authHead.key]: authHead.value,
                     },
             });
             const resText = await res.text();

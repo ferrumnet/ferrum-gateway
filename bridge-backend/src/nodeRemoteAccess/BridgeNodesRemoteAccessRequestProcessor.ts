@@ -37,7 +37,7 @@ export class BridgeNodesRemoteAccessRequestProcessor
         this.registerProcessorAuth('getPendingSwapTxIds', async (req, auth) => {
           ValidationUtils.isTrue(!!auth.hmacPublicKey, 'Unauthorized');
           return await this.publicSvc.getPendingSwapTxIds(req.data.network);
-        })
+        });
     }
 
     __name__(): string { return 'BridgeNodesRemoteAccessRequestProcessor'; }

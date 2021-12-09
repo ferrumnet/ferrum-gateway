@@ -70,6 +70,10 @@ export class NodeModule implements Module {
 			c.get(EthereumSmartContractHelper),
 			c.get(PrivateKeyProvider)));
 
+	container.register(BridgeNodesRemoteAccessClient,
+		c => new BridgeNodesRemoteAccessClient(
+			conf.bridgeEndpoint));
+
 	container.registerSingleton(
 		BridgeNodeV12,
 		c => new BridgeNodeV12(

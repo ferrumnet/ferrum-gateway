@@ -41,7 +41,6 @@ export class GatewayModule implements Module {
       
     await BridgeModule.configuration();
     await CrucibleModule.configuration();
-    console.log(AppConfig.instance().get());
 
     AppConfig.instance()
       .chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG)
@@ -62,6 +61,7 @@ export class GatewayModule implements Module {
 					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
 		  		c.get(BridgeNodesRemoteAccessRequestProcessor),
+          c.get(HmacApiKeyStore),
           c.get(AuthTokenParser),
           AppConfig.instance().getChainProviders(),
         )

@@ -5,6 +5,7 @@ export type BridgeNodeRole = 'gnerator' | 'validator';
 export interface BridgeNodeConfig {
 	role: BridgeNodeRole;
 	chain: NetworkedConfig<string>;
+	bridgeEndpoint: string;
 	encryptedSignerKey: EncryptedData;
 	cmkKeyId: string;
 	twoFa: {

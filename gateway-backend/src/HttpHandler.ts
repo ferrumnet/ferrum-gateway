@@ -17,6 +17,8 @@ import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 import { AuthTokenParser, ChainEventService } from "common-backend";
 import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
+import { randomBytes } from "crypto";
+import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 
 export class HttpHandler implements LambdaHttpHandler {
   // private adminHash: string;
@@ -30,6 +32,7 @@ export class HttpHandler implements LambdaHttpHandler {
     private stakingProcessor: StakingRequestProcessor,
 		private governanceProcessor: GovernanceRequestProcessor,
     private bridgeNodeRemoteAccess: BridgeNodesRemoteAccessRequestProcessor,
+    private hmacApiKeyStore: HmacApiKeyStore,
     private authToken: AuthTokenParser,
     private newtworkConfig: NetworkedConfig<string>,
   ) {
@@ -97,16 +100,22 @@ export class HttpHandler implements LambdaHttpHandler {
         case "tokenList":
           body = await this.commonTokenServices.tokenList();
           break;
+        case "registerNewHmac":
+          body = await this.registerNewHmac(req);
+          break;
         default:
           let processor =
             this.bridgeProcessor.for(req.command) ||
             this.leaderboardProcessor.for(req.command) ||
             this.crucibleProcessor.for(req.command) ||
 						this.stakingProcessor.for(req.command) ||
-            this.governanceProcessor.for(req.command) ||
-            this.bridgeNodeRemoteAccess.for(req.command);
+            this.governanceProcessor.for(req.command);
+          let processorAuth =
+            this.bridgeNodeRemoteAccess.forAuth(req.command);
           if (!!processor) {
             body = await processor(req, userId, );
+          } else if (!!processorAuth) {
+            body = await processorAuth(req, auth);
           } else {
             return {
               body: JSON.stringify({ error: "bad request" }),
@@ -218,5 +227,20 @@ export class HttpHandler implements LambdaHttpHandler {
       default:
         throw new Error("Unsupported event type " + eventType);
     }
+  }
+
+  async registerNewHmac(req: JsonRpcRequest): Promise<{
+      publicKey: string, privateKey: string, }|undefined> {
+    const adminSecret = req.data.adminSecret;
+    const expectedAdminSecret = process.env.ADMIN_SECRET; // TODO use admin login in future
+    ValidationUtils.isTrue(!!expectedAdminSecret, 'ADMIN_SECRET env is required');
+    ValidationUtils.isTrue(adminSecret === expectedAdminSecret, 'Unauthorized');
+    const publicKey = 'pub-' + randomBytes(20).toString('hex');
+    const privateKey = randomBytes(24).toString('hex');
+    await this.hmacApiKeyStore.registerKey(publicKey, privateKey);
+    const actualPrivate = await this.hmacApiKeyStore.publicToSecret(publicKey);
+    ValidationUtils.isTrue(!!actualPrivate, 'Error generating the key');
+    ValidationUtils.isTrue(actualPrivate === privateKey, 'Error generating the key: unmatch');
+    return { publicKey, privateKey };
   }
 }

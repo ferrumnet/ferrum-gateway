@@ -48,7 +48,11 @@ export abstract class HttpRequestProcessor {
   }
 
   for(command: string): RequestProcessorFunction | undefined {
-    return this.processor[command] || this.processorAuth[command];
+    return this.processor[command];
+  }
+
+  forAuth(command: string): RequestProcessorFunctionAuth | undefined {
+    return this.processorAuth[command];
   }
 
   static authType(token: string): AuthenticationTokenType {

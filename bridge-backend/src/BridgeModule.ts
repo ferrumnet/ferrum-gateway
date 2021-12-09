@@ -106,7 +106,7 @@ export class BridgeModule implements Module {
     );
     container.registerSingleton(
       BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
-    )
+    );
 
 		container.register(OneInchClient,
 			c => new OneInchClient(c.get(EthereumSmartContractHelper), c.get(LoggerFactory)));
@@ -134,5 +134,7 @@ export class BridgeModule implements Module {
       ));
 
 		await container.registerModule(new BridgeModuleCommons(conf.database));
+    await container.get<BridgeNodesRemoteAccessService>(
+      BridgeNodesRemoteAccessService).init(conf.database);
   }
 }

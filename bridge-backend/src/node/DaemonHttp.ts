@@ -44,8 +44,10 @@ async function syncForNetwork(
 }
 
 async function init(twoFaId: string, twoFa: string): Promise<string> {
-  ValidationUtils.isTrue(!!twoFaId, '"twoFaId" is required');
-  ValidationUtils.isTrue(!!twoFa, '"twoFa" is required');
+  if (process.env.NODE_ENV === 'production') {
+    ValidationUtils.isTrue(!!twoFaId, '"twoFaId" is required');
+    ValidationUtils.isTrue(!!twoFa, '"twoFa" is required');
+  }
   const c = await containerLazy.getAsync();
   const node = c.get<BridgeNodeV12>(BridgeNodeV12);
   await node.init(twoFaId, twoFa);
@@ -86,6 +88,9 @@ export class DaemonHttp {
             );
             const twoFaId = Utils._getQueryparam(url, "2faId");
             const twoFa = Utils._getQueryparam(url, "2fa");
+            console.log("PARAMS ARE ", {
+              url, command, network, txId, twoFaId, twoFa
+            });
 
             try {
               let output: string = "";
