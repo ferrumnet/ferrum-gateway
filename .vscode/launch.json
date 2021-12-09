@@ -4,6 +4,7 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
+		
 		{
 			"type": "pwa-node",
 			"request": "launch",
@@ -30,6 +31,20 @@
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/Cli.ts",
             "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ],
+            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+		},
+		{
+			"type": "pwa-node",
+			"request": "launch",
+			"name": "Backend",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/gateway-backend/sim_lambda.js",
+            "preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ],

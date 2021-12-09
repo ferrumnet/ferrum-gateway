@@ -16,6 +16,7 @@ import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequ
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 import { AuthTokenParser, ChainEventService } from "common-backend";
+import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
 
 export class HttpHandler implements LambdaHttpHandler {
   // private adminHash: string;
@@ -28,6 +29,7 @@ export class HttpHandler implements LambdaHttpHandler {
     private crucibleProcessor: CrucibleRequestProcessor,
     private stakingProcessor: StakingRequestProcessor,
 		private governanceProcessor: GovernanceRequestProcessor,
+    private bridgeNodeRemoteAccess: BridgeNodesRemoteAccessRequestProcessor,
     private authToken: AuthTokenParser,
     private newtworkConfig: NetworkedConfig<string>,
   ) {
@@ -101,7 +103,8 @@ export class HttpHandler implements LambdaHttpHandler {
             this.leaderboardProcessor.for(req.command) ||
             this.crucibleProcessor.for(req.command) ||
 						this.stakingProcessor.for(req.command) ||
-            this.governanceProcessor.for(req.command);
+            this.governanceProcessor.for(req.command) ||
+            this.bridgeNodeRemoteAccess.for(req.command);
           if (!!processor) {
             body = await processor(req, userId, );
           } else {

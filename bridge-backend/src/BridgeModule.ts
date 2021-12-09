@@ -14,6 +14,8 @@ import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
 import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
+import { BridgeNodesRemoteAccessRequestProcessor } from "..";
+import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -118,6 +120,18 @@ export class BridgeModule implements Module {
 			c.get(TokenBridgeService),
 			conf.swapProtocols!,
 			conf.bridgeV12Config,));
+
+    container.registerSingleton(BridgeNodesRemoteAccessService, c =>
+      new BridgeNodesRemoteAccessService(
+        c.get(TokenBridgeService),
+        c.get(EthereumSmartContractHelper),
+      ));
+
+    container.registerSingleton(BridgeNodesRemoteAccessRequestProcessor, c =>
+      new BridgeNodesRemoteAccessRequestProcessor(
+        c.get(BridgeNodesRemoteAccessService),
+        c.get(TokenBridgeService),
+      ));
 
 		await container.registerModule(new BridgeModuleCommons(conf.database));
   }

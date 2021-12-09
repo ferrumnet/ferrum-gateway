@@ -61,6 +61,9 @@ export abstract class HttpRequestProcessor {
     if (token.startsWith("ecdsa/")) {
       return "ecdsa";
     }
-    return "json";
+    if (token.toLowerCase().startsWith("bearer ")) {
+      return "json";
+    }
+    return "none";
   }
 }

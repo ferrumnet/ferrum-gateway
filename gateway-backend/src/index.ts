@@ -4,7 +4,7 @@ import {
 import { HttpHandler } from "./HttpHandler";
 import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
-import { BridgeModule } from "bridge-backend";
+import { BridgeModule, BridgeNodesRemoteAccessRequestProcessor } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
 import { AuthTokenParser, ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG, WithDatabaseConfig } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
@@ -61,6 +61,7 @@ export class GatewayModule implements Module {
 		  		c.get(CrucibleRequestProcessor),
 					c.get(StakingRequestProcessor),
 		  		c.get(GovernanceRequestProcessor),
+		  		c.get(BridgeNodesRemoteAccessRequestProcessor),
           c.get(AuthTokenParser),
           AppConfig.instance().getChainProviders(),
         )

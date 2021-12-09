@@ -1,5 +1,4 @@
 import {
-  LambdaHttpHandlerHelper,
   LambdaHttpRequest,
   UnifyreBackendProxyService,
 } from "aws-lambda-helper";
@@ -21,9 +20,7 @@ export class AuthTokenParser implements Injectable {
 
   async authTokens(request: LambdaHttpRequest): Promise<AuthTokens> {
     const headers = request.headers as any;
-    const token = (headers.authorization || headers.Authorization || "").split(
-      " "
-    )[1];
+    const token = headers.authorization || headers.Authorization || "";
     const authType = HttpRequestProcessor.authType(token);
     // Get extra auth data
     if (authType === "hmac") {
@@ -60,7 +57,7 @@ export class AuthTokenParser implements Injectable {
     }
 
     if (authType === "json") {
-      const userId = this.uniBack.signInUsingToken(token);
+      const userId = this.uniBack.signInUsingToken(token.split(' ')[1]);
       return { authType, userId } as AuthTokens;
     }
 
