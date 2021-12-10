@@ -50,6 +50,23 @@
 			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
 		},
 		{
+			"type": "pwa-node",
+			"request": "launch",
+			"name": "Bridge Node",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/bridge-backend/src/node/Server.ts",
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"env": {
+				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/config.json",
+			},
+			"envFile": "${workspaceFolder}/bridge-backend/config.env"
+		},
+		{
 			"type": "node",
 			"name": "vscode-jest-tests",
 			"request": "launch",

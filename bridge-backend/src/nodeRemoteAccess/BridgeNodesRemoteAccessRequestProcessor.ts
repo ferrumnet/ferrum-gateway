@@ -34,6 +34,19 @@ export class BridgeNodesRemoteAccessRequestProcessor
             req.data.schemaVersion, req.data.network);
         });
 
+        this.registerProcessorAuth('getPendingWithdrawItemById', async (req, auth) => {
+          ValidationUtils.isTrue(!!auth.ecdsaAddress, 'Unauthorized');
+          ValidationUtils.allRequired(['schemaVersion', 'network', 'receiveTransactionId'], req.data);
+          return await this.svc.getPendingWithdrawItemById(
+            req.data.schemaVersion, req.data.network, req.data.receiveTransactionId);
+        });
+
+        this.registerProcessorAuth('getWithdrawItemTransactionIds', async (req, auth) => {
+          ValidationUtils.isTrue(!!auth.hmacPublicKey, 'Unauthorized');
+          ValidationUtils.allRequired(['schemaVersion', 'network'], req.data);
+          return await this.svc.getWithdrawItemTransactionIds(req.data.schemaVersion, req.data.network, req.data.lookBackMillis);
+        });
+
         this.registerProcessorAuth('getPendingSwapTxIds', async (req, auth) => {
           ValidationUtils.isTrue(!!auth.hmacPublicKey, 'Unauthorized');
           return await this.publicSvc.getPendingSwapTxIds(req.data.network);

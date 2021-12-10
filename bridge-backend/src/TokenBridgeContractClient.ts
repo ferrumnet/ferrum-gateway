@@ -131,7 +131,7 @@ export class TokenBridgeContractClinet implements Injectable {
 		const block = await web3.getBlockNumber();
 		const firstBlock = process.env.BLOCK_LOOK_BACK ?
 			Number(process.env.BLOCK_LOOK_BACK) :
-			(network === 'MUMBAI_TESTNET' ? 990 : 'AVAX_TESTNET'? 277:1000);
+			(network === 'MUMBAI_TESTNET' ? 990 : network === 'AVAX_TESTNET' ? 277:1000);
 		const events = await this.bridgePool(network, address)
 			.getPastEvents('BridgeSwap', {fromBlock:
 				block - firstBlock});

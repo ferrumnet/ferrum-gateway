@@ -30,7 +30,7 @@ export class AuthTokenParser implements Injectable {
         0,
         undefined,
         undefined,
-        this.hmacApiKeyStore.publicToSecret
+        pub => this.hmacApiKeyStore.publicToSecret(pub),
       );
       const [valid, reason] = await auth.isValidAsync(request.headers);
       ValidationUtils.isTrue(valid, "Authentication failed: " + reason);

@@ -3,7 +3,7 @@ import { Lazy } from "types/dist/Lazy";
 import http from "http";
 import { LambdaGlobalContext } from "aws-lambda-helper";
 import { NodeModule } from "./NodeModule";
-import { BridgeNodeV12 } from "./BridgeNodeV12";
+import { BridgeNodeV1 } from "./BridgeNodeV1";
 import { Utils } from "types";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 
@@ -31,11 +31,9 @@ async function syncForNetwork(
 ): Promise<string> {
   ValidationUtils.isTrue(!!network, '"network" is required');
   const c = await containerLazy.getAsync();
-  const node = c.get<BridgeNodeV12>(BridgeNodeV12);
+  const node = c.get<BridgeNodeV1>(BridgeNodeV1);
   if (!!txId) {
-    ValidationUtils.isTrue(!!txId, '"txId" is required');
-    // TODO: Implement
-    // await node.processFromTx(network as any, txId!);
+    await node.processFromTx(network as any, txId!);
     return "Processed sucessfully";
   } else {
     await node.processFromHistory(network as any);
@@ -49,7 +47,7 @@ async function init(twoFaId: string, twoFa: string): Promise<string> {
     ValidationUtils.isTrue(!!twoFa, '"twoFa" is required');
   }
   const c = await containerLazy.getAsync();
-  const node = c.get<BridgeNodeV12>(BridgeNodeV12);
+  const node = c.get<BridgeNodeV1>(BridgeNodeV1);
   await node.init(twoFaId, twoFa);
   return "done";
 }
@@ -88,9 +86,7 @@ export class DaemonHttp {
             );
             const twoFaId = Utils._getQueryparam(url, "2faId");
             const twoFa = Utils._getQueryparam(url, "2fa");
-            console.log("PARAMS ARE ", {
-              url, command, network, txId, twoFaId, twoFa
-            });
+            console.log(`${url}?command=${command}&network=${network}&txId=${txId}`);
 
             try {
               let output: string = "";

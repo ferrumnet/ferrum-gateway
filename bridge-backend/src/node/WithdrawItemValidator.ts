@@ -1,4 +1,4 @@
-import { Injectable, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
 import { UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
@@ -10,12 +10,17 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 const EXPECTED_SCHEMA_VERSION = '1.0';
 
 export class WithdrawItemValidator implements Injectable, NodeProcessor {
+    private log: Logger;
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
         private helper: EthereumSmartContractHelper,
         private key: PrivateKeyProvider,
-    ) {}
+        logFac: LoggerFactory,
+    ) {
+        this.log = logFac.getLogger(WithdrawItemValidator);
+    }
+
     __name__(): string { return 'WithdrawItemValidator'; }
 
     /**
@@ -28,9 +33,21 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
             this.key.privateKey(),
             EXPECTED_SCHEMA_VERSION,
             network);
+        ValidationUtils.isTrue(!!pending, 'Error when getPendingWithdrawItems. No response');
+        this.log.info(`Recieved ${pending.length} pendingWithdrawItems`);
         for (const wi of pending) {
             await this.processSingleTransaction(wi);
         }
+    }
+
+    async processSingleTransactionById(network: string, txId: string) {
+        const wi = await this.client.getPendingWithdrawItemById(
+            this.key.privateKey(),
+            EXPECTED_SCHEMA_VERSION,
+            network,
+            txId);
+        ValidationUtils.isTrue(!!wi, `Withdraw item not found ${network}:${txId}`);
+        await this.processSingleTransaction(wi);
     }
 
     /**
@@ -61,6 +78,7 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
                 hash,
                 sig,
                 Date.now());
+            this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
         } catch (e) {
             console.error(`Error processing withdraw item "${JSON.stringify(wi)}"`, e as Error);
         }

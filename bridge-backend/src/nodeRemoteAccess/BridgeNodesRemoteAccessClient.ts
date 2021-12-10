@@ -35,11 +35,16 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
     async getWithdrawItemTransactionIds(
         apiPublicKey: string,
         apiSecretKey: string,
+        schemaVersion: string,
         network: string,
         lookBackMillis: number): Promise<string[]> {
         const req = {
             command: 'getWithdrawItemTransactionIds',
-            data: {network},
+            data: {
+                schemaVersion,
+                network,
+                lookBackMillis,
+            },
             params: [],
         } as JsonRpcRequest;
         const body = JSON.stringify(req);
@@ -124,6 +129,30 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
         return await this.api(body, auth);
     }
 
+    async getPendingWithdrawItemById(
+        privateKey: string,
+        schemaVersion: string,
+        network: string,
+        receiveTransactionId: string,): Promise<UserBridgeWithdrawableBalanceItem|undefined> {
+        const req = {
+            command: 'getPendingWithdrawItemById',
+            data: {
+                schemaVersion,
+                network,
+                receiveTransactionId,
+            },
+            params: [],
+        } as JsonRpcRequest;
+        const body = JSON.stringify(req);
+        const auth = new EcdsaAuthProvider(
+            '',
+            body,
+            Date.now(),
+            privateKey,
+        );
+        return await this.api(body, auth);
+    }
+
     private async api(body: string, auth: AuthenticationProvider) {
         const authHead = auth.asHeader();
         try {
@@ -137,6 +166,8 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
                     },
             });
             const resText = await res.text();
+            console.log('FETCH - IN: ', this.endpoint, body);
+            console.log('FETCH - OUT: ', resText);
             if (Math.round(res.status / 100) === 2) {
                     return resText ? JSON.parse(resText) : undefined;
             }

@@ -164,7 +164,6 @@ export class NodeUtils {
             helper: EthereumSmartContractHelper,)
         : Promise<PayBySignatureData> {
         const sourceChainId = Networks.for(tx.network).chainId;
-        const chainId = Networks.for(tx.targetNetwork).chainId;
 		const amountStr = await helper.amountToMachine(
 			Utils.toCurrency(tx.targetNetwork, tx.targetToken), tx.amount);
 		// WithdrawSigned(address token,address payee,
@@ -224,7 +223,6 @@ export class NodeUtils {
             "token",
             "payee",
             "amount",
-            "toToken",
             "sourceChainId",
             "swapTxId",
             "contractName",
@@ -237,31 +235,38 @@ export class NodeUtils {
         );
         const contractVer = (wi.version === '0.1' || wi.version == '1.0') ?
             BridgeContractVersions.V1_0 : BridgeContractVersions.V1_2;
+        const isV12 = contractVer === BridgeContractVersions.V1_2;
         ValidationUtils.isTrue(wi.payBySig.payee === wi.sendAddress, 'Invalid payBySig.payee');
         ValidationUtils.isTrue(wi.payBySig.token === 
-            Utils.parseCurrency(wi.sendToCurrency)[0], 'Invalid payBySig.token');
+            Utils.parseCurrency(wi.sendCurrency || '')[1], 'Invalid payBySig.token');
         ValidationUtils.isTrue(wi.payBySig.sourceChainId ===
             Networks.for(wi.receiveNetwork).chainId, 'Invalid payBySig.sourceChainId');
-        ValidationUtils.isTrue(wi.payBySig.toToken ===
-            Utils.parseCurrency(wi.sendToCurrency)[0], 'Invalid payBySig.toToken');
-        const expectedSwapTxId = contractVer == BridgeContractVersions.V1_0 ?
-            NodeUtils.bridgeV1Salt(wi) : wi.receiveTransactionId;
-        ValidationUtils.isTrue(wi.payBySig.swapTxId === expectedSwapTxId,
-            'Invalid payBySig.swapTxId');
         ValidationUtils.isTrue(wi.payBySig.contractVersion === contractVer, 
             'Invalid payBySig.contractVersion');
-        const expectedContractName = contractVer === BridgeContractVersions.V1_0 ?
-            BridgeContractNames.V1_0 : BridgeContractNames.V1_2;
-        ValidationUtils.isTrue(wi.payBySig.contractName === expectedContractName,
-            'Invalid payBySig.contractName');
-        const expectedContractAddress = contractVer === BridgeContractVersions.V1_0 ?
-            BRIDGE_V1_CONTRACTS[wi.sendNetwork] :
-            BRIDGE_V12_CONTRACTS[wi.sendNetwork]?.router;
-        ValidationUtils.isTrue(wi.payBySig.contractAddress === expectedContractAddress,
-            'Invalid payBySig.contractAddress');
-        const expectedHash = contractVer === BridgeContractVersions.V1_0 ?
-            NodeUtils.bridgeV1Hash(wi) : NodeUtils.bridgeV12Hash(wi);
-        ValidationUtils.isTrue(wi.payBySig.hash === expectedHash,
-            'Invalid payBySig.hash');
+
+        if (isV12) {
+            // V12 specific validations
+            ValidationUtils.isTrue(!!wi.sendToCurrency, 'sendToCurrency required');
+            ValidationUtils.isTrue(!!wi.payBySig.toToken, 'payBySig.toToken required');
+            ValidationUtils.isTrue(wi.payBySig.toToken ===
+                Utils.parseCurrency(wi.sendToCurrency || '')[1], 'Invalid payBySig.toToken');
+            ValidationUtils.isTrue(wi.payBySig.swapTxId === wi.receiveTransactionId, 'Invalid payBySig.swapTxId');
+            ValidationUtils.isTrue(wi.payBySig.contractName === BridgeContractNames.V1_2,
+                'Invalid payBySig.contractName');
+            ValidationUtils.isTrue(wi.payBySig.contractAddress === BRIDGE_V12_CONTRACTS[wi.sendNetwork]?.router,
+                'Invalid payBySig.contractAddress');
+            ValidationUtils.isTrue(wi.payBySig.hash === NodeUtils.bridgeV12Hash(wi),
+                'Invalid payBySig.hash');
+        } else {
+            // V1 specific validations
+            ValidationUtils.isTrue(wi.payBySig.swapTxId === NodeUtils.bridgeV1Salt(wi),
+                'Invalid payBySig.swapTxId');
+            ValidationUtils.isTrue(wi.payBySig.contractName === BridgeContractNames.V1_0,
+                'Invalid payBySig.contractName');
+            ValidationUtils.isTrue(wi.payBySig.contractAddress === BRIDGE_V1_CONTRACTS[wi.sendNetwork],
+                'Invalid payBySig.contractAddress');
+            ValidationUtils.isTrue(wi.payBySig.hash === NodeUtils.bridgeV1Hash(wi),
+                'Invalid payBySig.hash');
+        }
     }
 }

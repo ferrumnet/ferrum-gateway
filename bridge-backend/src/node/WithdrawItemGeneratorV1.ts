@@ -1,5 +1,5 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Injectable, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
 import { NodeProcessor } from "../common/TokenBridgeTypes";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
@@ -9,6 +9,7 @@ import { NodeUtils } from "./common/NodeUtils";
 const DEFAULT_LOOK_BACK_MILLIS = 1000 * 3600 * 24;
 
 export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
+    private log: Logger;
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
@@ -16,7 +17,10 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         private config: BridgeNodeConfig,
         private publicApiKey: string,
         private secretApiKey: string,
-    ) {}
+        logFac: LoggerFactory,
+    ) {
+        this.log = logFac.getLogger(WithdrawItemGeneratorV1);
+    }
 
     __name__(): string { return 'WithdrawItemGeneratorV1'; }
 
@@ -30,6 +34,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         const soFar = await this.client.getWithdrawItemTransactionIds(
             this.publicApiKey,
             this.secretApiKey,
+            '1.0',
             network,
             this.config.lookBackMillis || DEFAULT_LOOK_BACK_MILLIS,
         );
@@ -46,6 +51,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         pending.filter(p => p.network === network).forEach(p =>  allTxIds.add(p.id));
         fromNetwork.forEach(p => allTxIds.add(p.transactionId));
         soFar.forEach(p => allTxIds.delete(p));
+        this.log.info(`Need to process ${allTxIds.size} transactions for ${network}`);
         for(const tx of Array.from(allTxIds)) {
             await this.processSingleTransactionById(network, tx);
         }
@@ -69,6 +75,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
                 this.publicApiKey,
                 this.secretApiKey,
                 wi);
+            this.log.info(`Registered PWI: ${network}:${txId}`);
         } catch (e) {
             console.error(`Error processing tx ${network}:${txId}`, e as Error);
         }
