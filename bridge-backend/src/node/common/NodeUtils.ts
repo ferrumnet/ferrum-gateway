@@ -20,14 +20,13 @@ export class NodeUtils {
     ): HexString {
         const params = {
             contractName: wi.payBySig.contractName,
-            contractVersion: wi.payBySig.contractAddress,
+            contractVersion: wi.payBySig.contractVersion,
             method: "WithdrawSigned",
             args: [
                 { type: "address", name: "token", value: wi.payBySig.token },
                 { type: "address", name: "payee", value: wi.payBySig.payee },
                 { type: "uint256", name: "amount", value: wi.payBySig.amount },
-                { type: "bytes32", name: "salt", value: wi.payBySig.swapTxId || 
-                    NodeUtils.bridgeV1Salt(wi) },
+                { type: "bytes32", name: "salt", value: NodeUtils.bridgeV1Salt(wi) },
             ],
         } as Eip712.Eip712Params;
 

@@ -4,7 +4,6 @@
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 	"version": "0.2.0",
 	"configurations": [
-		
 		{
 			"type": "pwa-node",
 			"request": "launch",
@@ -13,14 +12,14 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/node/Server.ts",
-            "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ],
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
 			"env": {
 				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/node_config_json.env"
 			},
-            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
 		},
 		{
 			"type": "pwa-node",
@@ -30,11 +29,11 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/Cli.ts",
-            "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ],
-            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
 		},
 		{
 			"type": "pwa-node",
@@ -44,11 +43,25 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/gateway-backend/sim_lambda.js",
-            "preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ],
-            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
+		},
+		{
+			"type": "node",
+			"name": "vscode-jest-tests",
+			"request": "launch",
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+			"disableOptimisticBPs": true,
+			"program": "/home/naiemk/.nvm/versions/node/v12.16.3/bin/jest",
+			"cwd": "${workspaceFolder}",
+			"args": [
+				"--runInBand",
+				"--watchAll=false"
+			]
 		}
 	]
 }
