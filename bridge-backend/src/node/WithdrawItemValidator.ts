@@ -6,6 +6,7 @@ import { NodeUtils } from "./common/NodeUtils";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 import { NodeProcessor } from "../common/TokenBridgeTypes";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
+import { fixSig } from "web3-tools";
 
 const EXPECTED_SCHEMA_VERSION = '1.0';
 
@@ -69,14 +70,15 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
             ensureWithdrawsMatch(wi, newWi);
 
             const hash = NodeUtils.bridgeV1Hash(wi);
-            const sig = this.key.sign(hash);
-            this.client.registerWithdrawItemHashVerification(
+            const sig = this.key.sign(hash.replace('0x', ''));
+            const chainSig = fixSig(sig);
+            await this.client.registerWithdrawItemHashVerification(
                 this.key.privateKey(),
                 await this.key.address(),
                 wi.receiveNetwork,
                 wi.receiveTransactionId,
                 hash,
-                sig,
+                chainSig,
                 Date.now());
             this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
         } catch (e) {

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Big } from 'big.js';
-import { Networks } from 'ferrum-plumbing';
+import { HexString, Networks } from 'ferrum-plumbing';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -156,6 +156,20 @@ export class Utils {
 		if (!a1 || !a2) return false;
 		return a1.toLowerCase() === a2.toLowerCase();
 	}
+
+    static trim0x(s: string): HexString {
+        if (s.startsWith('0x') || s.startsWith('0X')) {
+            return s.substring(2);
+        }
+        return s;
+    }
+
+    static add0x(s: HexString): string {
+        if (s.startsWith('0x') || s.startsWith('0X')) {
+            return s;
+        }
+        return '0x' + s;
+    }
 }
 
 export class ParseBigError extends Error { }

@@ -34,10 +34,10 @@ async function syncForNetwork(
   const node = c.get<BridgeNodeV1>(BridgeNodeV1);
   if (!!txId) {
     await node.processFromTx(network as any, txId!);
-    return "Processed sucessfully";
+    return "Request submitted";
   } else {
     await node.processFromHistory(network as any);
-    return "Processed sucessfully";
+    return "Request submitted";
   }
 }
 

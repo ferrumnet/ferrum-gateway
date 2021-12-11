@@ -1,4 +1,3 @@
-import { MongooseConfig } from "aws-lambda-helper";
 import { Connection, Document, Schema } from "mongoose";
 import {ValidationUtils} from "ferrum-plumbing";
 import { BridgeTokenConfig, BridgeV12Contracts, NetworkedConfig, SwapProtocol } from 'types';
@@ -12,6 +11,7 @@ export interface BridgeProcessorConfig extends WithDatabaseConfig {
     bridgeConfig: TokenBridgeConfig;
 	bridgeV12Config: NetworkedConfig<BridgeV12Contracts>;
 	swapProtocols?: NetworkedConfig<SwapProtocol[]>;
+    validatorAddressesV1?: string[];
 }
 
 export function env(env: string) {

@@ -23,7 +23,7 @@ export function domainSeparator(eth: Eth,
     const typeHash = Web3.utils.keccak256(
         Web3.utils.utf8ToHex("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"));
 
-		console.log('Domain separator',"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)", typeHash)
+		// console.log('Domain separator',"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)", typeHash)
     return Web3.utils.keccak256(
         eth.abi.encodeParameters(
             ['bytes32', 'bytes32', 'bytes32', 'uint256', 'address'],
@@ -32,6 +32,9 @@ export function domainSeparator(eth: Eth,
     );
 }
 
+/**
+ * Changes the v for the signature. Makes it 1b or 1c, according to on chain expectaion
+ */
 export function fixSig(sig: HexString) {
     const rs = sig.substring(0, sig.length - 2);
     let v = sig.substring(sig.length - 2);

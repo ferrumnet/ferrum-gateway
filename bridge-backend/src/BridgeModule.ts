@@ -55,7 +55,12 @@ export class BridgeModule implements Module {
         },
         bridgeV12Config: BRIDGE_V12_CONTRACTS,
         swapProtocols: {},
+        validatorAddressesV1: AppConfig.env('BRIDGE_VALIDATOR_ADDRESSES_V1', '')
+          .toLowerCase().split(','),
       } as BridgeProcessorConfig));
+    AppConfig.instance()
+      .required<BridgeProcessorConfig>('', f => f.validatorAddressesV1);
+    console.log('Registered validators: ', AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1);
   }
 
   async configAsync(container: Container) {
@@ -125,6 +130,7 @@ export class BridgeModule implements Module {
       new BridgeNodesRemoteAccessService(
         c.get(TokenBridgeService),
         c.get(EthereumSmartContractHelper),
+        AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1 || [],
       ));
 
     container.registerSingleton(BridgeNodesRemoteAccessRequestProcessor, c =>

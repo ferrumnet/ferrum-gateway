@@ -112,6 +112,16 @@ export interface UserBridgeLiquidityItem {
   liquidity: string;
 }
 
+export interface WithdrawItemHashVerification {
+  signer: string;
+  network: string;
+  transactionId: string;
+  hash: string;
+  signature: string;
+  signatrueCreationTime: number;
+}
+
+// TODO: Remove schemas out of types repo. Types repo should not depend on mongoose
 const transactionTrackableSchema = new Schema<TransactionTrackable & Document>({
   status: String,
   transactions: [{
