@@ -2,6 +2,7 @@ import { MongooseConnection } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, ValidationError, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Model, Document, Schema } from "mongoose";
+import { unFixSig } from "web3-tools";
 import {
   TransactionTrackable,
   UserBridgeWithdrawableBalanceItem,
@@ -23,7 +24,7 @@ const withdrawItemHashVerificationSchema = new Schema<WithdrawItemHashVerificati
   transactionId: String,
   hash: String,
   signature: String,
-  signatrueCreationTime: Number,
+  signatureCreationTime: Number,
 });
 
 const WithdrawItemHashVerificationModel = (c: Connection) =>
@@ -166,7 +167,7 @@ export class BridgeNodesRemoteAccessService
       ValidationUtils.isTrue(!!wi, 'No withdraw item is registered');
       ValidationUtils.isTrue(wi.payBySig?.hash === hash, 'Provided hash doesn\'t match withdraw item\'s');
       // 1. Verify the sig,
-      const recovered = Ecdsa.recoverAddress(Utils.trim0x(signature), hash);
+      const recovered = Ecdsa.recoverAddress(unFixSig(Utils.trim0x(signature)), hash);
       ValidationUtils.isTrue(ChainUtils.addressesAreEqual(wi.sendNetwork as any, signer, recovered),
         'Invalid signature');
       // 2. Verify signer is allowed
@@ -186,7 +187,7 @@ export class BridgeNodesRemoteAccessService
         transactionId: receiveTransactionId,
         hash,
         signature,
-        signatrueCreationTime,
+        signatureCreationTime: signatrueCreationTime,
       } as WithdrawItemHashVerification;
       return await new this.wiHashVerification!(wihv).save();
   }

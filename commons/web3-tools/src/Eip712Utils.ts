@@ -46,6 +46,17 @@ export function fixSig(sig: HexString) {
     return rs+v;
 }
 
+export function unFixSig(sig: HexString) {
+    const rs = sig.substring(0, sig.length - 2);
+    let v = sig.substring(sig.length - 2);
+    if (v === '1b') {
+        v = '00'
+        } else if (v === '1c') {
+        v = '01'
+    }
+    return rs+v;
+}
+
 export function produceSignature(
         eth: Eth,
         netId: number,

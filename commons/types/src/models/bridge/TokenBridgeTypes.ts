@@ -118,7 +118,7 @@ export interface WithdrawItemHashVerification {
   transactionId: string;
   hash: string;
   signature: string;
-  signatrueCreationTime: number;
+  signatureCreationTime: number;
 }
 
 // TODO: Remove schemas out of types repo. Types repo should not depend on mongoose

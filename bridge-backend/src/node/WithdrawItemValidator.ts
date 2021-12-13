@@ -71,14 +71,14 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
 
             const hash = NodeUtils.bridgeV1Hash(wi);
             const sig = this.key.sign(hash.replace('0x', ''));
-            const chainSig = fixSig(sig);
+            // const chainSig = fixSig(sig);
             await this.client.registerWithdrawItemHashVerification(
                 this.key.privateKey(),
                 await this.key.address(),
                 wi.receiveNetwork,
                 wi.receiveTransactionId,
                 hash,
-                chainSig,
+                sig,
                 Date.now());
             this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
         } catch (e) {
