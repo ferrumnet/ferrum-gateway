@@ -5194,7 +5194,7 @@ available-typed-arrays@^1.0.2:
 
 "aws-lambda-helper@git+https://github.com/ferrumnet/aws-lambda-helper.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#97a68a6934c02e4710572efca9eff2ca909bbe43"
+  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#514f72d8f6ac3662877910b7268c9e26de7e91a0"
   dependencies:
     "@oclif/command" "^1.8.0"
     aws-sdk "2.903.0"
