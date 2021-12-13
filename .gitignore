@@ -108,3 +108,4 @@ dist
 .netlify
 build
 config.json
+target
