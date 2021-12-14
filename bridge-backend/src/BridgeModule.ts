@@ -5,7 +5,7 @@ import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { BridgeProcessor } from "./BridgeProcessor";
-import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
+import { BridgeProcessorConfig, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { AppConfig, CurrencyListSvc, decryptKey } from "common-backend";
