@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build . --tag naiemk/bridge-cli:0.0.12
+docker build . --tag ferrum-bridge-cron-v1:0.0.2
