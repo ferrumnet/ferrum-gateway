@@ -47,7 +47,8 @@
 			"outFiles": [
 				"${workspaceFolder}/**/*.js"
 			],
-			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"envFile": "${workspaceFolder}/gateway-backend/test-file.env",
+			"runtimeExecutable": "/Users/naiem/.nvm/versions/node/v14.18.2/bin/node"
 		},
 		{
 			"type": "pwa-node",
@@ -65,20 +66,6 @@
 				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/config.json",
 			},
 			"envFile": "${workspaceFolder}/bridge-backend/config.env"
-		},
-		{
-			"type": "node",
-			"name": "vscode-jest-tests",
-			"request": "launch",
-			"console": "integratedTerminal",
-			"internalConsoleOptions": "neverOpen",
-			"disableOptimisticBPs": true,
-			"program": "/home/naiemk/.nvm/versions/node/v12.16.3/bin/jest",
-			"cwd": "${workspaceFolder}",
-			"args": [
-				"--runInBand",
-				"--watchAll=false"
-			]
 		}
 	]
 }

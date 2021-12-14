@@ -1,0 +1,19 @@
+
+.withdraw-item-container {
+    min-height: 80px;
+    border-radius: 5px;
+    border-style: solid;
+    border-color: #ffffff20;
+    padding: 8px;
+}
+
+.withdraw-item-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.withdraw-item-head * {
+    margin-right: 8px;
+}

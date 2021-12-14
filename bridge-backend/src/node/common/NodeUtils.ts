@@ -32,7 +32,7 @@ export class NodeUtils {
 
         const sig = Eip712.produceSignature(
             new Web3().eth,
-            Networks.for(wi.receiveNetwork).chainId,
+            Networks.for(wi.sendNetwork).chainId,
             wi.payBySig.contractAddress,
             params
         );
