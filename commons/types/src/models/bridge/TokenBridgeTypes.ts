@@ -103,6 +103,7 @@ export interface UserBridgeWithdrawableBalanceItem {
 	execution: TransactionTrackable;
   signatures: number; // No of signatures
   creator: string;
+  blocked: boolean;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -203,6 +204,7 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   used: String,
   useTransactions: [{ id: String, status: String, timestamp: Number }],
 	execution: transactionTrackableSchema,
+  blocked: Boolean,
 });
 
 //@ts-ignore

@@ -12,6 +12,8 @@ export const PairedAddressType: Eip712TypeDefinition =  {
     ],
 };
 
+export const NODE_CACHE_TIMEOUT = 1000 * 3600 * 12;
+
 export interface NodeProcessor {
     processForNetwork(network: string): Promise<void>;
     processSingleTransactionById(network: string, txId: string): Promise<void>;

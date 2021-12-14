@@ -33,8 +33,14 @@ export class BridgeNodeV1 implements Injectable {
 	 * For test environment we can use clear text private key.
 	 */
 	async init(twoFaId: string, twoFa: string) {
+		const isProduction = process.env.NODE_ENV === 'production' && process.env.NO_TWO_FA !== 'true';
+		if (this.role === 'generator') {
+			// generator does not need init
+			this.log.info(`Initialized for ${isProduction ? 'PRODUCTION': 'DEVELOPMENT'}`);
+			return;
+		}
 		let privateKey = process.env.PROCESSOR_PRIVATE_KEY_CLEAN_TEXT;
-		if (process.env.NODE_ENV === 'production') {
+		if (isProduction) {
 			await this.doubleEncryptedData.init(twoFaId, twoFa, this.encPrivateKey);
 			this.log.info('Initialized for PRODUCTION');
 		} else {

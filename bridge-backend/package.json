@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "build-node": "./bin/build-node.sh",
+    "dist": "webpack",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
     "deploy-prod": "TODO: Deploy to prod",
     "deploy": "./bin/deploy.sh"

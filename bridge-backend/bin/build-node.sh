@@ -8,7 +8,7 @@ set -e
 echo Budlding for the bridge node
 
 rm -rf ./target
-# webpack
+npx webpack
 
 echo Webpack completed now, building the docker image
 
@@ -28,8 +28,7 @@ last_commit=$(parse_git_hash)
 docker_tag="$docker_account/bridge-node:$build_version-$last_commit"
 
 echo Building docker image $docker_tag
-docker build ./BridgeNode.Dockerfile --tag $docker_tag
+docker build -f ./src/node/bin/BridgeNode.Dockerfile --tag $docker_tag .
 docker tag $docker_tag "$docker_account/bridge-node:latest"
 
 echo Done
-

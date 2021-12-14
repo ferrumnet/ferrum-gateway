@@ -1,6 +1,6 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Injectable, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
-import { NodeProcessor } from "../common/TokenBridgeTypes";
+import { Injectable, LocalCache, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
+import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { BridgeNodeConfig } from "./BridgeNodeConfig";
@@ -10,6 +10,7 @@ const DEFAULT_LOOK_BACK_MILLIS = 1000 * 3600 * 24;
 
 export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
     private log: Logger;
+    private cache = new LocalCache();
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
@@ -64,6 +65,11 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
      */
     async processSingleTransactionById(network: string, txId: string) {
         try {
+            const cacheKey = `${network}:${txId}`;
+            if (!!this.cache.get(cacheKey)) {
+                this.log.info(`Already processed ${network}:${txId}`);
+                return;
+            }
             const swap = await this.bridgeContract.getSwapEventByTxId(network, txId);
             const wi = await NodeUtils.withdrawItemFromSwap(
                 '1.0',
@@ -76,6 +82,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
                 this.secretApiKey,
                 wi);
             this.log.info(`Registered PWI: ${network}:${txId}`);
+            this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
             console.error(`Error processing tx ${network}:${txId}`, e as Error);
         }

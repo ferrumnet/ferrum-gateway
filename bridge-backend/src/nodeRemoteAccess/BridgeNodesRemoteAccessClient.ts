@@ -166,8 +166,8 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
                     },
             });
             const resText = await res.text();
-            console.log('FETCH - IN: ', this.endpoint, body);
-            console.log('FETCH - OUT: ', resText);
+            // console.log('FETCH - IN: ', this.endpoint, body);
+            // console.log('FETCH - OUT: ', resText);
             if (Math.round(res.status / 100) === 2) {
                     return resText ? JSON.parse(resText) : undefined;
             }

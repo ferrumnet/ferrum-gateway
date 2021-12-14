@@ -42,7 +42,7 @@ async function syncForNetwork(
 }
 
 async function init(twoFaId: string, twoFa: string): Promise<string> {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && process.env.NO_TWO_FA !== 'true') {
     ValidationUtils.isTrue(!!twoFaId, '"twoFaId" is required');
     ValidationUtils.isTrue(!!twoFa, '"twoFa" is required');
   }

@@ -12,6 +12,7 @@ export interface BridgeProcessorConfig extends WithDatabaseConfig {
 	bridgeV12Config: NetworkedConfig<BridgeV12Contracts>;
 	swapProtocols?: NetworkedConfig<SwapProtocol[]>;
     validatorAddressesV1?: string[];
+    blackListAdminSecret?: string;
 }
 
 export function env(env: string) {

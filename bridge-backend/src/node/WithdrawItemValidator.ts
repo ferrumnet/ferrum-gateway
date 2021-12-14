@@ -1,17 +1,17 @@
-import { Injectable, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, LocalCache, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
 import { UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { NodeUtils } from "./common/NodeUtils";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
-import { NodeProcessor } from "../common/TokenBridgeTypes";
+import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { fixSig } from "web3-tools";
 
 const EXPECTED_SCHEMA_VERSION = '1.0';
 
 export class WithdrawItemValidator implements Injectable, NodeProcessor {
     private log: Logger;
+    private cache = new LocalCache();
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
@@ -57,6 +57,11 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
      */
     async processSingleTransaction(wi: UserBridgeWithdrawableBalanceItem) {
         try {
+            const cacheKey = `${wi.receiveNetwork}:${wi.receiveTransactionId}`;
+            if (!!this.cache.get(cacheKey)) {
+                this.log.info(`Already processed ${cacheKey}`);
+                return;
+            }
             NodeUtils.validateWithdrawItem(wi);
             const swap = await this.bridgeContract.getSwapEventByTxId(
                 wi.receiveNetwork, wi.receiveTransactionId);
@@ -81,6 +86,7 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
                 sig,
                 Date.now());
             this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
+            this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
             console.error(`Error processing withdraw item "${JSON.stringify(wi)}"`, e as Error);
         }

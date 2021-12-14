@@ -1,4 +1,6 @@
 import { DaemonHttp } from './DaemonHttp';
 
-DaemonHttp.run(8089);
-console.log("running on 8089.....");
+const port = Number(process.env.PORT || '8089');
+
+DaemonHttp.run(port);
+console.log(`running on ${port}.....`);

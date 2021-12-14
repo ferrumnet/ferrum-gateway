@@ -41,6 +41,7 @@ export class GatewayModule implements Module {
       
     await BridgeModule.configuration();
     await CrucibleModule.configuration();
+    await BridgeNodesRemoteAccessRequestProcessor.configuration();
 
     AppConfig.instance()
       .chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG)
