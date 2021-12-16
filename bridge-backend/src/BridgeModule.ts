@@ -5,7 +5,7 @@ import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { BridgeProcessor } from "./BridgeProcessor";
-import { BridgeProcessorConfig, env, getEnv } from "./BridgeProcessorTypes";
+import { BridgeProcessorConfig, getEnv } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { AppConfig, CurrencyListSvc, decryptKey } from "common-backend";
@@ -14,6 +14,8 @@ import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
 import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
+import { BridgeNodesRemoteAccessRequestProcessor } from "..";
+import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -53,7 +55,12 @@ export class BridgeModule implements Module {
         },
         bridgeV12Config: BRIDGE_V12_CONTRACTS,
         swapProtocols: {},
+        validatorAddressesV1: AppConfig.env('BRIDGE_VALIDATOR_ADDRESSES_V1', '')
+          .toLowerCase().split(','),
       } as BridgeProcessorConfig));
+    AppConfig.instance()
+      .required<BridgeProcessorConfig>('', f => f.validatorAddressesV1);
+    console.log('Registered validators: ', AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1);
   }
 
   async configAsync(container: Container) {
@@ -104,7 +111,7 @@ export class BridgeModule implements Module {
     );
     container.registerSingleton(
       BridgeNotificationSvc, (c) => new BridgeNotificationSvc()
-    )
+    );
 
 		container.register(OneInchClient,
 			c => new OneInchClient(c.get(EthereumSmartContractHelper), c.get(LoggerFactory)));
@@ -119,6 +126,21 @@ export class BridgeModule implements Module {
 			conf.swapProtocols!,
 			conf.bridgeV12Config,));
 
+    container.registerSingleton(BridgeNodesRemoteAccessService, c =>
+      new BridgeNodesRemoteAccessService(
+        c.get(TokenBridgeService),
+        c.get(EthereumSmartContractHelper),
+        AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1 || [],
+      ));
+
+    container.registerSingleton(BridgeNodesRemoteAccessRequestProcessor, c =>
+      new BridgeNodesRemoteAccessRequestProcessor(
+        c.get(BridgeNodesRemoteAccessService),
+        c.get(TokenBridgeService),
+      ));
+
 		await container.registerModule(new BridgeModuleCommons(conf.database));
+    await container.get<BridgeNodesRemoteAccessService>(
+      BridgeNodesRemoteAccessService).init(conf.database);
   }
 }

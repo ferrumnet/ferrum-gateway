@@ -24,6 +24,10 @@ export const DEFAULT_TOKENS_FOR_WEB3_MODE = [
     ETH['POLYGON'][0],
     ETH['MUMBAI_TESTNET'][0],
     ETH['AVAX_TESTNET'][0],
+    ETH['MOON_MOONBASE'][0],
+    ETH['AVAX_MAINNET'][0],
+    ETH['MOON_MOONRIVER'][0]
+
 
 ];
 

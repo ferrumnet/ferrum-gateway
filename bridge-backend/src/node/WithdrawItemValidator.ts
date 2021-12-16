@@ -1,21 +1,27 @@
-import { Injectable, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, LocalCache, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
 import { UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { NodeUtils } from "./common/NodeUtils";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
-import { NodeProcessor } from "../common/TokenBridgeTypes";
+import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 
 const EXPECTED_SCHEMA_VERSION = '1.0';
 
 export class WithdrawItemValidator implements Injectable, NodeProcessor {
+    private log: Logger;
+    private cache = new LocalCache();
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
         private helper: EthereumSmartContractHelper,
         private key: PrivateKeyProvider,
-    ) {}
+        logFac: LoggerFactory,
+    ) {
+        this.log = logFac.getLogger(WithdrawItemValidator);
+    }
+
     __name__(): string { return 'WithdrawItemValidator'; }
 
     /**
@@ -28,9 +34,21 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
             this.key.privateKey(),
             EXPECTED_SCHEMA_VERSION,
             network);
+        ValidationUtils.isTrue(!!pending, 'Error when getPendingWithdrawItems. No response');
+        this.log.info(`Recieved ${pending.length} pendingWithdrawItems`);
         for (const wi of pending) {
             await this.processSingleTransaction(wi);
         }
+    }
+
+    async processSingleTransactionById(network: string, txId: string) {
+        const wi = await this.client.getPendingWithdrawItemById(
+            this.key.privateKey(),
+            EXPECTED_SCHEMA_VERSION,
+            network,
+            txId);
+        ValidationUtils.isTrue(!!wi, `Withdraw item not found ${network}:${txId}`);
+        await this.processSingleTransaction(wi);
     }
 
     /**
@@ -39,6 +57,11 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
      */
     async processSingleTransaction(wi: UserBridgeWithdrawableBalanceItem) {
         try {
+            const cacheKey = `${wi.receiveNetwork}:${wi.receiveTransactionId}`;
+            if (!!this.cache.get(cacheKey)) {
+                this.log.info(`Already processed ${cacheKey}`);
+                return;
+            }
             NodeUtils.validateWithdrawItem(wi);
             const swap = await this.bridgeContract.getSwapEventByTxId(
                 wi.receiveNetwork, wi.receiveTransactionId);
@@ -52,8 +75,9 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
             ensureWithdrawsMatch(wi, newWi);
 
             const hash = NodeUtils.bridgeV1Hash(wi);
-            const sig = this.key.sign(hash);
-            this.client.registerWithdrawItemHashVerification(
+            const sig = this.key.sign(hash.replace('0x', ''));
+            // const chainSig = fixSig(sig);
+            await this.client.registerWithdrawItemHashVerification(
                 this.key.privateKey(),
                 await this.key.address(),
                 wi.receiveNetwork,
@@ -61,6 +85,8 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
                 hash,
                 sig,
                 Date.now());
+            this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
+            this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
             console.error(`Error processing withdraw item "${JSON.stringify(wi)}"`, e as Error);
         }

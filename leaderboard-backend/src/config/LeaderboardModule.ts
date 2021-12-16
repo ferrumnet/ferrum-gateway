@@ -1,7 +1,6 @@
 import { Container, Module } from "ferrum-plumbing";
-import { CommonBackendModule, AppConfig } from "common-backend";
-import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
-import { LeaderBoardConfig, getEnv } from "../types/LeaderboardTypes";
+import { AppConfig } from "common-backend";
+import { LeaderBoardConfig } from "../types/LeaderboardTypes";
 import { LeaderboardRequestProcessor } from "../request-processor/LeaderboardRequestProcessor";
 import { LeaderboardService } from "../service/LeaderboardService";
 require("dotenv").config();

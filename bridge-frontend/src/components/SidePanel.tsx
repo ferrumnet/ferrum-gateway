@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import { Network } from 'ferrum-plumbing';
 import { useDispatch, useSelector } from 'react-redux';
-import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, Utils } from 'types';
+import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, TokenDetails, Utils } from 'types';
 import {
     Accordion,
     AccordionItem,
@@ -32,6 +32,8 @@ import { Actions as MainPageAction } from './../pages/Main/Main';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { CrossSwapClient } from '../clients/CrossSwapClient';
+import './SidePanel.css';
+import { TokenLogo } from './TokenLogo';
 
 interface WithdrawSuccessMessage {
 	network: string;
@@ -52,12 +54,16 @@ export interface SidePanelProps {
 	errorMessage?: string;
 	successMessage?: string;
 	withdrawSuccessMessage?: WithdrawSuccessMessage;
+    withdrawntxId: string,
+    withdrawnCurrency: string,
+    withdrawnNetwork: string,
 }
 
 const executeWithrawItem = createAsyncThunk('sidePanel/executeWithdraw', 
 	async (payload: {
         item: UserBridgeWithdrawableBalanceItem,
 		slippage: string,
+        success?:(v:string, tx:string, currency:string)=>void
 	}, ctx) => {
 		try {
 			const {item, slippage} = payload;
@@ -74,11 +80,12 @@ const executeWithrawItem = createAsyncThunk('sidePanel/executeWithdraw',
 					message: 'Withdrawal was Successful and is processing...',
 				}));
 				ctx.dispatch(sidePanelSlice.actions.showWithdrawPopup({
-					txId: res[0],
+					txId: res[1],
 					currency: item.sendCurrency,
 					network: item.sendNetwork,
 				} as WithdrawSuccessMessage));
 				await sc.getUserWithdrawItems(ctx.dispatch, item.sendNetwork as Network);
+                payload.success && payload.success("Withdrawal Transaction Processing",res[0],item.sendCurrency)
 			}
 		} catch (e) {
 			console.error('Error when calling executeWithrawItem: ', e as Error);
@@ -106,6 +113,9 @@ export const sidePanelSlice = createSlice({
 		currency: '',
 		showWithdrawPopup: false,
 		slippage: '0.02',
+        withdrawntxId: '',
+        withdrawnCurrency: '',
+        withdrawnNetwork: '',
     } as SidePanelProps,
     reducers: {
         signFirstPairAddress: (state,action) => {
@@ -125,9 +135,16 @@ export const sidePanelSlice = createSlice({
 		hideWithdrawPopup: (state) => {
 			state.showWithdrawPopup = false;
 			state.withdrawSuccessMessage = undefined;
+            state.withdrawnCurrency = '';
+            state.withdrawnNetwork = '';
+            state.withdrawntxId = ''
 		},
 		showWithdrawPopup: (state, action) => {
-			state.showWithdrawPopup = true;
+            console.log()
+            state.withdrawnCurrency = action.payload.currency;
+            state.withdrawnNetwork = action.payload.network;
+            state.withdrawntxId = action.payload.txId;
+            state.showWithdrawPopup = true;
 			state.withdrawSuccessMessage = action.payload;
 		}
     },
@@ -210,6 +227,71 @@ async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAc
     }
 }
 
+function WithdrawItemButton(props: {item: UserBridgeWithdrawableBalanceItem, network: string, slippage: string}) {
+    const dispatch = useDispatch();
+    const hasSig = !!(props.item.payBySig as any)?.signature /* backward compatiblity */ || !!props.item.payBySig?.signatures?.length;
+    console.log('PBS', props.item.payBySig, {hasSig});
+    switch (props.item.used) {
+        case 'failed':
+            return (
+                <ButtonLoader 
+                    onPress={() => dispatch(executeWithrawItem({item: props.item, slippage: props.slippage}))}
+                    disabled={false} 
+                    completed={false} 
+                    text={'Retry Withdrawal'}
+                />
+            );
+        case 'completed':
+            return (
+                <ButtonLoader 
+                    onPress={() => {}}
+                    disabled={true} 
+                    completed={true} 
+                    text={'Processing Sucessful'}
+                />
+            );
+        case 'pending':
+            return (
+                <ButtonLoader 
+                    onPress={() => {}}
+                    disabled={true} 
+                    completed={false} 
+                    text={'Processing Withdrawal'}
+                />
+            );
+        default:
+            if (props.item.blocked) {
+                return (
+                    <ButtonLoader 
+                        onPress={() => {}}
+                        disabled={true} 
+                        completed={false} 
+                        text={'Blocked - Contact Support'}
+                    />
+                );
+            }
+            if (!hasSig) {
+                return (
+                    <ButtonLoader 
+                        onPress={() => {}}
+                        disabled={true} 
+                        completed={false} 
+                        text={'Waiting for verification'}
+                    />
+                );
+            } else {
+                return (
+                    <ButtonLoader 
+                    onPress={() => dispatch(executeWithrawItem({item: props.item, slippage: props.slippage}))}
+                    disabled={false} 
+                    completed={false} 
+                    text={'Withdrawal Item'}
+                    />
+                );
+            }
+    }
+}
+
 export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);
@@ -220,6 +302,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
     const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
+    const tokenList = useSelector<BridgeAppState, {[k: string]: TokenDetails}>(appS => appS.data.tokenList?.lookup) || {};
 
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
@@ -248,41 +331,39 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
 		}
 	}, [successMessage]);
 
-    const onWithdrawSuccessMessage = async (v:string, tx:string, currency:string) => {  
-        message.success({
-            icon: <></>,
-            content: <Result
-                className="cardTheme confirmationModalTheme"
-                status="success"
-                title="Withdrawal Transaction Processing"
-                subTitle={v}
-                extra={[
-                    <>
-                        <div> View Transaction Status </div>
-                        <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,tx), '_blank')}>{tx}</a>
-                    </>,
-                    <p></p>,
-					<AddTokenToMetamask tokenData={assets[currency]}/>,
-                    <p>
-                      <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
-                          message.destroy('withdr');
-                          getData(dispatch);
-                          dispatch(MainPageAction.resetSwap({}));
-                          dispatch(sidePanelSlice.actions.moveToNext({step: 1}));
-                          dispatch(MainPageAction.setProgressStatus({status:1}))
-                        }}>Close</Button>
-                    </p>
-                ]}
-            />,
-            className: 'custom-class',
-            style: {
-              marginTop: '20vh',
-            },
-            duration: 0,
-            key: 'withdr'
+    pageProps.showWithdrawPopup && message.success({
+        icon: <></>,
+        content: <Result
+            className="cardTheme confirmationModalTheme"
+            status="success"
+            title="Withdrawal Transaction Processing"
+            subTitle={pageProps.withdrawntxId}
+            extra={[
+                <>
+                    <div> View Transaction Status </div>
+                    <a onClick={() => window.open(Utils.linkForTransaction(pageProps.Network,pageProps.withdrawntxId), '_blank')}>{pageProps.withdrawntxId}</a>
+                </>,
+                <p></p>,
+                <AddTokenToMetamask tokenData={assets[pageProps.withdrawnCurrency]}/>,
+                <p>
+                    <Button className={'btnTheme btn-pri clsBtn'} key="buy" onClick={()=>{
+                        message.destroy('withdr');
+                        getData(dispatch);
+                        dispatch(MainPageAction.resetSwap({}));
+                        dispatch(sidePanelSlice.actions.hideWithdrawPopup());
+                        dispatch(sidePanelSlice.actions.moveToNext({step: 1}));
+                        dispatch(MainPageAction.setProgressStatus({status:1}))
+                    }}>Close</Button>
+                </p>
+            ]}
+        />,
+        className: 'custom-class',
+        style: {
+            marginTop: '20vh',
         },
-        12);  
-    };
+        duration: 0,
+        key: 'withdr'
+    },12);  
 
     return (
         <Drawer
@@ -305,7 +386,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <AccordionItem>
                                 <AccordionItemHeading>
                                     <AccordionItemButton>
-                                        <div style={styles.tokenInfo}>
+                                        <div className="withdraw-item-container" style={styles.tokenInfo}>
                                             <div style={styles.tokenSymbol}>
                                                 {/* <img 
                                                 style={{"width":'30px'}} src={stakeImg}
@@ -317,8 +398,12 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
-                                            <div className="text-vary-color">
-                                                Swap {e.receiveAmount} to {Utils.shorten(e.sendCurrency)}
+                                            <div className="withdraw-item-head text-vary-color">
+                                                <TokenLogo currency={e.sendCurrency || e.receiveCurrency} />
+                                                <span>Swapped</span>
+                                                <span>{e.receiveAmount} {tokenList[e.sendCurrency]?.symbol || 'Unknown'}</span>
+                                                <span>to</span>
+                                                <span>{e.sendNetwork}</span>
                                             </div>
                                         </div> 
                                     </AccordionItemButton>
@@ -344,43 +429,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                 </p>
                                     {
                                         e.sendNetwork === pageProps.Network &&
-                                        <>
-                                            {
-                                                (!e.used) && <ButtonLoader 
-                                                    completed={false} 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
-                                                    disabled={false}
-                                                    text={'Withdraw Item'}
-                                                />
-                                            }
-                                            {
-                                                e.used === 'failed' && 
-                                                <ButtonLoader 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
-                                                    disabled={false} 
-                                                    completed={false} 
-                                                    text={'Retry Withdrawal'}
-                                                />
-                                            }
-                                            {
-                                                (e.used === 'pending') && 
-                                                <ButtonLoader 
-                                                    onPress={()=>{}} 
-                                                    disabled={true} 
-                                                    completed={false} 
-                                                    text={'Processing Withdrawal'}
-                                                />
-                                            }
-                                            {
-                                                (e.used === 'completed') && 
-                                                <ButtonLoader 
-                                                    onPress={()=>{}} 
-                                                    disabled={true} 
-                                                    completed={true}  
-                                                    text={'Processing Successful'}
-                                                />
-                                            }
-                                        </>      
+                                            <WithdrawItemButton item={e} network={pageProps.Network} slippage={pageProps.slippage}/>
                                     }
                                     
                                 </AccordionItemPanel>

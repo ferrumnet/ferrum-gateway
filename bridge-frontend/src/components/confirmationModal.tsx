@@ -18,6 +18,8 @@ import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 import IconCryptoAvax from '../assets/img/avax.png'
+import IconCryptoMoonbase from '../assets/img/moonbase.png'
+
 
 
 
@@ -31,7 +33,11 @@ const images = {
   "POLYGON":IconCryptoMAT,
   "MUMBAI_TESTNET":IconCryptoMAT,
   "SOLANA":IconCryptoSOL,
-  'AVAX_TESTNET':IconCryptoAvax
+  'AVAX_TESTNET':IconCryptoAvax,
+  'MOON_MOONBASE':IconCryptoMoonbase
+  'AVAX_MAINNET':IconCryptoAvax,
+  'MOON_MOONRIVER':IconCryptoMoonbase
+
 }
 
 const { Step } = Steps;

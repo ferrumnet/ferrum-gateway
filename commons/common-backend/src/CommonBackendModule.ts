@@ -13,6 +13,7 @@ import {
 } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientsModule } from "ferrum-chain-clients";
 import {
+  AuthTokenParser,
   KmsCryptor,
   MongooseConnection,
   UnifyreBackendProxyModule,
@@ -27,12 +28,13 @@ import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 import { AppConfig, WithDatabaseConfig, WithKmsConfig } from "./app/AppConfig";
-import { AuthTokenParser } from "./auth/AuthTokenParser";
+import { randomSalt } from "web3-tools";
 
 export class CommonBackendModule implements Module {
   constructor() {}
 
   async configAsync(container: Container): Promise<void> {
+    console.log('CONFIGUREING COMM BAK')
     const netConfig = AppConfig.instance().getChainProviders();
 
     container.register('MultiChainConfig', () => netConfig);
@@ -79,7 +81,8 @@ export class CommonBackendModule implements Module {
       c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
 
     await container.registerModule(
-      new UnifyreBackendProxyModule("DUMMY", getEnv("JWT_RANDOM_KEY"), "")
+      new UnifyreBackendProxyModule("DUMMY",
+        AppConfig.env("JWT_RANDOM_KEY") || randomSalt(), "")
     );
 
     container.register(AuthTokenParser, c => new AuthTokenParser(
@@ -87,6 +90,7 @@ export class CommonBackendModule implements Module {
 
     // NOTE: Database should be configured on the field "database".
     if (conf?.database) {
+      console.log('Initializing HMAC Key Store');
       await container.get<MongooseConnection>(HmacApiKeyStore).init(conf.database);
     }
 

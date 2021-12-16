@@ -57,7 +57,10 @@ export const CHAIN_ID_FOR_NETWORK = {
   BSC_TESTNET: 97,
   POLYGON: 137,
   MUMBAI_TESTNET: 80001,
-  AVAX_TESTNET:43113
+  AVAX_TESTNET:43113,
+  MOON_MOONBASE:1287,
+  AVAX_MAINNET:43114,
+  MOON_MOONRIVER:1285
 } as any;
 
 export interface PayBySignatureData {
@@ -72,6 +75,9 @@ export interface PayBySignatureData {
   contractAddress: string;
   hash: string;
   signatures: MultiSigSignature[];
+
+  signature: string; // For backward compatibility
+  salt: string; // For backward compatibility
 }
 
 // Every transaction sent by user using a paired address to the bridge contract,
@@ -103,6 +109,7 @@ export interface UserBridgeWithdrawableBalanceItem {
 	execution: TransactionTrackable;
   signatures: number; // No of signatures
   creator: string;
+  blocked: boolean;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -112,6 +119,16 @@ export interface UserBridgeLiquidityItem {
   liquidity: string;
 }
 
+export interface WithdrawItemHashVerification {
+  signer: string;
+  network: string;
+  transactionId: string;
+  hash: string;
+  signature: string;
+  signatureCreationTime: number;
+}
+
+// TODO: Remove schemas out of types repo. Types repo should not depend on mongoose
 const transactionTrackableSchema = new Schema<TransactionTrackable & Document>({
   status: String,
   transactions: [{
@@ -173,15 +190,12 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   receiveAmount: String,
   receiveTransactionId: String,
   receiveTransactionTimestamp: Number,
-  signedWithdrawHash: String,
-  signedWithdrawSignature: String,
   signatures: Number,
   creator: String,
 
   sendNetwork: String,
   sendAddress: String,
   sendTimestamp: Number,
-  sendTransactionId: String,
   sendCurrency: String,
   sendAmount: String,
 
@@ -193,6 +207,7 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   used: String,
   useTransactions: [{ id: String, status: String, timestamp: Number }],
 	execution: transactionTrackableSchema,
+  blocked: Boolean,
 });
 
 //@ts-ignore
@@ -275,6 +290,9 @@ export const BRIDGE_CONTRACT = {
   AVAX_TESTNET: "0xBE442727d882b17144040a075Acf27aBBb68643f",
   POLYGON: "0x8e01cc26d6dd73581347c4370573ce9e59e74802",
   MUMBAI_TESTNET: "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877",
+  MOON_MOONBASE:'0x347d11cC7FbEb535D71e1c6B34bDD33A7a999F45',
+  AVAX_MAINNET:'0x8e01cc26d6dd73581347c4370573ce9e59e74802',
+	MOON_MOONRIVER:'0x8e01cc26d6dd73581347c4370573ce9e59e74802'
 } as any;
 
 export interface PairedAddress {

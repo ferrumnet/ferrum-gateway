@@ -1,4 +1,4 @@
-import { HttpRequestProcessor, HttpRequestData } from "types";
+import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { Injectable } from "ferrum-plumbing";
 import { LeaderboardService } from "../service/LeaderboardService";
 export class LeaderboardRequestProcessor
