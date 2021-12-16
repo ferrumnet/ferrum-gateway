@@ -38,7 +38,11 @@ export class Cli implements Injectable {
       BSC_TESTNET: process.env.WEB3_PROVIDER_BSC_TESTNET,
       POLYGON: process.env.WEB3_PROVIDER_POLYGON,
       MUMBAI_TESTNET: process.env.WEB3_PROVIDER_MUMBAI_TESTNET,
-      AVAX_TESTNET: process.env.WEB3_PROVIDER_AVAX_TESTNET,
+      AVAX_TESTNET: process.env.WEB3_PROVIDER_AVAX_TESTNET,    
+      MOON_MOONBASE: process.env.WEB3_PROVIDER_MOON_MOONBASE,
+      AVAX_MAINNET:process.env.WEB3_PROVIDER_AVAX_MAINNET,
+      MOON_MOONRIVER: process.env.WEB3_PROVIDER_MOON_MOONRIVER,
+
 
     };
     container.register(

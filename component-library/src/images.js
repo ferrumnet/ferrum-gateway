@@ -4,6 +4,8 @@ import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
 import IconCryptoPLY from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 import IconCryptoAvax from '../assets/images/avax.png'
+import IconCryptoMoonbase from '../assets/images/moonbase.png'
+
 export const networkImages = {
   "BSC":IconCryptoBNB,
   "BSC_TESTNET":IconCryptoBNB,
@@ -12,7 +14,11 @@ export const networkImages = {
   "POLYGON":IconCryptoPLY,
   "MUMBAI_TESTNET":IconCryptoPLY,
   "SOLANA":IconCryptoSOL,
-  "AVAX_TESTNET":IconCryptoAvax
+  "AVAX_TESTNET":IconCryptoAvax,
+  "MOON_MOONBASE":IconCryptoMoonbase,
+  "AVAX_MAINNET":IconCryptoAvax,
+  "MOON_MOONRIVER":IconCryptoMoonbase
+
 }
 
 export const supportedIcons = {

@@ -122,4 +122,4 @@ export const defaultvar = `{"themePrimary": "",
     "white": ""
 }`
 
-export const Networks = ['ETHEREUM','BSC','RINKEBY','BSC_TESTNET','AVAX_TESTNET']
+export const Networks = ['ETHEREUM','BSC','RINKEBY','BSC_TESTNET','AVAX_TESTNET','MOON_MOONBASE','AVAX_MAINNET','MOON_MOONRIVER']

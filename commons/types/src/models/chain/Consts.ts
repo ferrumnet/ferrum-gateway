@@ -1,6 +1,6 @@
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
-export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET'];
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET','MOON_MOONRIVER'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -9,6 +9,7 @@ export const FRM: {[k: string]: [string, string,string]} = {
     'BSC_TESTNET': ['BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','BSC_TESTNET'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','MUMBAI_TESTNET'],
     'AVAX_TESTNET': ['AVAX_TESTNET:0xd401a6140885fcDBD240426603696E2E7Ff2de46', 'AFRM','AVAX_TESTNET'],
+    'MOON_MOONBASE':['MOON_MOONBASE:0xd401a6140885fcDBD240426603696E2E7Ff2de46','AFRM','MOON_MOONBASE']
 };
 
 export interface NetworkDropdown {
@@ -25,7 +26,11 @@ const _supportedNetworks: any = {
     'BSC': ['active', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
-    'AVAX_TESTNET':['active', 'Avax testnet','testnet']
+    'AVAX_TESTNET':['active', 'Avax testnet','testnet'],
+    'AVAX_MAINNET':['active','Avax mainnet','mainnet'],
+    'MOON_MOONRIVER':['active','Moon moonriver','mainnet'],
+    'MOON_MOONBASE':['active','Moon moonbase','testnet']
+
 };
 
 
@@ -144,6 +149,13 @@ export const TokenInfo = {
         tokenDecimal:'18',
         tokenImage:'',
         type:'ERC20'
+    },
+    "MOON_MOONBASE:0x5600bbe2a0ff23d5d07286a933b89348030b0993":{
+        tokenAddress:'0x5600bbe2a0ff23d5d07286a933b89348030b0993',
+        tokenSymbol:'AFRM',
+        tokenDecimal:'18',
+        tokenImage:'',
+        type:'ERC20'
     }
 } as any;
 
@@ -172,6 +184,15 @@ export const chainData = {
     'AVAX_TESTNET': chainContent('0xA869',
     'Avax testnet', 'AVAX','AVAX',
     43113,[' https://api.avax-test.network/ext/bc/C/rpc'],['https://testnet.snowtrace.io/']),
+    'AVAX_MAINNET': chainContent('0xA86A',
+    'Avax mainnet', 'AVAX','AVAX',
+    43114,['https://api.avax.network/ext/bc/C/rpc'],['https://snowtrace.io/']),
+    'MOON_MOONRIVER': chainContent('0x505',
+    'Moon moonriver', 'MOVR','MOVR',
+    1285,['https://rpc.moonriver.moonbeam.network'],['https://moonriver.moonscan.io/']),
+    'MOON_MOONBASE': chainContent('0x507',
+    'Moon moonbase', 'DEV','DEV',
+    1287,['https://rpc.testnet.moonbeam.network'],['https://moonbase.moonscan.io/']),
 }
 
 export const FRMX: {[k: string]: [string, string]} = {
@@ -185,7 +206,10 @@ export const ETH: {[k: string]: [string, string]} = {
     'BSC': ['BSC:BNB', 'BNB'],
     'POLYGON': ['POLYGON:MATIC', 'MATIC'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:MATIC', 'MATIC'],
-    'AVAX_TESTNET':['AVAX_TESTNET:AVAX','AVAX']
+    'AVAX_TESTNET':['AVAX_TESTNET:AVAX','AVAX'],
+    'AVAX_MAINNET':['AVAX_MAINNET:AVAX','AVAX'],
+    'MOON_MOONRIVER':['MOON_MOONRIVER:MOVR','MOVR'],
+    'MOON_MOONBASE':['MOON_MOONBASE:DEV','DEV']
 };
 
 export const WETH: NetworkedConfig<string> = {
