@@ -8895,23 +8895,6 @@ fela@^10.6.1, fela@^10.8.2:
     fela-utils "^10.8.2"
     isobject "^3.0.1"
 
-"ferrum-chain-clients@git+https://github.com/ferrumnet/ferrum-chain-clients.git":
-  version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-chain-clients.git#51fad714075e2d95abf18de9a5d1eefa143bc5e4"
-  dependencies:
-    "@binance-chain/javascript-sdk" "^2.15.0"
-    abi-decoder latest
-    bitcore-lib "^8.17.0"
-    bn.js latest
-    bnb-tx-decoder "git+https://github.com/ferrumnet/bnb-tx-decoder.git"
-    elliptic "git+https://github.com/ferrumnet/elliptic.git"
-    ethereumjs-tx "^2.1.1"
-    ethereumjs-util "^6.2.0"
-    ferrum-crypto "git+https://github.com/ferrumnet/ferrum-crypto.git"
-    ferrum-plumbing "git+https://github.com/ferrumnet/ferrum-plumbing.git"
-    hdkey "git+https://github.com/ferrumnet/hdkey.git"
-    web3 "^1.2.6"
-
 "ferrum-crypto@git+https://github.com/ferrumnet/ferrum-crypto.git":
   version "0.0.1"
   resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#aa701ed6f20c615f0b68a95c3dac0b0b29a17244"
