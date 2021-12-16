@@ -1,4 +1,4 @@
-import { HttpRequestProcessor, HttpRequestData } from "types";
+import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { Injectable, LocalCache, ValidationUtils } from "ferrum-plumbing";
 import { CrucibeService } from "./CrucibleService";
 

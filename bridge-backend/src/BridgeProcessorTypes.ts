@@ -25,7 +25,7 @@ export function getEnv(env: string) {
     return res!;
 }
 
-const bridgeTokenConfigSchema: Schema = new Schema<Document&BridgeProcessorConfig>({
+const bridgeTokenConfigSchema: Schema = new Schema<BridgeTokenConfig&Document>({
     sourceNetwork: String,
     targetNetwork: String,
     sourceCurrency: String,

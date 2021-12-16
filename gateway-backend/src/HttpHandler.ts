@@ -1,4 +1,5 @@
 import {
+  AuthTokenParser,
   LambdaHttpRequest,
   LambdaHttpResponse,
   UnifyreBackendProxyService,
@@ -15,7 +16,7 @@ import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestPro
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
-import { AuthTokenParser, ChainEventService } from "common-backend";
+import { ChainEventService } from "common-backend";
 import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
 import { randomBytes } from "crypto";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";

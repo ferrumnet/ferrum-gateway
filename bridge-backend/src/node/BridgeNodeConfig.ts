@@ -6,7 +6,7 @@ export interface BridgeNodeConfig {
 	role: BridgeNodeRole;
 	providers: NetworkedConfig<string>;
 	bridgeEndpoint: string;
-	encryptedSignerKey: EncryptedData;
+	encryptedSignerKey: string;
 	cmkKeyId: string;
 	twoFa: {
 		uri: string;

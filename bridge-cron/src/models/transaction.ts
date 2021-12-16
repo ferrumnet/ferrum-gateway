@@ -10,7 +10,7 @@ export interface Transactions {
   effectiveGasPrice: String;
   from: String;
   gasUsed: Number;
-  logs: Array<Object>;
+  logs: any[];
   logsBloom: String;
   status: Boolean;
   to: String;
@@ -47,7 +47,7 @@ const transactionsSchema: Schema = new Schema<Document & Transactions>({
   sent: { type: String },
   symbol: { type: String },
   decimal: { type: String },
-});
+} as any);
 
 // 3. Create a Model.
 

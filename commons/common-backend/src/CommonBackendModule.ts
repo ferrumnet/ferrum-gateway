@@ -13,6 +13,7 @@ import {
 } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientsModule } from "ferrum-chain-clients";
 import {
+  AuthTokenParser,
   KmsCryptor,
   MongooseConnection,
   UnifyreBackendProxyModule,
@@ -27,7 +28,6 @@ import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 import { AppConfig, WithDatabaseConfig, WithKmsConfig } from "./app/AppConfig";
-import { AuthTokenParser } from "./auth/AuthTokenParser";
 import { randomSalt } from "web3-tools";
 
 export class CommonBackendModule implements Module {

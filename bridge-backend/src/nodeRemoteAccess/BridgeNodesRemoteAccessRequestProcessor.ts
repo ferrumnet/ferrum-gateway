@@ -1,6 +1,6 @@
+import { HttpRequestProcessor } from "aws-lambda-helper";
 import { AppConfig } from "common-backend";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
-import { HttpRequestProcessor } from "types";
 import { BridgeProcessorConfig } from "../BridgeProcessorTypes";
 import { TokenBridgeService } from "../TokenBridgeService";
 import { BridgeNodesRemoteAccessService } from "./BridgeNodesRemoteAccessService";

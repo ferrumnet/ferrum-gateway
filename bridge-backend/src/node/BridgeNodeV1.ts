@@ -10,7 +10,7 @@ export class BridgeNodeV1 implements Injectable {
 		private doubleEncryptedData: DoubleEncryptiedSecret,
 		private privateKeyProvider: PrivateKeyProvider,
 		private processor: NodeProcessor,
-		private encPrivateKey: EncryptedData,
+		private encPrivateKey: string,
 		private role: BridgeNodeRole,
 		logFac: LoggerFactory,
 	) {

@@ -1,4 +1,5 @@
 import {
+  AuthTokenParser,
   UnifyreBackendProxyService,
 } from "aws-lambda-helper";
 import { HttpHandler } from "./HttpHandler";
@@ -6,7 +7,7 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule, BridgeNodesRemoteAccessRequestProcessor } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { AuthTokenParser, ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG, WithDatabaseConfig } from "common-backend";
+import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG, WithDatabaseConfig } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";

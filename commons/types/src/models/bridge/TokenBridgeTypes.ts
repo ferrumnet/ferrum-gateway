@@ -72,6 +72,9 @@ export interface PayBySignatureData {
   contractAddress: string;
   hash: string;
   signatures: MultiSigSignature[];
+
+  signature: string; // For backward compatibility
+  salt: string; // For backward compatibility
 }
 
 // Every transaction sent by user using a paired address to the bridge contract,
@@ -184,15 +187,12 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   receiveAmount: String,
   receiveTransactionId: String,
   receiveTransactionTimestamp: Number,
-  signedWithdrawHash: String,
-  signedWithdrawSignature: String,
   signatures: Number,
   creator: String,
 
   sendNetwork: String,
   sendAddress: String,
   sendTimestamp: Number,
-  sendTransactionId: String,
   sendCurrency: String,
   sendAmount: String,
 
