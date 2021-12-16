@@ -366,7 +366,7 @@ export class TokenBridgeService
       receiveNetwork: network,
       address: ChainUtils.canonicalAddress(network as any, address),
     });
-    return items.map((i) => i.toJSON());
+    return items.map((i) => i.toJSON() as any);
   }
 
   private async updateWithdrawItem(item: UserBridgeWithdrawableBalanceItem) {

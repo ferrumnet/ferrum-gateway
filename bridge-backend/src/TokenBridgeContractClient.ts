@@ -2,7 +2,7 @@ import {abi as bridgeAbi} from './resources/BridgePool.json';
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
 import { Injectable, LocalCache, Network, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
-import { UserBridgeWithdrawableBalanceItem } from 'types';
+import { UserBridgeWithdrawableBalanceItem, Utils } from 'types';
 import { BridgeSwapEvent, BridgeTransaction } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
 import { ChainUtils } from 'ferrum-chain-clients';
@@ -131,7 +131,7 @@ export class TokenBridgeContractClinet implements Injectable {
 		const block = await web3.getBlockNumber();
 		const firstBlock = process.env.BLOCK_LOOK_BACK ?
 			Number(process.env.BLOCK_LOOK_BACK) :
-			(network === 'MUMBAI_TESTNET' ? 990 : 'AVAX_TESTNET'? 277:1000);
+			(network === 'MUMBAI_TESTNET' ? 990 : network === 'AVAX_TESTNET' ? 277:1000);
 		const events = await this.bridgePool(network, address)
 			.getPastEvents('BridgeSwap', {fromBlock:
 				block - firstBlock});
@@ -168,8 +168,8 @@ export class TokenBridgeContractClinet implements Injectable {
         const address = this.contractAddress[w.sendNetwork];
         const p = this.instance(w.sendNetwork).methods.withdrawSigned(w.payBySig.token, w.payBySig.payee,
             w.payBySig.amount,
-			(w.payBySig as any).salt || w.payBySig.swapTxId,
-			(w.payBySig as any).signature || w.payBySig.signatures[0] || w.payBySig.signatures[0].signature  // ensuring Backward compatibility with older data
+			(w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
+			Utils.add0x((w.payBySig as any).signature || w.payBySig.signatures[0].signature)
 			);
         const gas = await this.estimateGasOrDefault(p, from, undefined as any);
         const nonce = await this.helper.web3(w.sendNetwork).getTransactionCount(from, 'pending');

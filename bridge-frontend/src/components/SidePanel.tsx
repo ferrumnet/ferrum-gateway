@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import { Network } from 'ferrum-plumbing';
 import { useDispatch, useSelector } from 'react-redux';
-import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, Utils } from 'types';
+import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, TokenDetails, Utils } from 'types';
 import {
     Accordion,
     AccordionItem,
@@ -32,6 +32,8 @@ import { Actions as MainPageAction } from './../pages/Main/Main';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { CrossSwapClient } from '../clients/CrossSwapClient';
+import './SidePanel.css';
+import { TokenLogo } from './TokenLogo';
 
 interface WithdrawSuccessMessage {
 	network: string;
@@ -225,6 +227,71 @@ async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAc
     }
 }
 
+function WithdrawItemButton(props: {item: UserBridgeWithdrawableBalanceItem, network: string, slippage: string}) {
+    const dispatch = useDispatch();
+    const hasSig = !!(props.item.payBySig as any)?.signature /* backward compatiblity */ || !!props.item.payBySig?.signatures?.length;
+    console.log('PBS', props.item.payBySig, {hasSig});
+    switch (props.item.used) {
+        case 'failed':
+            return (
+                <ButtonLoader 
+                    onPress={() => dispatch(executeWithrawItem({item: props.item, slippage: props.slippage}))}
+                    disabled={false} 
+                    completed={false} 
+                    text={'Retry Withdrawal'}
+                />
+            );
+        case 'completed':
+            return (
+                <ButtonLoader 
+                    onPress={() => {}}
+                    disabled={true} 
+                    completed={true} 
+                    text={'Processing Sucessful'}
+                />
+            );
+        case 'pending':
+            return (
+                <ButtonLoader 
+                    onPress={() => {}}
+                    disabled={true} 
+                    completed={false} 
+                    text={'Processing Withdrawal'}
+                />
+            );
+        default:
+            if (props.item.blocked) {
+                return (
+                    <ButtonLoader 
+                        onPress={() => {}}
+                        disabled={true} 
+                        completed={false} 
+                        text={'Blocked - Contact Support'}
+                    />
+                );
+            }
+            if (!hasSig) {
+                return (
+                    <ButtonLoader 
+                        onPress={() => {}}
+                        disabled={true} 
+                        completed={false} 
+                        text={'Waiting for verification'}
+                    />
+                );
+            } else {
+                return (
+                    <ButtonLoader 
+                    onPress={() => dispatch(executeWithrawItem({item: props.item, slippage: props.slippage}))}
+                    disabled={false} 
+                    completed={false} 
+                    text={'Withdrawal Item'}
+                    />
+                );
+            }
+    }
+}
+
 export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);
@@ -235,6 +302,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const connected = useSelector<BridgeAppState, boolean>(appS => !!appS.connection.account.user.userId);
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
     const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
+    const tokenList = useSelector<BridgeAppState, {[k: string]: TokenDetails}>(appS => appS.data.tokenList?.lookup) || {};
 
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
@@ -318,7 +386,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         <AccordionItem>
                                 <AccordionItemHeading>
                                     <AccordionItemButton>
-                                        <div style={styles.tokenInfo}>
+                                        <div className="withdraw-item-container" style={styles.tokenInfo}>
                                             <div style={styles.tokenSymbol}>
                                                 {/* <img 
                                                 style={{"width":'30px'}} src={stakeImg}
@@ -330,8 +398,12 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                                 {e.used === 'failed' && <CloseCircleOutlined style={{color: `red` || "#52c41a",fontSize: '20px'}}/>}
 
                                             </div>
-                                            <div className="text-vary-color">
-                                                Swap {e.receiveAmount} to {Utils.shorten(e.sendCurrency)}
+                                            <div className="withdraw-item-head text-vary-color">
+                                                <TokenLogo currency={e.sendCurrency || e.receiveCurrency} />
+                                                <span>Swapped</span>
+                                                <span>{e.receiveAmount} {tokenList[e.sendCurrency]?.symbol || 'Unknown'}</span>
+                                                <span>to</span>
+                                                <span>{e.sendNetwork}</span>
                                             </div>
                                         </div> 
                                     </AccordionItemButton>
@@ -357,43 +429,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                                 </p>
                                     {
                                         e.sendNetwork === pageProps.Network &&
-                                        <>
-                                            {
-                                                (!e.used) && <ButtonLoader 
-                                                    completed={false} 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
-                                                    disabled={false}
-                                                    text={'Withdraw Item'}
-                                                />
-                                            }
-                                            {
-                                                e.used === 'failed' && 
-                                                <ButtonLoader 
-                                                    onPress={() => dispatch(executeWithrawItem({item: e, slippage}))}
-                                                    disabled={false} 
-                                                    completed={false} 
-                                                    text={'Retry Withdrawal'}
-                                                />
-                                            }
-                                            {
-                                                (e.used === 'pending') && 
-                                                <ButtonLoader 
-                                                    onPress={()=>{}} 
-                                                    disabled={true} 
-                                                    completed={false} 
-                                                    text={'Processing Withdrawal'}
-                                                />
-                                            }
-                                            {
-                                                (e.used === 'completed') && 
-                                                <ButtonLoader 
-                                                    onPress={()=>{}} 
-                                                    disabled={true} 
-                                                    completed={true}  
-                                                    text={'Processing Successful'}
-                                                />
-                                            }
-                                        </>      
+                                            <WithdrawItemButton item={e} network={pageProps.Network} slippage={pageProps.slippage}/>
                                     }
                                     
                                 </AccordionItemPanel>

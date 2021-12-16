@@ -23,10 +23,14 @@ export const tokenListSlice = createSlice({
 	name: 'tokenList',
 	initialState: {
 		list: [],
-	} as { list: TokenDetails[] },
+        lookup: {},
+	} as { list: TokenDetails[], lookup: { [k: string]: TokenDetails } },
 	reducers: {
 		listLoaded: (state, action) => {
 			state.list = action.payload.list;
+            const lookup: { [k: string]: TokenDetails } = {};
+            state.list.forEach(s => lookup[s.currency] = s);
+            state.lookup = lookup;
 		}
 	}
 });

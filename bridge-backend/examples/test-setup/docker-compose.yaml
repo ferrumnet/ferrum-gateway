@@ -1,0 +1,42 @@
+version: '3'
+services:
+  validator:
+    image: naiemk/bridge-node
+    container_name: validator
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./config-validator.json:/cfg/config
+    environment:
+      - CONFIG_FILES=/cfg/config
+      - PROCESSOR_PRIVATE_KEY_CLEAN_TEXT=$PROCESSOR_PRIVATE_KEY_CLEAN_TEXT
+      - NO_TWO_FA=true
+    network_mode: host
+  generator:
+    image: naiemk/bridge-node
+    container_name: generator
+    ports:
+      - "8091:8091"
+    environment:
+      - CONFIG_FILES=/cfg/config
+      - NO_TWO_FA=true
+      - PORT=8091
+    volumes:
+      - ./config-generator.json:/cfg/config
+    network_mode: host
+  validatorloop:
+    image: naiemk/bridge-node
+    container_name: validatorloop
+    environment:
+      - LOCAL_BACKEND=localhost
+      - LOCAL_PORT=8089
+    network_mode: host
+    entrypoint: ["gosu", "runner", "watch", "-n10", "/runner/bridge-loop.sh",  "RINKEBY,BSC_TESTNET"]
+  generatorloop:
+    image: naiemk/bridge-node
+    container_name: generatorloop
+    environment:
+      - LOCAL_BACKEND=localhost
+      - LOCAL_PORT=8091
+    network_mode: host
+    entrypoint: ["gosu", "runner", "watch", "-n10", "/runner/bridge-loop.sh",  "RINKEBY,BSC_TESTNET"]

@@ -18,7 +18,7 @@ export class PrivateKeyProvider implements Injectable {
     }
 
     async address(): Promise<string> {
-        if (!this.address) {
+        if (!this._address) {
             const addr = await new CreateNewAddressFactory()
                 .create('ETHEREUM').addressFromSk(this.privateKey());
             ValidationUtils.isTrue(!!addr && !!addr.address, 'Error getting the address from sk');

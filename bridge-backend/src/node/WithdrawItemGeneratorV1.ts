@@ -1,6 +1,6 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Injectable, ValidationUtils } from "ferrum-plumbing";
-import { NodeProcessor } from "../common/TokenBridgeTypes";
+import { Injectable, LocalCache, Logger, LoggerFactory, ValidationUtils } from "ferrum-plumbing";
+import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { BridgeNodeConfig } from "./BridgeNodeConfig";
@@ -9,6 +9,8 @@ import { NodeUtils } from "./common/NodeUtils";
 const DEFAULT_LOOK_BACK_MILLIS = 1000 * 3600 * 24;
 
 export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
+    private log: Logger;
+    private cache = new LocalCache();
     constructor(
         private client: BridgeNodesRemoteAccessClient,
         private bridgeContract: TokenBridgeContractClinet,
@@ -16,7 +18,10 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         private config: BridgeNodeConfig,
         private publicApiKey: string,
         private secretApiKey: string,
-    ) {}
+        logFac: LoggerFactory,
+    ) {
+        this.log = logFac.getLogger(WithdrawItemGeneratorV1);
+    }
 
     __name__(): string { return 'WithdrawItemGeneratorV1'; }
 
@@ -30,6 +35,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         const soFar = await this.client.getWithdrawItemTransactionIds(
             this.publicApiKey,
             this.secretApiKey,
+            '1.0',
             network,
             this.config.lookBackMillis || DEFAULT_LOOK_BACK_MILLIS,
         );
@@ -46,6 +52,7 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
         pending.filter(p => p.network === network).forEach(p =>  allTxIds.add(p.id));
         fromNetwork.forEach(p => allTxIds.add(p.transactionId));
         soFar.forEach(p => allTxIds.delete(p));
+        this.log.info(`Need to process ${allTxIds.size} transactions for ${network}`);
         for(const tx of Array.from(allTxIds)) {
             await this.processSingleTransactionById(network, tx);
         }
@@ -58,6 +65,11 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
      */
     async processSingleTransactionById(network: string, txId: string) {
         try {
+            const cacheKey = `${network}:${txId}`;
+            if (!!this.cache.get(cacheKey)) {
+                this.log.info(`Already processed ${network}:${txId}`);
+                return;
+            }
             const swap = await this.bridgeContract.getSwapEventByTxId(network, txId);
             const wi = await NodeUtils.withdrawItemFromSwap(
                 '1.0',
@@ -69,6 +81,8 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
                 this.publicApiKey,
                 this.secretApiKey,
                 wi);
+            this.log.info(`Registered PWI: ${network}:${txId}`);
+            this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
             console.error(`Error processing tx ${network}:${txId}`, e as Error);
         }

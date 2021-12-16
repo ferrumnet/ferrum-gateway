@@ -12,14 +12,14 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/node/Server.ts",
-            "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ],
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
 			"env": {
 				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/node_config_json.env"
 			},
-            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
 		},
 		{
 			"type": "pwa-node",
@@ -29,11 +29,43 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/bridge-backend/src/Cli.ts",
-            "preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ],
-            "envFile": "${workspaceFolder}/bridge-backend/test2.env"
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/bridge-backend/test2.env"
+		},
+		{
+			"type": "pwa-node",
+			"request": "launch",
+			"name": "Backend",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/gateway-backend/sim_lambda.js",
+			"preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"envFile": "${workspaceFolder}/gateway-backend/test-file.env",
+			"runtimeExecutable": "/Users/naiem/.nvm/versions/node/v14.18.2/bin/node"
+		},
+		{
+			"type": "pwa-node",
+			"request": "launch",
+			"name": "Bridge Node",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/bridge-backend/src/node/Server.ts",
+			"preLaunchTask": "tsc: build - bridge-backend/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"env": {
+				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/config.json",
+			},
+			"envFile": "${workspaceFolder}/bridge-backend/config.env"
 		}
 	]
 }

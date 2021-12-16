@@ -48,7 +48,7 @@ export class LeaderboardService
         // console.log(res.length);
         // console.log(JSON.stringify(r));
         if (res) {
-          return res.map((r) => r.toJSON());
+          return res.map((r) => r.toJSON() as any);
         }
       },
       CACHE_TIMEOUT

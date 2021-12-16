@@ -107,3 +107,6 @@ dist
 # Local Netlify folder
 .netlify
 build
+config.json
+target
+
