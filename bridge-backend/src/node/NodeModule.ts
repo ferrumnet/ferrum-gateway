@@ -14,6 +14,8 @@ import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
 import { WithdrawItemValidator } from "./WithdrawItemValidator";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
+import { WebNativeCryptor, CryptoJsKeyProvider } from 'ferrum-crypto';
+import { KMS } from "aws-sdk";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
@@ -34,20 +36,18 @@ export class NodeModule implements Module {
 	container.registerSingleton(TransactionListProvider,
 		c => new TransactionListProvider(c.get(CrossSwapService)));
 
-	// container.register(KmsCryptor, () => new KmsCryptor(
-	// 	new KMS({region: AppConfig.awsRegion()}) as any,
-	// 	conf.cmkKeyId,));
+	container.register(WebNativeCryptor, c => new WebNativeCryptor(new CryptoJsKeyProvider()));
 
 	container.register(TwoFaEncryptionClient,
 		c => new TwoFaEncryptionClient(
-			c.get(KmsCryptor),
+			c.get(WebNativeCryptor),
 			conf.twoFa?.uri,
 			c.get(LoggerFactory),
 			conf.twoFa?.secretKey,
 			conf.twoFa?.accessKey,
 			false));
 
-	container.register(DoubleEncryptiedSecret, 
+	container.registerSingleton(DoubleEncryptiedSecret, 
 		c => new DoubleEncryptiedSecret(
 			c.get(KmsCryptor),
 		c.get(TwoFaEncryptionClient)));
@@ -91,6 +91,7 @@ export class NodeModule implements Module {
 				c.get(WithdrawItemGeneratorV1) :
 				c.get(WithdrawItemValidator),
 			conf.encryptedSignerKey,
+			conf.twoFaId,
 			conf.role,
 			c.get(LoggerFactory),
 		),

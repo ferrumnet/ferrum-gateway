@@ -41,14 +41,13 @@ async function syncForNetwork(
   }
 }
 
-async function init(twoFaId: string, twoFa: string): Promise<string> {
+async function init(twoFa: string): Promise<string> {
   if (process.env.NODE_ENV === 'production' && process.env.NO_TWO_FA !== 'true') {
-    ValidationUtils.isTrue(!!twoFaId, '"twoFaId" is required');
     ValidationUtils.isTrue(!!twoFa, '"twoFa" is required');
   }
   const c = await containerLazy.getAsync();
   const node = c.get<BridgeNodeV1>(BridgeNodeV1);
-  await node.init(twoFaId, twoFa);
+  await node.init(twoFa);
   return "done";
 }
 
@@ -84,15 +83,14 @@ export class DaemonHttp {
               url,
               "lookBackSeconds"
             );
-            const twoFaId = Utils._getQueryparam(url, "2faId");
-            const twoFa = Utils._getQueryparam(url, "2fa");
+            const twoFa = Utils._getQueryparam(url, "2fa") || Utils._getQueryparam(url, "twoFa");
             console.log(`${url}?command=${command}&network=${network}&txId=${txId}`);
 
             try {
               let output: string = "";
               switch (command) {
                 case "init":
-                  output = await init(twoFaId, twoFa);
+                  output = await init(twoFa);
                   break;
                 case "sync":
                   output = await syncForNetwork(

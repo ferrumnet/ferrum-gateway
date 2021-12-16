@@ -1,4 +1,4 @@
-import { EncryptedData, Injectable, Logger, LoggerFactory, Network } from "ferrum-plumbing";
+import { Injectable, Logger, LoggerFactory, Network, ValidationUtils } from "ferrum-plumbing";
 import { NodeProcessor } from "../common/TokenBridgeTypes";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
@@ -11,6 +11,7 @@ export class BridgeNodeV1 implements Injectable {
 		private privateKeyProvider: PrivateKeyProvider,
 		private processor: NodeProcessor,
 		private encPrivateKey: string,
+		private twoFaId: string,
 		private role: BridgeNodeRole,
 		logFac: LoggerFactory,
 	) {
@@ -32,7 +33,7 @@ export class BridgeNodeV1 implements Injectable {
 	 * as a second leyer.
 	 * For test environment we can use clear text private key.
 	 */
-	async init(twoFaId: string, twoFa: string) {
+	async init(twoFa: string) {
 		const isProduction = (process.env.NODE_ENV === 'production' && process.env.NO_TWO_FA !== 'true') ||
 			process.env.FORCE_2FA === 'true';
 		if (this.role === 'generator') {
@@ -42,7 +43,10 @@ export class BridgeNodeV1 implements Injectable {
 		}
 		let privateKey = process.env.PROCESSOR_PRIVATE_KEY_CLEAN_TEXT;
 		if (isProduction) {
-			await this.doubleEncryptedData.init(twoFaId, twoFa, this.encPrivateKey);
+			ValidationUtils.isTrue(!!this.encPrivateKey, "Configure encryptedSignerKey in the config file");
+			ValidationUtils.isTrue(!!this.twoFaId, "twoFaId requried");
+			ValidationUtils.isTrue(!!twoFa, "twoFa required");
+			await this.doubleEncryptedData.init(this.twoFaId, twoFa, this.encPrivateKey);
 			this.log.info('Initialized for PRODUCTION');
 		} else {
 			this.privateKeyProvider.overridePrivateKey(privateKey);
