@@ -66,6 +66,8 @@ export class Utils {
                 return `https://mumbai.polygonscan.com/address/${addr}`;
             case 'polygon':
                 return `https://polygonscan.com/address/${addr}`;
+            default:
+                return Networks.for(network).explorer + `/address/${addr}`;
         }
         return '';
     }
@@ -86,6 +88,8 @@ export class Utils {
                 return `https://polygonscan.com/tx/${tid}`;
             case 'avax_testnet':
                 return `https://testnet.snowtrace.io//tx/${tid}`;
+            default:
+                return Networks.for(network).explorer + `/tx/${tid}`;
         }
         return '';
     }

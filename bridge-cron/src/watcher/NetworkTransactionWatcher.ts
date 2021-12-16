@@ -1,6 +1,5 @@
 import Web3 from "web3";
 import inputs from "./bridgeCronInputs.json";
-import { ETHEREUM_CHAIN_ID_FOR_NETWORK } from "ferrum-chain-clients";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { scheduleJob } from "node-schedule";
 import { connect } from "mongoose";
@@ -134,18 +133,7 @@ export class NetworkTransactionWatcher implements Injectable {
           let date = moment(new Date(blockTimestamp.timestamp * 1000)).format(
             "MM-DD-YYYY"
           );
-          // const NetworkNameByChainId: { [k: number]: string } = {};
-          // Object.keys(ETHEREUM_CHAIN_ID_FOR_NETWORK).forEach(
-          //   (k) =>
-          //     (NetworkNameByChainId[
-          //       ETHEREUM_CHAIN_ID_FOR_NETWORK[k]
-          //     ] = `${provider}`)
-          // );
           const NetworkNameByChainId = Networks.for(provider).chainId;
-          // const NetworkNameByChainId: { [k: number]: string } = {
-          //   [ETHEREUM_CHAIN_ID_FOR_NETWORK[provider]]: `${provider}`,
-          // };
-          // console.log(NetworkNameByChainId);
           let fromBlock = await this.getfromBlockNumber(provider, currentBlock);
           console.log(provider, fromBlock, currentBlock);
           if (fromBlock > 0) {

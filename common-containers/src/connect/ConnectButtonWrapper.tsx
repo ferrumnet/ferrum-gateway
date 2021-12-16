@@ -1,31 +1,14 @@
 import React,{useEffect} from 'react';
 import { Connect } from 'unifyre-extension-web3-retrofit/dist/contract/Connect';
-import { ValidationUtils } from 'ferrum-plumbing';
+import { Networks, ValidationUtils } from 'ferrum-plumbing';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressesForUser, addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
-import { ETH, FRM, FRMX, inject, inject3, inject5, } from 'types';
+import { BRIDGE_NETWORKS, inject, inject3, inject5, } from 'types';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { ApiClient } from '../clients/ApiClient';
 import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract/Web3ModalProvider';
-
-export const DEFAULT_TOKENS_FOR_WEB3_MODE = [
-    FRM['RINKEBY'][0],
-    FRM['ETHEREUM'][0],
-    FRM['POLYGON'][0],
-    FRMX['ETHEREUM'][0],
-    FRM['BSC_TESTNET'][0],
-    FRM['MUMBAI_TESTNET'][0],
-    ETH['ETHEREUM'][0],
-    ETH['RINKEBY'][0],
-    ETH['BSC_TESTNET'][0],
-    ETH['BSC'][0],
-    ETH['POLYGON'][0],
-    ETH['MUMBAI_TESTNET'][0],
-    ETH['AVAX_TESTNET'][0],
-
-];
 
 export const connectSlice = createSlice({
     name: 'connect',
@@ -111,7 +94,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         const network = await connect.network();
         const newNetworkCurrencies = (currencyList.get() || []).filter(c => c.startsWith(network || 'NA'));
         if (net && newNetworkCurrencies.length == 0) {
-            currencyList.set(DEFAULT_TOKENS_FOR_WEB3_MODE);
+            currencyList.set(BRIDGE_NETWORKS.map(n => Networks.for(n).baseCurrency));
         }
         
         // Subscribe to session disconnection

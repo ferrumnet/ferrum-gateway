@@ -101,6 +101,9 @@ export class HttpHandler implements LambdaHttpHandler {
         case "tokenList":
           body = await this.commonTokenServices.tokenList();
           break;
+        case "chainLogos":
+          body = await this.commonTokenServices.chainLogos();
+          break;
         case "registerNewHmac":
           body = await this.registerNewHmac(req);
           break;

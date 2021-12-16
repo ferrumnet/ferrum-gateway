@@ -1,7 +1,7 @@
 import { createAsyncThunk, createNextState, createSlice } from "@reduxjs/toolkit";
 import { Module, sleep } from "ferrum-plumbing";
 import { AppInitializingState } from "../store/AppState";
-import { IocModule, TokenDetails } from "types/dist";
+import { IocModule, TokenDetails, ChainLogos } from "types/dist";
 import { CommonModule } from "./Module";
 import { ApiClient } from "../clients/ApiClient";
 
@@ -15,6 +15,7 @@ export const initThunk = createAsyncThunk('init/init', async (
     await container.registerModule(new CommonModule(payload.apiBaseUrl));
     await container.registerModule(payload.module);
 	const api = container.get<ApiClient>(ApiClient);
+    api.chainLogos().then(logos => ctx.dispatch(tokenListSlice.actions.chainLogosLoaded(logos)));
 	api.tokenList().then(list => ctx.dispatch(tokenListSlice.actions.listLoaded({ list})));
     return 'SUCCESS';
 });
@@ -24,14 +25,18 @@ export const tokenListSlice = createSlice({
 	initialState: {
 		list: [],
         lookup: {},
-	} as { list: TokenDetails[], lookup: { [k: string]: TokenDetails } },
+        chainLogos: {},
+	} as { list: TokenDetails[], lookup: { [k: string]: TokenDetails }, chainLogos: { [n: string]: ChainLogos } },
 	reducers: {
 		listLoaded: (state, action) => {
 			state.list = action.payload.list;
             const lookup: { [k: string]: TokenDetails } = {};
             state.list.forEach(s => lookup[s.currency] = s);
             state.lookup = lookup;
-		}
+		},
+        chainLogosLoaded: (state, action) => {
+            state.chainLogos = {...action.payload};
+        },
 	}
 });
 

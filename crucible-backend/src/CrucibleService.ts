@@ -5,9 +5,9 @@ import { Connection, Model, Document } from "mongoose";
 import { CrucibleConfig, CrucibleAllocationCsvModel, CrucibleInfoModel } from "./CrucibleTypes";
 import { CrucibleToken, CrucibleToken__factory, CrucibleRouter__factory, CrucibleFactory, CrucibleFactory__factory } from "./resources/typechain";
 import { AllocationSignature, BigUtils, CrucibleInfo,
-	CurrencyValue, DEFAULT_SWAP_PROTOCOLS, ETH,
+	CurrencyValue, DEFAULT_SWAP_PROTOCOLS,
 	MultiSigActor, StoredAllocationCsv, UserContractAllocation,
-	UserCrucibleInfo, CrucibleAllocationMethods, Utils,
+	UserCrucibleInfo, CrucibleAllocationMethods,
  } from 'types';
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { ChainUtils } from "ferrum-chain-clients";
@@ -196,7 +196,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const r = await this.router(network);
 
 		const allocation = await this.signedAllocation(userAddress, crucible, AllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE, baseAmountInt);
-		const t = targetCur === ETH[network][0] ?
+		const t = targetCur === Networks.for(network).baseCurrency ?
 			await r.populateTransaction.depositAddLiquidityStakeETH(
 				userAddress,
 				crucible,
