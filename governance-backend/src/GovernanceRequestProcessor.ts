@@ -1,4 +1,4 @@
-import { HttpRequestProcessor, HttpRequestData } from "types";
+import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { GovernanceService } from "./GovernanceService";
 

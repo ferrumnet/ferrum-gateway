@@ -1,8 +1,8 @@
-import { HttpRequestProcessor, HttpRequestData } from "types";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
+import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor

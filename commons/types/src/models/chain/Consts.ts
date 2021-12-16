@@ -229,7 +229,7 @@ export const USD_PAIR: NetworkedConfig<string> = {
 export const ONE_INCH_ETH = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 export const BridgeContractVersions = {
-	V1_0: '0.0.3',
+	V1_0: '000.003',
 	V1_2: '001.200',
 }
 

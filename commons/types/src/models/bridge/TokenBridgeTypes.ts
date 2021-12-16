@@ -75,6 +75,9 @@ export interface PayBySignatureData {
   contractAddress: string;
   hash: string;
   signatures: MultiSigSignature[];
+
+  signature: string; // For backward compatibility
+  salt: string; // For backward compatibility
 }
 
 // Every transaction sent by user using a paired address to the bridge contract,
@@ -106,6 +109,7 @@ export interface UserBridgeWithdrawableBalanceItem {
 	execution: TransactionTrackable;
   signatures: number; // No of signatures
   creator: string;
+  blocked: boolean;
 }
 
 export interface UserBridgeLiquidityItem {
@@ -115,6 +119,16 @@ export interface UserBridgeLiquidityItem {
   liquidity: string;
 }
 
+export interface WithdrawItemHashVerification {
+  signer: string;
+  network: string;
+  transactionId: string;
+  hash: string;
+  signature: string;
+  signatureCreationTime: number;
+}
+
+// TODO: Remove schemas out of types repo. Types repo should not depend on mongoose
 const transactionTrackableSchema = new Schema<TransactionTrackable & Document>({
   status: String,
   transactions: [{
@@ -176,15 +190,12 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   receiveAmount: String,
   receiveTransactionId: String,
   receiveTransactionTimestamp: Number,
-  signedWithdrawHash: String,
-  signedWithdrawSignature: String,
   signatures: Number,
   creator: String,
 
   sendNetwork: String,
   sendAddress: String,
   sendTimestamp: Number,
-  sendTransactionId: String,
   sendCurrency: String,
   sendAmount: String,
 
@@ -196,6 +207,7 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
   used: String,
   useTransactions: [{ id: String, status: String, timestamp: Number }],
 	execution: transactionTrackableSchema,
+  blocked: Boolean,
 });
 
 //@ts-ignore

@@ -7,8 +7,6 @@ export * from "./models/bridge/TokenBridgeTypes";
 export * from "./models/chain/ChainTypes";
 export * from './models/chain/Contracts';
 
-export * from './backend/HttpRequestProcessor';
-
 export * from './models/chain/Consts';
 export * from "./models/group/types";
 

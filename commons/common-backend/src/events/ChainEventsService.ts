@@ -82,7 +82,7 @@ export class ChainEventService extends MongooseConnection implements Injectable 
 		ValidationUtils.isTrue(!!network, '"network" is required');
 		ValidationUtils.isTrue(!!id, '"id" is required');
 		const rv = await this.model!.findOne({network, id}).exec();
-		return !!rv ? rv.toJSON() : undefined;
+		return !!rv ? rv.toJSON() as any : undefined;
 	}
 
 	async getUserEvents(userAddress: string, application: string): Promise<ChainEventBase[]> {
@@ -90,6 +90,6 @@ export class ChainEventService extends MongooseConnection implements Injectable 
 		ValidationUtils.isTrue(!!userAddress, '"id" is required');
 		ValidationUtils.isTrue(!!application, '"application" is required');
 		const rv = await this.model!.find({userAddress, application}).exec();
-		return rv.map(r => r.toJSON());
+		return rv.map(r => r.toJSON() as any);
 	}
 }

@@ -1,15 +1,14 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Container, LoggerFactory, Module } from "ferrum-plumbing";
+import { Container, LoggerFactory, Module, ValidationUtils } from "ferrum-plumbing";
 import { BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
-import { BridgeNodeV12 } from "./BridgeNodeV12";
+import { BridgeNodeV1 } from "./BridgeNodeV1";
 import { TransactionListProvider } from "./TransactionListProvider";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
-import { AppConfig, CommonBackendModule } from "common-backend";
+import { AppConfig, CommonBackendModule, SUPPORTED_CHAINS_FOR_CONFIG } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
-import { KMS } from "aws-sdk";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
@@ -19,6 +18,9 @@ import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRe
 export class NodeModule implements Module {
   async configAsync(container: Container) {
     const conf: BridgeNodeConfig = AppConfig.instance().fromFile().get<BridgeNodeConfig>();
+    (await AppConfig.instance().forChainProviders()
+	).chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG);
+
 	await container.registerModule(new CommonBackendModule());
 
     container.registerSingleton(
@@ -61,25 +63,36 @@ export class NodeModule implements Module {
 			c.get(EthereumSmartContractHelper),
 			conf,
 			conf.publicAccessKey,
-			conf.secretAccessKey,));
+			conf.secretAccessKey,
+			c.get(LoggerFactory),
+			));
 
 	container.register(WithdrawItemValidator,
 		c => new WithdrawItemValidator(
 			c.get(BridgeNodesRemoteAccessClient),
 			c.get(TokenBridgeContractClinet),
 			c.get(EthereumSmartContractHelper),
-			c.get(PrivateKeyProvider)));
+			c.get(PrivateKeyProvider),
+			c.get(LoggerFactory),
+	));
+
+	container.register(BridgeNodesRemoteAccessClient,
+		c => new BridgeNodesRemoteAccessClient(
+			conf.bridgeEndpoint));
+
+	ValidationUtils.isTrue(conf.role === 'generator' || conf.role === 'validator', 'Bad role:' + conf.role);
 
 	container.registerSingleton(
-		BridgeNodeV12,
-		c => new BridgeNodeV12(
+		BridgeNodeV1,
+		c => new BridgeNodeV1(
 			c.get(DoubleEncryptiedSecret),
 			c.get(PrivateKeyProvider),
-			conf.role === 'gnerator' ?
+			conf.role === 'generator' ?
 				c.get(WithdrawItemGeneratorV1) :
 				c.get(WithdrawItemValidator),
 			conf.encryptedSignerKey,
 			conf.role,
+			c.get(LoggerFactory),
 		),
 	);
   }
