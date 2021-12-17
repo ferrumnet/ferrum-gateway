@@ -5018,21 +5018,6 @@ available-typed-arrays@^1.0.2:
   dependencies:
     array-filter "^1.0.0"
 
-"aws-lambda-helper@git+https://github.com/ferrumnet/aws-lambda-helper.git":
-  version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#f8934cf8a6f0d90adc28c80797645fe8c4a6c8a8"
-  dependencies:
-    aws-sdk "2.903.0"
-    big.js "^5.2.2"
-    commander "^8.3.0"
-    ethers "^5.4.1"
-    ferrum-crypto "git+https://github.com/ferrumnet/ferrum-crypto.git"
-    ferrum-plumbing "git+https://github.com/ferrumnet/ferrum-plumbing.git"
-    jsonwebtoken "^8.5.1"
-    mongoose "^6.1.2"
-    unifyre-extension-sdk "git+https://github.com/ferrumnet/unifyre-extension-sdk.git"
-    web3 "^1.2.11"
-
 aws-sdk@2.903.0:
   version "2.903.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.903.0.tgz#4c8252723370ebbdaffe69f4dfddc5973b1dab4a"
