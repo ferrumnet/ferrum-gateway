@@ -5,7 +5,7 @@ import { loadConfigFromFile } from "../dev/DevConfigUtils";
 export const SUPPORTED_CHAINS_FOR_CONFIG = [
     'ETHEREUM', 'BSC', 'POLYGON', 
     // 'AVAX',
-    'RINKEBY', 'BSC_TESTNET', 'MUMBAI_TESTNET', 'AVAX_TESTNET'
+    'RINKEBY', 'BSC_TESTNET', 'MUMBAI_TESTNET', 'AVAX_TESTNET','MOON_MOONBASE','AVAX_MAINNET','MOON_MOONRIVER'
     ];
 
 require('dotenv').config()

@@ -88,6 +88,12 @@ export class Utils {
                 return `https://polygonscan.com/tx/${tid}`;
             case 'avax_testnet':
                 return `https://testnet.snowtrace.io//tx/${tid}`;
+            case 'moon_moonbase':
+                return `https://moonbase.moonscan.io/tx/${tid}`;
+            case 'avax_mainnnet':
+                return `https://snowtrace.io//tx/${tid}`;
+            case 'moon_moonriver':
+                return `https://moonriver.moonscan.io/tx/${tid}`;
             default:
                 return Networks.for(network).explorer + `/tx/${tid}`;
         }

@@ -55,6 +55,18 @@ export class NetworkTransactionWatcher implements Injectable {
     AVAX_TESTNET:{
       backLimit: 5000,
       lastToBlock: undefined,
+    },
+    MOON_MOONBASE:{
+      backLimit: 5000,
+      lastToBlock: undefined,
+    },
+    AVAX_MAINNET:{
+      backLimit: 5000,
+      lastToBlock: undefined,
+    },
+    MOON_MOONRIVER:{
+      backLimit: 5000,
+      lastToBlock: undefined,
     }
   };
 
@@ -91,6 +103,15 @@ export class NetworkTransactionWatcher implements Injectable {
       ),
       AVAX_TESTNET: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_AVAX_TESTNET)
+      ),
+      MOON_MOONBASE: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_MOON_MOONBASE)
+      ),
+      AVAX_MAINNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_AVAX_MAINNET)
+      ),
+      MOON_MOONRIVER: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_MOON_MOONRIVER)
       ),
     };
 
@@ -190,7 +211,10 @@ export class NetworkTransactionWatcher implements Injectable {
       "MUMBAI_TESTNET",
       "BSC",
       "BSC_TESTNET",
-      "AVAX_TESTNET"
+      "AVAX_TESTNET",
+      "MOON_MOONBASE",
+      "AVAX_MAINNET",
+      "MOON_MOONRIVER"
     ];
   }
 

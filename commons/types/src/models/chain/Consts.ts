@@ -1,6 +1,6 @@
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
-export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET'];
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET','MOON_MOONRIVER'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -9,6 +9,7 @@ export const FRM: {[k: string]: [string, string,string]} = {
     'BSC_TESTNET': ['BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','BSC_TESTNET'],
     'MUMBAI_TESTNET': ['MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179', 'FRM','MUMBAI_TESTNET'],
     'AVAX_TESTNET': ['AVAX_TESTNET:0xd401a6140885fcDBD240426603696E2E7Ff2de46', 'AFRM','AVAX_TESTNET'],
+    'MOON_MOONBASE':['MOON_MOONBASE:0xd401a6140885fcDBD240426603696E2E7Ff2de46','AFRM','MOON_MOONBASE']
 };
 
 export interface NetworkDropdown {
@@ -25,7 +26,11 @@ const _supportedNetworks: any = {
     'BSC': ['active', 'BSC', 'mainnet'],
     'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
     'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
-    'AVAX_TESTNET':['active', 'Avax testnet','testnet']
+    'AVAX_TESTNET':['active', 'Avax testnet','testnet'],
+    'AVAX_MAINNET':['active','Avax mainnet','mainnet'],
+    'MOON_MOONRIVER':['active','Moon moonriver','mainnet'],
+    'MOON_MOONBASE':['active','Moon moonbase','testnet']
+
 };
 
 
