@@ -8761,12 +8761,6 @@ fela@^10.6.1, fela@^10.8.2:
     rlp "^2.2.5"
     tweetnacl "git+https://github.com/ferrumnet/tweetnacl-js.git"
 
-"ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
-  version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#0c5f571e408921d147e329dfb8b44301b4bfc9ee"
-  dependencies:
-    cross-fetch "^3.0.4"
-
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
