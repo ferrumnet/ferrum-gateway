@@ -29,7 +29,7 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
                         symbol: net.baseSymbol,
                         decimals: 18
                     },
-                "rpcUrls": [net.defaultRpcUrl],
+                "rpcUrls": [net.defaultRpcEndpoint],
                 "blockExplorerUrls": [net.explorer],
             }]
             /* eslint-disable */

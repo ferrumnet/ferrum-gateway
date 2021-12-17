@@ -10,6 +10,10 @@ export const SUPPORTED_CHAINS_FOR_CONFIG = [
 
 require('dotenv').config()
 
+export interface WithJwtRandomBaseConfig {
+    jwtRandomBase: string;
+}
+
 export interface WithDatabaseConfig {
     database: MongooseConfig,
 }

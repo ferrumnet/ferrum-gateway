@@ -176,9 +176,8 @@ export class BridgeRequestProcessor
   }
 
   async getAvailableLiquidity(req: HttpRequestData) {
-    const { currency, userAddress } = req.data;
+    const { currency } = req.data;
     ValidationUtils.isTrue(!!currency, "'currency' must be provided");
-    ValidationUtils.isTrue(!!userAddress, "'addres' must be provided");
     return this.svc.getAvailableLiquidity(currency);
   }
 

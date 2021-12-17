@@ -7,7 +7,8 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule, BridgeNodesRemoteAccessRequestProcessor } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG, WithDatabaseConfig } from "common-backend";
+import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG,
+  WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
@@ -38,6 +39,7 @@ export class GatewayModule implements Module {
         connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
       },
       cmkKeyId: AppConfig.env('CMK_KEY_ID'),
+      jwtRandomBase: AppConfig.env('JWT_RANDOM_BASE'),
     }));
       
     await BridgeModule.configuration();
