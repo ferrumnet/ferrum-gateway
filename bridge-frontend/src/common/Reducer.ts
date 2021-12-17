@@ -41,7 +41,7 @@ function clientReducer(state: AppGlobalState, action: AnyAction): AppGlobalState
     switch (action.type) {
         case TokenBridgeClientActions.BRIDGE_BALANCE_ITEMS_RECEIVED:
 			const items = (action.payload || []) as UserBridgeWithdrawableBalanceItem[]
-			items.sort((i1, i2) => i1.sendTimestamp < i2.sendTimestamp ? 1 : -1);
+			items.sort((i1, i2) => (i1.timestamp < i2.timestamp) ? 1 : -1);
 			return {...state, balanceItems: items};
         case TokenBridgeClientActions.BRIDGE_BALANCE_ITEM_UPDATED:
 			const upItem = (action.payload || {}) as UserBridgeWithdrawableBalanceItem;
