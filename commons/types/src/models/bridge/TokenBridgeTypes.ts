@@ -50,19 +50,6 @@ export interface SignedPairAddress {
 export const TOKEN_BRIDGE_DOMAIN_SALT =
   "0xebb7c67ee709a29f4d80f3ac6db9cd0e84fccb20437963314b825afc2463825c";
 
-export const CHAIN_ID_FOR_NETWORK = {
-  ETHEREUM: 1,
-  RINKEBY: 4,
-  BSC: 56,
-  BSC_TESTNET: 97,
-  POLYGON: 137,
-  MUMBAI_TESTNET: 80001,
-  AVAX_TESTNET:43113,
-  MOON_MOONBASE:1287,
-  AVAX_MAINNET:43114,
-  MOON_MOONRIVER:1285
-} as any;
-
 export interface PayBySignatureData {
   token: string;
   payee: string;

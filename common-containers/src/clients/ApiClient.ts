@@ -2,7 +2,7 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plu
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError, ChainEventBase, UserContractAllocation, TokenDetails } from "types";
+import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos } from "types";
 import { CustomTransactionCallRequest, UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
@@ -92,6 +92,15 @@ export class ApiClient implements Injectable {
 		return requestId.split('|')[0]; // Convert the requestId to transction Id. TODO: Do this a better way
 	}
 
+	async chainLogos(): Promise<{[n: string]: ChainLogos}> {
+		try {
+			return await this.api({command: 'chainLogos', data: {}, params: [] } as JsonRpcRequest);
+		} catch (e) {
+			console.error('Error getting chainLogos ', e);
+			return {};
+		}
+	}
+
 	async tokenList(): Promise<TokenDetails[]> {
 		try {
 			return await this.api({command: 'tokenList', data: {}, params: [] } as JsonRpcRequest);
@@ -100,6 +109,7 @@ export class ApiClient implements Injectable {
 			return [];
 		}
 	}
+
 
 	async api(req: JsonRpcRequest): Promise<any> {
 			try {

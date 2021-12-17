@@ -7,6 +7,7 @@ export interface BridgeNodeConfig {
 	providers: NetworkedConfig<string>;
 	bridgeEndpoint: string;
 	encryptedSignerKey: string;
+	twoFaId: string;
 	cmkKeyId: string;
 	twoFa: {
 		uri: string;

@@ -17,7 +17,7 @@ import { abi as IUniswapV2Router02ABI } from "@uniswap/v2-periphery/build/IUnisw
 import { abi as IUniswapV2Pair } from "@uniswap/v2-core/build/IUniswapV2Pair.json";
 import { Big } from "big.js";
 import { toWei } from "./Common";
-import { ETH, SwapProtocolConfigs, WETH } from "types";
+import { SwapProtocolConfigs, WETH } from "types";
 const Helper = EthereumSmartContractHelper;
 
 /**
@@ -100,7 +100,7 @@ export class UniswapV2Client implements Injectable {
 
   private async uniCur(cur: string): Promise<Currency> {
     const [net, _] = Helper.parseCurrency(cur);
-    if (ETH[net][0] === cur) {
+    if (Networks.for(net).baseCurrency === cur) {
       return Currency.ETHER;
     }
     return this.tok(cur);
@@ -111,7 +111,7 @@ export class UniswapV2Client implements Injectable {
     amount: string
   ): Promise<CurrencyAmount> {
     const [net, _] = Helper.parseCurrency(cur);
-    if (ETH[net][0] === cur) {
+    if (Networks.for(net).baseCurrency === cur) {
       const amountBig = toWei(amount);
       return CurrencyAmount.ether(amountBig);
     }

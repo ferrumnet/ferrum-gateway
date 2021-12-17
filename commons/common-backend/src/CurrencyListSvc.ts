@@ -1,7 +1,9 @@
 import { Injectable, LocalCache, Networks, ValidationUtils } from "ferrum-plumbing";
-import { TokenDetails } from "types";
+import { TokenDetails, ChainLogos } from "types";
 import fetch from 'cross-fetch';
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
+
+const LOGO_CONFIG_URI = '';
 
 const CURRENCY_LISTS = [
 	'https://raw.githubusercontent.com/ferrumnet/ferrum-token-list/main/FerrumTokenList.json',
@@ -17,6 +19,12 @@ export class CurrencyListSvc implements Injectable {
 		private helper: EthereumSmartContractHelper,) { }
 
 	__name__() { return 'CurrencyListSvc'; }
+
+	async chainLogos(): Promise<{[n: string]: ChainLogos}> {
+		return this.cache.getAsync('LOGOS', async () => {
+			return await this.loadChainLogos(LOGO_CONFIG_URI);
+		})
+	}
 
 	async mergedList(): Promise<TokenDetails[]> {
 		return this.cache.getAsync('CURRENCY_LIST', async () => {
@@ -76,6 +84,17 @@ export class CurrencyListSvc implements Injectable {
 			list.push(token);
 		}
 		return token;
+	}
+
+	private async loadChainLogos(url: string): Promise<{[n: string]: ChainLogos}> {
+		try {
+			const res = await fetch(url);
+			const resJ = await res.json();
+			return resJ;
+		} catch (e) {
+			console.error(`Error getting chain logo list ${url}`, e);
+			return {};
+		}
 	}
 
 	private async loadSingleList(url: string): Promise<TokenDetails[]> {

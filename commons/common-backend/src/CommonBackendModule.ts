@@ -4,6 +4,7 @@ import {
   EncryptedData,
   LoggerFactory,
   Module,
+  panick,
   ValidationUtils,
 } from "ferrum-plumbing";
 import { getEnv } from "types";
@@ -27,7 +28,7 @@ import { TransactionTracker } from "./contracts/TransactionTracker";
 import { UniswapV2Router } from "./uniswapv2/UniswapV2Router";
 import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
-import { AppConfig, WithDatabaseConfig, WithKmsConfig } from "./app/AppConfig";
+import { AppConfig, WithDatabaseConfig, WithJwtRandomBaseConfig, WithKmsConfig } from "./app/AppConfig";
 import { randomSalt } from "web3-tools";
 
 export class CommonBackendModule implements Module {
@@ -82,7 +83,8 @@ export class CommonBackendModule implements Module {
 
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY",
-        AppConfig.env("JWT_RANDOM_KEY") || randomSalt(), "")
+        AppConfig.instance().get<WithJwtRandomBaseConfig>().jwtRandomBase || AppConfig.env("JWT_RANDOM_KEY")
+          || panick('JWT RANDOM KEY is requried') as any, "")
     );
 
     container.register(AuthTokenParser, c => new AuthTokenParser(

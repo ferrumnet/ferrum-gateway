@@ -1,4 +1,4 @@
-import { ConsoleLogger, Container, LoggerFactory, Module } from "ferrum-plumbing";
+import { ConsoleLogger, Container, LoggerFactory, Module, NetworkedConfig } from "ferrum-plumbing";
 import { ApiClient } from "../clients/ApiClient";
 import { Web3RetrofitModule } from "unifyre-extension-web3-retrofit";
 import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract/Web3ModalProvider';
@@ -17,21 +17,8 @@ export class CommonModule implements Module {
 
         c.registerSingleton(ApiClient, c => new ApiClient(this.apiUrl, c.get(UnifyreExtensionKitClient)));
         const client = c.get<ApiClient>(ApiClient);
-        const providers = await client.loadHttpProviders();
-        const mappedProviders = {
-            'ETHEREUM': providers['web3Provider'],
-            'RINKEBY': providers['web3ProviderRinkeby'],
-            'BSC': providers['web3ProviderBsc'],
-            'BSC_TESTNET': providers['web3ProviderBscTestnet'],
-            'MUMBAI_TESTNET': providers['web3ProviderMumbaiTestnet'],
-            'POLYGON': providers['web3ProviderPolygon'],
-            'AVAX_TESTNET': providers['web3ProviderAvaxTestnet'],
-            'MOON_MOONBASE':providers['web3ProviderMoonMoonbase'],
-            'AVAX_MAINNET':providers['web3ProviderAvaxMainnet'],
-            'MOON_MOONRIVER':providers['web3ProviderMoonMoonriver']
-
-        }
-        c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(mappedProviders));
+        const providers: NetworkedConfig<string> = await client.loadHttpProviders();
+        c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(providers));
 
         // c.registerSingleton(UserPreferenceService, () => new UserPreferenceService());
         // IntlManager.instance.load([stringsEn], 'en-US');
