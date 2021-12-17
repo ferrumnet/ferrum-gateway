@@ -1,5 +1,5 @@
 import { AnyAction, Dispatch } from "redux";
-import { inject, chainData, TokenInfo } from 'types';
+import { inject } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { ValidationUtils } from "ferrum-plumbing";
 import { Connect } from 'unifyre-extension-web3-retrofit';
@@ -8,17 +8,30 @@ import { Actions } from './Main';
 import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { connectSlice } from "common-containers";
+import { Networks } from 'ferrum-plumbing';
 
 // TODO: Move to a common project
 export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
 		network:string) => {
     try {
+        const net = Networks.for(network);
         //@ts-ignore
         let ethereum = window.ethereum;
         // @ts-ignore
         if (window.ethereum) {
             //@ts-ignore
-            const data = [chainData[network]]
+            const data = [ {
+                "chainId": net.chainId,
+                "chainName": net.displayName,
+                "nativeCurrency":
+                    {
+                        name: net.baseSymbol,
+                        symbol: net.baseSymbol,
+                        decimals: 18
+                    },
+                "rpcUrls": [net.defaultRpcEndpoint],
+                "blockExplorerUrls": [net.explorer],
+            }]
             /* eslint-disable */
             const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data})
         }else{

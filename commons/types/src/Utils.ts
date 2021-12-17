@@ -66,6 +66,8 @@ export class Utils {
                 return `https://mumbai.polygonscan.com/address/${addr}`;
             case 'polygon':
                 return `https://polygonscan.com/address/${addr}`;
+            default:
+                return Networks.for(network).explorer + `/address/${addr}`;
         }
         return '';
     }
@@ -92,6 +94,8 @@ export class Utils {
                 return `https://snowtrace.io//tx/${tid}`;
             case 'moon_moonriver':
                 return `https://moonriver.moonscan.io/tx/${tid}`;
+            default:
+                return Networks.for(network).explorer + `/tx/${tid}`;
         }
         return '';
     }

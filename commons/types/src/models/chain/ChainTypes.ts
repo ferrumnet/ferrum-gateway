@@ -36,6 +36,11 @@ export interface UserContractAllocation {
 	expirySeconds: number;
 }
 
+export interface ChainLogos {
+	logoUri?: string;
+	logoBase64?: string;
+}
+
 export interface TokenDetails {
 	currency: string;
 	address: string;

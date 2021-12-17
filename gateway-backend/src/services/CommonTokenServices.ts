@@ -1,7 +1,7 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { CurrencyListSvc } from "common-backend";
 import { Injectable } from "ferrum-plumbing";
-import { TokenDetails, UserContractAllocation } from "types";
+import { TokenDetails, UserContractAllocation, ChainLogos } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 
 export class CommonTokenServices implements Injectable {
@@ -39,5 +39,9 @@ export class CommonTokenServices implements Injectable {
 
 	async tokenList(): Promise<TokenDetails[]> {
 		return this.tokenListSvc.mergedList();
+	}
+
+	async chainLogos(): Promise<{[n: string]: ChainLogos}> {
+		return this.tokenListSvc.chainLogos();
 	}
 }
