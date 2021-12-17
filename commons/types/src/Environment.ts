@@ -1,15 +1,18 @@
 import { ValidationUtils } from "ferrum-plumbing";
 
-const STAGING_PREFIXES = ['https://staging'];
+const STAGING_PREFIXES = ['dev','qa','uat','staging'];
 
-export type AppUiStage = 'dev' | 'staging' | 'prod';
+export type AppUiStage = 'local' | 'dev' | 'qa' | 'uat' | 'staging' | 'prod';
 
 export type UiStageEndpoint = { [k in AppUiStage]: string };
 
 export class Environment {
 	static DEFAULT_ENDPOINTS: UiStageEndpoint = {
-		dev: 'http://localhost:8080',
-		staging: 'https://an54zzyt9h.execute-api.ap-south-1.amazonaws.com/default/test',
+		local: 'http://localhost:8080',
+		dev: 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev',
+		qa: 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev',
+		uat: 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev',
+		staging: 'https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging',
 		prod: 'https://sij6ulh6gc.execute-api.us-east-2.amazonaws.com/default/prod-gateway-backend',
 	};
 
@@ -21,10 +24,12 @@ export class Environment {
 		const base = (window.location?.origin || '').toLowerCase();
 		const isCompiled = process.env.NODE_ENV === 'production';
 		if (!isCompiled) {
-			return 'dev';
+			return 'local';
 		}
-		if (STAGING_PREFIXES.find(p => base.startsWith(p))) {
-			return 'staging';
+		const prefix = STAGING_PREFIXES.find(p => base.includes(`-${p}`||`https://${p}`));
+		if (prefix) {
+			console.log(prefix,'current-prefix')
+			return prefix as AppUiStage;
 		}
 		return 'prod';
 	}
