@@ -59,6 +59,7 @@ export class BridgeProcessor implements Injectable {
       `No payer for ${network} is configured`
     );
     const client = this.chain.forNetwork(network);
+
     const relevantTokens = await this.tokenConfig.getSourceCurrencies(network);
     ValidationUtils.isTrue(
       !!relevantTokens.length,
