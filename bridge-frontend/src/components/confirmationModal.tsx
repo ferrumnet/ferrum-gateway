@@ -34,7 +34,7 @@ const images = {
   "MUMBAI_TESTNET":IconCryptoMAT,
   "SOLANA":IconCryptoSOL,
   'AVAX_TESTNET':IconCryptoAvax,
-  'MOON_MOONBASE':IconCryptoMoonbase
+  'MOON_MOONBASE':IconCryptoMoonbase,
   'AVAX_MAINNET':IconCryptoAvax,
   'MOON_MOONRIVER':IconCryptoMoonbase
 
