@@ -109,4 +109,4 @@ dist
 build
 config.json
 target
-
+.DS_Store
