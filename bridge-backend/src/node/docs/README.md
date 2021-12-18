@@ -159,8 +159,41 @@ services:
   "encryptedSignerKey": <Encrypted private key from above>"
 ```
 
+### cryptor.sh
+
+```
+$ cat ./cryptor.sh
+
+#!/bin/sh
+docker run --env-file staging.env -ti --rm naiemk/ferrum-aws-lambda-helper-cryptor:0.1.0 @$
+```
+
+```
+$ cat ./staging.env
+AWS_KMS_KEY_ARN=
+TWOFA_API_ACCESS_KEY=
+TWOFA_API_SECRET_KEY=
+TWOFA_API_URL=https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2/
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-2
+```
+
 **Bridge Endpoints:
 * **prod**: ...
 * **staging**: https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging
 * **dev**: ...
+
+
+## Appendix 1 - How to get HMAC keys from Ferrum backend?
+
+```
+$ curl -X POST -d '{"command":"registerNewHmac", "data": {"adminSecret":"<ADMIN_SECRET>"}}' https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging
+```
+
+## Appendix 2 - How to get HMAC keys for 2fa
+
+```
+$ curl -X POST -d '{"command":"registerNewHmac", "data": {"adminSecret":"<ADMIN_SECRET>"}}' https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2
+```
 
