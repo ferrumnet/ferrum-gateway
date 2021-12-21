@@ -165,7 +165,7 @@ services:
 $ cat ./cryptor.sh
 
 #!/bin/sh
-docker run --env-file staging.env -ti --rm naiemk/ferrum-aws-lambda-helper-cryptor:0.1.0 @$
+docker run --env-file staging.env -ti --rm naiemk/ferrum-aws-lambda-helper-cryptor:0.1.0 $@
 ```
 
 ```
@@ -188,12 +188,12 @@ AWS_DEFAULT_REGION=us-east-2
 ## Appendix 1 - How to get HMAC keys from Ferrum backend?
 
 ```
-$ curl -X POST -d '{"command":"registerNewHmac", "data": {"adminSecret":"<ADMIN_SECRET>"}}' https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging
+$ curl -X POST -d '{"command":"registerNewHmac", "data": {"adminSecret":"$ADMIN_SECRET"}}' https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging
 ```
 
 ## Appendix 2 - How to get HMAC keys for 2fa
 
 ```
-$ curl -X POST -d '{"command":"registerNewHmac", "data": {"adminSecret":"<ADMIN_SECRET>"}}' https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2
+$ curl -X POST -H "X-Secret: $SECRET" -H "Content-Type: application/json" -d '{"command":"newApiKey"}' https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2
 ```
 

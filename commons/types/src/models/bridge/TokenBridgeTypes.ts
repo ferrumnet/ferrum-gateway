@@ -259,28 +259,16 @@ export const SignedPairAddressSchemaModel = (c: Connection) =>
     SignedPairAddressSchema
   );
 
+// TODO: Remove
 export function domainSeparator(network: string): DomainSeparator {
   const chainId = Networks.for(network).chainId;
   return {
     chainId: chainId.toString(),
     name: "PairedUnifyreWallet",
-    verifyingContract: BRIDGE_CONTRACT[network],
+    verifyingContract: '', //BRIDGE_CONTRACT[network],
     version: "0.1.0",
   };
 }
-
-export const BRIDGE_CONTRACT = {
-  ETHEREUM: "0x8e01cc26d6dd73581347c4370573ce9e59e74802",
-  RINKEBY: "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877",
-  BSC: "0x8e01cc26d6dd73581347c4370573ce9e59e74802",
-  BSC_TESTNET: "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877",
-  AVAX_TESTNET: "0xBE442727d882b17144040a075Acf27aBBb68643f",
-  POLYGON: "0x8e01cc26d6dd73581347c4370573ce9e59e74802",
-  MUMBAI_TESTNET: "0x89262b7bd8244b01fbce9e1610bf1d9f5d97c877",
-  MOON_MOONBASE:'0x347d11cC7FbEb535D71e1c6B34bDD33A7a999F45',
-  AVAX_MAINNET:'0x8e01cc26d6dd73581347c4370573ce9e59e74802',
-	MOON_MOONRIVER:'0x8e01cc26d6dd73581347c4370573ce9e59e74802'
-} as any;
 
 export interface PairedAddress {
   network1: string;

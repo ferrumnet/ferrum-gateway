@@ -5,7 +5,8 @@ import { loadConfigFromFile } from "../dev/DevConfigUtils";
 export const SUPPORTED_CHAINS_FOR_CONFIG = [
     'ETHEREUM', 'BSC', 'POLYGON', 
     // 'AVAX',
-    'RINKEBY', 'BSC_TESTNET', 'MUMBAI_TESTNET', 'AVAX_TESTNET','MOON_MOONBASE','AVAX_MAINNET','MOON_MOONRIVER'
+    'RINKEBY', 'BSC_TESTNET', 'MUMBAI_TESTNET', 'AVAX_TESTNET','MOON_MOONBASE','AVAX_MAINNET',
+    'MOON_MOONRIVER','HARMONY_TESTNET_0',
     ];
 
 require('dotenv').config()
@@ -106,11 +107,11 @@ export class AppConfig {
         return this;
     }
 
-    async forChainProviders(field?: string) {
+    async forChainProviders(field?: string, supportedChains?: string[]) {
         return (await this.fromSecret(field || 'providers', 'CHAIN_CONFIG'))
             .orElse(field || 'providers', () => {
                 const v: any = {};
-                SUPPORTED_CHAINS_FOR_CONFIG.forEach(c => {
+                (supportedChains ||SUPPORTED_CHAINS_FOR_CONFIG).forEach(c => {
                     v[c] = process.env['WEB3_PROVIDER_' + c];
                 });
                 return v;

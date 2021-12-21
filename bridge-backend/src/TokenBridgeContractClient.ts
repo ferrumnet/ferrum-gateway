@@ -248,7 +248,7 @@ export class TokenBridgeContractClinet implements Injectable {
                 currency,
                 userAddress,
                 p.encodeABI(),
-                gas.toFixed(),
+                gas ? gas.toFixed() : undefined,
                 nonce,
                 `Swap `);
     }
