@@ -441,17 +441,12 @@ export const ConnectBridge = () => {
                                             pageProps.itemId,
                                             onWithdrawSuccessMessage,
                                             onMessage, (v) => dispatch(Actions.setProgressStatus({ status: v })))}
-                                disabled={swapping || ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY' || 'ETHEREUM'))}
+                                disabled={swapping}
                                 className="btn btn-pri action btn-icon btn-connect mt-4"
                             >
                                 <i className="mdi mdi-arrow-collapse"></i>{(pageProps.network != pageProps.swapWithdrawNetwork) ? 'Switch Network' : 'Withdraw'}
                             </Button>
-                            {
-                                ((pageProps.network != pageProps.swapWithdrawNetwork) && pageProps.destNetwork === ('RINKEBY' || 'ETHEREUM')) &&
-                                <p style={{ ...styles.manualNote }}>
-                                    <Alert message={`Manually Switch your Network to ${pageProps.destNetwork} from Metamask`} type="warning" showIcon />
-                                </p>
-                            }
+                
                         </div>
                     )
                 }
