@@ -83,8 +83,7 @@ export class CommonBackendModule implements Module {
 
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY",
-        AppConfig.instance().get<WithJwtRandomBaseConfig>().jwtRandomBase || AppConfig.env("JWT_RANDOM_KEY")
-          || panick('JWT RANDOM KEY is requried') as any, "")
+        AppConfig.instance().get<WithJwtRandomBaseConfig>().jwtRandomBase, "")
     );
 
     container.register(AuthTokenParser, c => new AuthTokenParser(

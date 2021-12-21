@@ -15,13 +15,16 @@ import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
 import { WithdrawItemValidator } from "./WithdrawItemValidator";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { WebNativeCryptor, CryptoJsKeyProvider } from 'ferrum-crypto';
-import { KMS } from "aws-sdk";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
     const conf: BridgeNodeConfig = AppConfig.instance().fromFile().get<BridgeNodeConfig>();
-    (await AppConfig.instance().forChainProviders()
-	).chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG);
+	ValidationUtils.isTrue(!!conf.providers, 'Error: no provider is configured for a chain');
+	const configedChains = Object.keys(conf.providers);
+	console.log('Following networks are configured in the config file: ', configedChains);
+	ValidationUtils.isTrue(!!configedChains.length, 'Error: no provider is configured for a chain');
+    (await AppConfig.instance().forChainProviders('', configedChains)
+	).chainsRequired('', configedChains);
 
 	await container.registerModule(new CommonBackendModule());
 

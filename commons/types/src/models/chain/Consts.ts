@@ -1,6 +1,8 @@
+import { Networks } from "ferrum-plumbing";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
-export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET','MOON_MOONRIVER'];
+export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET'
+ ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -19,124 +21,16 @@ export interface NetworkDropdown {
 	mainnet: boolean;
 }
 
-const _supportedNetworks: any = {
-    'ETHEREUM': ['active', 'Ethereum', 'mainnet'],
-    'RINKEBY': ['active', 'Rinkeby testnet', 'testnet'],
-    'BSC_TESTNET': ['active', 'BSC testnet', 'testnet'],
-    'BSC': ['active', 'BSC', 'mainnet'],
-    'POLYGON': ['active', 'Polygon (Matic)', 'mainnet'],
-    'MUMBAI_TESTNET': ['active', 'Matic testnet', 'testnet'],
-    'AVAX_TESTNET':['active', 'Avax testnet','testnet'],
-    'AVAX_MAINNET':['active','Avax mainnet','mainnet'],
-    'MOON_MOONRIVER':['active','Moon moonriver','mainnet'],
-    'MOON_MOONBASE':['active','Moon moonbase','testnet']
-
-};
-
-
-// TODO: Directly write the constants
-export const supportedNetworks: { [k: string]: NetworkDropdown } = {}
-Object.keys(_supportedNetworks).forEach(k => {
-	const [a, d, m] = _supportedNetworks[k];
-	supportedNetworks[k] = {
-		key: k, active: a === 'active',
-		display: d,
-		mainnet: m === 'mainnet'}
-})
-
-// export const TokenInfo = {
-//     "RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
-//         tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
-//         tokenSymbol: 'FRM',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-//         type: 'ERC20'
-//     },
-//     "BSC_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
-//         tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
-//         tokenSymbol: 'FRM',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-//         type: 'ERC20'
-//     },
-//     "MUMBAI_TESTNET:0xfe00ee6f00dd7ed533157f6250656b4e007e7179" : {
-//         tokenAddress: '0xFe00EE6F00dD7ed533157f6250656B4E007E7179',
-//         tokenSymbol: 'FRM',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-//         type: 'ERC20'
-//     },
-//     "MUMBAI_TESTNET:0xc7b58945a08aa90f6db6440fb0bcc22fb45e6e98" : {
-//         tokenAddress: '0xc7b58945a08aa90f6db6440fb0bcc22fb45e6e98',
-//         tokenSymbol: 'RVF',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/14728/small/7.png?1618414105',
-//         type: 'ERC20'
-//     },
-//     "ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c" : {
-//         tokenAddress: '0xe5caef4af8780e59df925470b050fb23c43ca68c',
-//         tokenSymbol: 'FRM',
-//         tokenDecimals: 6,
-//         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-//         type: 'ERC20'
-//     },
-//     "POLYGON:0xd99bafe5031cc8b345cb2e8c80135991f12d7130" : {
-//         tokenAddress: '0xd99bafe5031cc8b345cb2e8c80135991f12d7130',
-//         tokenSymbol: 'FRM',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/8251/small/frm.png?1563777564',
-//         type: 'ERC20'
-//     },
-//     "ETHEREUM:0xdc8af07a7861bedd104b8093ae3e9376fc8596d2" : {
-//         tokenAddress: '0xdc8af07a7861bedd104b8093ae3e9376fc8596d2',
-//         tokenSymbol: 'RVF',
-//         tokenDecimals: 18,
-//         tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
-//         type: 'ERC20'
-//     },
-//     "POLYGON:0x2ce13e4199443fdfff531abb30c9b6594446bbc7" : {
-//         tokenAddress: '0x2ce13e4199443fdfff531abb30c9b6594446bbc7',
-//         tokenSymbol: 'RVF',
-//         tokenDecimals: 18,
-//         tokenImage:'https://etherscan.io/token/images/rocketvault_32.png',
-//         type: 'ERC20'
-// 	},
-//     "BSC_TESTNET:0x532197ec38756b9956190b845d99b4b0a88e4ca9" : {
-//         tokenAddress: '0x532197ec38756b9956190b845d99b4b0a88e4ca9',
-//         tokenSymbol: 'PAID',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
-//         type: 'ERC20'
-//     },
-//     "RINKEBY:0xe1de1dc4de074e9c8bbf5e2d66cfdb4f0b2cb61a" : {
-//         tokenAddress: '0xe1de1dc4de074e9c8bbf5e2d66cfdb4f0b2cb61a',
-//         tokenSymbol: 'PAID',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
-//         type: 'ERC20'
-//     },
-//     "ETHEREUM:0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787" : {
-//         tokenAddress: '0x1614f18fc94f47967a3fbe5ffcd46d4e7da3d787',
-//         tokenSymbol: 'PAID',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
-//         type: 'ERC20'
-//     },
-//     "BSC:0xad86d0e9764ba90ddd68747d64bffbd79879a238" : {
-//         tokenAddress: '0xad86d0e9764ba90ddd68747d64bffbd79879a238',
-//         tokenSymbol: 'PAID',
-//         tokenDecimals: 18,
-//         tokenImage:'https://assets.coingecko.com/coins/images/13761/small/PAID.png?1612493556',
-//         type: 'ERC20'
-//     },
-//     "AVAX_TESTNET:0xeB2C7A8409840C0Fc35a3230cd6e81b4F27b3aAC":{
-//         tokenAddress:'0xeB2C7A8409840C0Fc35a3230cd6e81b4F27b3aAC',
-//         tokenSymbol:'AFRM',
-//         tokenDecimal:'18',
-//         tokenImage:'',
-//         type:'ERC20'
-//     }
-// } as any;
+export const supportedNetworks: { [k: string]: NetworkDropdown} = {};
+BRIDGE_NETWORKS.forEach((b: string) => {
+	const n = Networks.for(b);
+	supportedNetworks[b] = {
+		key: n.id,
+		active: true,
+		display: n.displayName,
+		mainnet: !n.testnet,
+	} as NetworkDropdown;
+});
 
 export const FRMX: {[k: string]: [string, string]} = {
     'ETHEREUM': ['ETHEREUM:0xf6832EA221ebFDc2363729721A146E6745354b14', 'FRMX'],

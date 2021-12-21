@@ -63,7 +63,7 @@ export class TokenBridgeContractClinet implements Injectable {
 		ValidationUtils.isTrue(tx.status, `Transaction "${txId}" is failed`);
 		ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as Network, address, tx.to),
 			'Transaction is not against the bridge contract');
-        const swapLog = tx.logs.find(l => ChainUtils.addressesAreEqual(network as Network, address, l.address)); // Index for the swap event
+        const swapLog = tx.logs.find(l => address.toLocaleLowerCase() === (l.address || '').toLocaleLowerCase()); // Index for the swap event
         ValidationUtils.isTrue(!!swapLog, 'No swap log found on tx ' + txId)
         const decoded = web3.abi.decodeLog(this.bridgeSwapInputs.inputs, swapLog.data, swapLog.topics.slice(1));
         return this.parseSwapEvent(network, { returnValues: decoded, transactionHash: txId });
@@ -248,7 +248,7 @@ export class TokenBridgeContractClinet implements Injectable {
                 currency,
                 userAddress,
                 p.encodeABI(),
-                gas.toFixed(),
+                gas ? gas.toFixed() : undefined,
                 nonce,
                 `Swap `);
     }

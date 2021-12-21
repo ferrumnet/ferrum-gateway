@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import {
     supportedNetworks, NetworkDropdown, UserBridgeWithdrawableBalanceItem,
-    BridgeTokenConfig, BRIDGE_CONTRACT, inject, Utils, TokenDetails
+    BridgeTokenConfig, inject, Utils, BRIDGE_V1_CONTRACTS,
 } from 'types';
 import { IConnectViewProps } from 'common-containers';
 import { Steps } from 'antd';
@@ -199,7 +199,7 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
     const destNetwork = state.destNetwork || (targetNetworks[0] || {}).key;
     const currentPair = appState.data.state.currencyPairs.find(p =>
         p.sourceCurrency === currency && p.targetNetwork === destNetwork);
-    const contractAddress = BRIDGE_CONTRACT[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
     const availableLiquidity = appState.data.state
         .bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';

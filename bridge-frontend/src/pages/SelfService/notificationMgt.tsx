@@ -4,7 +4,7 @@ import { useToasts } from 'react-toast-notifications';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from './../../common/BridgeAppState';
 import { AppAccountState } from 'common-containers';
-import { SignedPairAddress,inject, PairedAddress,BRIDGE_CONTRACT,BridgeTokenConfig, inject3 } from 'types';
+import { SignedPairAddress,inject, PairedAddress, BRIDGE_V1_CONTRACTS, } from 'types';
 import { Big } from 'big.js';
 //@ts-ignore
 import { AssetsSelector,supportedIcons,networkImages,AmountInput,TextInput } from 'component-library';
@@ -206,7 +206,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): n
     let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
     address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address as any;
     currency = address ? address.currency : addr[0].currency;
-    const contractAddress = BRIDGE_CONTRACT[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
 	const currentNetwork = supportedNetworks[address.network] || {};
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])

@@ -39,7 +39,7 @@ export class GatewayModule implements Module {
         connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
       },
       cmkKeyId: AppConfig.env('CMK_KEY_ID'),
-      jwtRandomBase: AppConfig.env('JWT_RANDOM_BASE'),
+      jwtRandomBase: AppConfig.env('JWT_RANDOM_KEY'),
     }));
       
     await BridgeModule.configuration();
@@ -48,8 +48,9 @@ export class GatewayModule implements Module {
 
     AppConfig.instance()
       .chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG)
-      .required<WithDatabaseConfig>('', c => ({
+      .required<WithDatabaseConfig&WithJwtRandomBaseConfig>('', c => ({
         'MONGOOSE_CONNECTION_STRING': c.database.connectionString!,
+        'JWT_RANDOM_KEY': c.jwtRandomBase,
       }));
 
     container.registerSingleton(
