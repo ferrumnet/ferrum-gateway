@@ -32,7 +32,7 @@ import { Actions as MainPageAction } from './../pages/Main/Main';
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
 import { CrossSwapClient } from '../clients/CrossSwapClient';
-import './SidePanel.css';
+import './SidePanel.scss';
 import { TokenLogo } from './TokenLogo';
 
 interface WithdrawSuccessMessage {
