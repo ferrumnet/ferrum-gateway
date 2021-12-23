@@ -6,7 +6,7 @@ import fetch from 'cross-fetch';
 
 export class BridgeNodesRemoteAccessClient implements Injectable {
     constructor(
-        private endpoint: string,
+        protected endpoint: string,
     ) {}
 
     __name__(): string {
@@ -153,7 +153,7 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
         return await this.api(body, auth);
     }
 
-    private async api(body: string, auth: AuthenticationProvider) {
+    protected async api(body: string, auth: AuthenticationProvider) {
         const authHead = auth.asHeader();
         try {
             const res = await fetch(this.endpoint, {

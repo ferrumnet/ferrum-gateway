@@ -16,6 +16,7 @@ import { BridgeNotificationSvc } from './BridgeNotificationService';
 import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodesRemoteAccessRequestProcessor } from "..";
 import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
+import { LiquidityBalancerRequestProcessor } from "./nodeRemoteAccess/LiquidityBalancerRequestProcessor";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -131,6 +132,12 @@ export class BridgeModule implements Module {
         c.get(TokenBridgeService),
         c.get(EthereumSmartContractHelper),
         AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1 || [],
+      ));
+    
+    container.registerSingleton(LiquidityBalancerRequestProcessor, c =>
+      new LiquidityBalancerRequestProcessor(
+        c.get(TokenBridgeService),
+        c.get(EthereumSmartContractHelper),
       ));
 
     container.registerSingleton(BridgeNodesRemoteAccessRequestProcessor, c =>
