@@ -179,6 +179,42 @@ AWS_SECRET_ACCESS_KEY=
 AWS_DEFAULT_REGION=us-east-2
 ```
 
+## Liquidity bot
+
+Liquidity bot ensures a set amount of liquidity is maintained on the bridge. The configuration is very similar to validator with just the following difference:
+
+```
+ In docker-compose, rename the container to **liquidityBot**
+```
+
+### Configuration template
+
+```
+{
+  "role": "liquidityBot",
+  "providers": {
+    "RINKEBY": ...,
+    ...
+  },
+  "cmkKeyId": "<Your KMS ARN, AWS user should have access to>",
+  "twoFa": {
+    "uri": "https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2",
+    "accessKey": "<Ferrum 2fa hmac public key>",
+    "secretKey": "<Ferrum 2fa hmac secret key>"
+  },
+  "bridgeEndpoint": "<BRIDGE ENDPOINT>",
+  "publicAccessKey": "<Bridge hmac public key>",
+  "secretAccessKey": "<Bridge hmac secret key>",
+  "twoFaId": "<2fa ID aquired above>",
+  "encryptedSignerKey": <Encrypted private key from above>",
+  "liquidityLevels": {
+    "RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179": 20000
+  }
+
+```
+
+**liquidityLevels** fields in the config identifies token that we want to monitor with their corresponding target liquidity.
+
 **Bridge Endpoints:
 * **prod**: ...
 * **staging**: https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging
