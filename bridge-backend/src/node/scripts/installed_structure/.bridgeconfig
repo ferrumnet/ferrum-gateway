@@ -1,0 +1,14 @@
+# The bridge rols. One of validator, generator, or liquidityBot
+# You typically do not need to change this role. Let the install 
+# script set it.
+role=BRIDGE_ROLE
+
+# The port used by the bridge service
+port=BRIDGE_PORT
+
+# You two fa service access keys can be aquired from Ferrum team.
+bridge_public_key=
+bridge_secret_key=
+
+# Encrypted private key
+encrypted_private_key=

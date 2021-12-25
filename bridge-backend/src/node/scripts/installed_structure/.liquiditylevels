@@ -1,0 +1,6 @@
+# Provide a list of liquidity leves to maintain
+#
+# Each line is formatted as follows:
+# <network>:<token>= <expected liquidity amount>
+
+RINKEBY:0xfe00ee6f00dd7ed533157f6250656b4e007e7179= 20000

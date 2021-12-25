@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "webpack",
+    "build": "npx webpack",
     "test": "./node_modules/.bin/jest --detectOpenHandles",
     "deploy-prod": "TODO: Deploy to prod",
     "deploy": "./bin/deploy.sh"

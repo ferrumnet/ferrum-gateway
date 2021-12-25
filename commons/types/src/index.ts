@@ -20,3 +20,5 @@ export * from './Environment';
 
 export * from './models/chain/consts/DefaultTokenPriceConfig';
 export * from './models/chain/consts/SwapProtocolConfigs';
+
+export * from './models/bridge/RoutingTable';

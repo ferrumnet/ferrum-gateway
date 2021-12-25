@@ -2,7 +2,8 @@ import { Injectable, JsonRpcRequest, Network, ValidationUtils, sleep } from "fer
 import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
-import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress, Utils, GroupInfo } from "types";
+import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress,
+    Utils, GroupInfo, RoutingTable } from "types";
 import { CommonActions,addAction } from './../common/Actions';
 
 export const TokenBridgeClientActions = {
@@ -21,7 +22,8 @@ export const TokenBridgeClientActions = {
     USER_AVAILABLE_LIQUIDITY_FOR_TOKEN: "USER_AVAILABLE_LIQUIDITY_FOR_TOKEN",
 	TOKEN_CONFIG_LOADED: 'TOKEN_CONFIG_LOADED',
     SWAP_SUCCESS: 'SWAP_SUCCESS',
-    GROUP_INFO_LOADED: 'GROUP_INFO_LOADED'
+    GROUP_INFO_LOADED: 'GROUP_INFO_LOADED',
+    ROUTING_TABLE_LOADED: '',
 }
 
 const Actions = TokenBridgeClientActions;
@@ -38,6 +40,17 @@ export class BridgeClient implements Injectable {
     public getUserAddress() {return this. userAddress;} // DO NOT USE
 
     __name__() { return 'BridgeClient'; }
+
+    async getRoutingTable(dispatch: Dispatch<AnyAction>): Promise<void> {
+        try {
+            const routingTable = await this.api.api({
+                command: '', data: {}, params: [] }) as RoutingTable;
+            dispatch(addAction(Actions.ROUTING_TABLE_LOADED, {}));
+        } catch (e) {
+            console.error('Error loading routing table ', e as Error);
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'Error loading routing table' + ((e as Error).message || '') }));
+        }
+    }
 
     async signInToServer(dispatch: Dispatch<AnyAction>): Promise<any|undefined> {
         try {

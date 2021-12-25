@@ -1,0 +1,16 @@
+# Include a list of http json rpc providers here.
+# You can only include the ones that you need.
+# Ask the Ferrum team for the format (name) of the provider key
+# if you don't see the network listed here.
+# For security it is best if you run your own node on your machines
+# or a could service
+ETHEREUM=
+BSC=
+POLYGON=
+AVAX_MAINNET=
+MOOM_MOONRIVER=
+RINKEBY=
+BSC_TESTNET=
+MUMBAI_TESTNET=
+AVAX_TESTNET=
+MOON_MOOMBASE=
