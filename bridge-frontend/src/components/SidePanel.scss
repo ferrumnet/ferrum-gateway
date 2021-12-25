@@ -22,3 +22,22 @@
 .withdraw-item-head * {
     margin-right: 8px;
 }
+
+.loadMore_comp{
+    margin: 1% 1%;
+    border-style: solid;
+    border-width: 0.1px;
+    border-color: #80808033;
+    cursor: pointer;
+
+    &.disbaled{
+        color: grey
+    }
+
+    &.active{
+        &:hover{
+            background-color: #161515;
+        }
+    }
+   
+}

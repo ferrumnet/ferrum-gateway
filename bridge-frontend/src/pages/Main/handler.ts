@@ -9,7 +9,7 @@ import { AddressDetails } from "unifyre-extension-sdk/dist/client/model/AppUserP
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { connectSlice } from "common-containers";
 import { Networks } from 'ferrum-plumbing';
-
+import Web3 from 'web3'
 // TODO: Move to a common project
 export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
 		network:string) => {
@@ -34,7 +34,7 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
             const net = Networks.for(network);
             console.log('seitch data',net)
             const data = [ {
-                "chainId": net.chainId,
+                "chainId": Web3.utils.toHex(net.chainId),
                 "chainName": net.displayName,
                 "nativeCurrency":
                     {
