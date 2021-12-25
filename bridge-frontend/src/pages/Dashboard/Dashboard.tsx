@@ -14,7 +14,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { AnyAction, Dispatch } from "redux";
 import { Theme as FulentTheme, useTheme } from '@fluentui/react-theme-provider';
 import { Theme, ThemeContext, ThemeConstantProvider, WebdefaultLightThemeConstantsBuilder } from 'unifyre-react-helper';
-import { GroupInfo, inject, inject2, UserBridgeWithdrawableBalanceItem } from 'types';
+import { GroupInfo, inject, inject2, RoutingTableLookup, UserBridgeWithdrawableBalanceItem } from 'types';
 import { BridgeClient } from "./../../clients/BridgeClient";
 import { getGroupIdFromHref, getWebstieIdFromHref } from './../../common/Utils';
 import { loadThemeForGroup } from './../../common/themeLoader';
@@ -158,6 +158,7 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
+        const rtF = client.getRoutingTable(dispatch).catch(console.error);
         let groupId = getGroupIdFromHref();
         let groupInfo: GroupInfo | undefined;
         if (!groupId) {
@@ -190,12 +191,19 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
             } else {
                 setAllThemes("all-themes", defaultTheme);
             }
-            await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies)
+            // TODO: Deprecated. Phase out
+            client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies).catch(console.error);
+            console.log('GROUP INFO CUR', groupInfo.bridgeCurrencies);
+
             if ((groupInfo.bridgeCurrencies || []).length) {
                 // Update the filtered token list
-                dispatch(updateFilteredTokenList({ currencies: groupInfo.bridgeCurrencies }) as any);
+                const bridgeCurrenciesSet = new Set<string>(groupInfo.bridgeCurrencies || []);
+                const routing: RoutingTableLookup = await rtF as any;
+                Object.keys(routing).forEach(c => bridgeCurrenciesSet.add(c));
+                const bridgeCurrencies = Array.from(bridgeCurrenciesSet);
+                dispatch(updateFilteredTokenList({ currencies: bridgeCurrencies }) as any);
                 const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
-                cl.set(groupInfo.bridgeCurrencies);
+                cl.set(bridgeCurrencies);
                 try {
                     const userProfile = await await web3client.getUserProfile();
                     dispatch(connectSlice.actions.connectionSucceeded({ userProfile }));

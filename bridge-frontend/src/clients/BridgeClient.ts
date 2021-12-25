@@ -3,7 +3,7 @@ import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress,
-    Utils, GroupInfo, RoutingTable } from "types";
+    Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup } from "types";
 import { CommonActions,addAction } from './../common/Actions';
 
 export const TokenBridgeClientActions = {
@@ -23,7 +23,7 @@ export const TokenBridgeClientActions = {
 	TOKEN_CONFIG_LOADED: 'TOKEN_CONFIG_LOADED',
     SWAP_SUCCESS: 'SWAP_SUCCESS',
     GROUP_INFO_LOADED: 'GROUP_INFO_LOADED',
-    ROUTING_TABLE_LOADED: '',
+    ROUTING_TABLE_LOOKUP_LOADED: 'ROUTING_TABLE_LOOKUP_LOADED',
 }
 
 const Actions = TokenBridgeClientActions;
@@ -41,15 +41,20 @@ export class BridgeClient implements Injectable {
 
     __name__() { return 'BridgeClient'; }
 
-    async getRoutingTable(dispatch: Dispatch<AnyAction>): Promise<void> {
+    async getRoutingTable(dispatch: Dispatch<AnyAction>): Promise<RoutingTableLookup> {
         try {
             const routingTable = await this.api.api({
-                command: '', data: {}, params: [] }) as RoutingTable;
-            dispatch(addAction(Actions.ROUTING_TABLE_LOADED, {}));
+                command: 'getRoutingTable', data: {}, params: [] }) as RoutingTable;
+            if (routingTable) {
+                const lookup = routingTablePopulateLookup(routingTable);
+                dispatch(addAction(Actions.ROUTING_TABLE_LOOKUP_LOADED, lookup));
+                return lookup;
+            }
         } catch (e) {
             console.error('Error loading routing table ', e as Error);
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'Error loading routing table' + ((e as Error).message || '') }));
         }
+        return { } as RoutingTableLookup;
     }
 
     async signInToServer(dispatch: Dispatch<AnyAction>): Promise<any|undefined> {
@@ -158,6 +163,10 @@ export class BridgeClient implements Injectable {
         currency: string) {
         dispatch(addAction(CommonActions.WAITING, { source: 'getAvailableLiquidity' }));
         try {
+            const [,token] = Utils.parseCurrency(currency);
+            if (!token || !token.startsWith('0x')) {
+                return; // Invalid currency
+            }
             // Get the available liquidity for target network
             const res = await this.api.api({
                 command: 'getLiquidity', data: {userAddress, currency}, params: [] } as JsonRpcRequest);
@@ -181,6 +190,10 @@ export class BridgeClient implements Injectable {
             currency: string) {
         dispatch(addAction(CommonActions.WAITING, { source: 'loadUserBridgeLiquidity' }));
         try {
+            const [,token] = Utils.parseCurrency(currency);
+            if (!token || !token.startsWith('0x')) {
+                return; // Invalid currency
+            }
             dispatch(addAction(CommonActions.WAITING, { source: 'getAvailableLiquidity' }));
             // Get the liquidity from web3...
             const res = await this.api.api({

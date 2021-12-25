@@ -108,6 +108,7 @@ export class BridgeModule implements Module {
         new BridgeRequestProcessor(
           c.get(TokenBridgeService),
           c.get(BridgeConfigStorage),
+          c.get(RoutingTableService),
 					c.get(CrossSwapService),
         )
     );

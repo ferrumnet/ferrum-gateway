@@ -32,6 +32,7 @@ import { BridgeClient } from '../../clients/BridgeClient';
 import { AddTokenToMetamask } from 'component-library';
 import { addAction, CommonActions } from '../../common/Actions';
 import { useHistory } from 'react-router';
+import { RoutingHelper } from '../../common/RoutingHelper';
 
 const { Step } = Steps;
 
@@ -139,8 +140,14 @@ export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
             ctx.dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
             const client = inject<BridgeClient>(BridgeClient);
             await updateData(ctx.dispatch)
-            const targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
+            // Get target currency from the pairs. TODO: Deprecate
+            let targetCurrency = ((ctx.getState() as BridgeAppState).data.state.currencyPairs || [] as any)
                 .find(c => c.targetNetwork === payload.destNetwork && c.sourceCurrency === payload.sourceCurrency)?.targetCurrency;
+
+            // Get target currency from routing table
+            targetCurrency = targetCurrency || 
+                ((ctx.getState() as BridgeAppState).data.state.routingTable[payload.sourceCurrency]?.items || []
+                ).find(c => c.network === payload.destNetwork)?.currency;
             if (targetCurrency) {
                 await client.getAvailableLiquidity(ctx.dispatch, payload.destNetwork, targetCurrency);
             } else {
@@ -173,7 +180,7 @@ export const Actions = MainPageSlice.actions;
 
 function stateToProps(appState: BridgeAppState): MainPageProps {
     const state = appState.ui.pairPage;
-    const bridgeCurrencies = appState.data.state.groupInfo?.bridgeCurrencies || [] as any;
+    const bridgeCurrencies = RoutingHelper.groupCurrencies(appState);
     const allNetworks = bridgeCurrencies.map(c => c.split(':')[0]);
     const params = Utils.getQueryparam('currency') || Utils.getQueryparam('symbol');
     let addr = appState.connection.account.user.accountGroups[0]?.addresses || {};
@@ -193,12 +200,22 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
         .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true);
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency) || [])
         .map(e => e.targetNetwork);
+    (appState.data.state.routingTable[currency]?.items || []).forEach(c => Pairs.push(c.network));
     const allowedTargets = Array.from(new Set(Pairs));
     const targetNetworks = networkOptions
         .filter(n => n.key !== (address.network || networkOptions[0]) && (allowedTargets.length > 0 ? allowedTargets.includes(n.key) : true));
     const destNetwork = state.destNetwork || (targetNetworks[0] || {}).key;
-    const currentPair = appState.data.state.currencyPairs.find(p =>
+
+    let currentPair = appState.data.state.currencyPairs.find(p =>
         p.sourceCurrency === currency && p.targetNetwork === destNetwork);
+
+    // Simulate the current pair from routing table
+    // TODO: Refactor to just use the routing table.
+    currentPair = currentPair || RoutingHelper.targetRoutes(appState, currency)
+            .filter(r => r.network === destNetwork)
+            .map(c => ({ fee: c.fee, targetNetwork: c.network, targetCurrency: c.currency } as BridgeTokenConfig))
+            .find(Boolean);
+
     const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
     const availableLiquidity = appState.data.state
@@ -267,12 +284,12 @@ export const ConnectBridge = () => {
         initialise(dispatch)
     }, [])
 
-    const { destNetwork, network, currency, isNetworkAllowed, currentPair } = pageProps;
+    const { destNetwork, network, currency, isNetworkAllowed } = pageProps;
 
     //TODO: Initialize this without useEffect
     useEffect(() => {
         dispatch(loadLiquidity({ destNetwork, sourceCurrency: currency }));
-    }, [destNetwork, currency, network, currentPair])
+    }, [destNetwork, currency, network])
 
     const onWithdrawSuccessMessage = async (txNet: string, tx: string, txCur: string) => {
         message.success({
