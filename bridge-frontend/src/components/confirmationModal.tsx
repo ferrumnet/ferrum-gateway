@@ -36,7 +36,9 @@ const images = {
   'AVAX_TESTNET':IconCryptoAvax,
   'MOON_MOONBASE':IconCryptoMoonbase,
   'AVAX_MAINNET':IconCryptoAvax,
-  'MOON_MOONRIVER':IconCryptoMoonbase
+  'MOON_MOONRIVER':IconCryptoMoonbase,
+  'FTM_TESTNET':IconCryptoAvax,
+  'HARMONY_TESTNET_0':IconCryptoAvax
 
 }
 

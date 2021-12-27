@@ -67,6 +67,14 @@ export class NetworkTransactionWatcher implements Injectable {
     MOON_MOONRIVER:{
       backLimit: 5000,
       lastToBlock: undefined,
+    },
+    FTM_TESTNET:{
+      backLimit: 5000,
+      lastToBlock: undefined,
+    },
+    HARMONY_TESTNET_0:{
+      backLimit: 5000,
+      lastToBlock: undefined,
     }
   };
 
@@ -113,6 +121,12 @@ export class NetworkTransactionWatcher implements Injectable {
       MOON_MOONRIVER: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_MOON_MOONRIVER)
       ),
+      FTM_TESTNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_FTM_TESTNET)
+      ),
+      HARMONY_TESTNET_0: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_HARMONY_TESTNET_0)
+      )
     };
 
     this.withdrawSignedEventdHash = Web3.utils.sha3(
@@ -214,7 +228,9 @@ export class NetworkTransactionWatcher implements Injectable {
       "AVAX_TESTNET",
       "MOON_MOONBASE",
       "AVAX_MAINNET",
-      "MOON_MOONRIVER"
+      "MOON_MOONRIVER",
+      "FTM_TESTNET",
+      "HARMONY_TESTNET_0"
     ];
   }
 
