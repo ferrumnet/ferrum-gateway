@@ -1,0 +1,21 @@
+version: '3'
+services:
+  node:
+    image: naiemk/bridge-node
+    container_name: ___role
+    ports:
+      - "___port:___port"
+    volumes:
+      - ./node.config:/cfg/config
+    environment:
+      - CONFIG_FILES=/cfg/config
+      - AWS_ACCESS_KEY_ID=___aws_access_key
+      - AWS_SECRET_ACCESS_KEY=___aws_access_secret_key
+      - PORT=___port
+  nodeloop:
+    image: naiemk/bridge-node
+    container_name: ___role-loop
+    environment:
+      - LOCAL_BACKEND=___role
+      - LOCAL_PORT=___port
+    entrypoint: ["gosu", "runner", "watch", "-n10", "/runner/bridge-loop.sh",  "___network_keys"]

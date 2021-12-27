@@ -16,6 +16,7 @@ import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestPro
 import { CrucibleRequestProcessor, CrucibleModule } from 'crucible-backend';
 import { GovernanceModule, GovernanceRequestProcessor } from 'governance-backend';
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
+import { LiquidityBalancerRequestProcessor } from 'bridge-backend/dist/src/nodeRemoteAccess/LiquidityBalancerRequestProcessor';
 
 // To solve webpack issue with ethers
 // see: https://github.com/ethers-io/ethers.js/issues/1312
@@ -67,6 +68,7 @@ export class GatewayModule implements Module {
 		  		c.get(GovernanceRequestProcessor),
 		  		c.get(BridgeNodesRemoteAccessRequestProcessor),
           c.get(HmacApiKeyStore),
+          c.get(LiquidityBalancerRequestProcessor),
           c.get(AuthTokenParser),
           AppConfig.instance().getChainProviders(),
         )
@@ -87,3 +89,4 @@ export class GatewayModule implements Module {
 const handlerClass = new BasicHandlerFunction(new GatewayModule());
 
 export const handler = handlerClass.handler;
+

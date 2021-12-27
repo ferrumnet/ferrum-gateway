@@ -75,6 +75,7 @@ export function dataReducer(state: AppGlobalState = {
         allProjects: [], 
         allStakings: [],
         groupInfo: {} as any,
+		routingTable: { items: [] } as any,
 		currencyPairs: [],
 		bridgeLiquidity: {},
 		filteredAssets: {},
@@ -87,6 +88,8 @@ export function dataReducer(state: AppGlobalState = {
             return { ...state,waiting: false };
         case CommonActions.GROUP_INFO_LOADED:
             return { ...state, groupInfo: action.payload };
+		case TokenBridgeClientActions.ROUTING_TABLE_LOOKUP_LOADED:
+			return { ...state, routingTable: action.payload };
 		case CommonActions.FILTERED_TOKEN_LIST_UPDATED:
 			return { ...state, filteredAssets: action.payload };
 		case 'tokenList/listLoaded': // This is the action when token list is loaded

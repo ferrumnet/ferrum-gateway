@@ -16,6 +16,7 @@ import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestPro
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
+import { LiquidityBalancerRequestProcessor } from 'bridge-backend/dist/src/nodeRemoteAccess/LiquidityBalancerRequestProcessor';
 import { ChainEventService } from "common-backend";
 import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
 import { randomBytes } from "crypto";
@@ -34,6 +35,7 @@ export class HttpHandler implements LambdaHttpHandler {
 		private governanceProcessor: GovernanceRequestProcessor,
     private bridgeNodeRemoteAccess: BridgeNodesRemoteAccessRequestProcessor,
     private hmacApiKeyStore: HmacApiKeyStore,
+    private liqBalancer: LiquidityBalancerRequestProcessor,
     private authToken: AuthTokenParser,
     private newtworkConfig: NetworkedConfig<string>,
   ) {
@@ -115,7 +117,8 @@ export class HttpHandler implements LambdaHttpHandler {
 						this.stakingProcessor.for(req.command) ||
             this.governanceProcessor.for(req.command);
           let processorAuth =
-            this.bridgeNodeRemoteAccess.forAuth(req.command);
+            this.bridgeNodeRemoteAccess.forAuth(req.command) ||
+            this.liqBalancer.forAuth(req.command);
           if (!!processor) {
             body = await processor(req, userId, );
           } else if (!!processorAuth) {

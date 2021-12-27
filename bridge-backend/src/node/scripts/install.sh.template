@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -e
+trap 'catch $? $LINENO' EXIT
+
+catch() {
+  if [ "$1" != "0" ]; then
+    echo "Error $1 occurred on line $2"
+    exit
+  fi
+}
+
+templates_url="https://ferrum-node-distribution.netlify.app/bridge-npde-1.tar.gz"
+
+function ensure_docker {
+echo chacking if you have docker...
+res=$(docker images > /dev/null)
+}
+
+function download_templates {
+    curl -s $templates_url | tar -xz
+}
+
+ensure_docker
+
+configuration="CONFIGURAION_PARAM"
+echo configuring as $configuration
+
+mkdir -p "./$configuration"
+cd "./$configuration"
+
+download_templates
+
+sed -i.bak -e "s/BRIDGE_ROLE/$configuration/g" ./.bridgeconfig 
+if [ "$configuration" == "validator" ]; then
+  sed -i.bak -e "s/BRIDGE_PORT/8089/g" ./.bridgeconfig 
+  rm ./.liquiditylevels
+elif [ "$configuration" == "generator" ]; then
+  sed -i.bak -e "s/BRIDGE_PORT/8091/g" ./.bridgeconfig 
+  # Generator does not need .2faconfig
+  rm ./.2faconfig 
+  rm ./.awsconfig
+  rm ./.liquiditylevels
+  rm ./.templates/cryptor.env.template
+else 
+  sed -i.bak -e "s/BRIDGE_PORT/8092/g" ./.bridgeconfig 
+fi
+rm -f .bridgeconfig.bak
+
+chmod +x ./bin/cryptor.sh
+chmod +x ./bin/node.sh
+mkdir -p ./.cfg
+
+echo 
+echo 
+echo Install completed.
+echo Run ./bin/node.sh to check your configuration
+echo
+echo Following files include your configuration that you need to edit before running your node
+echo  .2faconfig
+echo  .awsconfig
+echo  .bridgeconfig
+echo  .liquiditylevels
+echo  .providers

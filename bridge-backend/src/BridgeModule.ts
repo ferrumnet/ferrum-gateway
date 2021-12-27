@@ -1,4 +1,4 @@
-import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
+import { MongooseConfig } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { ChainClientFactory, EthereumAddress } from "ferrum-chain-clients";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
@@ -16,6 +16,8 @@ import { BridgeNotificationSvc } from './BridgeNotificationService';
 import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodesRemoteAccessRequestProcessor } from "..";
 import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
+import { LiquidityBalancerRequestProcessor } from "./nodeRemoteAccess/LiquidityBalancerRequestProcessor";
+import { RoutingTableService } from "./RoutingTableService";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -106,6 +108,7 @@ export class BridgeModule implements Module {
         new BridgeRequestProcessor(
           c.get(TokenBridgeService),
           c.get(BridgeConfigStorage),
+          c.get(RoutingTableService),
 					c.get(CrossSwapService),
         )
     );
@@ -126,11 +129,20 @@ export class BridgeModule implements Module {
 			conf.swapProtocols!,
 			conf.bridgeV12Config,));
 
+    container.registerSingleton(RoutingTableService, c =>
+      new RoutingTableService());
+
     container.registerSingleton(BridgeNodesRemoteAccessService, c =>
       new BridgeNodesRemoteAccessService(
         c.get(TokenBridgeService),
         c.get(EthereumSmartContractHelper),
         AppConfig.instance().get<BridgeProcessorConfig>().validatorAddressesV1 || [],
+      ));
+    
+    container.registerSingleton(LiquidityBalancerRequestProcessor, c =>
+      new LiquidityBalancerRequestProcessor(
+        c.get(TokenBridgeService),
+        c.get(EthereumSmartContractHelper),
       ));
 
     container.registerSingleton(BridgeNodesRemoteAccessRequestProcessor, c =>
@@ -142,5 +154,7 @@ export class BridgeModule implements Module {
 		await container.registerModule(new BridgeModuleCommons(conf.database));
     await container.get<BridgeNodesRemoteAccessService>(
       BridgeNodesRemoteAccessService).init(conf.database);
+    await container.get<RoutingTableService>(
+      RoutingTableService).init(conf.database);
   }
 }

@@ -53,7 +53,7 @@ import { Dropdown } from "react-bootstrap";
 import { changeNetwork } from "./../Main/handler";
 import { LiquidityConfirmationModal } from "./../../components/confirmationModal";
 import { useBoolean } from "@fluentui/react-hooks";
-import { Networks } from "ferrum-plumbing";
+import { RoutingHelper } from "../../common/RoutingHelper";
 
 export interface liquidityPageProps {
   network: string;
@@ -169,9 +169,10 @@ const tokenSelectedThunk = createAsyncThunk(
       const sc = inject<BridgeClient>(BridgeClient);
       await sc.getUserLiquidity(ctx.dispatch, addr, payload.currency);
 
+      // Use config paris to identify pairs. TODO: Deprecated
       // Get available liquidity for all pairs of the selected currency
       const allCurrencies = new Set<string>();
-      const pairs = state.data.state.currencyPairs
+      state.data.state.currencyPairs
         .filter(
           (cp) =>
             cp.sourceCurrency === payload.currency ||
@@ -181,8 +182,12 @@ const tokenSelectedThunk = createAsyncThunk(
           allCurrencies.add(cp.sourceCurrency);
           allCurrencies.add(cp.targetCurrency);
         });
+      
+      // Use routing table to identify pairs
+      RoutingHelper.targetCurrencies(state, payload.currency).forEach(c => allCurrencies.add(c));
+
       for (const c of Array.from(allCurrencies)) {
-        await sc.getAvailableLiquidity(ctx.dispatch, addr, c);
+        sc.getAvailableLiquidity(ctx.dispatch, addr, c).catch(console.error);
       }
       ctx.dispatch(Actions.tokenSelected({ value: payload.currency }));
     } catch (e) {
@@ -247,8 +252,7 @@ function stateToProps(
   userAccounts: AppAccountState
 ): liquidityPageProps {
   const state = (appState.ui.liquidityPage || {}) as liquidityPageProps;
-  const bridgeCurrencies =
-    appState.data.state.groupInfo?.bridgeCurrencies || ([] as any);
+  const bridgeCurrencies = RoutingHelper.groupCurrencies(appState);
   const allNetworks = bridgeCurrencies.map((c) => c.split(":")[0]);
   const addr = userAccounts?.user?.accountGroups[0]?.addresses || {};
   let address = addr[0] || {};
@@ -274,7 +278,11 @@ function stateToProps(
       (p) => p.sourceCurrency === currency || p.targetCurrency === currency
     ) || []
   ).map((e) => e.targetNetwork);
+
+  RoutingHelper.targetNetworks(appState, currency).forEach(n => Pairs.push(n));
+
   const AllowedNetworks = Array.from(new Set(Pairs));
+
   const networkOptions = Object.values(supportedNetworks).filter(
     (n) =>
       allNetworks.indexOf(n.key) >= 0 &&
@@ -293,7 +301,7 @@ function stateToProps(
     appState.data.state.bridgeLiquidity[currency || "N/A"] || "0";
 
   const assets: { [k: string]: TokenDetails } = {};
-  const bridgeCurr = appState.data.state?.groupInfo?.bridgeCurrencies || [];
+  const bridgeCurr = bridgeCurrencies;
   bridgeCurr.forEach(c => {
     if (appState.data.tokenList.lookup[c]) {
       assets[c] = appState.data.tokenList.lookup[c];

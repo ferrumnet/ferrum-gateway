@@ -2,12 +2,13 @@ import {abi as bridgeAbi} from './resources/BridgePool.json';
 import { EthereumSmartContractHelper } from 'aws-lambda-helper/dist/blockchain';
 import { Injectable, LocalCache, Network, ValidationUtils } from 'ferrum-plumbing';
 import { CustomTransactionCallRequest } from 'unifyre-extension-sdk';
-import { UserBridgeWithdrawableBalanceItem, Utils } from 'types';
+import { BigUtils, UserBridgeWithdrawableBalanceItem, Utils } from 'types';
 import { BridgeSwapEvent, BridgeTransaction } from './common/TokenBridgeTypes';
 import { Networks } from 'ferrum-plumbing/dist/models/types/Networks';
 import { ChainUtils } from 'ferrum-chain-clients';
 import Web3 from 'web3';
 import { Eth } from 'web3-eth';
+import { Big } from 'big.js';
 
 const GLOB_CACHE = new LocalCache();
 const Helper = EthereumSmartContractHelper;
@@ -217,6 +218,11 @@ export class TokenBridgeContractClinet implements Injectable {
     }
 
     async removeLiquidityIfPossible(userAddress: string, currency: string, amount: string) {
+        ValidationUtils.isTrue(!!userAddress, 'userAddress is required');
+        ValidationUtils.isTrue(!!currency, 'currency is required');
+        ValidationUtils.isTrue(!!amount, 'amount is required');
+        ValidationUtils.isTrue(!!BigUtils.safeParse(amount).gt(new Big(0)), 'amount must be positive');
+
         const [network, token] = Helper.parseCurrency(currency);
         const amountRaw = await this.helper.amountToMachine(currency, amount);
         const p = this.instance(network).methods.removeLiquidityIfPossible(token, amountRaw);

@@ -1,0 +1,12 @@
+# You need a pair of AWS access keys with permission to use a specific 
+# KMS key. This provides one layer of encryption for your private key.
+
+# You can ask the Ferrum team to assign you an access pair and a KMS key
+# If you want to mange your own KMS key (preferred approach)
+# Create a KMS key in AWS and add permissions to your user to use the KMS
+# key ARN to "ecnrypt", "decrypte", and "createDataKey"
+
+aws_access_key=
+aws_access_secret_key=
+
+cmk_key_id=

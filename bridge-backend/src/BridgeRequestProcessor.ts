@@ -3,6 +3,7 @@ import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
+import { RoutingTableService } from "./RoutingTableService";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor
@@ -11,9 +12,12 @@ export class BridgeRequestProcessor
   constructor(
     private svc: TokenBridgeService,
     private bgs: BridgeConfigStorage,
+    private rouitingTable: RoutingTableService,
 		private crossSwap: CrossSwapService,
   ) {
     super();
+
+    this.registerProcessor("getRoutingTable", (req,) => this.rouitingTable.getRoutingTable());
 
     this.registerProcessor("withdrawSignedGetTransaction", (req, userId) =>
       this.withdrawSignedGetTransaction(req, userId!)

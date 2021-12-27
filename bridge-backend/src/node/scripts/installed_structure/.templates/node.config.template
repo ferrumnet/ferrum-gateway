@@ -1,0 +1,20 @@
+{
+  "role": "___role",
+  "providers": {
+    ___network_providers
+  },
+  "cmkKeyId": "___cmk_key_id",
+  "twoFa": {
+    "uri": "https://p1te4k01x7.execute-api.us-east-2.amazonaws.com/default/prod-totp-v2",
+    "twoFaId": "___two_fa_id",
+    "accessKey": "___two_fa_public_key",
+    "secretKey": "___two_fa_secret_key"
+  },
+  "bridgeEndpoint": "https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging",
+  "publicAccessKey": "___bridge_public_key",
+  "secretAccessKey": "___bridge_secret_key",
+  "encryptedSignerKey": "___encrypted_private_key",
+  "liquidityLevels": {
+    "___liquidity-levels":""
+  }
+}

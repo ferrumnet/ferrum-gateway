@@ -84,12 +84,18 @@ const tokenSelectedThunk = createAsyncThunk('liquidity/tokenSelected', async (pa
       
 		// Get available liquidity for all pairs of the selected currency
 		const allCurrencies = new Set<string>();
-		const pairs = state.data.state.currencyPairs.filter(cp =>
+		state.data.state.currencyPairs.filter(cp =>
 			cp.sourceCurrency === payload?.currency ||
 			cp.targetCurrency === payload?.currency).forEach(cp => {
 				allCurrencies.add(cp.sourceCurrency);
 				allCurrencies.add(cp.targetCurrency);
 			});
+
+        // Use routing table to identify pairs
+        (state.data.state.routingTable[payload.currency]?.items || []).forEach(gc => {
+            allCurrencies.add(gc.currency);
+        });
+        
 		for(const c of Array.from(allCurrencies)) {
 			await sc.getAvailableLiquidity(ctx.dispatch, addr, c);
 		}
@@ -211,6 +217,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): n
 	const currentNetwork = supportedNetworks[address.network] || {};
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])
     .map(e => e.targetNetwork);
+    (appState.data.state.routingTable[currency]?.items || []).forEach(c => Pairs.push(c.network));
     const AllowedNetworks = Array.from(new Set(Pairs));
     const networkOptions = Object.values(supportedNetworks)
     .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true && AllowedNetworks.includes(n.key));

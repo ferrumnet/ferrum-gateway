@@ -20,6 +20,16 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
         // @ts-ignore
         if (window.ethereum) {
             //@ts-ignore
+            const tx = await ethereum.request({method: 'wallet_switchEthereumChain', params:[ {"chainId": `0x${net.chainId}`}]});
+        }else{
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable, manually switch network on metamask' }));
+        }
+    } catch (e) {
+        try{
+            //try legacy request as temporary fallback, to be removed once wallet_switchEthereumChain is stable
+            //@ts-ignore
+            let ethereum = window.ethereum;
+            const net = Networks.for(network);
             const data = [ {
                 "chainId": net.chainId,
                 "chainName": net.displayName,
@@ -34,11 +44,10 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
             }]
             /* eslint-disable */
             const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data})
-        }else{
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable, manually switch network on metamask' }));
+        }catch(e){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable on Browser, manually switch network on metamask' }));
+            return
         }
-    } catch (e) {
-		dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable on Browser, manually switch network on metamask' }));
     } finally {
         dispatch(addAction(CommonActions.WAITING_DONE, { source: 'dashboard' }));
     }

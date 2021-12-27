@@ -1,12 +1,12 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Container, LoggerFactory, Module, ValidationUtils } from "ferrum-plumbing";
+import { Container, LoggerFactory, Module, panick, ValidationUtils } from "ferrum-plumbing";
 import { BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
 import { BridgeNodeV1 } from "./BridgeNodeV1";
 import { TransactionListProvider } from "./TransactionListProvider";
 import { CrossSwapService } from "../crossSwap/CrossSwapService";
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
-import { AppConfig, CommonBackendModule, SUPPORTED_CHAINS_FOR_CONFIG } from "common-backend";
+import { AppConfig, CommonBackendModule } from "common-backend";
 import { KmsCryptor } from "aws-lambda-helper";
 import { TwoFaEncryptionClient } from "aws-lambda-helper/dist/security/TwoFaEncryptionClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
@@ -15,6 +15,7 @@ import { WithdrawItemGeneratorV1 } from "./WithdrawItemGeneratorV1";
 import { WithdrawItemValidator } from "./WithdrawItemValidator";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { WebNativeCryptor, CryptoJsKeyProvider } from 'ferrum-crypto';
+import { LiquidityBalancerProcessor, LiquidityClient } from "./extra/LiquidityBalancerProcessor";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
@@ -79,11 +80,19 @@ export class NodeModule implements Module {
 			c.get(LoggerFactory),
 	));
 
-	container.register(BridgeNodesRemoteAccessClient,
+	container.registerSingleton(BridgeNodesRemoteAccessClient,
 		c => new BridgeNodesRemoteAccessClient(
 			conf.bridgeEndpoint));
 
-	ValidationUtils.isTrue(conf.role === 'generator' || conf.role === 'validator', 'Bad role:' + conf.role);
+	container.register(LiquidityClient,
+		c => new LiquidityClient(conf.bridgeEndpoint, conf.publicAccessKey, conf.secretAccessKey));
+
+	container.registerSingleton(LiquidityBalancerProcessor,
+		c => new LiquidityBalancerProcessor(
+			c.get(LiquidityClient),
+			conf.liquidityLevels!,
+			c.get(PrivateKeyProvider),
+			c.get(LoggerFactory)));
 
 	container.registerSingleton(
 		BridgeNodeV1,
@@ -92,9 +101,13 @@ export class NodeModule implements Module {
 			c.get(PrivateKeyProvider),
 			conf.role === 'generator' ?
 				c.get(WithdrawItemGeneratorV1) :
-				c.get(WithdrawItemValidator),
+					conf.role === 'validator' ?
+						c.get(WithdrawItemValidator) :
+							conf.role === 'liquidityBot' ?
+							  c.get(LiquidityBalancerProcessor) :
+							  	panick(`Bad role ${conf.role}`) as any,
 			conf.encryptedSignerKey,
-			conf.twoFaId,
+			conf.twoFa.twoFaId,
 			conf.role,
 			c.get(LoggerFactory),
 		),

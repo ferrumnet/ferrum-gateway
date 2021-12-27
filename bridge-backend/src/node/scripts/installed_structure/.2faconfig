@@ -1,0 +1,13 @@
+# You need two factor authentication to encrypt your private key.
+# The private key is double encrypted.
+#   Once with AWS KMS.
+#   For the second time by a wrapper key from the two fa service.
+
+# You two fa service access keys can be aquired from Ferrum team.
+two_fa_public_key=
+two_fa_secret_key=
+
+# You can create a 2fa pair using ./bin/cryptor.sh new2fa
+# Use the generated secret in your authenticator app
+# and paste the two_fa_id here
+two_fa_id=
