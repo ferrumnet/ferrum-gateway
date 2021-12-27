@@ -45,7 +45,7 @@ configs.forEach(c => {
     tFile = tFile.replace(/___network_providers/g, Object.keys(vals).map(k => `"${k}": "${vals[k]}"`).join(','));
     tFile = tFile.replace('___network_keys', Object.keys(vals).join(','));
   } else if (c.endsWith('liquiditylevels')) {
-    tFile = tFile.replace('___liquidity-levels', Object.keys(vals).map(k => `"${k}": "${vals[k]}"`).join(','));
+    tFile = tFile.replace('"___liquidity-levels":""', Object.keys(vals).map(k => `"${k}": "${vals[k]}"`).join(','));
   } else {
     Object.keys(vals).forEach(k => {
       tFile = tFile.replace(new RegExp('___' + k, 'g'), vals[k]);

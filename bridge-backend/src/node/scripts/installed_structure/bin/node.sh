@@ -32,7 +32,11 @@ elif  [ "$1" == "start" ]; then
     docker-compose  -f ./.cfg/docker-compose.yml rm -f
     docker-compose -f "./.cfg/docker-compose.yml" up -d
     exit 0
+elif [ "$1" == "address" ]; then
+    curl "http://localhost:$port?command=printSigner"
+    echo
+    exit 0
 else
     echo SYNTAX:
-    echo './bin/node.sh [start|stop|init]'
+    echo './bin/node.sh [start|stop|init|address]'
 fi
