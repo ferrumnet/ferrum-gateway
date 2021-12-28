@@ -139,6 +139,10 @@ export class LiquidityBalancerProcessor implements Injectable, NodeProcessor {
             let res: any;
             if (totalLiq.gt(targetLiq.times(DISCOUNT_RATIO_UP))) {
                 // Too muc liq. Remove some
+                if (availLiq.eq(new Big(0))) {
+                    this.log.info('We need to remove liquidity but we don\'t have any liquidity balance');
+                    return;
+                }
                 let diff = totalLiq.sub(targetLiq);
                 if (diff.gt(availLiq)) {
                     diff = availLiq;
@@ -147,11 +151,16 @@ export class LiquidityBalancerProcessor implements Injectable, NodeProcessor {
                 verifyExpectedTx(network, removeLiqTx);
                 const signed = this.signTx(network, removeLiqTx);
                 res = await this.client.sendTransaction(network, signed);
+                this.log.info(`Sent transaction for ${network}: ${JSON.stringify(res)}}`);
             }
 
             if (totalLiq.lt(targetLiq.times(DISCOUNT_RATIO_DOWN))
             ) {
                 // Too little liq. Add some
+                if (userBalance.eq(new Big(0))) {
+                    this.log.info('We need to add liquidity but we don\'t have any balance');
+                    return;
+                }
                 let diff = targetLiq.sub(totalLiq);
                 if (diff.gt(userBalance)) {
                     diff = userBalance;
@@ -169,8 +178,8 @@ export class LiquidityBalancerProcessor implements Injectable, NodeProcessor {
                 }
                 const signed = this.signTx(network, addLiqTx);
                 res = await this.client.sendTransaction(network, signed);
+                this.log.info(`Sent transaction for ${network}: ${JSON.stringify(res)}}`);
             }
-            this.log.info(`Sent transaction for ${network}: ${JSON.stringify(res)}}`);
         } catch(e) {
             this.log.error(`Error processing for currency ${currency}`, e as Error);
         }
