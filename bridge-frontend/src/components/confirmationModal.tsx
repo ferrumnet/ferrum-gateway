@@ -19,7 +19,7 @@ import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
 import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
 import IconCryptoAvax from '../assets/img/avax.png'
 import IconCryptoMoonbase from '../assets/img/moonbase.png'
-
+import IconCryptoFantom from '../assets/img/fantom.svg'
 
 
 
@@ -38,7 +38,8 @@ const images = {
   'AVAX_MAINNET':IconCryptoAvax,
   'MOON_MOONRIVER':IconCryptoMoonbase,
   'FTM_TESTNET':IconCryptoAvax,
-  'HARMONY_TESTNET_0':IconCryptoAvax
+  'HARMONY_TESTNET_0':IconCryptoAvax,
+  'FTM_MAINNET':IconCryptoFantom
 
 }
 

@@ -43,6 +43,7 @@ export class Cli implements Injectable {
       AVAX_MAINNET:process.env.WEB3_PROVIDER_AVAX_MAINNET,
       MOON_MOONRIVER: process.env.WEB3_PROVIDER_MOON_MOONRIVER,
       FTM_TESTNET:process.env.WEB3_PROVIDER_FTM_TESTNET,
+      FTM_MAINNET:process.env.WEB3_PROVIDER_FTM_MAINNET,
       HARMONY_TESTNET_0:process.env.WEB3_PROVIDER_HARMONY_TESTNET_0
 
 
