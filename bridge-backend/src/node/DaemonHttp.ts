@@ -8,9 +8,14 @@ import { Utils } from "types";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 
 const containerLazy = Lazy.forAsync<Container>(async () => {
-  const container = await LambdaGlobalContext.container();
-  await container.registerModule(new NodeModule());
-  return container;
+  try {
+    const container = await LambdaGlobalContext.container();
+    await container.registerModule(new NodeModule());
+    return container;
+  } catch(e) {
+    console.error('Error initializing the container', e);
+    throw e;
+  }
 });
 
 function sendError(res: http.ServerResponse, message: string) {
