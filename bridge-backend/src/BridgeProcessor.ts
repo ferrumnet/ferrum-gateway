@@ -70,6 +70,7 @@ export class BridgeProcessor implements Injectable {
         relevantTokens.map((j: any) => j.sourceCurrency),
         "soucre currencies"
       );
+      
       let incoming = (await this.bridgeContract.getSwapEvents(network)) || [];
       const swapTxs = await this.svc.getPendingSwapTxIds(network);
       const swapTxsIds = swapTxs.map((e: any) => e.id);

@@ -19,8 +19,10 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
         let ethereum = window.ethereum;
         // @ts-ignore
         if (window.ethereum) {
+            const chainId= net.chainId
+            const hexChainId = chainId.toString(16);
             //@ts-ignore
-            const tx = await ethereum.request({method: 'wallet_switchEthereumChain', params:[ {"chainId": `0x${net.chainId}`}]});
+            const tx = await ethereum.request({method: 'wallet_switchEthereumChain', params:[ {"chainId": `0x${hexChainId}`}]});
         }else{
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message:'Switch Network unavaialable, manually switch network on metamask' }));
         }
@@ -30,6 +32,7 @@ export const changeNetwork = async (dispatch: Dispatch<AnyAction>,
             //@ts-ignore
             let ethereum = window.ethereum;
             const net = Networks.for(network);
+            console.log('seitch data',net)
             const data = [ {
                 "chainId": net.chainId,
                 "chainName": net.displayName,
