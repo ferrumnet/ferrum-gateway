@@ -1,6 +1,10 @@
 
 # How to set up a node
 
+[Deprecated] Please check the new method: https://github.com/ferrumnet/ferrum-gateway/tree/main/bridge-backend/src/node/scripts
+
+Also the guide to set up a VM with Ubikey: https://github.com/ferrumnet/ferrum-gateway/blob/main/bridge-backend/src/node/docs/SETUP.md
+
 Birdge V1:
 
 a) Generator
