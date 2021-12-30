@@ -37,7 +37,7 @@ $ ./bin/cryptor.sh help
 
 Edit `./.templates/docker-compose.yml.templatae' and add the following lines to the first container configuration. Change the tag (`node-generator-1-app-staging`) appropriately. If you want, you can create a new log group on AWS and update the awslogs-group. 
 
-You also need to configure AWS credentials by setting env variables or setting (`~/.aws/credentials`)[https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_profiles.html] (for the account that writes log, this might be different from credentials for KMS that is configured in `/.awsconfig` file)
+You also need to configure AWS credentials by setting env variables or setting [`~/.aws/credentials`](https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_profiles.html) (for the account that writes log, this might be different from credentials for KMS that is configured in `/.awsconfig` file)
 
 ```
     logging:
