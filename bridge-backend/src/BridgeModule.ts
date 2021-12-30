@@ -68,39 +68,40 @@ export class BridgeModule implements Module {
   async configAsync(container: Container) {
     const conf = AppConfig.instance().get<BridgeProcessorConfig>();
 
-    const privateKey =
-      getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
-      (await decryptKey(
-        AppConfig.awsRegion(),
-        getEnv("KEY_ID"),
-        getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
-      ));
-    const processorAddress = (
-      await new EthereumAddress("prod").addressFromSk(privateKey)
-    ).address;
-    container.registerSingleton(
-      TokenBridgeContractClinet,
-      (c) =>
-        new TokenBridgeContractClinet(
-          c.get(EthereumSmartContractHelper),
-          conf.bridgeConfig.contractClient
-        )
-    );
-    container.registerSingleton(
-      BridgeProcessor,
-      (c) =>
-        new BridgeProcessor(
-          conf,
-          c.get(ChainClientFactory),
-          c.get(TokenBridgeService),
-          c.get(TokenBridgeContractClinet),
-          c.get(BridgeConfigStorage),
-          c.get(EthereumSmartContractHelper),
-          privateKey,
-          processorAddress,
-          c.get(LoggerFactory)
-        )
-    );
+    // Disabling the birdge processor in favor of the new node structure
+    // const privateKey =
+    //   getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
+    //   (await decryptKey(
+    //     AppConfig.awsRegion(),
+    //     getEnv("KEY_ID"),
+    //     getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
+    //   ));
+    // const processorAddress = (
+    //   await new EthereumAddress("prod").addressFromSk(privateKey)
+    // ).address;
+    // container.registerSingleton(
+    //   TokenBridgeContractClinet,
+    //   (c) =>
+    //     new TokenBridgeContractClinet(
+    //       c.get(EthereumSmartContractHelper),
+    //       conf.bridgeConfig.contractClient
+    //     )
+    // );
+    // container.registerSingleton(
+    //   BridgeProcessor,
+    //   (c) =>
+    //     new BridgeProcessor(
+    //       conf,
+    //       c.get(ChainClientFactory),
+    //       c.get(TokenBridgeService),
+    //       c.get(TokenBridgeContractClinet),
+    //       c.get(BridgeConfigStorage),
+    //       c.get(EthereumSmartContractHelper),
+    //       privateKey,
+    //       processorAddress,
+    //       c.get(LoggerFactory)
+    //     )
+    // );
 
     container.registerSingleton(
       BridgeRequestProcessor,

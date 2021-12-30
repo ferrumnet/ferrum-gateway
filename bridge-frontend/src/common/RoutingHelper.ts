@@ -5,7 +5,8 @@ export class RoutingHelper {
   static groupCurrencies(state: BridgeAppState) {
       const groupId = state.data.state.groupInfo?.groupId || '';
       if (groupId === 'frm') {
-          return Object.keys(state.data.state.routingTable);
+          return (state.data.state.groupInfo?.bridgeCurrencies || [])
+            .concat(Object.keys(state.data.state.routingTable));
       } else {
           return state.data.state.groupInfo?.bridgeCurrencies || [];
       }
