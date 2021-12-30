@@ -33,6 +33,22 @@ There would also be a cryptor.sh to generate and encrypt / decrypt private eys:
 $ ./bin/cryptor.sh help
 ```
 
+## To enable logging on AWS Cloudwatch instead of local
+
+Edit `./.templates/docker-compose.yml.templatae' and add the following lines to the first container configuration. Change the tag (`node-generator-1-app-staging`) appropriately. If you want, you can create a new log group on AWS and update the awslogs-group. 
+
+You also need to configure AWS credentials by setting env variables or setting (`~/.aws/credentials`)[https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/guide_credentials_profiles.html] (for the account that writes log, this might be different from credentials for KMS that is configured in `/.awsconfig` file)
+
+```
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: us-east-2
+        awslogs-group: node-generator-1-app-staging
+        tag: node-1-staging-generator
+        awslogs-datetime-format: "%Y-%m-%dT%H:%M:%S"
+```
+
 ## Scripts
 
 1. One click installer
