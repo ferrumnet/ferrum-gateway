@@ -6,6 +6,7 @@ import { NodeUtils } from "./common/NodeUtils";
 import { PrivateKeyProvider } from "../common/PrivateKeyProvider";
 import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
+import { NodeErrorHandling } from "./common/NodeErrorHandling";
 
 const EXPECTED_SCHEMA_VERSION = '1.0';
 
@@ -56,8 +57,8 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
      * 2. Make sure it matches the network.
      */
     async processSingleTransaction(wi: UserBridgeWithdrawableBalanceItem) {
+        const cacheKey = `${wi.receiveNetwork}:${wi.receiveTransactionId}`;
         try {
-            const cacheKey = `${wi.receiveNetwork}:${wi.receiveTransactionId}`;
             if (!!this.cache.get(cacheKey)) {
                 this.log.info(`Already processed ${cacheKey}`);
                 return;
@@ -88,7 +89,12 @@ export class WithdrawItemValidator implements Injectable, NodeProcessor {
             this.log.info(`Registered verification of "${await this.key.address()}" for: ${wi.receiveNetwork}:${wi.receiveTransactionId}`);
             this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
-            console.error(`Error processing withdraw item "${JSON.stringify(wi)}"`, e as Error);
+            const err = e as Error;
+            if (NodeErrorHandling.ignorable(err)) {
+                this.cache.set(cacheKey, {}, NODE_CACHE_TIMEOUT);
+            } else {
+                this.log.error(`Error processing tx ${wi.receiveNetwork}:${wi.receiveTransactionId} - ${(e as Error).toString()}`);
+            }
         }
     }
 }

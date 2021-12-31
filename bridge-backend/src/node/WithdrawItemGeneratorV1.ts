@@ -4,6 +4,7 @@ import { NodeProcessor, NODE_CACHE_TIMEOUT } from "../common/TokenBridgeTypes";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { TokenBridgeContractClinet } from "../TokenBridgeContractClient";
 import { BridgeNodeConfig } from "./BridgeNodeConfig";
+import { NodeErrorHandling } from "./common/NodeErrorHandling";
 import { NodeUtils } from "./common/NodeUtils";
 
 const DEFAULT_LOOK_BACK_MILLIS = 1000 * 3600 * 24;
@@ -64,8 +65,8 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
      * Register it.
      */
     async processSingleTransactionById(network: string, txId: string) {
+        const cacheKey = `${network}:${txId}`;
         try {
-            const cacheKey = `${network}:${txId}`;
             if (!!this.cache.get(cacheKey)) {
                 this.log.info(`Already processed ${network}:${txId}`);
                 return;
@@ -84,7 +85,12 @@ export class WithdrawItemGeneratorV1 implements Injectable, NodeProcessor {
             this.log.info(`Registered PWI: ${network}:${txId}`);
             this.cache.set(cacheKey, 'done', NODE_CACHE_TIMEOUT);
         } catch (e) {
-            console.error(`Error processing tx ${network}:${txId}`, e as Error);
+            const err = e as Error;
+            if (NodeErrorHandling.ignorable(err)) {
+                this.cache.set(cacheKey, {}, NODE_CACHE_TIMEOUT);
+            } else {
+                this.log.error(`Error processing tx ${network}:${txId} - ${(e as Error).toString()}`);
+            }
         }
     }
 }
