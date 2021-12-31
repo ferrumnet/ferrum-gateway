@@ -8,5 +8,8 @@ export class NodeErrorHandling {
         if ((emsg || '').toLowerCase().indexOf('error: already registered') >= 0) {
             return true;
         }
+        if ((emsg || '').toLowerCase().indexOf('error: already processed') >= 0) {
+            return true;
+        }
     }
 }
