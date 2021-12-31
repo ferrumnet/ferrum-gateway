@@ -342,6 +342,7 @@ export const ConnectBridge = () => {
                 network={pageProps.network}
                 numberOfWithdrawals={unUsedItems}
                 sideCtrl={() => openPanelHandler(dispatch)}
+                reset={()=>dispatch(Actions.resetSwap({}))}
             />
             <ConfirmationModal
                 isModalOpen={isConfirmModalOpen}
@@ -397,7 +398,7 @@ export const ConnectBridge = () => {
                             }}
                             setIsNetworkReverse={() => dispatch(Actions.changeIsNetworkReverse({}))}
                             IsNetworkReverse={pageProps.isNetworkReverse}
-                            swapping={swapping}
+                            swapping={swapping||((pageProps.swapId != '') && pageProps.progressStatus > 2)}
                         />
                         {
                             pageProps.isNetworkReverse &&
@@ -454,10 +455,7 @@ export const ConnectBridge = () => {
                                 onClick={
                                     (pageProps.network != pageProps.swapWithdrawNetwork) ?
                                         () => changeNetwork(dispatch, (pageProps.swapWithdrawNetwork || pageProps.destNetwork)) :
-                                        () => executeWithdraw(dispatch,
-                                            pageProps.itemId,
-                                            onWithdrawSuccessMessage,
-                                            onMessage, (v) => dispatch(Actions.setProgressStatus({ status: v })))}
+                                        () => openPanelHandler(dispatch)}
                                 disabled={swapping}
                                 className="btn btn-pri action btn-icon btn-connect mt-4"
                             >

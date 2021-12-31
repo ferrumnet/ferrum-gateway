@@ -52,7 +52,7 @@ export class BridgeClient implements Injectable {
             }
         } catch (e) {
             console.error('Error loading routing table ', e as Error);
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'Error loading routing table' + ((e as Error).message || '') }));
+            //dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'Error loading routing table' + ((e as Error).message || '') }));
         }
         return { } as RoutingTableLookup;
     }

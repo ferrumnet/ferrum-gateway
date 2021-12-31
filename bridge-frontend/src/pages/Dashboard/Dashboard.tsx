@@ -158,7 +158,6 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
     try {
         dispatch(addAction(CommonActions.WAITING, { source: 'dashboard' }));
         const client = inject<BridgeClient>(BridgeClient);
-        const rtF = client.getRoutingTable(dispatch).catch(console.error);
         let groupId = getGroupIdFromHref();
         let groupInfo: GroupInfo | undefined;
         if (!groupId) {
@@ -192,18 +191,20 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
                 setAllThemes("all-themes", defaultTheme);
             }
             // TODO: Deprecated. Phase out
-            client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies).catch(console.error);
+            await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies).catch(console.error);
             console.log('GROUP INFO CUR', groupInfo.bridgeCurrencies);
 
             if ((groupInfo.bridgeCurrencies || []).length) {
                 // Update the filtered token list
+                const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
                 const bridgeCurrenciesSet = new Set<string>(groupInfo.bridgeCurrencies || []);
+                const rtF = client.getRoutingTable(dispatch).catch(console.error);
                 const routing: RoutingTableLookup = await rtF as any;
                 Object.keys(routing).forEach(c => bridgeCurrenciesSet.add(c));
                 const bridgeCurrencies = Array.from(bridgeCurrenciesSet);
                 dispatch(updateFilteredTokenList({ currencies: bridgeCurrencies }) as any);
-                const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
                 cl.set(bridgeCurrencies);
+                
                 try {
                     const userProfile = await await web3client.getUserProfile();
                     dispatch(connectSlice.actions.connectionSucceeded({ userProfile }));

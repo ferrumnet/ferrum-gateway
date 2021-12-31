@@ -7,7 +7,9 @@ import { Modal } from 'antd';
 
 export const WithdrawNoti = (props:
     {isModalVisible: boolean,setIsModalVisible: (v:boolean)=>void,
-        network:string,numberOfWithdrawals:number,sideCtrl: ()=>void}) => {
+        network:string,numberOfWithdrawals:number,sideCtrl: ()=>void,reset: ()=>void
+    }
+    ) => {
     const theme = useContext(ThemeContext);   
     const styles = themedStyles(theme);
     const showModal = () => {
@@ -21,6 +23,7 @@ export const WithdrawNoti = (props:
 
   const handleCancel = () => {
     props.setIsModalVisible(false);
+    props.reset();
   };
 
   return (

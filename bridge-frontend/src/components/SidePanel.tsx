@@ -97,7 +97,11 @@ const executeWithrawItem = createAsyncThunk('sidePanel/executeWithdraw',
 function withdrawItemInitialStatus(item: UserBridgeWithdrawableBalanceItem): ChainEventStatus {
 	// Returning fake withdraw item of "none" when there is no use transaction
 	// to avoid pinging backend unnecessarily
-	return item.used || (!!(item.useTransactions || []).length ? '' : 'none' as any)
+    const hasSig = !!(item.payBySig as any)?.signature /* backward compatiblity */ || !!item.payBySig?.signatures?.length;
+    return (
+        item.used ? item.used : (!item.blocked && !item.useTransactions.length && !hasSig ) && 'pending'
+        || (!!(item.useTransactions || []).length ? '' : 'none' as any)
+    )
 }
 
 export const sidePanelSlice = createSlice({
@@ -217,7 +221,7 @@ const getData= async (dispatch:Dispatch<AnyAction>) => {
 
 async function updateWithdrawItem(item: ChainEventBase, dispatch: Dispatch<AnyAction>): Promise<ChainEventBase> {
     try {
-		console.log('Updating item ', item);
+		console.log('Updating item ', item.id);
         const c = inject<BridgeClient>(BridgeClient);
         let res = await c.updateWithdrawItemPendingTransactions(dispatch, item.id);
         return { ...item, status: res.used, };
