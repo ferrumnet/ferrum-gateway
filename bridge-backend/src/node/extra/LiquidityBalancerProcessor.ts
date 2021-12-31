@@ -20,8 +20,9 @@ export class LiquidityClient extends BridgeNodesRemoteAccessClient {
         endpoint: string,
         private apiPublicKey: string,
         private apiSecretKey: string,
+        logFac: LoggerFactory,
     ) {
-        super(endpoint);
+        super(endpoint, logFac);
     }
 
     async getAvailableLiquidityForBalancer(address: string, currency: string): Promise<{
@@ -170,10 +171,10 @@ export class LiquidityBalancerProcessor implements Injectable, NodeProcessor {
                 const [network, token] = Utils.parseCurrency(currency);
                 if (addLiqTx.contract === token) { // Approve request
                     verifyTxIsApprove(currency, addLiqTx);
-                    console.log(`Approving tx for currency: ${currency}`);
+                    this.log.info(`Approving tx for currency: ${currency}`);
                 } else {
                     verifyExpectedTx(network, addLiqTx);
-                    console.log(`Signing tx to add ${diff} liquidity: ${JSON.stringify(addLiqTx)}`);
+                    this.log.info(`Signing tx to add ${diff} liquidity: ${JSON.stringify(addLiqTx)}`);
 
                 }
                 const signed = this.signTx(network, addLiqTx);

@@ -6,7 +6,7 @@ import fetch from 'cross-fetch';
 import { NodeErrorHandling } from '../node/common/NodeErrorHandling';
 
 export class BridgeNodesRemoteAccessClient implements Injectable {
-    private log: Logger;
+    protected log: Logger;
     constructor(
         protected endpoint: string,
         logFac: LoggerFactory,
