@@ -1,13 +1,18 @@
-import { AuthenticationProvider, Injectable, JsonRpcRequest } from 'ferrum-plumbing';
+import { AuthenticationProvider, Injectable, JsonRpcRequest, Logger, LoggerFactory } from 'ferrum-plumbing';
 import { HmacAuthProvider } from "aws-lambda-helper/dist/security/HmacAuthProvider";
 import { EcdsaAuthProvider } from "aws-lambda-helper/dist/security/EcdsaAuthProvider";
 import { SwapTx, UserBridgeWithdrawableBalanceItem } from 'types';
 import fetch from 'cross-fetch';
+import { NodeErrorHandling } from '../node/common/NodeErrorHandling';
 
 export class BridgeNodesRemoteAccessClient implements Injectable {
+    protected log: Logger;
     constructor(
         protected endpoint: string,
-    ) {}
+        logFac: LoggerFactory,
+    ) {
+        this.log = logFac.getLogger(BridgeNodesRemoteAccessClient);
+    }
 
     __name__(): string {
         return 'BridgeNodesRemoteAccessClient';
@@ -176,11 +181,15 @@ export class BridgeNodesRemoteAccessClient implements Injectable {
             try {
                     jerror = JSON.parse(error);
             } catch (e) { }
-            console.error('Server returned an error when calling ' + body + JSON.stringify({
-                    status: res.status, statusText: res.statusText, error}), new Error());
-                throw new Error(jerror?.error ? jerror.error : error);
+            if (!NodeErrorHandling.ignorableMsg(error)) {
+                this.log.error('Server returned an error when calling ' + body + JSON.stringify({
+                        status: res.status, statusText: res.statusText, error}), new Error());
+            }
+            throw new Error(jerror?.error ? jerror.error : error);
         } catch (e) {
-            console.error('Error calling api with ' + body, (e as Error));
+            if (!NodeErrorHandling.ignorable(e as Error)) {
+                this.log.error('Error calling api with ' + body + ' : ' + (e as Error).toString());
+            }
             throw e;
         }
     }

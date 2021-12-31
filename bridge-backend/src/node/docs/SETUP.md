@@ -81,6 +81,8 @@ if you get auth error (keyboard.interactive) make sure the pamubico is installed
 
 ## d. Completely Remove the root access
 
+*** NOTE: If you want to have docker ship logs to AWS CloudWatch, you [must configure AWS credentials](https://wdullaer.com/blog/2016/02/28/pass-credentials-to-the-awslogs-docker-logging-driver-on-ubuntu/) for docker while root access exists ***
+
 Sign in to the server as root. See (https://serverfault.com/questions/698562/how-to-disable-root-login-completely)
 
 ```

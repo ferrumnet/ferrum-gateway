@@ -82,10 +82,15 @@ export class NodeModule implements Module {
 
 	container.registerSingleton(BridgeNodesRemoteAccessClient,
 		c => new BridgeNodesRemoteAccessClient(
-			conf.bridgeEndpoint));
+			conf.bridgeEndpoint,
+			c.get(LoggerFactory)));
 
 	container.register(LiquidityClient,
-		c => new LiquidityClient(conf.bridgeEndpoint, conf.publicAccessKey, conf.secretAccessKey));
+		c => new LiquidityClient(
+			conf.bridgeEndpoint,
+			conf.publicAccessKey,
+			conf.secretAccessKey,
+			c.get(LoggerFactory)));
 
 	container.registerSingleton(LiquidityBalancerProcessor,
 		c => new LiquidityBalancerProcessor(

@@ -8766,7 +8766,7 @@ fela@^10.6.1, fela@^10.8.2:
 
 "ferrum-crypto@git+https://github.com/ferrumnet/ferrum-crypto.git":
   version "0.0.1"
-  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#aa701ed6f20c615f0b68a95c3dac0b0b29a17244"
+  resolved "git+https://github.com/ferrumnet/ferrum-crypto.git#5fe4157570b5670d42ef6e98d6fdbaf962fcbff0"
   dependencies:
     bech32 "^1.1.3"
     bs58 "^4.0.1"
