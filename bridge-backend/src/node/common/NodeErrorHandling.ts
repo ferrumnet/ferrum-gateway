@@ -5,7 +5,7 @@ export class NodeErrorHandling {
         return NodeErrorHandling.ignorableMsg(emsg);
     }
     static ignorableMsg(emsg: string): boolean {
-        if (emsg.indexOf('Error: already registered') >= 0) {
+        if ((emsg || '').toLowerCase().indexOf('error: already registered') >= 0) {
             return true;
         }
     }
