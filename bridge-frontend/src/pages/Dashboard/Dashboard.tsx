@@ -191,21 +191,20 @@ export async function onBridgeLoad(dispatch: Dispatch<AnyAction>, history: Histo
                 setAllThemes("all-themes", defaultTheme);
             }
             // TODO: Deprecated. Phase out
-            const pairs = await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies).catch(console.error);
+            await client.getTokenConfigForCurrencies(dispatch, groupInfo!.bridgeCurrencies).catch(console.error);
             console.log('GROUP INFO CUR', groupInfo.bridgeCurrencies);
 
             if ((groupInfo.bridgeCurrencies || []).length) {
                 // Update the filtered token list
                 const [cl, web3client] = inject2<CurrencyList, UnifyreExtensionWeb3Client>(CurrencyList, UnifyreExtensionWeb3Client);
                 const bridgeCurrenciesSet = new Set<string>(groupInfo.bridgeCurrencies || []);
-                if(!pairs.length){
-                    const rtF = client.getRoutingTable(dispatch).catch(console.error);
-                    const routing: RoutingTableLookup = await rtF as any;
-                    Object.keys(routing).forEach(c => bridgeCurrenciesSet.add(c));
-                }
+                const rtF = client.getRoutingTable(dispatch).catch(console.error);
+                const routing: RoutingTableLookup = await rtF as any;
+                Object.keys(routing).forEach(c => bridgeCurrenciesSet.add(c));
                 const bridgeCurrencies = Array.from(bridgeCurrenciesSet);
                 dispatch(updateFilteredTokenList({ currencies: bridgeCurrencies }) as any);
                 cl.set(bridgeCurrencies);
+                
                 try {
                     const userProfile = await await web3client.getUserProfile();
                     dispatch(connectSlice.actions.connectionSucceeded({ userProfile }));
