@@ -53,7 +53,6 @@
     "got": "^11.3.0",
     "mongodb-client-encryption": "^1.2.5",
     "mongoose": "^6.1.2",
-    "node-hid": "^2.1.1",
     "swarm-js": "^0.1.40",
     "types": "1.0.0",
     "unifyre-extension-sdk": "git+https://github.com/ferrumnet/unifyre-extension-sdk.git",
