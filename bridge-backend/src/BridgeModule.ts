@@ -79,14 +79,14 @@ export class BridgeModule implements Module {
     // const processorAddress = (
     //   await new EthereumAddress("prod").addressFromSk(privateKey)
     // ).address;
-    // container.registerSingleton(
-    //   TokenBridgeContractClinet,
-    //   (c) =>
-    //     new TokenBridgeContractClinet(
-    //       c.get(EthereumSmartContractHelper),
-    //       conf.bridgeConfig.contractClient
-    //     )
-    // );
+    container.registerSingleton(
+      TokenBridgeContractClinet,
+      (c) =>
+        new TokenBridgeContractClinet(
+          c.get(EthereumSmartContractHelper),
+          conf.bridgeConfig.contractClient
+        )
+    );
     // container.registerSingleton(
     //   BridgeProcessor,
     //   (c) =>

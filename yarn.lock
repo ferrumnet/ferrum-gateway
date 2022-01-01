@@ -5036,7 +5036,7 @@ available-typed-arrays@^1.0.2:
 
 "aws-lambda-helper@git+https://github.com/ferrumnet/aws-lambda-helper.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#f8934cf8a6f0d90adc28c80797645fe8c4a6c8a8"
+  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#24b397534dc02b4fa3346b857b304936dfb783bc"
   dependencies:
     aws-sdk "2.903.0"
     big.js "^5.2.2"

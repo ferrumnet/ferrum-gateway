@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	  mode: 'production',
-	  entry: './src/index.ts',
+	  entry: process.env.STANDALONE === 'true' ? './sim_lambda.ts' : './src/index.ts',
 	  target: 'node',
 	  devtool: 'inline-source-map',
 	  module: {
