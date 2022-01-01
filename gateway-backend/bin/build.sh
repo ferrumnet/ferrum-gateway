@@ -1,6 +1,8 @@
 #!/bin/sh
 
 set -e
+docker_account=naiemk
+build_version=1.0.0
 curdir="$(cd "$(dirname "$0")"; pwd -P)/$(basename "$0")"
 rundir="$(dirname "$curdir")"
 backenddir="$(dirname "$rundir")"
@@ -8,10 +10,9 @@ gatewaydir="$(dirname "$backenddir")"
 
 echo Budlding the gateway backend
 
-cd $backenddir
-STANDALONE=true npx webpack
-
-echo Webpack completed now, building the docker image
+cd $gatewaydir
+#STANDALONE=true npx webpack
+#$echo Webpack completed now, building the docker image
 
 is_untracked=$(git diff-index --quiet HEAD -- || echo "untracked")
 
@@ -26,11 +27,12 @@ function parse_git_hash() {
 }
 
 last_commit=$(parse_git_hash)
-docker_tag="$docker_account/bridge-node:$build_version-$last_commit"
-docker_tag_latest="$docker_account/bridge-node:latest"
+echo LAST COM $last_commit
+docker_tag="$docker_account/gateway-backend:$build_version-$last_commit"
+docker_tag_latest="$docker_account/gateway-backend:latest"
 
 echo Building docker image $docker_tag
-docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag .
+docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --no-cache --progress=plain .
 docker tag $docker_tag "$docker_tag_latest"
 
 echo Done

@@ -1,4 +1,16 @@
 # DOcker file
+FROM node:12.22-alpine as yarn_builder
+RUN apk add --update --virtual --no-cache python2
+RUN apk add --virtual build-dependencies build-base gcc wget bash git
+#RUN npm install -g increase-memory-limit
+ENV NODE_OPTIONS=--max-old-space-size=4096
+RUN mkdir -p /code
+COPY . /code/
+RUN cd /code/ && yarn
+RUN /bin/sh ./bin/tsc-all.sh
+#RUN increase-memory-limit
+RUN cd /code/gateway-backend && STANDALONE=true npx webpack
+
 FROM node:12.22-alpine
 ENV GOSU_VERSION 1.12
 
@@ -33,7 +45,7 @@ RUN set -eux; \
 
 RUN mkdir /runner
 RUN addgroup -S runners && adduser -S runner -G runners
-COPY ./target/index.js /runner/
+COPY --from=yarn_builder /code/gateway-backend/target/index.js /runner/
 RUN chown runner /runner
 EXPOSE 8080
 ENTRYPOINT ["gosu"]
