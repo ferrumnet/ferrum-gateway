@@ -1,17 +1,13 @@
 # DOcker file
-FROM node:12.22-alpine as yarn_builder
-RUN apk add --update --virtual --no-cache python2
-RUN apk add --virtual build-dependencies build-base gcc wget bash git pkgconfig
-#RUN npm install -g increase-memory-limit
+FROM node:14 as yarn_builder
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN mkdir -p /code
 COPY . /code/
 RUN cd /code/ && yarn
-RUN /bin/bash ./bin/tsc-all.sh
-#RUN increase-memory-limit
+RUN cd /code/ && /bin/bash ./bin/tsc-all.sh
 RUN cd /code/gateway-backend && STANDALONE=true npx webpack
 
-FROM node:12.22-alpine
+FROM node:14.17.0-alpine3.12
 ENV GOSU_VERSION 1.12
 
 RUN apk add curl
