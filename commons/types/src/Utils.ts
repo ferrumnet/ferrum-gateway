@@ -100,6 +100,8 @@ export class Utils {
                 return `https://explorer.pops.one/tx/${tid}`;
             case 'ftm_mainnet':
                 return `https://ftmscan.com/tx/${tid}`;
+            case 'shiden_testnet':
+                 return `https://shibuya.subscan.io/tx/${tid}`;
             default:
                 return Networks.for(network).explorer + `/tx/${tid}`;
         }

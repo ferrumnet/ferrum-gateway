@@ -208,13 +208,13 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
 
     let currentPair = appState.data.state.currencyPairs.find(p =>
         p.sourceCurrency === currency && p.targetNetwork === destNetwork);
-
     // Simulate the current pair from routing table
     // TODO: Refactor to just use the routing table.
     currentPair = currentPair || RoutingHelper.targetRoutes(appState, currency)
             .filter(r => r.network === destNetwork)
             .map(c => ({ fee: c.fee, targetNetwork: c.network, targetCurrency: c.currency } as BridgeTokenConfig))
             .find(Boolean);
+            console.log(targetNetworks,networkOptions,allowedTargets,currentPair)
 
     const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
