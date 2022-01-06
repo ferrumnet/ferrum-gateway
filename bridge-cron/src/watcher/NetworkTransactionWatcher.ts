@@ -75,6 +75,10 @@ export class NetworkTransactionWatcher implements Injectable {
     HARMONY_TESTNET_0:{
       backLimit: 5000,
       lastToBlock: undefined,
+    },
+    SHIDEN_TESTNET:{
+      backLimit: 5000,
+      lastToBlock: undefined,
     }
   };
 
@@ -126,6 +130,9 @@ export class NetworkTransactionWatcher implements Injectable {
       ),
       HARMONY_TESTNET_0: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_HARMONY_TESTNET_0)
+      ),
+      SHIDEN_TESTNET: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_SHIDEN_TESTNET)
       )
     };
 
@@ -230,7 +237,9 @@ export class NetworkTransactionWatcher implements Injectable {
       "AVAX_MAINNET",
       "MOON_MOONRIVER",
       "FTM_TESTNET",
-      "HARMONY_TESTNET_0"
+      "HARMONY_TESTNET_0",
+      "SHIDEN_TESTNET"
+
     ];
   }
 

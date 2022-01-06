@@ -39,7 +39,9 @@ const images = {
   'MOON_MOONRIVER':IconCryptoMoonbase,
   'FTM_TESTNET':IconCryptoAvax,
   'HARMONY_TESTNET_0':IconCryptoHarmony,
-  'FTM_MAINNET':IconCryptoFantom
+  'FTM_MAINNET':IconCryptoFantom,
+  'SHIDEN_TESTNET':IconCryptoAvax
+
 
 }
 
