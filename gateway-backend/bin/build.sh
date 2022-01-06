@@ -1,7 +1,11 @@
 #!/bin/sh
 
 set -e
+<<<<<<< HEAD
 docker_account=806611346442.dkr.ecr.us-east-2.amazonaws.com
+=======
+docker_account=naiemk
+>>>>>>> 83c5550 (rebased-latest)
 build_version=1.0.0
 curdir="$(cd "$(dirname "$0")"; pwd -P)/$(basename "$0")"
 rundir="$(dirname "$curdir")"

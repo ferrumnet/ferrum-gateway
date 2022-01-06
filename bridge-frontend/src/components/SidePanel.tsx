@@ -307,7 +307,11 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
     const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
     const tokenList = useSelector<BridgeAppState, {[k: string]: TokenDetails}>(appS => appS.data.tokenList?.lookup) || {};
+<<<<<<< HEAD
     const [listPage,setlistPage]= useState(1)
+=======
+
+>>>>>>> 83c5550 (rebased-latest)
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
 		appS => appS.data.state.balanceItems);
