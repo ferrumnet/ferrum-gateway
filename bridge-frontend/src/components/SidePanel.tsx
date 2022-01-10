@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { Network } from 'ferrum-plumbing';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeContractVersions, ChainEventBase, ChainEventStatus, inject, inject3, TokenDetails, Utils } from 'types';
@@ -34,7 +34,7 @@ import { AddTokenToMetamask } from 'component-library';
 import { CrossSwapClient } from '../clients/CrossSwapClient';
 import './SidePanel.scss';
 import { TokenLogo } from './TokenLogo';
-
+import  {renderPaginatedList} from './paginateList';
 interface WithdrawSuccessMessage {
 	network: string;
 	txId: string;
@@ -307,14 +307,19 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
     const groupId = useSelector<BridgeAppState, boolean>(appS => !!appS.data.state.groupInfo.groupId);
     const assets = useSelector<BridgeAppState, any>(appS => appS.data.state.filteredAssets);
     const tokenList = useSelector<BridgeAppState, {[k: string]: TokenDetails}>(appS => appS.data.tokenList?.lookup) || {};
-
+    const [listPage,setlistPage]= useState(1)
     // const token = useSelector<BridgeAppState, string>(appS => appS.ui.pairPage.selectedToken);
 	const userWithdrawalItems = useSelector<BridgeAppState, UserBridgeWithdrawableBalanceItem[]>(
 		appS => appS.data.state.balanceItems);
     const {errorMessage, successMessage, slippage} = pageProps;
+    const isEndOfPage  = (userWithdrawalItems.length - ((listPage) * 10)) < 10
 
     const handleSync = async ()=> {
         await getUserWithdrawItems(dispatch)
+    }
+
+    const handleLoadMore = () => {
+        if(!isEndOfPage) setlistPage(listPage+1)
     }
     
     useEffect(() => {
@@ -369,6 +374,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         key: 'withdr'
     },12);  
 
+    const paginatedList = renderPaginatedList(userWithdrawalItems,listPage,10)
     return (
         <Drawer
           title={<div className="text-vary-color">Withdrawal Items</div>}
@@ -378,7 +384,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
           visible={props.isOpen}
         >
           <Accordion>
-                { userWithdrawalItems.map(
+                { paginatedList.map(
                         (e, i) => <div key={i}>
                         <ChainEventItem
                             id={e.receiveTransactionId}
@@ -387,7 +393,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                             eventType={'WITHDRAW_ITEM'}
                             updater={updateWithdrawItem}
                         >
-                        <AccordionItem>
+                            <AccordionItem>
                                 <AccordionItemHeading>
                                     <AccordionItemButton>
                                         <div className="withdraw-item-container" style={styles.tokenInfo}>
@@ -442,7 +448,12 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
                         </div>
                     )
                 }
-            </Accordion>   
+            </Accordion>
+            <div className={`loadMore_comp ${!isEndOfPage ? 'active' : 'disabled'}`} onClick={()=>handleLoadMore()}>
+                <p style={{...styles.loadMoreInfo}}>
+                    Load More &#8595;
+                </p>
+            </div>  
         </Drawer>
     )
 }
@@ -459,6 +470,10 @@ const themedStyles = (theme) => ({
     accInfo: {
         textAlign: "start" as 'start',
         margin: '3% 7%'
+    },
+    loadMoreInfo: {
+        textAlign: "center" as 'center',
+        margin: '1% 7%'
     },
     moreInfo: {
         display: 'flex',
