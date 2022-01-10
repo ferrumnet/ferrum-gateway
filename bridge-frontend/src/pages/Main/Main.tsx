@@ -135,7 +135,7 @@ export const MainPageSlice = createSlice({
 });
 
 export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
-    async (payload: { destNetwork: string, sourceCurrency: string }, ctx) => {
+    async (payload: { destNetwork: string, sourceCurrency: string,targetNetworks: NetworkDropdown[] }, ctx) => {
         try {
             ctx.dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
             const client = inject<BridgeClient>(BridgeClient);
@@ -154,6 +154,13 @@ export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
                 ctx.dispatch(addAction(CommonActions.ERROR_OCCURED,
                     { message: 'No target token available for the selected network' }));
             }
+
+            // reset destination netowkr when the same with source network
+            const swapProps = ((ctx.getState() as BridgeAppState).ui.swapPage)
+            if(swapProps.destNetwork == swapProps.network){
+                ctx.dispatch(Actions.resetDestNetwork({ value: payload.targetNetworks[0].key }))
+            }
+
             ctx.dispatch(addAction(CommonActions.WAITING_DONE, { source: 'swap' }));
         } catch (e) {
             console.error('Load liquidity', e);
@@ -288,7 +295,7 @@ export const ConnectBridge = () => {
 
     //TODO: Initialize this without useEffect
     useEffect(() => {
-        dispatch(loadLiquidity({ destNetwork, sourceCurrency: currency }));
+        dispatch(loadLiquidity({ destNetwork, sourceCurrency: currency,targetNetworks: pageProps.targetNetworks }));
     }, [destNetwork, currency, network])
 
     const onWithdrawSuccessMessage = async (txNet: string, tx: string, txCur: string) => {
