@@ -12,6 +12,7 @@
 			"args": [
 				{"type": "address", "name": "crucible"},
 				{"type": "uint256", "name": "cap"},
+				{"type": "bytes32", "name": "salt"},
 				{"type": "uint64", "name": "expiry"}
 			],
 			"abi": {
@@ -25,6 +26,11 @@
 						"internalType": "uint256",
 						"name": "cap",
 						"type": "uint256"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "salt",
+						"type": "bytes32"
 					},
 					{
 						"internalType": "uint64",

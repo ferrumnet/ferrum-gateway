@@ -1,0 +1,47 @@
+{
+	"id": "TOKEN_DAO:001.000",
+	"identifier": {
+		"name": "TOKEN_DAO",
+		"version": "001.000"
+	},
+	"methods": [
+		{
+			"name": "Mint",
+			"adminOnly": true,
+			"governanceOnly": true,
+			"args": [
+				{"type": "uint256", "name": "amount"},
+				{"type": "address", "name": "to"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "uint256",
+					"name": "amount",
+					"type": "uint256"
+				}, {
+					"internalType": "address",
+					"name": "to",
+					"type": "address"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "Mint",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		}
+	]
+}

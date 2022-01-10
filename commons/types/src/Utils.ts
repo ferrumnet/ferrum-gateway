@@ -53,6 +53,9 @@ export class Utils {
     }
 
     static linkForAddress(network: string, addr: string) {
+        if (!network) {
+            return '';
+        }
         switch (network.toLocaleLowerCase()) {
             case 'rinkeby':
                 return `https://rinkeby.etherscan.io/address/${addr}`;

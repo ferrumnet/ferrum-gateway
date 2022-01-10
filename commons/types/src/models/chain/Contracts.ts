@@ -10,8 +10,8 @@ export interface CrucibleContracts {
 
 export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 	'RINKEBY': {
-		factory: '0xdaaa63bba11cded6d70edc0769e93029df4dde52',
-		router: '0x678bf901030558e762f7d96cc0268d6591d3a309',
+		factory: '0x574c03527ca611a727c54ca65c963807c5db1332',
+		router: '0x9158c7bb428059ef23a705282cdc0f37f104ef81',
 		staking: '',
 	},
 	'ETHEREUM': {

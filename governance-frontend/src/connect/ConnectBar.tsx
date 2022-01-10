@@ -1,8 +1,9 @@
 import React from 'react';
+import { Networks } from 'ferrum-plumbing';
 // @ts-ignore
 import { TopBar, ConnectButton } from 'component-library';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
-import { ETH, FRM, FRMX } from 'types';
+import { FRM, FRMX } from 'types';
 
 export interface ConnectBarProps {
 }
@@ -10,7 +11,7 @@ export interface ConnectBarProps {
 export function ConnectBtn(props: IConnectViewProps) {
     const frmBalance = props.balances.find(a => a.currency === (FRM[a.network]||[])[0]);
     const frmxBalance = props.balances.find(a => a.currency === (FRMX[a.network]||[])[0]);
-    const ethBalance = props.balances.find(a => a.currency === (ETH[a.network]||[])[0]);
+    const ethBalance = props.balances.find(a => a.currency === Networks.for(a.network || 'ETHEREUM').baseCurrency);
     return (
         <ConnectButton
             frmBalance={frmBalance?.balance || '0'}
