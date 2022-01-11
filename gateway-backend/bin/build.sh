@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-docker_account=naiemk
+docker_account=806611346442.dkr.ecr.us-east-2.amazonaws.com
 build_version=1.0.0
 curdir="$(cd "$(dirname "$0")"; pwd -P)/$(basename "$0")"
 rundir="$(dirname "$curdir")"
@@ -32,7 +32,7 @@ docker_tag="$docker_account/gateway-backend:$build_version-$last_commit"
 docker_tag_latest="$docker_account/gateway-backend:latest"
 
 echo Building docker image $docker_tag
-docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --no-cache --progress=plain .
+docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --progress=plain .
 docker tag $docker_tag "$docker_tag_latest"
 
 echo Done
