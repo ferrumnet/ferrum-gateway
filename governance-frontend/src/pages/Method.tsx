@@ -161,6 +161,7 @@ function SignButton(props: {disabled: boolean,
 	const dispatch = useDispatch();
 	const alreadySigned = !!(props.request?.signatures || [] as MultiSigSignature[])
 		.find(s => Utils.addressEqual(s.creator, userAddress!));
+	console.log('ALREADY? ', alreadySigned, {userAddress, cr: props.request.signatures})
 	return alreadySigned ? (
 		<>
 		<RegularBtn
@@ -197,9 +198,10 @@ export function Method() {
 		(contract?.methods || []).find(m => m.name === request?.method) || {} as any;
 
 	const relevantUser = quorum.quorum === request?.quorum && quorum.minSignatures > 0;
+	const isExecutable = (quorum?.minSignatures >= (request?.signatures?.length || 0));
 
 	const btn = relevantUser ? (
-		quorum?.minSignatures >= (request?.signatures?.length || 0) ? (
+		isExecutable ? (
 			<>
 				{request?.execution?.status === 'sucess' ? (
 					<>
@@ -208,13 +210,25 @@ export function Method() {
 					}</b>
 					</>
 				) : (
-				<RegularBtn
-					disabled={state.pending}
-					text={'Submit Transaction'}
-					onClick={() => dispatch(submitTransaction({
-						requestId: request?.requestId!, contractAddress}))
-					}/>
-				)}  
+				<>
+					<SignButton
+						disabled={state.pending}
+						contractAddress={contractAddress}
+						method={method}
+						network={network}
+						request={request! as any}
+						contract={contract}
+					/>
+
+					<RegularBtn
+						disabled={state.pending}
+						text={'Submit Transaction'}
+						onClick={() => dispatch(submitTransaction({
+							requestId: request?.requestId!, contractAddress}))
+						}
+					/>
+				</>
+				)}
 			</>) : (<>
 				<SignButton
 					disabled={state.pending}

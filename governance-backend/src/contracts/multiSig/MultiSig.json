@@ -1,28 +1,28 @@
 {
-	"id": "TOKEN_DAO:001.000",
+	"id": "",
 	"identifier": {
-		"name": "TOKEN_DAO",
-		"version": "001.000"
+		"name": "",
+		"version": ""
 	},
 	"methods": [
 		{
-			"name": "Mint",
-			"adminOnly": true,
+			"name": "AddToQuorum",
+			"adminOnly": false,
 			"governanceOnly": true,
 			"args": [
-				{"type": "uint256", "name": "amount"},
-				{"type": "address", "name": "to"},
+				{"type": "address", "name": "_address"},
+				{"type": "address", "name": "quorumId"},
 				{"type": "bytes32", "name": "salt"},
 				{"type": "uint64", "name": "expiry"}
 			],
 			"abi": {
 				"inputs": [{
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
 				}, {
 					"internalType": "address",
-					"name": "to",
+					"name": "quorumId",
 					"type": "address"
 				}, {
 					"internalType": "bytes32",
@@ -37,63 +37,25 @@
 					"name": "multiSignature",
 					"type": "bytes"
 				}],
-				"name": "mint",
+				"name": "addToQuorum",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		},
 		{
-			"name": "DoAction",
-			"adminOnly": true,
+			"name": "RemoveFromQuorum",
+			"adminOnly": false,
 			"governanceOnly": true,
 			"args": [
-				{"type": "bytes32", "name": "action"},
-				{"type": "bytes", "name": "parameters"},
-				{"type": "bytes32", "name": "salt"},
-				{"type": "uint64", "name": "expiry"}
-			],
-			"abi": {
-				"inputs": [{
-					"internalType": "bytes32",
-					"name": "action",
-					"type": "bytes32"
-				}, {
-					"internalType": "bytes",
-					"name": "parameters",
-					"type": "bytes"
-				}, {
-					"internalType": "bytes32",
-					"name": "salt",
-					"type": "bytes32"
-				}, {
-					"internalType": "uint64",
-					"name": "expiry",
-					"type": "uint64"
-				}, {
-					"internalType": "bytes",
-					"name": "multiSignature",
-					"type": "bytes"
-				}],
-				"name": "doAction",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			}
-		},
-		{
-			"name": "UpgradeDao",
-			"adminOnly": true,
-			"governanceOnly": true,
-			"args": [
-				{"type": "address", "name": "newDao"},
+				{"type": "address", "name": "_address"},
 				{"type": "bytes32", "name": "salt"},
 				{"type": "uint64", "name": "expiry"}
 			],
 			"abi": {
 				"inputs": [{
 					"internalType": "address",
-					"name": "newDao",
+					"name": "_address",
 					"type": "address"
 				}, {
 					"internalType": "bytes32",
@@ -108,7 +70,45 @@
 					"name": "multiSignature",
 					"type": "bytes"
 				}],
-				"name": "upgradeDao",
+				"name": "removeFromQuorum",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "UpdateMinSignature",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "quorumId"},
+				{"type": "uint16", "name": "minSignature"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "quorumId",
+					"type": "address"
+				}, {
+					"internalType": "uint16",
+					"name": "minSignature",
+					"type": "uint16"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "updateMinSignature",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"

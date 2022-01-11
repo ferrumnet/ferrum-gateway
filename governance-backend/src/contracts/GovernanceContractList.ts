@@ -1,10 +1,22 @@
 import { RegisteredContract, GovernanceContract } from 'types';
 import * as CrucibleRouterJson from './crucible/CrucibleRouter.json';
+import * as MultiSig from './multiSig/MultiSig.json';
 import * as TokenDao from './tokenDao/TokenDao.json';
 
+function merge(base: GovernanceContract, child: GovernanceContract): GovernanceContract {
+	return {
+		id: child.id,
+		identifier: child.identifier,
+		methods: [
+			...base.methods,
+			...child.methods,
+		]
+	}
+}
+
 export const GovernanceContractDefinitions: { [k: string]: GovernanceContract } = {
-		'FERRUM_CRUCIBLE_ROUTER:000.001': CrucibleRouterJson,
-		'TOKEN_DAO:001.000': TokenDao,
+		'FERRUM_CRUCIBLE_ROUTER:000.001': merge(MultiSig, CrucibleRouterJson),
+		'TOKEN_DAO:001.000': merge(MultiSig, TokenDao),
 }
 
 export const GovernanceContractList: RegisteredContract[] = [
