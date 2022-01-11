@@ -35,4 +35,9 @@ export const GovernanceContractList: RegisteredContract[] = [
 		contractAddress: '0x9c3db68bd508d56abfad84272ccb7ddc53431ee8',
 		governanceContractId: 'TOKEN_DAO:001.000',
 	},
+	{
+		network: 'AVAX_MAINNET',
+		contractAddress: '0x9c3db68bd508d56abfad84272ccb7ddc53431ee8',
+		governanceContractId: 'TOKEN_DAO:001.000', 
+	},
 ];

@@ -36,4 +36,3 @@ docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --progress=p
 docker tag $docker_tag "$docker_tag_latest"
 
 echo Done
-
