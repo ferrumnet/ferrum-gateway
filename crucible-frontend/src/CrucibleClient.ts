@@ -47,7 +47,7 @@ export class CrucibleClient {
 	async updateCrucible(dispatch: Dispatch<AnyAction>, network: string, contractAddress: string) {
 		const crucible = await this.api.api({
 			command: 'getCrucible',
-			data: {crucible: `${network}:${contractAddress.toLowerCase()}`},
+			data: {crucible: `RINKEBY:${contractAddress.toLowerCase()}`},
 			params: [],
 		} as JsonRpcRequest);
 		if (!!crucible) {

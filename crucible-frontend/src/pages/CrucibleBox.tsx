@@ -254,6 +254,7 @@ export function CrucibleBox(params: {info: CrucibleInfo}) {
 			openMintCap={params.info.openCap}
 			onMint={() => {
 						dispatch(crucibleBoxSlice.actions.unregisterTx());
+						
 						showDepositModal(true);
 					}}
 			enableWithdraw={balance !== '' && balance !== '0'}

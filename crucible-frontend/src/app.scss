@@ -855,3 +855,253 @@ input[type="number"] {
   /* bottom: 0px; */
   margin-top: 2em;
 }
+
+.no-left{
+  padding-left: 0px;
+}
+
+.no-bottom{
+  padding-bottom: 0px;
+}
+
+.f-card-primary{
+  background-color: transparent !important;
+  color: black;
+  
+  &.no-left{
+    padding-left: 0px;
+  }
+
+  &.center{
+    text-align: center;
+  }
+
+  .header{
+    box-sizing: border-box;
+    margin: 0px;
+    min-width: 0px;
+    font-weight: 400;
+    font-size: 16px;
+  }
+}
+
+.flex{
+  display: flex;
+  justify-content: space-between;
+}
+
+.fr-btn-container{
+  display: flex;
+  justify-content: space-around;
+  
+}
+
+.f-btn-primary{
+  border-radius: 8px;
+  padding: 1rem 4rem;
+  font-size: 1rem;
+  box-shadow: rgb(0 0 0 / 10%) 0px 4px 10px;
+
+}
+.crucibleItemCard{
+  z-index: 2;
+  box-shadow: rgb(0 0 0 / 10%) 0px 4px 10px;
+  background: radial-gradient(91.85% 100% at 1.84% 0%, #d7a348 0%, #54390a 100%) !important;
+  border-radius: 10px;
+  margin-top: 3rem;
+
+  .header{
+    color: white;
+    font-weight: 500;
+    font-size: 17px;
+  }
+  .content-card{
+    display: flex;
+    grid-auto-rows: auto;
+    color: white;
+    font-weight: 600;
+    color: white;
+    font-size: 36px;
+    align-items: baseline;
+  }
+
+  .content2{
+    font-size: 14px;
+    font-weight: 400;
+
+  }
+}
+
+iframe {
+  display: none !important;
+}
+
+.cr-footer{
+  background-color: rgb(255, 255, 255);
+  width: 100%;
+  padding: 0px;
+  border-radius: 20px;
+  margin: 1rem 0rem;
+  border: 1px solid #f7f8fa;
+
+  .heading{
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    width: 100%;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: start;
+    justify-content: flex-start;
+    padding: 1rem;
+    font-weight: 500;
+  }
+
+  .content{
+    border: 1px solid rgb(247, 248, 250);
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0rem;
+
+    span{
+      display: grid;
+      grid-auto-rows: auto;
+      row-gap: 8px;
+      text-align: center;
+
+      .label{
+        font-weight: 500;
+      }
+    }
+  }
+
+ 
+}
+
+.subtxt{
+  padding: 10px 5px;
+}
+.crucible-filled-card{
+  background-color: white !important;
+  color: black;
+  border-style: solid !important;
+  border-radius: 30px;
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: 8px;
+  border-color: #caa461 !important;
+  margin: 0px auto;
+  padding: 3rem 1rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  margin-top: 2rem;
+  box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+  width: 80%;
+
+  .down-btn{
+    margin: 0.3rem auto;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #898683;
+  }
+  .header{
+    box-sizing: border-box;
+    margin: 0px auto;
+    min-width: 0px;
+    font-weight: 400;
+    font-size: 1rem;
+    display: flex;
+    margin-bottom: 1.5rem;
+    width: 95%;
+  }
+
+  .back-btn{
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .title{
+    width: 90%;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  .f-input-group .f-input-wrap{
+    align-items: center;
+    border-style: solid !important;
+    border-color: #caa461 !important;
+    border-width: thin;
+    border-radius: 10px;
+    padding: 1.2rem 0.5rem;
+  }
+
+  .f-input-group.d-flex {
+    align-items: center;
+    border-style: solid !important;
+    border-color: #caa461 !important;
+    border-width: thin;
+    border-radius: 10px;
+    padding: 1.2rem 0.5rem;
+  }
+}
+
+.cr-large-btn{
+  padding: 1.3rem 5rem;
+}
+
+.crucible-text-input{
+  .f-input-control{
+    background-color: transparent;
+  }
+
+  .f-input-label{
+    padding: 0px 5px;
+  }
+
+  .input-label{
+    padding-right: 6rem;
+    font-size: 1.5rem;
+  }
+}
+
+.fr-flex-container{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .mini-card{
+    background-color: transparent;
+    color: black;
+    border-style: solid !important;
+    border-width: 1px !important;
+    border-radius: 15px;
+    display: grid;
+    grid-auto-rows: auto;
+    row-gap: 8px;
+    border-color: #caa461 !important;
+    width: 45%;
+    margin: 0px;
+    padding: 1.5rem;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+
+    span{
+      &.header{
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+        font-weight: 400;
+        font-size: 16px;
+      }
+      &.content{
+        box-sizing: border-box;
+        margin: 0px;
+        min-width: 0px;
+        font-weight: 500;
+        font-size: 24px;
+      }
+
+    }
+  }
+}

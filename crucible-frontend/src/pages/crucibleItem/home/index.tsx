@@ -1,14 +1,14 @@
 import React from 'react';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState } from '../common/CrucibleAppState';
-import { CrucibleBox } from './CrucibleBox';
+import { CrucibleAppState } from '../../../common/CrucibleAppState';
+import { CrucibleBox } from './../../CrucibleBox';
 import { useParams } from 'react-router';
-import { CrucibleLoader } from './CrucibleLoader';
+import { CrucibleLoader } from './../../CrucibleLoader';
 import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils } from 'types';
 import { FLayout, FContainer,FCard, FButton, ThemeBuilder } from "ferrum-design-system";
 
-export function Crucible() {
+export function CrucibleHome() {
 	let {network, contractAddress} = useParams() as any;
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
 		state.data.state.crucible);

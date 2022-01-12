@@ -41,6 +41,13 @@ export const WETH: NetworkedConfig<string> = {
 	'POLYGON': 'POLYGON:0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
 }
 
+export const ETH: NetworkedConfig<string> = {
+	'RINKEBY': 'RINKEBY:0xc778417e063141139fce010982780140aa0cd5ab',
+	'ETHEREUM': 'ETHEREUM:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+	'BSC': 'BSC:0xae13d989dac2f0debff460ac112a837c89baa7cd',
+	'POLYGON': 'POLYGON:0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+}
+
 export const USD_PAIR: NetworkedConfig<string> = {
 	'RINKEBY': 'RINKEBY:0xd92e713d051c37ebb2561803a3b5fbabc4962431',
 	'ETHEREUM': 'ETHEREUM:0xdac17f958d2ee523a2206206994597c13d831ec7',

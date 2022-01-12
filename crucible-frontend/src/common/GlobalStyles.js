@@ -3,12 +3,13 @@ import { createGlobalStyle } from "styled-components";
 export const GlobalStyles = createGlobalStyle`
   body{
     color: ${({ theme }) => theme.colors.inverse} !important;
+    background-image: radial-gradient(50% 50% at 50% 50%, rgba(33, 114, 229, 0.1) 0%, rgba(33, 36, 41, 0) 100%);
   }
-  
   .bodyText {
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   #root {
+    background-image: radial-gradient(50% 50% at 50% 50%, rgb(213 185 135 / 92%) 0%, rgba(255, 255, 255, 0) 100%);
     font-family: ${({ theme }) => theme.font};
     color: ${({ theme }) => theme.colors.textSec};
     transition: all 0.15s linear;
@@ -512,6 +513,17 @@ export const GlobalStyles = createGlobalStyle`
 
   .web3modal-modal-card{
     border-radius:  ${({ theme }) => theme.radius ? theme.radius : 0}px !important;
+  }
+  .f-container {
+    max-width: 640px;
+    width: 100%;
+    margin: 0px auto;
+    padding-top: 100px;
+    -webkit-box-align: center;
+    align-items: center;
+    flex: 1 1 0%;
+    overflow: hidden auto;
+    z-index: 1;
   }
 
   .theme-builder-dlg{

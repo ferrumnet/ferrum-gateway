@@ -9,6 +9,7 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { CRUCIBLE_CONTRACTS_V_0_1, STAKING_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
+import { Console } from "console";
 
 export class CrucibleModule implements Module {
   static async configuration() {
@@ -22,9 +23,13 @@ export class CrucibleModule implements Module {
         quorum: AppConfig.env("CRUCIBLE_ACTOR_QUORUM", 'N/A'),
       },
     }));
+    console.log(AppConfig.instance().get(),'======3333')
+
   }
 
   async configAsync(container: Container) {
+    console.log(AppConfig.instance().get(),'======3333')
+
     container.registerSingleton(
       CrucibleRequestProcessor,
       (c) => new CrucibleRequestProcessor(c.get(CrucibeService))
@@ -38,7 +43,6 @@ export class CrucibleModule implements Module {
         AppConfig.env("PROCESSOR_PRIVATE_KEY_ID"),
         AppConfig.env("CRUCIBLE_ACTOR_PRIVATE_KEY_ENCRYPTED")
       ));
-
     const conf = AppConfig.instance().get<CrucibleConfig>();
     container.registerSingleton(
       CrucibeService,
