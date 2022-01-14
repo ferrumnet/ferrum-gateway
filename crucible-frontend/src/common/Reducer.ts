@@ -5,12 +5,14 @@ import { CrucibleClientActions } from "../CrucibleClient";
 import { crucibleBoxSlice } from "../pages/CrucibleBox";
 import { deploySlice } from "../pages/Deploy";
 import { StakingSlice } from "../staking/StakingClient";
+import { TransactionModalSlice } from './../common/transactionModal';
 import { CommonActions } from "./CommonActions";
 import { AppGlobalState, AppUserState } from "./CrucibleAppState";
 
 export const uiReducer = combineReducers({
   crucibleBox: crucibleBoxSlice.reducer,
   deploy: deploySlice.reducer,
+  transactionModal: TransactionModalSlice.reducer
 });
 
 export function userReducer(
