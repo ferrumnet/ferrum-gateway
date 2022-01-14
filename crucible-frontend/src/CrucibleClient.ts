@@ -3,6 +3,7 @@ import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { addAction, CommonActions } from './common/CommonActions';
 import { CrucibleInfo, CRUCIBLE_CONTRACTS_V_0_1, Utils } from 'types';
+import { Actions as TxModal } from './common/transactionModal';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
@@ -26,21 +27,39 @@ export class CrucibleClient {
 
 	async getUserCrucibleInfo(dispatch: Dispatch<AnyAction>,
 		crucible: string) {
-		const userCrucibleInfo = await this.api.api({
-			command: 'getUserCrucibleInfo',
-			data: {crucible, userAddress: this.api.getAddress()},
-			params: [],
-		} as JsonRpcRequest);
-		if (!!userCrucibleInfo) {
-			dispatch(addAction(Actions.USER_CRUCIBLE_LOADED, {userCrucibleInfo}));
+		try {
+			dispatch(addAction(CommonActions.WAITING, {}));
+			const userCrucibleInfo = await this.api.api({
+				command: 'getUserCrucibleInfo',
+				data: {crucible, userAddress: this.api.getAddress()},
+				params: [],
+			} as JsonRpcRequest);
+			if (!!userCrucibleInfo) {
+				dispatch(addAction(Actions.USER_CRUCIBLE_LOADED, {userCrucibleInfo}));
+			}
+			return userCrucibleInfo;
+		} catch (e) {
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}finally{
+			dispatch(addAction(CommonActions.WAITING_DONE, {}));
 		}
-		return userCrucibleInfo;
+	
+		
 	}
 
 	async getAllCrucibles(dispatch: Dispatch<AnyAction>, network: string) {
-		const cs = await this.getAllCruciblesFromDb(dispatch, network);
-		for(const c of cs) {
-			this.updateCrucible(dispatch, network, c.contractAddress);
+		try {
+			dispatch(addAction(CommonActions.WAITING, {}));
+			const cs = await this.getAllCruciblesFromDb(dispatch, network);
+			if(cs?.length){
+				for(const c of cs) {
+					this.updateCrucible(dispatch, network, c.contractAddress);
+				}
+			}
+		} catch (e) {
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}finally{
+			dispatch(addAction(CommonActions.WAITING_DONE, {}));
 		}
 	}
 
@@ -56,17 +75,22 @@ export class CrucibleClient {
 		return crucible;
 	}
 
-	async getAllCruciblesFromDb(dispatch: Dispatch<AnyAction>, network: string) 
-		:Promise<CrucibleInfo[]> {
-		const crucibles = await this.api.api({
-			command: 'getAllCruciblesFromDb',
-			data: {network},
-			params: [],
-		} as JsonRpcRequest);
-		if (!!crucibles) {
-			dispatch(addAction(Actions.CRUCIBLES_LOADED, {crucibles}));
+	async getAllCruciblesFromDb(dispatch: Dispatch<AnyAction>, network: string) :Promise<CrucibleInfo[]|undefined> {
+		try{
+			const crucibles = await this.api.api({
+				command: 'getAllCruciblesFromDb',
+				data: {network},
+				params: [],
+			} as JsonRpcRequest);
+			if (!!crucibles) {
+				dispatch(addAction(Actions.CRUCIBLES_LOADED, {crucibles}));
+			}
+			return crucibles || [];
+		}catch (e) {
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}finally{
+			dispatch(addAction(CommonActions.WAITING_DONE, {}));
 		}
-		return crucibles || [];
 	}
 
 	async deposit(dispatch: Dispatch<AnyAction>,
@@ -76,15 +100,29 @@ export class CrucibleClient {
 		isPublic: boolean,
 		) {
 		try {
-			return this.api.runServerTransaction(
+			const res = await this.api.runServerTransaction(
 				async () => {
 					const network = this.api.getNetwork();
-					return await this.api.api({
+					const req =  await this.api.api({
 							command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
 							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
+					if(!!req){
+						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+						return req
+					}
 				});
+				if(!!res){
+					dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+				}
+				return res
 		} catch (e) {
 			console.error('deposit', e);
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(TxModal.toggleModal({show: false}))
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}
 	}
@@ -95,16 +133,30 @@ export class CrucibleClient {
 		amount: string,
 		) {
 		try {
-			return this.api.runServerTransaction(
+			const res = await this.api.runServerTransaction(
 				async () => {
 					const network = this.api.getNetwork();
-					return this.api.api({
+					const req = await this.api.api({
 							command: 'withdrawGetTransaction',
 							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
+					if(!!req){
+						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+						return req
+					}
 				}
 			)
+			if(!!res){
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+			}
+			return res
 		} catch (e) {
 			console.error('deposit', e);
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(TxModal.toggleModal({show: false}))
             dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}
 	}
@@ -135,17 +187,27 @@ export class CrucibleClient {
 			feeOnTransfer: string,
 			feeOnWithdraw: string,) {
 		try {
-			return this.api.runServerTransaction(
+			const res =  await this.api.runServerTransaction(
 				async () => {
 					const [network,] = Utils.parseCurrency(baseCurrency);
-					return this.api.api({
+					const req =  this.api.api({
 						command: 'deployGetTransaction',
 						data: {baseCurrency, feeOnTransfer, feeOnWithdraw}, params: [] } as JsonRpcRequest);
+					if(!!req){
+						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+						return req
+					}
 				}
 			)
+			if(!!res){
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+			}
+			return res
 		} catch (e) {
 			console.error('deposit', e);
-            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+			
+			console.log(e,'eeee',(e as Error).message)
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}
 	}
 }

@@ -28,7 +28,7 @@ import { DefaultTheme } from '../common/DefaultTheme';
 import { TransactionSummary } from 'common-containers/dist/chain/TransactionList';
 import { TransactionSummaryButton } from '../transactions/TransactionSummaryButton';
 import { FLayout, FContainer, FMain, ThemeBuilder } from "ferrum-design-system";
-
+import { TransactionModal } from './../common/transactionModal';
 interface DashboardState {
 }
 
@@ -43,7 +43,7 @@ const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payloa
 	const allCrucibles = await client.getAllCruciblesFromDb(ctx.dispatch, network || ''); // If not connected will return result for all networks
 	// Make sure we have user balance for all the crucibles listed
 	const curs = curList.get();
-	curList.set([...curs, ...allCrucibles.map(c => c.currency).filter(cur => curs.indexOf(cur) < 0)]);
+	curList.set([...curs, ...allCrucibles!?.map(c => c.currency).filter(cur => curs.indexOf(cur) < 0)]);
 
 	if (payload.connected) { // Connection is already completed
 		const userProfile = await web3Client.getUserProfile();
@@ -102,6 +102,7 @@ export function Dashboard(props: DashboardProps) {
 						<FLayout>
 							<FMain>
 								{header}
+								<TransactionModal/>
 								<FContainer>
 									<div className="landing-page">
 										<Switch>
@@ -109,9 +110,6 @@ export function Dashboard(props: DashboardProps) {
 											<Deploy />
 										</Route>
 										<Route path="/crucible/:network/:contractAddress">
-											<Crucible />
-										</Route>
-										<Route path="/home/:network/:contractAddress/home">
 											<CrucibleHome />
 										</Route>
 										<Route path="/withdraw/:network/:contractAddress">

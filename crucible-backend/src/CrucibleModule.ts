@@ -1,5 +1,5 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Container, Module } from "ferrum-plumbing";
+import { Container, Module,LoggerFactory} from "ferrum-plumbing";
 import { ChainEventService, decryptKey, AppConfig } from "common-backend";
 import { CrucibleConfig } from "./CrucibleTypes";
 import { CrucibleRequestProcessor } from "./CrucibleRequestProcessor";
@@ -10,7 +10,7 @@ import { CRUCIBLE_CONTRACTS_V_0_1, STAKING_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { Console } from "console";
-
+import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
 export class CrucibleModule implements Module {
   static async configuration() {
     AppConfig.instance().orElse('', () => ({
@@ -23,12 +23,10 @@ export class CrucibleModule implements Module {
         quorum: AppConfig.env("CRUCIBLE_ACTOR_QUORUM", 'N/A'),
       },
     }));
-    console.log(AppConfig.instance().get(),'======3333')
 
   }
 
   async configAsync(container: Container) {
-    console.log(AppConfig.instance().get(),'======3333')
 
     container.registerSingleton(
       CrucibleRequestProcessor,
@@ -54,7 +52,8 @@ export class CrucibleModule implements Module {
           conf,
           c.get(BasicAllocation),
           conf.actor,
-          privateKey
+          privateKey,
+          c.get(OneInchClient)
         )
     );
     container.register(
@@ -62,8 +61,10 @@ export class CrucibleModule implements Module {
       (c) => new BasicAllocation(c.get(EthereumSmartContractHelper))
     );
 
-		await container.get<ChainEventService>(ChainEventService).init(conf.database);
+    container.register(OneInchClient,(c)=>new OneInchClient(c.get(EthereumSmartContractHelper),c.get(LoggerFactory)))
 
+		await container.get<ChainEventService>(ChainEventService).init(conf.database);
+    
 		// Register staking...
 		await container.registerModule(
 			new StakingModule({ contracts: conf.stakingContracts } as StakingConfig));

@@ -73,15 +73,15 @@ export function dataReducer(
 ) {
   switch (action.type) {
     case CommonActions.WAITING:
-      return { ...state, waiting: true, error: "" };
+      return { ...state, waiting: true, initError: "" };
     case CommonActions.WAITING_DONE:
       return { ...state, waiting: false };
     case CommonActions.GROUP_INFO_LOADED:
       return { ...state, groupInfo: action.payload };
     case CommonActions.ERROR_OCCURED:
-      return { ...state, error: action.payload.message };
+      return { ...state, initError: action.payload.message };
     case CommonActions.RESET_ERROR:
-      return { ...state, error: "" };
+      return { ...state, initError: "" };
     default:
   		state = {...state, stake: StakingSlice.reducer(state.stake, action)};
       return clientReducer(state!, action);

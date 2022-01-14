@@ -18,6 +18,7 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { sha256 } from 'ferrum-crypto';
 import { MultiSigUtils } from 'web3-tools/dist/MultiSigUtils';
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
+import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
 
 export const CACHE_TIMEOUT = 120 * 1000; // 2 mins
 const AllocationMethods = CrucibleAllocationMethods;
@@ -41,6 +42,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		private basicAllocation: BasicAllocation,
 		private signingActor: MultiSigActor,
 		private sk: HexString,
+		private oneInch: OneInchClient
 	) {
 		super();
 	}
@@ -368,7 +370,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			ValidationUtils.isTrue(!!crucible, 'Crucible not found');
 		}
 		const allocs = await this.getAllAllocations(`${network}:${contractAddress}`);
-		const priceUsdt = '0'//await this.pricing.usdPrice(crucible.currency);
+		// try one inch implementation to test
+		const priceUsdt = '0' //await this.pricing.usdPrice(crucible.currency);
 		const priceEth = '0' //await this.pricing.ethPrice(crucible.currency);
 		const basePriceUsdt = '0' // await this.pricing.usdPrice(crucible.baseCurrency);
 		const basePriceEth = '0' // await this.pricing.ethPrice(crucible.baseCurrency);
@@ -415,7 +418,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			const tok = await this.crucible(crucible);
 			const sup = (await tok.totalSupply()).toString();
 			return this.helper.amountToHuman(crucible, sup);
-		});
+		},10000);
 	}
 
 	private async crucibleFeeOnTransferRate(crucible: string): Promise<string> {

@@ -5,13 +5,14 @@ import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleBox } from './../../CrucibleBox';
 import { CrucibleLoader } from './../../CrucibleLoader';
 import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods } from 'types';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../../../CrucibleClient';
 import { ApiClient } from 'common-containers';
 import {crucibleBoxSlice} from './../../CrucibleBox';
 import { APPLICATION_NAME } from '../../../common/CommonActions';
 import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
+import { Actions as TxModal,TxModalState } from '../../../common/transactionModal';
 
 const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
     async (payload: {
@@ -25,9 +26,8 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
 	const transactionId = await client.withdraw(ctx.dispatch,
 		currency, crucible, amount);
 	if (!!transactionId) {
-		ctx.dispatch(crucibleBoxSlice.actions.registerTx({
-			transactionId,
-			network }));
+        ctx.dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+		ctx.dispatch(crucibleBoxSlice.actions.registerTx({transactionId,network }));
 		const event = {
 			createdAt: 0,
 			id: transactionId,
@@ -47,9 +47,9 @@ export function WithdrawCrucible(){
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
 		state.data.state.crucible);
 	const dispatch = useDispatch();
-    let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state =>
-		crucible?.currency ?
-			state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
+    const history = useHistory()
+    let transactionStatus = useSelector<CrucibleAppState, string|undefined>(state => state.ui.transactionModal.status);
+    let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state =>crucible?.currency ? state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
     const depositOpen = crucible ? crucible?.activeAllocationCount > 0 || BigUtils.truthy(BigUtils.safeParse(crucible.openCap)) : false;
     const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
 	const userDirectAllocation = (userCrucible?.allocations || []
@@ -63,9 +63,9 @@ export function WithdrawCrucible(){
 		    <div className='fr-flex-container'>
                 <FCard className='mini-card'>
                     <span className='header'>
-                        {crucible?.baseSymbol || 'Base Token'} Price (USD)
+                        {userCrucible?.symbol  || 'Base Token'} Balance
                     </span>
-                    <span className='content '>${crucible?.basePriceUsdt|| 0}</span>
+                    <span className='content '>{userCrucible?.balance|| 0}</span>
                 </FCard>
                 
                 <FCard className='mini-card'>
@@ -76,12 +76,13 @@ export function WithdrawCrucible(){
             <>
                 <FCard className='crucible-filled-card'>
                     <div className='header'>
-                        <span className="back-btn">
+                        <span className="back-btn" onClick={()=>history.push(`/crucible/${network}/${contractAddress}`)}>
                             ←
                         </span>
-                        <span className="title">
+                        <span className="title underline">
                             Withdraw Crucible Token
                         </span>
+                        <span role="img" aria-label="wizard-icon" style={{"margin": "4px",'fontSize': '20px'}}>&#127855;</span>
                     </div>
                     <div>
                         <FInputText
@@ -89,24 +90,24 @@ export function WithdrawCrucible(){
                             placeholder={'Amount to Withdraw'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={amount}
+                            type={'Number'}
                         />
-                    </div>
-                    <div className='subtxt'>
-                        You have {userCrucible?.balance} {userCrucible?.symbol} Crucible Token(s) Available.
                     </div>
                     <div className="down-btn">
                         <span >
                             ↓
                         </span>
                     </div>
+                    <div className='subtxt'>
+                        Amount you will receive
+                    </div>
                     <div>
                         <FInputTextField
                             className={'crucible-text-input'}
-                            placeholder={'Amount you will receive'}
                             postfix={<div className='input-label'>{userCrucible?.baseSymbol}</div>}
-                            label={'Equivalent in Base Token'}
-                            value={amount}
-                            disabled={true}
+                            label={''}
+                            value={(Number(amount) - (Number(amount)*((Number(BigUtils.safeParse(crucible?.feeOnWithdrawRate || '0').times(100))/100))))}
+                            disabled={true}                        
                         />
                     </div>
                     <div className='cr-footer'>
@@ -129,8 +130,8 @@ export function WithdrawCrucible(){
                         </div>
                     </div>
                     <FButton 
-                        title={'Withdraw'}
-                        disabled={!enableWithdraw||Number(amount)<=0}
+                        title={`${transactionStatus==='waiting' ? 'Processing' : 'Withdraw'}`}
+                        disabled={!enableWithdraw||Number(amount)<=0||transactionStatus==='waiting'}
                         className={'cr-large-btn'}
                         onClick={()=> dispatch(doWithdraw({
                             network: network,

@@ -11,7 +11,9 @@ import { PrimaryButton } from 'office-ui-fabric-react';
 import { CrucibleClient } from '../CrucibleClient';
 import { inject } from 'types';
 import { addressForUser } from 'common-containers';
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
 
+// fee is in ratios
 interface DeployProps extends DeployState {
 	network: string;
 }
@@ -71,39 +73,59 @@ export const deploySlice = createSlice({
 export function Deploy() {
 	const dispatch = useDispatch();
 	const props = useSelector<CrucibleAppState, DeployProps>(stateToProps);
+	const appError = useSelector<CrucibleAppState, string>(state=>state.data.state.initError!);
 	return (
-		<Page gap="true">
-			<Row>
-				<h3>Connected to {props.network}</h3>
-			</Row>
-			<Row withPadding>
-				<TextField
-					label="Base Token Address"
-					value={props.baseToken}
-					onChange={(e, value) => dispatch(deploySlice.actions.baseTokenChanged({value}))}
-				/>
-			</Row>
-			<Row withPadding>
-				<TextField
-					label="Transfer Fee Ratio"
-					value={props.feeOnTransfer}
-					onChange={(e, value) => dispatch(deploySlice.actions.feeOnTransferChanged({value}))}
-				/>
-			</Row>
-			<Row withPadding>
-				<TextField
-					label="Withdraw Fee Ratio"
-					value={props.feeOnWithdraw}
-					onChange={(e, value) => dispatch(deploySlice.actions.feeOnWithdrawChanged({value}))}
-				/>
-			</Row>
-			<Row withPadding>
-				{props.error && (<span>{props.error} <br/></span>)}
-				<PrimaryButton
-					text={'Launch 🚀'}
-					onClick={() => dispatch(launchCrucible({props}))}
-				/>
-			</Row>
-		</Page>
+		<FCard className='crucible-filled-card'>
+				<div className='header'>
+					<span className="title center underline">
+						Deploy A Crucible Token {`${props.network ? `on ${props.network}` : ''}`}
+					</span>
+				</div>
+				{(appError) && (<span>{appError} <br/></span>)}
+				<div className='extend-mgb'>
+					<div className='subtxt'>
+						Base Token Address
+                    </div>
+					<FInputText
+						className={'crucible-input'}
+						placeholder={'Base Token Address'}
+						value={props.baseToken}
+						onChange={(e:any) => dispatch(deploySlice.actions.baseTokenChanged({value: e.target.value}))}
+					/>
+				</div>
+				<div className='extend-mgb'>
+					<div className='subtxt'>
+						Transfer Fee Ratio
+                    </div>
+					<FInputText
+						className={'crucible-input'}
+						placeholder={'Transfer Fee Ratio %'}
+						value={props.feeOnTransfer}
+						type={Number}
+						onChange={(e:any) => dispatch(deploySlice.actions.feeOnTransferChanged({value: e.target.value}))}
+					/>
+				</div>
+				<Row/>
+				<div className='extend-mgb'>
+					<div className='subtxt'>
+						Withdraw Fee Ratio
+                    </div>
+					<FInputText
+						className={'crucible-input'}
+						type={Number}
+						placeholder={'Withdraw Fee Ratio %'}
+						value={props.feeOnWithdraw}
+						onChange={(e:any) => dispatch(deploySlice.actions.feeOnWithdrawChanged({value: e.target.value}))}
+					/>
+				</div>
+				<Row withPadding centered>
+					<FButton
+						disabled={!props.network || !props.feeOnWithdraw || !props.feeOnTransfer || !props.baseToken}
+					    className={'cr-large-btn'}
+						title={`${ !props.network ? 'Connect Wallet to Deploy' : 'Deploy Crucible 🚀'}`}
+						onClick={() => dispatch(launchCrucible({props}))}
+					/>
+				</Row>
+		</FCard>
 	);
 }

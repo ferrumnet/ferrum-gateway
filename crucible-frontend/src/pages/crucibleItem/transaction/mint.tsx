@@ -5,7 +5,7 @@ import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleBox } from './../../CrucibleBox';
 import { CrucibleLoader } from './../../CrucibleLoader';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods } from 'types';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../../../CrucibleClient';
 import { ApiClient } from 'common-containers';
@@ -50,6 +50,8 @@ export function MintCrucible(){
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
 		state.data.state.crucible);
 	const dispatch = useDispatch();
+    const history = useHistory()
+    let transactionStatus = useSelector<CrucibleAppState, string|undefined>(state => state.ui.transactionModal.status);
 	if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
 		crucible = undefined;
 	}
@@ -79,10 +81,10 @@ export function MintCrucible(){
             <>
                 <FCard className='crucible-filled-card'>
                     <div className='header'>
-                        <span className="back-btn">
+                        <span className="back-btn" onClick={()=>history.push(`/crucible/${network}/${contractAddress}`)}>
                             ←
                         </span>
-                        <span className="title">
+                        <span className="title underline">
                             Deposit and Mint Crucible Token
                         </span>
                     </div>
@@ -92,8 +94,12 @@ export function MintCrucible(){
                             placeholder={'Amount to Mint'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={amount}
+                            type={Number}
                             //setMax={() => setAmount((userCrucible.allocation && BigUtils.safeParse(crucible.allocation).lt(BigUtils.safeParse(userCrucible.balance))) ? userCrucible.allocation : userCrucible.balance)}
                         />
+                    </div>
+                    <div className='subtxt'>
+                        You have {userCrucible?.baseBalance} available in Base Token {userCrucible?.baseSymbol}.
                     </div>
                     {
                         Number(amount) > 0 && 
@@ -103,12 +109,14 @@ export function MintCrucible(){
                                     ↓
                                 </span>
                             </div>
+                            <div className='subtxt'>
+                                Amount you will receive
+                            </div>
                             <div>
                                 <FInputTextField
                                     className={'crucible-text-input'}
                                     placeholder={'Amount you will receive'}
                                     postfix={<div className='input-label'>{userCrucible?.symbol}</div>}
-                                    label={'Amount You Will receive'}
                                     value={amount}
                                     disabled={true}
                                 />
@@ -116,12 +124,9 @@ export function MintCrucible(){
                         </>
                     }
                    
-                    <div className='subtxt'>
-                        You have {userCrucible?.baseBalance} {userCrucible?.baseSymbol} Available.
-                    </div>
                     <div className='cr-footer'>
                         <div className='heading'>
-                            Withdraw Price and Fee
+                            Crucible Token Info
                         </div>
                         <div className='content'>
                             <span>
@@ -133,14 +138,14 @@ export function MintCrucible(){
                                <span className='label'> Transfer Fee</span>
                             </span>
                             <span>
-                                <span>{crucible?.baseSymbol}</span>
-                               <span className='label'>Base Token</span>
+                                <span>{crucible?.symbol}</span>
+                               <span className='label'>Crucible Token</span>
                             </span>
                         </div>
                     </div>
                     <FButton 
-                        title={'Mint'}
-                        disabled={!depositOpen||Number(amount)<=0}
+                        title={`${transactionStatus==='waiting' ? 'Processing' : 'Mint Crucible🍯'}`}
+                        disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
                         className={'cr-large-btn'}
                         onClick={()=> dispatch(doDeposit({
                             network: network,

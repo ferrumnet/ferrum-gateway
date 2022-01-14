@@ -9,6 +9,9 @@ import { TransactionListModal } from './TransactionListModal';
 
 function TransactionSummarySkin(props: TransactionViewSummaryProps) {
 	const [showModal, setShowModal] = useState(false);
+	const user = useSelector((state: CrucibleAppState) => state.connection?.account?.user);
+	const address = !!user?.accountGroups && !!user?.accountGroups[0]?.addresses
+	 ? user?.accountGroups[0]?.addresses[0]?.address.toLowerCase() : undefined;
 	return (
 		<>
     <Button
@@ -18,7 +21,7 @@ function TransactionSummarySkin(props: TransactionViewSummaryProps) {
     >
       <span>Transactions ({props.summary.pendingCount || 0}/{props.summary.total})</span>
     </Button>
-		<TransactionListModal show={showModal} onDismiss={() => setShowModal(false)} />
+		<TransactionListModal show={showModal} onDismiss={() => setShowModal(false)} address={address||'0x0....'} />
 		</>
 	);
 }
@@ -26,7 +29,8 @@ function TransactionSummarySkin(props: TransactionViewSummaryProps) {
 export function TransactionSummaryButton() {
 	const user = useSelector((state: CrucibleAppState) => state.connection?.account?.user);
 	const network = !!user?.accountGroups && !!user?.accountGroups[0]?.addresses
-	 ? user?.accountGroups[0]?.addresses[0]?.network : undefined;
+	 ? user?.accountGroups[0]?.addresses[0]?.network.toLowerCase() : undefined;
+	
 	return (
 		<TransactionSummary
 			network={network || ''}

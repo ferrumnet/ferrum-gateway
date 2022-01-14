@@ -3,10 +3,11 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleBox } from './../../CrucibleBox';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { CrucibleLoader } from './../../CrucibleLoader';
 import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils } from 'types';
 import { FLayout, FContainer,FCard, FButton, ThemeBuilder } from "ferrum-design-system";
+import { CrucibleStatus } from './../../../common/CrucilbleStatus';
 
 export function CrucibleHome() {
 	let {network, contractAddress} = useParams() as any;
@@ -17,7 +18,7 @@ export function CrucibleHome() {
 				state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
 	const depositOpen = crucible ? (crucible.activeAllocationCount > 0 || BigUtils.truthy(BigUtils.safeParse(crucible!.openCap))) : false;
 	const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
-	
+	const history = useHistory();
 	const dispatch = useDispatch();
 	if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
 		crucible = undefined;
@@ -25,6 +26,7 @@ export function CrucibleHome() {
 	console.log(crucible)
 	return (
 		<>
+		<div className='cr-header'> {crucible?.name}</div>
 		<div className='fr-flex-container'>
 			<FCard className='mini-card'>
 				<span className='header'>
@@ -75,22 +77,24 @@ export function CrucibleHome() {
 			<FButton 
 				title={'Mint'}
 				disabled={!depositOpen}
+				onClick={()=> history.push(`/mint/${network}/${contractAddress}`)}
 				//onClick={()=>onMint()}
+				
 			/>
 			<FButton 
 				title={'Withdraw'}
 				disabled={!enableWithdraw}
-				//onClick={()=>onWithdraw()}
+				onClick={()=> history.push(`/withdraw/${network}/${contractAddress}`)}
 			/>
 		</FCard>
 		<CrucibleLoader network={network} contractAddress={contractAddress} />
-		<div className="crucible-list-container">
+		{/* <div className="crucible-list-container">
 			<div className="crucible-list-items-container">
 				<CrucibleBox
 					info={crucible || {} as any}
 				/>
 			</div>
-		</div>
+		</div> */}
 		</>
 	);
 }
