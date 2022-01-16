@@ -19,6 +19,7 @@ function CrucibleHeading(props: {info: CrucibleInfo}) {
 function CrucibleListForCurrency(props: {currency: string}) {
 	const crucibles = useSelector<CrucibleAppState, CrucibleInfo[]>(
 		state => state.data.state.crucibles[props.currency]);
+	console.log(crucibles,'crucibles')
 	if (!crucibles || !crucibles.length) {
 		return (<></>);
 	}
@@ -36,6 +37,7 @@ function CrucibleListForCurrency(props: {currency: string}) {
 export function CrucibleList() {
 	const baseCurrencies = useSelector<CrucibleAppState, string[]>(state =>
 		Object.keys(state.data.state.crucibles));
+	console.log(baseCurrencies,'baseCurrencies')
 	return (
 		<div className="crucible-list-container">
 			{baseCurrencies.map((c, i) => <CrucibleListForCurrency currency={c} key={i} />)}

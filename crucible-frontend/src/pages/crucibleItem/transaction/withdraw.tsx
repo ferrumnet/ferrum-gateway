@@ -82,7 +82,7 @@ export function WithdrawCrucible(){
                         <span className="title underline">
                             Withdraw Crucible Token
                         </span>
-                        <span role="img" aria-label="wizard-icon" style={{"margin": "4px",'fontSize': '20px'}}>&#127855;</span>
+                        <span role="img" aria-label="wizard-icon" style={{"margin": "4px",'fontSize': '15px'}}>&#127855;</span>
                     </div>
                     <div>
                         <FInputText

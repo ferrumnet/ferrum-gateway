@@ -7,10 +7,13 @@ import { CrucibleAppState } from './CrucibleAppState';
 import { FLayout, FContainer,FCard, FButton, ThemeBuilder } from "ferrum-design-system";
 //@ts-ignore
 import { AddTokenToMetamask } from 'component-library';
+import { useHistory, useParams } from 'react-router';
+import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils } from 'types';
 
 export interface TxModalState {
     isOpen: boolean;
     status: 'waiting' | 'submitted' | 'rejected',
+    txId: string
 }
 
 export interface TransactionModal {
@@ -28,11 +31,13 @@ export const TransactionModalSlice = createSlice(
         initialState: {
             isOpen: false,
             status: 'submitted',
+            txId: ''
         } as TxModalState,
         reducers: {
             toggleModal: (state,action)=>{
                 state.isOpen = action.payload.show ?? !state.isOpen;
                 state.status = action.payload.mode ?? state.status;
+                state.txId = action.payload.txId ? action.payload.txId : state.txId
             }
         }
     }
@@ -51,6 +56,10 @@ export interface TransactionModal {
 
 export function TransactionModal(){
     const modalProps = useSelector<CrucibleAppState,any>(state=>state.ui.transactionModal)
+    let {network, contractAddress} = useParams() as any;
+    let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
+		state.data.state.crucible);
+    console.log(modalProps,'modalProps')
     const dispatch = useDispatch();
     return (
         <>
@@ -90,16 +99,17 @@ export function TransactionModal(){
                         {
                                 modalProps.status === 'submitted' && 
                                     <div className='spaced-out'>
-                                        <div className='modal-sub-text link'>
+                                        <div onClick={() => window.open(Utils.linkForTransaction(crucible?.network||network,modalProps.txId), '_blank')} className='modal-sub-text link'>
                                             View on Explorer <span>⬈</span>
                                         </div>
                                         <div className='modal-mini-text'>
                                             <div className="cr-addToMetask">
                                                 <AddTokenToMetamask
                                                     tokenData = {{
-                                                        "currency": '0xff',
-                                                        "symbol":'sym',
-                                                        "decimals":14,
+                                                        "currency": crucible?.contractAddress,
+                                                        "address": crucible?.contractAddress,
+                                                        "symbol": crucible?.symbol,
+                                                        "decimals": 14,
                                                         "logoURI": ''
                                                     }}
                                                 />

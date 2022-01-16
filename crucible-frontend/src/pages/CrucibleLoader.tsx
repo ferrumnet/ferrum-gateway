@@ -20,6 +20,7 @@ const loadCrucibleUserInfo = createAsyncThunk('crucible/loadUserInfo',
 
 export function CrucibleLoader(params:
 		{ network: string, contractAddress: string}) {
+
 	const { network, contractAddress } = params;
 	const crucibleCurrency = `${network.toUpperCase()}:${(contractAddress || '').toLowerCase()}`;
 	const initialized = useSelector<CrucibleAppState, boolean>(

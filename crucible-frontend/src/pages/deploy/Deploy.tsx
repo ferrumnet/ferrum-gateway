@@ -5,10 +5,10 @@ import {
 } from 'component-library';
 import { TextField } from '@fluentui/react/lib/TextField';
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState, DeployState } from '../common/CrucibleAppState';
+import { CrucibleAppState, DeployState } from '../../common/CrucibleAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { PrimaryButton } from 'office-ui-fabric-react';
-import { CrucibleClient } from '../CrucibleClient';
+import { CrucibleClient } from '../../CrucibleClient';
 import { inject } from 'types';
 import { addressForUser } from 'common-containers';
 import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
@@ -78,7 +78,7 @@ export function Deploy() {
 		<FCard className='crucible-filled-card'>
 				<div className='header'>
 					<span className="title center underline">
-						Deploy A Crucible Token {`${props.network ? `on ${props.network}` : ''}`}
+						Deploy Crucible Token {`${props.network ? `on ${props.network}` : ''}`}
 					</span>
 				</div>
 				{(appError) && (<span>{appError} <br/></span>)}
@@ -101,7 +101,7 @@ export function Deploy() {
 						className={'crucible-input'}
 						placeholder={'Transfer Fee Ratio %'}
 						value={props.feeOnTransfer}
-						type={Number}
+						type={'number'}
 						onChange={(e:any) => dispatch(deploySlice.actions.feeOnTransferChanged({value: e.target.value}))}
 					/>
 				</div>
@@ -112,7 +112,7 @@ export function Deploy() {
                     </div>
 					<FInputText
 						className={'crucible-input'}
-						type={Number}
+						type={'number'}
 						placeholder={'Withdraw Fee Ratio %'}
 						value={props.feeOnWithdraw}
 						onChange={(e:any) => dispatch(deploySlice.actions.feeOnWithdrawChanged({value: e.target.value}))}

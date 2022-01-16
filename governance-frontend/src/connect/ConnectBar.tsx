@@ -24,7 +24,7 @@ export function ConnectBtn(props: IConnectViewProps) {
 }
 
 export function ConnectBar(props: ConnectBarProps) {
-    const ConBot = <ConnectButtonWapper View={ConnectBtn} />
+	const ConBot = <ConnectButtonWapper View={CnctButton} />
     return (
         <TopBar
             left={<img alt="Ferrum Network"

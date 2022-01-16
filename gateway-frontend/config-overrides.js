@@ -3,13 +3,15 @@ var path = require ('path');
 
 module.exports = {
     webpack: function override(config) {
-        var addr1 = path.resolve(__dirname, (process.platform === 'win32' ? '\\3rd\\ferrum-gateway\\component-library\\src' : 'component-library/src'));
+        var addr1 = path.resolve(__dirname,'../' + (process.platform === 'win32' ? '\\component-library\\src' : 'component-library/src'));
+        var addr2 = path.resolve(__dirname,'../' + (process.platform === 'win32' ? '\\node_modules\\desktop-components-library\\src' : 'node_modules/desktop-components-library/src'));
         console.log('ADDR IS ', addr1);
         config.module.rules.push({
             test: /\.(js|jsx)$/,
             include: [
                 paths.appSrc, 
                 addr1,
+                addr2
             ],
             loader: require.resolve('babel-loader'),
             options: {

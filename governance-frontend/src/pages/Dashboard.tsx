@@ -75,7 +75,7 @@ export function Dashboard(props: DashboardProps) {
 											  <Route path="/contract/:network/:contractAddress/:contractId">
                         	<GovernanceContractPage />
 												</Route>
-											  <Route >
+											  <Route path="/" >
                         	<ContractList />
 												</Route>
 											 </Switch>

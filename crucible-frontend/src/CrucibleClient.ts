@@ -112,7 +112,8 @@ export class CrucibleClient {
 					}
 				});
 				if(!!res){
-					dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+					console.log(res)
+					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
 				}
 				return res
 		} catch (e) {
@@ -146,7 +147,8 @@ export class CrucibleClient {
 				}
 			)
 			if(!!res){
-				dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+				console.log(res)
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
 			}
 			return res
 		} catch (e) {
@@ -200,7 +202,8 @@ export class CrucibleClient {
 				}
 			)
 			if(!!res){
-				dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+				console.log(res)
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
 			}
 			return res
 		} catch (e) {

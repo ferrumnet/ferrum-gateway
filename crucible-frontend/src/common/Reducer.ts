@@ -3,7 +3,7 @@ import { AnyAction } from "redux";
 import { CrucibleInfo } from "types";
 import { CrucibleClientActions } from "../CrucibleClient";
 import { crucibleBoxSlice } from "../pages/CrucibleBox";
-import { deploySlice } from "../pages/Deploy";
+import { deploySlice } from "./../pages/deploy/Deploy";
 import { StakingSlice } from "../staking/StakingClient";
 import { TransactionModalSlice } from './../common/transactionModal';
 import { CommonActions } from "./CommonActions";

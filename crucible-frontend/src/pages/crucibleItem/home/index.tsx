@@ -57,7 +57,18 @@ export function CrucibleHome() {
 			</FCard>
 		</div>
 		
-		<div>
+		<div className='block'>
+			{
+				(depositOpen || enableWithdraw) && 
+					<div className='tag'>
+						{
+							depositOpen && `Minting Is Open ( ${crucible?.openCap} Open Cap)`
+						}
+						{
+							(enableWithdraw && !depositOpen) && `Withdraw Is Open for Crucible`
+						}
+					</div>
+			}
 			<FCard className='crucibleItemCard'>
 				<span className='header'>Your Available Crucible Liquidity</span>
 				<FCard className={'content-card flex no-left no-bottom'}>

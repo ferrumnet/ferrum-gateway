@@ -7,8 +7,8 @@ import { inject3 } from 'types';
 import { CrucibleClient } from '../CrucibleClient';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { CrucibleList } from './CrucibleList';
-import { Route, Switch } from 'react-router';
-import { Deploy } from './Deploy';
+import { Redirect, Route, Switch } from 'react-router';
+import { Deploy } from './deploy/Deploy';
 import { Crucible } from './Crucible';
 import {WithdrawCrucible} from './../pages/crucibleItem/transaction/withdraw';
 import {MintCrucible} from './../pages/crucibleItem/transaction/mint';
@@ -97,15 +97,14 @@ export function Dashboard(props: DashboardProps) {
             ):(
 			<>
 				<ThemeProvider theme={DefaultTheme}>
-					<>
-						<GlobalStyles />
-						<FLayout>
-							<FMain>
-								{header}
-								<TransactionModal/>
-								<FContainer>
-									<div className="landing-page">
-										<Switch>
+					<GlobalStyles />
+					<FLayout>
+						<FMain>
+							{header}
+							<TransactionModal/>
+							<FContainer>
+								<div className="landing-page">
+									<Switch>
 										<Route path="/deploy">
 											<Deploy />
 										</Route>
@@ -118,16 +117,16 @@ export function Dashboard(props: DashboardProps) {
 										<Route path="/mint/:network/:contractAddress">
 											<MintCrucible />
 										</Route>
+									
 										<Route>
 											<CrucibleList />
 										</Route>
-										</Switch>
-										<WaitingComponent />
-									</div>
-								</FContainer>
-							</FMain>
-						</FLayout>
-					</>	
+									</Switch>
+									<WaitingComponent />
+								</div>
+							</FContainer>
+						</FMain>
+					</FLayout>
 				</ThemeProvider>
 			</>
             )}

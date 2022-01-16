@@ -15,7 +15,7 @@ import { Environment } from 'types';
 const _module = new CrucibleModule();
 const store = StoreBuilder.build(
             userReducer, dataReducer, uiReducer, _module, 
-            Environment.defaultEndPoint()
+            Environment.defaultEndPoint(),
             //'https://mz7ub9w7lj.execute-api.us-east-2.amazonaws.com/default/stagin-crucible-backend',
             );
 
