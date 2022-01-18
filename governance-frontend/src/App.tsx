@@ -1,6 +1,6 @@
 import React from 'react';
 import { StoreBuilder } from 'common-containers';
-import './App.css';
+import './app.scss';
 import { Dashboard } from './pages/Dashboard';
 import { dataReducer, uiReducer, userReducer } from './common/Reducer';
 import { BrowserRouter as Router } from 'react-router-dom';

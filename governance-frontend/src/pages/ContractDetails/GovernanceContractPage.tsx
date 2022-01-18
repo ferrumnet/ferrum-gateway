@@ -3,16 +3,17 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
 import { GovernanceContract, GovernanceTransaction, inject, QuorumSubscription, SignableMethod, Utils } from 'types';
-import { GovernanceAppState } from '../common/GovernanceAppState';
-import { Card } from '../components/Card';
-import { GovernanceClient } from '../GovernanceClient';
+import { GovernanceAppState } from '../../common/GovernanceAppState';
+import { Card } from '../../components/Card';
+import { GovernanceClient } from '../../GovernanceClient';
 import './ContractList.css';
 import {
 	Row, RegularBtn, Page,
 	// @ts-ignore
 } from 'component-library';
 import { addressForUser } from 'common-containers';
-import { UserSubscription } from './UserSubscription';
+import { UserSubscription } from '../UserSubscription';
+import { FButton } from "ferrum-design-system";
 
 function argList(m?: SignableMethod) {
 	if (!m) { return '[err - not found]';}
@@ -83,52 +84,62 @@ export function GovernanceContractPage() {
 	const history = useHistory();
 	return (
 		<>
-		<ContractLoader
-			network={network} contractAddress={contractAddress} contractId={contractId}
-		/>
-		<div className="contracts">
-			<UserSubscription />
-			<h1><u>Selected Contract</u></h1>
-			<Card
-				title={`${contract?.identifier?.name} (Version ${contract?.identifier?.version})`}
-				subTitle={`${network}:${contractAddress}`}
-			>
-				{quorum.quorum && <RegularBtn text={'New Request'}
-					onClick={() => history.push(`/newMethod/${network}/${contractAddress}/${contractId}`)
-				}/>}
-			</Card>
-			<h1><u>Current Requests</u></h1>
-			{requests.map((r, i) => (
-				<Card key={i}
-					title={`${r.method}(${argList(contract.methods.find(m => m.name === r.method))})`}
-					subTitle={''}
-				>
-			<div className="method-contract">
-					<p>{r.values.join(', ')}</p>
-					<p>{r.network} {r.signatures.length} of {quorum.minSignatures} Signatures</p>
-					<p>{
-						r.signatures.length >= quorum.minSignatures ? (
-							(
-								(r.execution?.status === 'sucess') ? 
-								(
-									<span>Complete and submitted</span>
-								) : (
-									<RegularBtn text={'Submit Transaction'}
-										onClick={() => history.push(`/method/${network}/${contractAddress}/${contractId}/${r.requestId}`)}
-									/>
-								)
-							)
-						) : (
-							(r.signatures || [] as any)
-								.find(s => Utils.addressEqual(s.creator, userAddress!)) ?
-							'Signed' :
-							<RegularBtn text={'Sign'}
-								onClick={() => history.push(`/method/${network}/${contractAddress}/${contractId}/${r.requestId}`)}/>
-						)
-					}</p>
+			<div className='gv-section-title'>
+				<h3>{`${contract?.identifier?.name} Governance `}</h3>
+			</div>
+			<ContractLoader
+				network={network} contractAddress={contractAddress} contractId={contractId}
+			/>
+			<div className="gv-page-content">
+				<UserSubscription />
+				<div className='column'>
+					<h1  className='gv-title'><u>Selected Contract</u></h1>
+					<Card
+						title={`${contract?.identifier?.name} (Version ${contract?.identifier?.version})`}
+						subTitle={`${network}:${contractAddress}`}
+					>
+						<div className='gv-card-action-btn'>
+							<FButton title={'New Request'} disabled={!quorum.quorum} onClick={() =>  history.push(`/newMethod/${network}/${contractAddress}/${contractId}`)}/>
+						</div>
+					</Card>
 				</div>
-				</Card>
-			))}
+				<div className='column flex'>
+					<h1 className='gv-title'><u>Current Requests</u></h1>
+					<div className='flex'>
+						{requests.map((r, i) => (
+							<Card key={i}
+								title={`${r.method}(${argList(contract.methods.find(m => m.name === r.method))})`}
+								subTitle={''}
+							>
+								<div className="method-contract">
+									<p>{r.values.join(', ')}</p>
+									<p>{r.network} {r.signatures.length} of {quorum.minSignatures} Signatures</p>
+									<p>{
+										r.signatures.length >= quorum.minSignatures ? (
+											(
+												(r.execution?.status === 'sucess') ? 
+												(
+													<span>Complete and submitted</span>
+												) : (
+													<div className='gv-card-action-btn'>
+														<FButton title={'Submit Transaction'} onClick={() => history.push(`/method/${network}/${contractAddress}/${contractId}/${r.requestId}`)}/>
+													</div>	
+												)
+											)
+										) : (
+											(r.signatures || [] as any)
+												.find(s => Utils.addressEqual(s.creator, userAddress!)) ?
+											'Signed' :
+											<div className='gv-card-action-btn'>
+												<FButton title={'Sign'} onClick={() => history.push(`/method/${network}/${contractAddress}/${contractId}/${r.requestId}`)}/>
+											</div>
+										)
+									}</p>
+								</div>
+							</Card>
+						))}
+					</div>
+				</div>
 			</div>
 		</>
 	);

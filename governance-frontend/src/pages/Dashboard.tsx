@@ -9,9 +9,16 @@ import { inject } from 'types';
 import { Route, Switch } from 'react-router';
 import { GovernanceClient } from '../GovernanceClient';
 import { GovernanceAppState } from '../common/GovernanceAppState';
-import { ContractList } from './ContractList';
-import { GovernanceContractPage } from './GovernanceContractPage';
-import { Method, NewMethod } from './Method';
+import { ContractList } from './ContractsList/ContractList';
+import { GovernanceContractPage } from './ContractDetails/GovernanceContractPage';
+import { Method, NewMethod } from './CallMethod/Method';
+import { ThemeProvider } from "styled-components";
+import { DefaultTheme } from '../common/DefaultTheme';
+import { GlobalStyles } from "../common/GlobalStyles";
+import { WaitingComponent } from '../common/WebWaiting';
+import { AsideMenu } from "./../components/AsideMenu";
+import { FLayout, FContainer, FMain, ThemeBuilder } from "ferrum-design-system";
+import { addAction, CommonActions } from '../common/CommonActions';
 
 interface DashboardState {
 }
@@ -20,6 +27,7 @@ export interface DashboardProps {
 }
 
 const initializeDashboardThunk = createAsyncThunk('governance/init', async (payload: {connected: boolean}, ctx) => {
+	ctx.dispatch(addAction(CommonActions.WAITING,''))
 	const client = inject<GovernanceClient>(GovernanceClient);
 	await client.listContracts(ctx.dispatch);
 	// Make sure we have user balance for all the crucibles listed
@@ -56,36 +64,36 @@ export function Dashboard(props: DashboardProps) {
                     <p>{initError}</p>
                 </Page>
             ):(
-                <PageLayout
-                    top={(
-                        <ConnectBar />
-                    )}
-                    left={(
-						<></>
-                    )}
-                    middle={(
-											 <>
-											 <Switch>
-											  <Route path="/newMethod/:network/:contractAddress/:contractId">
-                        	<NewMethod />
-												</Route>
-											  <Route path="/method/:network/:contractAddress/:contractId/:requestId">
-                        	<Method />
-												</Route>
-											  <Route path="/contract/:network/:contractAddress/:contractId">
-                        	<GovernanceContractPage />
-												</Route>
-											  <Route path="/" >
-                        	<ContractList />
-												</Route>
-											 </Switch>
-											 </>
-                    )}
-                    bottom={(
-                        <div style={{justifyContent: 'center', display: 'flex', flex: 1}}>
-                            <p>(c) Copyright Ironworks ltd.</p></div>
-                    )}
-                />
+				<>
+					<ThemeProvider theme={DefaultTheme}>
+						<GlobalStyles/>
+						<FLayout>
+							<AsideMenu groupId='frm'/>
+							<FMain>
+								<ConnectBar />
+								<FContainer> 
+									<div className="landing-page">
+										<Switch>
+											<Route path="/newMethod/:network/:contractAddress/:contractId">
+												<NewMethod />
+											</Route>
+											<Route path="/method/:network/:contractAddress/:contractId/:requestId">
+												<Method />
+											</Route>
+											<Route path="/contract/:network/:contractAddress/:contractId">
+												<GovernanceContractPage />
+											</Route>
+											<Route path="/" >
+												<ContractList />
+											</Route>
+										</Switch>
+										<WaitingComponent />
+									</div>
+								</FContainer>
+							</FMain>
+						</FLayout>
+					</ThemeProvider>
+				</>
             ) }
         </>
     );

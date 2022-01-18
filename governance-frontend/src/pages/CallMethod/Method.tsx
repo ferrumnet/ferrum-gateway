@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { GovernanceContract, GovernanceTransaction, inject, MultiSigSignature, QuorumSubscription, SignableMethod } from 'types';
-import { GovernanceAppState, MethodState, NewMethodState } from '../common/GovernanceAppState';
-import { Card } from '../components/Card';
-import { ContractLoader, loadContract } from './GovernanceContractPage';
+import { GovernanceAppState, MethodState, NewMethodState } from '../../common/GovernanceAppState';
+import { Card } from '../../components/Card';
+import { ContractLoader, loadContract } from '../ContractDetails/GovernanceContractPage';
 import { Dropdown } from '@fluentui/react/lib/Dropdown';
 import {
 	InputField, RegularBtn
@@ -12,9 +12,10 @@ import {
 } from 'component-library';
 import { Label } from '@fluentui/react/lib/Label';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { GovernanceClient } from '../GovernanceClient';
+import { GovernanceClient } from '../../GovernanceClient';
 import { Utils } from 'types';
 import { addressForUser } from 'common-containers';
+import { FButton } from "ferrum-design-system";
 
 const addSignature = createAsyncThunk('method/addSignature',
 	async (payload: {method: SignableMethod, contract: GovernanceContract,
@@ -134,7 +135,7 @@ export function MethodArgs(props: {
 	const state = useSelector<GovernanceAppState, NewMethodState>(
 		state => state.ui.newMethod);
 	return (
-		<>
+		<div className='mb-10'>
 			{(props.method.args || []).map((a, i) => (
 				<React.Fragment key={i}>
 				<Label>{`${a.type} ${a.name}`}</Label>
@@ -147,7 +148,7 @@ export function MethodArgs(props: {
 				/>
 				</React.Fragment>
 			))}
-		</>
+		</div>
 	)
 }
 
@@ -245,20 +246,23 @@ export function Method() {
 		</>);
 	return (
 		<>
-		<ContractLoader
-			network={network} contractAddress={contractAddress} contractId={contractId}
-		/>
-		<div className="contracts">
-			<Card title={method?.name || '...'} subTitle={''}>
-				<div className="method-contract">
-					<MethodArgs method={method} request={request} disabled={true} />
-					<p> Signature Quorum: <b>{request?.quorum || ''}</b> </p>
-					<p> Signatures: <b>{request?.signatures?.length} of {quorum?.minSignatures || 0}</b> </p>
-					{state.error && <p>{state.error}</p>}
-					{btn}
-				</div>
-			</Card>
-		</div>
+			<div className='gv-section-title'>
+				<h3>{`${contract?.identifier?.name || '....'} Call method `}</h3>
+			</div>
+			<ContractLoader
+				network={network} contractAddress={contractAddress} contractId={contractId}
+			/>
+			<div className="contracts">
+				<Card title={method?.name || '...'} subTitle={''}>
+					<div className="method-contract">
+						<MethodArgs method={method} request={request} disabled={true} />
+						<p> Signature Quorum: <b>{request?.quorum || ''}</b> </p>
+						<p> Signatures: <b>{request?.signatures?.length} of {quorum?.minSignatures || 0}</b> </p>
+						{state.error && <p>{state.error}</p>}
+						{btn}
+					</div>
+				</Card>
+			</div>
 		</>
 	);
 }
@@ -275,6 +279,9 @@ export function NewMethod() {
 	const method = ((contract?.methods || [])[state.methodIdx] || {});
 	return (
 		<>
+		<div className='gv-section-title'>
+			<h3>{'Call Contract Method'}</h3>
+		</div>
 		<ContractLoader
 			network={network} contractAddress={contractAddress} contractId={contractId}
 		/>
@@ -288,15 +295,21 @@ export function NewMethod() {
 						onChange={(e, o, i) =>
 							dispatch(newMethodSlice.actions.methodChanged({value: i}))}
 					/>
+					
 					<MethodArgs method={method} disabled={state.pending} />
+					
 					{state.error && <p>{state.error}</p>}
+					
 					{state.saved && <h4>Request was successfully added</h4>}
-					<RegularBtn
+					
+					<div className='gv-card-action-btn'>
+						<FButton 
 						disabled={!!state.error || state.pending}
-						text={'Sign and Save'}
+						title={'Sign and Save'}
 						onClick={() => dispatch(
-							signAndSave({method, contract, network, contractAddress}))
-						} />
+								signAndSave({method, contract, network, contractAddress}))
+							} />
+					</div>
 				</div>
 			</Card>
 		</div>

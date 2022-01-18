@@ -28,13 +28,20 @@ export class GovernanceClient {
 	__name__() { return 'GovernanceClient'; }
 
 	async listContracts(dispatch: Dispatch<AnyAction>) {
-		const res = await this.api.api({
-			command: 'listContracts',
-			data: {},
-			params: [],
-		} as JsonRpcRequest);
-		if (!!res) {
-			dispatch(addAction(Actions.CONTRACTS_LOADED, res));
+		try{
+			dispatch(addAction(CommonActions.WAITING,''))
+			const res = await this.api.api({
+				command: 'listContracts',
+				data: {},
+				params: [],
+			} as JsonRpcRequest);
+			if (!!res) {
+				dispatch(addAction(Actions.CONTRACTS_LOADED, res));
+			}
+		}catch(e){
+			console.log(e)
+		}finally{
+			dispatch(addAction(CommonActions.WAITING_DONE,''))
 		}
 	}
 

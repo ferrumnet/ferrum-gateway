@@ -1,0 +1,169 @@
+
+.App {
+    text-align: center;
+}
+  
+.App-logo {
+    height: 40vmin;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gv-section-title{
+    padding: 35px 0%;
+    padding-bottom: 1%;
+    font-size: 15px;
+    text-transform: uppercase;
+    width: 91%;
+    margin: 0px auto;
+    margin-bottom: 10px;
+}
+
+.gv-title{
+    font-size: 15px;
+    text-transform: uppercase;
+}
+
+.gv-notice-centered{
+    padding-top: 3%;
+    font-weight: 500;
+}
+
+.flex{
+    display: flex;
+}
+.f-sider-item .f-item-link .f-item-icon svg {
+    fill: white;
+    font-size: 1.5rem;
+}
+.f-sider-items{
+    .f-sider-item{
+        .f-item-link {
+            color: black;
+
+            .f-item-icon{
+                svg {
+                    fill: black;
+                    font-size: 1.5rem;
+                }
+            }
+        }
+    }
+}
+.f-sider-item .f-item-link {
+    color: black;
+}
+
+.mb-10{
+    margin-bottom: 10px;
+}
+
+.f-layout {
+    .f-main {
+        .f-container {
+            color: black !important;
+            margin: 0 auto;
+            width: 100%;
+            min-width: 100%;
+            padding-top: 30px;
+            max-height: 100%;
+            .gv-page-content{
+               
+                width: 95%;
+                padding-left: 2%;
+                margin: 0px auto;
+
+                .method-contract {
+                    width: 100%;
+                    flex: 1;
+                    display: grid;
+                    grid-auto-rows: auto;
+                    row-gap: 8px;
+                    font-size: 13px;
+                    margin-top: 10px;
+                    padding-bottom: 5%;
+
+                    .title-mini{
+                        font-weight: bold;
+                        display: flex;
+                        padding-right: 10px;
+                    }
+                    h4{
+                        font-weight: 200;
+                        display: flex;
+                    }
+                }
+
+                .column{
+                    display: grid;
+                    grid-auto-rows: auto;
+                    row-gap: 15px;
+                }
+            }
+
+           
+            .contracts{
+                display: flex;
+                flex-wrap: wrap;
+                width: 90%;
+                margin: 0px auto;
+                
+                .contract-item{
+                    display: grid;
+                    grid-auto-rows: auto;
+                    row-gap: 8px;
+                    box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+                    font-size: 16px;
+                    min-width: 30%;
+                    margin: 0px 30px 0px 0px;
+
+                    .contract-item-sub {
+                        font-size: 12px;
+                    }
+
+                    .gv-card-action-btn{
+                        display: flex;
+                        justify-content: flex-end;
+                    }
+
+                 
+                }
+
+            }
+
+            .gv-card-action-btn{
+                display: flex;
+                justify-content: flex-end;
+            }
+        }
+    }
+}

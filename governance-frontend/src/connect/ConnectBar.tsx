@@ -27,8 +27,7 @@ export function ConnectBar(props: ConnectBarProps) {
 	const ConBot = <ConnectButtonWapper View={CnctButton} />
     return (
         <TopBar
-            left={<img alt="Ferrum Network"
-                src="https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"/>}
+            left={<></>}
             right={(
                 <>
                   {ConBot}
