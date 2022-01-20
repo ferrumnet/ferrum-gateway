@@ -1,18 +1,17 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState } from '../common/CrucibleAppState';
+import { CrucibleAppState } from '../../common/CrucibleAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressForUser, connectSlice, initThunk } from 'common-containers';
 import { inject3 } from 'types';
-import { CrucibleClient } from '../CrucibleClient';
+import { CrucibleClient } from '../../common/CrucibleClient';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import { CrucibleList } from './CrucibleList';
-import { Redirect, Route, Switch } from 'react-router';
-import { Deploy } from './deploy/Deploy';
-import { Crucible } from './Crucible';
-import {WithdrawCrucible} from './../pages/crucibleItem/transaction/withdraw';
-import {MintCrucible} from './../pages/crucibleItem/transaction/mint';
-import {CrucibleHome} from './../pages/crucibleItem/home/index';
+import { CrucibleList } from '../crucibleLgcy/CrucibleList';
+import { Redirect, Route, Switch, useParams } from 'react-router';
+import { Deploy } from '../deploy/Deploy';
+import {WithdrawCrucible} from '../crucibleItem/transaction/withdraw';
+import {MintCrucible} from '../crucibleItem/transaction/mint';
+import {CrucibleHome} from '../crucibleItem/home/index';
 import {
     Page, Header, CnctButton,
     AppContainer,
@@ -20,15 +19,20 @@ import {
     // @ts-ignore
 } from 'component-library';
 import { ConnectButtonWapper } from 'common-containers';
-import { WaitingComponent } from '../common/WebWaiting';
-import '../app.scss'
-import { GlobalStyles } from "../common/GlobalStyles";
+import { WaitingComponent } from '../../common/WebWaiting';
+import '../../app.scss'
+import { GlobalStyles } from "../../common/GlobalStyles";
 import { ThemeProvider } from "styled-components";
-import { DefaultTheme } from '../common/DefaultTheme';
+import { DefaultTheme } from '../../common/DefaultTheme';
 import { TransactionSummary } from 'common-containers/dist/chain/TransactionList';
-import { TransactionSummaryButton } from '../transactions/TransactionSummaryButton';
+import { TransactionSummaryButton } from '../../transactions/TransactionSummaryButton';
 import { FLayout, FContainer, FMain, ThemeBuilder } from "ferrum-design-system";
-import { TransactionModal } from './../common/transactionModal';
+import { TransactionModal } from '../../common/transactionModal';
+import {UserCrucible} from './UserCrucible';
+import Modal from 'office-ui-fabric-react/lib/Modal';
+import {Alert} from 'react-bootstrap';
+import { ToastProvider, useToasts } from 'react-toast-notifications';
+
 interface DashboardState {
 }
 
@@ -42,6 +46,7 @@ const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payloa
 	const network = connectedAddr?.network;
 	const allCrucibles = await client.getAllCruciblesFromDb(ctx.dispatch, network || ''); // If not connected will return result for all networks
 	// Make sure we have user balance for all the crucibles listed
+	console.log(allCrucibles,'allCrucibles')
 	const curs = curList.get();
 	curList.set([...curs, ...allCrucibles!?.map(c => c.currency).filter(cur => curs.indexOf(cur) < 0)]);
 
@@ -61,32 +66,51 @@ export const dashboardSlice = createSlice({
 	}
 });
 
+const Error = (props:{error:string}) => {
+	const { addToast } = useToasts();
+	useEffect(()=>{
+		if(props.error){
+			addToast(props.error,{appearance: 'error'})
+		}
+	},[props.error])
+	return<></>
+}
+
 export function Dashboard(props: DashboardProps) {
     const initError = useSelector<CrucibleAppState, string | undefined>(state => state.data.init.initError);
+	const appError = useSelector<CrucibleAppState, string | undefined>(state => state.data.state.initError);
+	const dataError = useSelector<CrucibleAppState, string | undefined>(state => state.data.state.error);
+
 	const initialized = useSelector<CrucibleAppState, boolean>(state => state.data.init.initialized);
 	const connected = useSelector<CrucibleAppState, boolean>(state => !!state.connection.account.user?.userId);
 	const dispatch = useDispatch();
+
 	useEffect(() => {
 		if (initialized && connected) {
 			dispatch(initializeDashboardThunk({connected}));
 		}
 	}, [initialized, connected]);
+
 	const ConBot = <ConnectButtonWapper View={CnctButton} />
 
-	const header = (<Header
-                ConnectButton={ConBot}
-                WithdrawlsButton={<TransactionSummaryButton />}
-                SwitchNetworkButton={<></>}
-                ThemeSelector={() => <></>}
-                //     () => <ThemeSelector setter={props.setter}
-                //         newTheme={props.newTheme}
-                //         setIsLight={() => setIsLight(!isLight)}
-                //         group={groupInfo.groupId}
-                //         isLight={isLight} />
-                // }
-                logo={'https://ferrum.network/wp-content/uploads/2021/05/image-1.png'}
-                altText={'Ferrum Crucible Labs'}
-            />);
+	const header = (
+		<Header
+			ConnectButton={ConBot}
+			WithdrawlsButton={<TransactionSummaryButton />}
+			SwitchNetworkButton={<></>}
+			ThemeSelector={() => <></>}
+			//     () => <ThemeSelector setter={props.setter}
+			//         newTheme={props.newTheme}
+			//         setIsLight={() => setIsLight(!isLight)}
+			//         group={groupInfo.groupId}
+			//         isLight={isLight} />
+			// }
+			logo={'https://ferrum.network/wp-content/uploads/2021/05/image-1.png'}
+			altText={'Ferrum Crucible Labs'}
+		/>
+	);
+
+
     return (
         <>
             {!!initError ? (
@@ -100,29 +124,32 @@ export function Dashboard(props: DashboardProps) {
 					<GlobalStyles />
 					<FLayout>
 						<FMain>
+							
 							{header}
+							{
+								appError &&  <Error error={appError}/>
+							}
 							<TransactionModal/>
 							<FContainer>
+								
 								<div className="landing-page">
+								
 									<Switch>
 										<Route path="/deploy">
 											<Deploy />
 										</Route>
-										<Route path="/crucible/:network/:contractAddress">
-											<CrucibleHome />
-										</Route>
-										<Route path="/withdraw/:network/:contractAddress">
-											<WithdrawCrucible />
-										</Route>
-										<Route path="/mint/:network/:contractAddress">
-											<MintCrucible />
-										</Route>
-									
+										<Route 
+											path="/crucible/:network/:contractAddress"
+											render={({ match: { url } }) =>  (
+												<UserCrucible url={url}/>
+											)}
+										/>									
 										<Route>
 											<CrucibleList />
 										</Route>
 									</Switch>
 									<WaitingComponent />
+									
 								</div>
 							</FContainer>
 						</FMain>

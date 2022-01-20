@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { CrucibleInfo } from 'types';
-import { CrucibleAppState } from '../common/CrucibleAppState';
+import { CrucibleAppState } from '../../common/CrucibleAppState';
 import { CrucibleBox } from './CrucibleBox';
 import './CrucibleList.css';
 

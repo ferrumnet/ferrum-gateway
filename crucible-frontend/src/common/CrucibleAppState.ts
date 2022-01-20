@@ -1,7 +1,7 @@
 import { AppInitializingState, AppState } from 'common-containers';
 import { CrucibleInfo, UserCrucibleInfo, } from 'types';
 import { StakingState } from '../staking/StakingClient';
-import { TxModalState } from './../common/transactionModal';
+import { TxModalState } from './transactionModal';
 export interface DeployState {
 	baseToken: string;
 	feeOnTransfer: string;
@@ -22,6 +22,8 @@ export interface AppUiState {
 
 export interface AppUserState {
 	userCrucibleInfo: { [k: string]: UserCrucibleInfo };
+	processingRequest: boolean,
+	userActionError: string
 }
 
 export interface AppGlobalState extends AppInitializingState {
@@ -29,6 +31,7 @@ export interface AppGlobalState extends AppInitializingState {
 	crucibles: { [k: string]: CrucibleInfo[] };
 	crucible: CrucibleInfo;
 	stake: StakingState;
+	error: string
 }
 
 export type CrucibleAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

@@ -1,8 +1,8 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { AnyAction } from "redux";
 import { CrucibleInfo } from "types";
-import { CrucibleClientActions } from "../CrucibleClient";
-import { crucibleBoxSlice } from "../pages/CrucibleBox";
+import { CrucibleClientActions } from "./CrucibleClient";
+import { crucibleBoxSlice } from "../pages/crucibleLgcy/CrucibleBox";
 import { deploySlice } from "./../pages/deploy/Deploy";
 import { StakingSlice } from "../staking/StakingClient";
 import { TransactionModalSlice } from './../common/transactionModal';
@@ -16,7 +16,7 @@ export const uiReducer = combineReducers({
 });
 
 export function userReducer(
-  state: AppUserState = { userCrucibleInfo: {} },
+  state: AppUserState = { userCrucibleInfo: {},userActionError:'',processingRequest:false },
   action: AnyAction
 ) {
   switch (action.type) {
@@ -25,6 +25,8 @@ export function userReducer(
       const uci = { ...(state.userCrucibleInfo || ({} as any)) };
       uci[actionUci.currency] = actionUci;
       return { ...state, userCrucibleInfo: uci };
+     case CrucibleClientActions.PROCESSING_REQUEST:
+        return { ...state, processingRequest:!state.processingRequest };
     default:
       return state;
   }
@@ -58,6 +60,10 @@ function clientReducer(state: AppGlobalState, action: AnyAction) {
       };
     case CrucibleClientActions.SELECT_CRUCIBLE:
       return { ...state, crucible: action.payload.crucible };
+    case CrucibleClientActions.PROCESSING_REQUEST:
+        return { ...state, error: action.payload.error };
+    case CrucibleClientActions.CLEAR_ERROR:
+        return { ...state, error: '' };
     default:
       return state;
   }

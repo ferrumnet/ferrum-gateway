@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
-import { CrucibleBox } from './../../CrucibleBox';
-import { CrucibleLoader } from './../../CrucibleLoader';
+import { CrucibleBox } from './../../crucibleLgcy/CrucibleBox';
 import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods } from 'types';
 import { useHistory, useParams } from 'react-router';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { CrucibleClient } from '../../../CrucibleClient';
+import { CrucibleClient, CrucibleClientActions } from '../../../common/CrucibleClient';
 import { ApiClient } from 'common-containers';
-import {crucibleBoxSlice} from './../../CrucibleBox';
-import { APPLICATION_NAME } from '../../../common/CommonActions';
+import {crucibleBoxSlice} from './../../crucibleLgcy/CrucibleBox';
+import { APPLICATION_NAME,addAction,CommonActions } from '../../../common/CommonActions';
 import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
 import { Actions as TxModal,TxModalState } from '../../../common/transactionModal';
+import { ConnectButtonWapper } from 'common-containers';
+import {
+    ValidationUtils
+  } from "ferrum-plumbing";
 
 const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
     async (payload: {
@@ -20,25 +23,33 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
 		currency: string,
 		crucible: string,
 		amount: string,
+        balance:string
 	}, ctx) => {
-	const {network, currency, crucible, amount} = payload;
-	const client = inject<CrucibleClient>(CrucibleClient);
-	const transactionId = await client.withdraw(ctx.dispatch,
-		currency, crucible, amount);
-	if (!!transactionId) {
-        ctx.dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
-		ctx.dispatch(crucibleBoxSlice.actions.registerTx({transactionId,network }));
-		const event = {
-			createdAt: 0,
-			id: transactionId,
-			network,
-			eventType: 'transaction',
-			application: APPLICATION_NAME,
-			status: 'pending',
-			transactionType: 'withdraw',
-		} as ChainEventBase;
-		ctx.dispatch(transactionListSlice.actions.addTransaction(event));
-	}
+    try {
+        const {network, currency, crucible, amount} = payload;
+        const client = inject<CrucibleClient>(CrucibleClient);
+        ValidationUtils.isTrue(((Number(payload.balance)-Number(amount)) > 0.1),'Not Enough Balance Available in Token for this transaction');
+        const transactionId = await client.withdraw(ctx.dispatch,currency, crucible, amount);
+        if (!!transactionId) {
+            ctx.dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
+            ctx.dispatch(crucibleBoxSlice.actions.registerTx({transactionId,network }));
+            const event = {
+                createdAt: 0,
+                id: transactionId,
+                network,
+                eventType: 'transaction',
+                application: APPLICATION_NAME,
+                status: 'pending',
+                transactionType: 'withdraw',
+            } as ChainEventBase;
+            ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+        }
+    } catch (e) {
+        console.log(e)
+        ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally{
+        ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
+    }
 });
 
 export function WithdrawCrucible(){
@@ -50,16 +61,18 @@ export function WithdrawCrucible(){
     const history = useHistory()
     let transactionStatus = useSelector<CrucibleAppState, string|undefined>(state => state.ui.transactionModal.status);
     let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state =>crucible?.currency ? state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
+    let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
+
     const depositOpen = crucible ? crucible?.activeAllocationCount > 0 || BigUtils.truthy(BigUtils.safeParse(crucible.openCap)) : false;
     const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
 	const userDirectAllocation = (userCrucible?.allocations || []
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
-	if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
-		crucible = undefined;
-	}
+	// if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
+	// 	crucible = undefined;
+	// }
+    console.log(userCrucible)
     return (
         <>
-            <CrucibleLoader network={network} contractAddress={contractAddress} />
 		    <div className='fr-flex-container'>
                 <FCard className='mini-card'>
                     <span className='header'>
@@ -76,7 +89,7 @@ export function WithdrawCrucible(){
             <>
                 <FCard className='crucible-filled-card'>
                     <div className='header'>
-                        <span className="back-btn" onClick={()=>history.push(`/crucible/${network}/${contractAddress}`)}>
+                        <span className="back-btn" onClick={()=>history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}`)}>
                             ←
                         </span>
                         <span className="title underline">
@@ -129,19 +142,31 @@ export function WithdrawCrucible(){
                             </span>
                         </div>
                     </div>
-                    <FButton 
-                        title={`${transactionStatus==='waiting' ? 'Processing' : 'Withdraw'}`}
-                        disabled={!enableWithdraw||Number(amount)<=0||transactionStatus==='waiting'}
-                        className={'cr-large-btn'}
-                        onClick={()=> dispatch(doWithdraw({
-                            network: network,
-                            crucible: crucible!.currency,
-                            currency: crucible!.baseCurrency,
-                            amount:amount
-                        }))}
-                        //disabled={!crucible?.enableWithdraw}
-                        //onClick={()=>onWithdraw()}
-                    />
+                    { !connected ?
+                            <ConnectButtonWapper View={(props)=>(
+                                <FButton 
+                                    title={'Connect to Wallet'}
+									disabled={!!connected}
+                                    onClick={()=>{}}
+                                    //onClick={()=>onMint()}
+                                />)
+                            }/>
+                        :
+                            <FButton 
+                            title={`${transactionStatus==='waiting' ? 'Processing' : 'Withdraw'}`}
+                            disabled={!enableWithdraw||Number(amount)<=0||transactionStatus==='waiting'||!connected}
+                            className={'cr-large-btn'}
+                            onClick={()=> dispatch(doWithdraw({
+                                network: network,
+                                crucible: crucible!.currency,
+                                currency: crucible!.baseCurrency,
+                                amount:amount,
+                                balance: userCrucible?.balance|| '0'
+                            }))}
+                            //disabled={!crucible?.enableWithdraw}
+                            //onClick={()=>onWithdraw()}
+                        />
+                    }
                 </FCard>
             </>
 

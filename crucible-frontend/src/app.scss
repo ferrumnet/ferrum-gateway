@@ -1528,4 +1528,37 @@ iframe {
   right: -1px;
   top: -10px;
   z-index: 1;
+
+  &.error{
+    background-color: rgba(196, 21, 21, 0.568);
+  }
+}
+
+.react-toast-notifications__toast--error{
+  width: 100% !important;
+}
+.btn{
+  &.btn-connect{
+    text-align: center;
+    outline: none;
+    text-decoration: none;
+    -webkit-box-pack: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    font-size: 16px;
+    display: flex;
+    flex-flow: row nowrap;
+    width: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+    padding: 8px 15px !important;
+    margin-right: 20px !important;
+  }
 }

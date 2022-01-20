@@ -3,15 +3,14 @@ import {
     Row, Page,
     // @ts-ignore
 } from 'component-library';
-import { TextField } from '@fluentui/react/lib/TextField';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState, DeployState } from '../../common/CrucibleAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { PrimaryButton } from 'office-ui-fabric-react';
-import { CrucibleClient } from '../../CrucibleClient';
+import { CrucibleClient } from '../../common/CrucibleClient';
 import { inject } from 'types';
 import { addressForUser } from 'common-containers';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
+import { FCard, FInputText, FButton } from "ferrum-design-system";
+import { ConnectButtonWapper } from 'common-containers';
 
 // fee is in ratios
 interface DeployProps extends DeployState {
@@ -74,6 +73,8 @@ export function Deploy() {
 	const dispatch = useDispatch();
 	const props = useSelector<CrucibleAppState, DeployProps>(stateToProps);
 	const appError = useSelector<CrucibleAppState, string>(state=>state.data.state.initError!);
+	const connected = useSelector<CrucibleAppState, string>(state=>state.connection.account.user.accountGroups[0]?.addresses[0]?.address||'');
+
 	return (
 		<FCard className='crucible-filled-card'>
 				<div className='header'>
@@ -119,12 +120,24 @@ export function Deploy() {
 					/>
 				</div>
 				<Row withPadding centered>
-					<FButton
-						disabled={!props.network || !props.feeOnWithdraw || !props.feeOnTransfer || !props.baseToken}
-					    className={'cr-large-btn'}
-						title={`${ !props.network ? 'Connect Wallet to Deploy' : 'Deploy Crucible 🚀'}`}
-						onClick={() => dispatch(launchCrucible({props}))}
-					/>
+					{
+						!connected ?
+							<ConnectButtonWapper View={(props)=>(
+								<FButton 
+									title={'Connect to Wallet'}
+									disabled={!!connected}
+									{...props}
+									//onClick={()=>onMint()}
+								/>
+							)}/>
+						: 		
+							<FButton
+								disabled={!props.network || !props.feeOnWithdraw || !props.feeOnTransfer || !props.baseToken}
+								className={'cr-large-btn'}
+								title={`${ !props.network ? 'Connect Wallet to Deploy' : 'Deploy Crucible 🚀'}`}
+								onClick={() => dispatch(launchCrucible({props}))}
+							/>
+					}
 				</Row>
 		</FCard>
 	);

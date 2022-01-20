@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { CrucibleInfo, BigUtils, inject,
 	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, CRUCIBLE_CONTRACTS_V_0_1, ChainEventBase, } from "types";
 import { useDispatch, useSelector } from 'react-redux';
-import { CrucibleAppState, CrucibleBoxState } from '../common/CrucibleAppState';
+import { CrucibleAppState, CrucibleBoxState } from '../../common/CrucibleAppState';
 import Modal from 'office-ui-fabric-react/lib/Modal';
 import { ResponsiveMode } from 'office-ui-fabric-react';
 import { ChainActionDlg } from './ChainActionDlg';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { CrucibleClient } from '../CrucibleClient';
+import { CrucibleClient } from '../../common/CrucibleClient';
 import './CrucibleList.css';
-import { StakingClient, stakingKey } from '../staking/StakingClient';
+import { StakingClient, stakingKey } from '../../staking/StakingClient';
 import { CrucibleView } from './CrucibleView';
 import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
-import { APPLICATION_NAME } from '../common/CommonActions';
+import { APPLICATION_NAME } from '../../common/CommonActions';
 import { ApiClient } from 'common-containers';
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',

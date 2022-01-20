@@ -1,15 +1,18 @@
 import { JsonRpcRequest, ValidationUtils, Network } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
-import { addAction, CommonActions } from './common/CommonActions';
+import { addAction, CommonActions } from './CommonActions';
 import { CrucibleInfo, CRUCIBLE_CONTRACTS_V_0_1, Utils } from 'types';
-import { Actions as TxModal } from './common/transactionModal';
+import { Actions as TxModal } from './transactionModal';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
 	CRUCIBLE_LOADED: 'CRUCIBLE_LOADED',
 	USER_CRUCIBLE_LOADED: 'USER_CRUCIBLE_LOADED',
 	SELECT_CRUCIBLE: 'SELECT_CRUCIBLE',
+	PROCESSING_REQUEST: 'PROCESSING_REQUEST',
+	APP_ACTION_ERROR: 'APP_ACTION_ERROR',
+	CLEAR_ERROR: 'CLEAR_ERROR'
 };
 
 const Actions = CrucibleClientActions;
@@ -20,9 +23,22 @@ export class CrucibleClient {
 	__name__() { return 'CrucibleClient'; }
 
 	async getCrucible(dispatch: Dispatch<AnyAction>, crucibleCurrency: string) {
-		const [network, address] = Utils.parseCurrency(crucibleCurrency);
-		const crucible = await this.updateCrucible(dispatch, network, address);
-		dispatch(addAction(Actions.SELECT_CRUCIBLE, {crucible}));
+		try {
+			const [network, address] = Utils.parseCurrency(crucibleCurrency);
+			const crucible = await this.updateCrucible(dispatch, network, address);
+			console.log(crucible,'cruciblecruciblecrucible')
+			dispatch(addAction(Actions.SELECT_CRUCIBLE, {crucible}));
+			return
+		} catch (e) {
+			if((e as Error).message.includes('call revert exception')){
+				dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'An Error Occured Fetching Crucible Data, Kindly Reconfirm Crucible Contract in Url Or Contact An Admin' || '' }));
+				return
+			}
+			//dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}finally{
+
+		}
+	
 	}
 
 	async getUserCrucibleInfo(dispatch: Dispatch<AnyAction>,
@@ -39,6 +55,10 @@ export class CrucibleClient {
 			}
 			return userCrucibleInfo;
 		} catch (e) {
+			if((e as Error).message.includes('call revert exception')){
+				dispatch(addAction(CommonActions.ERROR_OCCURED, {message:  'An Error Occured Fetching Crucible Data, Kindly Reconfirm Crucible Contract in Url Or Contact An Admin' || '' }));
+				return
+			}
 			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}finally{
 			dispatch(addAction(CommonActions.WAITING_DONE, {}));
@@ -56,6 +76,7 @@ export class CrucibleClient {
 					this.updateCrucible(dispatch, network, c.contractAddress);
 				}
 			}
+			return
 		} catch (e) {
 			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}finally{

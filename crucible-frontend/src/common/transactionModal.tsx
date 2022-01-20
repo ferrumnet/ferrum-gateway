@@ -56,10 +56,8 @@ export interface TransactionModal {
 
 export function TransactionModal(){
     const modalProps = useSelector<CrucibleAppState,any>(state=>state.ui.transactionModal)
-    let {network, contractAddress} = useParams() as any;
-    let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
-		state.data.state.crucible);
-    console.log(modalProps,'modalProps')
+    let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>state.data.state.crucible);
+    let network = useSelector<CrucibleAppState, string>(state =>state.connection.account.user.accountGroups[0]?.addresses[0]?.network||'');
     const dispatch = useDispatch();
     return (
         <>

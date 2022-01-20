@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
-import { CrucibleBox } from './../../CrucibleBox';
-import { CrucibleLoader } from './../../CrucibleLoader';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods } from 'types';
 import { useHistory, useParams } from 'react-router';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { CrucibleClient } from '../../../CrucibleClient';
+import { CrucibleClient, CrucibleClientActions } from '../../../common/CrucibleClient';
 import { ApiClient } from 'common-containers';
-import {crucibleBoxSlice} from './../../CrucibleBox';
-import { APPLICATION_NAME } from '../../../common/CommonActions';
+import {crucibleBoxSlice} from './../../crucibleLgcy/CrucibleBox';
+import { addAction, APPLICATION_NAME,CommonActions } from '../../../common/CommonActions';
 import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
+import { ConnectButtonWapper } from 'common-containers';
+import {
+  ValidationUtils
+} from "ferrum-plumbing";
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
     async (payload: {
@@ -20,28 +22,40 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 		currency: string,
 		amount: string,
 		isPublic: boolean,
+        balance:string
 	}, ctx) => {
-	const {network, crucible, currency, amount, isPublic} = payload;
-	console.log('PL":', payload,)
-	const client = inject<CrucibleClient>(CrucibleClient);
-	const api = inject<ApiClient>(ApiClient);
-	const transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
-	if (!!transactionId) {
-		ctx.dispatch(crucibleBoxSlice.actions.registerTx({
-			transactionId,
-			network }));
-		const event = {
-			createdAt: 0,
-			id: transactionId,
-			network,
-			eventType: 'transaction',
-			application: APPLICATION_NAME,
-			status: 'pending',
-			transactionType: 'deposit',
-			userAddress: api.getAddress(),
-		} as ChainEventBase;
-		ctx.dispatch(transactionListSlice.actions.addTransaction(event));
-	}
+    try {
+        ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
+        const {network, crucible, currency, amount, isPublic} = payload;
+        console.log('PL":', payload,)
+        const client = inject<CrucibleClient>(CrucibleClient);
+        const api = inject<ApiClient>(ApiClient);
+        ValidationUtils.isTrue(((Number(payload.balance)-Number(amount)) > 0.1),'Not Enough Balance Available in Base Token for this transaction');
+        const transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
+        if (!!transactionId) {
+            ctx.dispatch(crucibleBoxSlice.actions.registerTx({
+                transactionId,
+                network }));
+            const event = {
+                createdAt: 0,
+                id: transactionId,
+                network,
+                eventType: 'transaction',
+                application: APPLICATION_NAME,
+                status: 'pending',
+                transactionType: 'deposit',
+                userAddress: api.getAddress(),
+            } as ChainEventBase;
+            ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+        }
+    } catch (e) {
+        console.log(e)
+        ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+    } finally{
+        ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
+    }
+
+
 });
 
 export function MintCrucible(){
@@ -52,9 +66,9 @@ export function MintCrucible(){
 	const dispatch = useDispatch();
     const history = useHistory()
     let transactionStatus = useSelector<CrucibleAppState, string|undefined>(state => state.ui.transactionModal.status);
-	if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
-		crucible = undefined;
-	}
+	// if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
+	// 	crucible = undefined;
+	// }
     let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state =>
 		crucible?.currency ?
 			state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
@@ -62,9 +76,10 @@ export function MintCrucible(){
     const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
 	const userDirectAllocation = (userCrucible?.allocations || []
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
+    let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
+
     return (
         <>
-            <CrucibleLoader network={network} contractAddress={contractAddress} />
 		    <div className='fr-flex-container'>
                 <FCard className='mini-card'>
                     <span className='header'>
@@ -81,7 +96,7 @@ export function MintCrucible(){
             <>
                 <FCard className='crucible-filled-card'>
                     <div className='header'>
-                        <span className="back-btn" onClick={()=>history.push(`/crucible/${network}/${contractAddress}`)}>
+                        <span className="back-btn" onClick={()=> crucible && history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}`)}>
                             ←
                         </span>
                         <span className="title underline">
@@ -143,18 +158,33 @@ export function MintCrucible(){
                             </span>
                         </div>
                     </div>
-                    <FButton 
-                        title={`${transactionStatus==='waiting' ? 'Processing' : 'Mint Crucible🍯'}`}
-                        disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
-                        className={'cr-large-btn'}
-                        onClick={()=> dispatch(doDeposit({
-                            network: network,
-                            crucible: crucible!.currency,
-                            currency: crucible!.baseCurrency,
-                            amount:amount,
-                            isPublic: !!crucible?.openCap && !userDirectAllocation,
-                        }))}
-                    />
+                    { !connected ?
+                        <ConnectButtonWapper View={(props)=>(
+                            <FButton 
+                                title={'Connect to Wallet'}
+                                disabled={!!connected}
+                                {...props}
+                                //onClick={()=>onMint()}
+                            />)}
+                        />
+
+                    :
+                        <>         
+                            <FButton 
+                                title={`${transactionStatus==='waiting' ? 'Processing' : 'Mint Crucible🍯'}`}
+                                disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
+                                className={'cr-large-btn'}
+                                onClick={()=> dispatch(doDeposit({
+                                    network: network,
+                                    crucible: crucible!.currency,
+                                    currency: crucible!.baseCurrency,
+                                    amount:amount,
+                                    isPublic: !!crucible?.openCap && !userDirectAllocation,
+                                    balance: userCrucible?.baseBalance || '0'
+                                }))}
+                            />
+                        </>
+                    }
                 </FCard>
             </>
 

@@ -273,7 +273,7 @@ export const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.inverse} !important;
   }
   .web3modal-provider-container{
-    background: ${({ theme }) => theme.colors.card.cardSec} !important;
+    background: ${({ theme }) => theme.colors.card.cardSec||'rgb(121 99 58)'} !important;
     border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     color: ${({ theme }) => theme.colors.card.cardTextPri ? theme.colors.card.cardTextPri : "white"} !important;
@@ -286,8 +286,8 @@ export const GlobalStyles = createGlobalStyle`
   }
   .web3modal-modal-card{
     padding: 20px !important;
-    background: ${({ theme }) => theme.colors.card.cardPri} !important;
-    border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 2} !important;
+    background: ${({ theme }) => theme.colors.card.cardPri|| '#322208' } !important;
+    border-radius:  ${({ theme }) => theme.colors.card.borderRadius || "0" + 20 + "px"} !important;
     border-color: ${({ theme }) => theme.colors.inverse};
     box-shadow: ${({ theme }) => `${theme.colors.card.boxShadow}`};
   }
