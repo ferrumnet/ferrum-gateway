@@ -2,10 +2,14 @@
 
 set -e
 <<<<<<< HEAD
+<<<<<<< HEAD
 docker_account=806611346442.dkr.ecr.us-east-2.amazonaws.com
 =======
 docker_account=naiemk
 >>>>>>> 83c5550 (rebased-latest)
+=======
+docker_account=806611346442.dkr.ecr.us-east-2.amazonaws.com
+>>>>>>> 9c48347 (minor docker fix)
 build_version=1.0.0
 curdir="$(cd "$(dirname "$0")"; pwd -P)/$(basename "$0")"
 rundir="$(dirname "$curdir")"
@@ -32,8 +36,8 @@ function parse_git_hash() {
 
 last_commit=$(parse_git_hash)
 echo LAST COM $last_commit
-docker_tag="$docker_account/gateway-backend:$build_version-$last_commit"
-docker_tag_latest="$docker_account/gateway-backend:latest"
+docker_tag="$docker_account/crucible-backend:$build_version-$last_commit"
+docker_tag_latest="$docker_account/crucible-backend:latest"
 
 echo Building docker image $docker_tag
 docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --progress=plain .

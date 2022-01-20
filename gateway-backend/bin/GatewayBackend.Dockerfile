@@ -1,5 +1,5 @@
 # DOcker file
-FROM node:14 as yarn_builder
+FROM --platform=linux/amd64 node:14 as yarn_builder
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN mkdir -p /code
 COPY . /code/
