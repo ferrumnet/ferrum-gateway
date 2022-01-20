@@ -95,7 +95,7 @@ export function CrucibleHome() {
 						<>
 							<FButton 
 								title={'Mint'}
-								disabled={!depositOpen||!connected}
+								disabled={!depositOpen || Number(crucible?.openCap) === 0 ||!connected}
 								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/mint`)}
 								//onClick={()=>onMint()}
 								

@@ -29,7 +29,7 @@ const launchCrucible = createAsyncThunk('crucible/launch', async (payload: { pro
 	const client = inject<CrucibleClient>(CrucibleClient);
 	const { props } = payload;
 	const txId = await client.deploy(ctx.dispatch, `${props.network}:${props.baseToken.toLowerCase()}`,
-		props.feeOnTransfer, props.feeOnWithdraw);
+		(Number(props.feeOnTransfer)/100).toString(), (Number(props.feeOnWithdraw)/100).toString());
 	if (txId) {
 		ctx.dispatch(deploySlice.actions.reset());
 	}
