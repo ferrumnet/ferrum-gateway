@@ -30,7 +30,7 @@ import { ChainEventService } from "./events/ChainEventsService";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 import { AppConfig, WithDatabaseConfig, WithJwtRandomBaseConfig, WithKmsConfig } from "./app/AppConfig";
 import { randomSalt } from "web3-tools";
-import { OneInchClient } from "./oneInchClient/OneInchClient";
+import { OneInchClient } from "./oneinchPricingSvc/OneInchClient";
 
 export class CommonBackendModule implements Module {
   constructor() {}
@@ -69,8 +69,8 @@ export class CommonBackendModule implements Module {
 			c => new UniswapPricingService(
 				c.get(EthereumSmartContractHelper),
 				c.get(UniswapV2Router),
-        c.get(OneInchClient))
-        );
+        //c.get(OneInchClient)
+        ));
 		container.register(TransactionTracker,
 			c => new TransactionTracker(c.get(EthereumSmartContractHelper)));
 

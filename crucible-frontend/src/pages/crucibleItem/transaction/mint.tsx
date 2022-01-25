@@ -55,7 +55,7 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
     }
 
-
+    
 });
 
 export function MintCrucible(){

@@ -47,6 +47,10 @@ export class CrucibleRequestProcessor
     this.registerProcessor("stakeForGetTransaction", (req, userId) =>
       this.stakeForGetTransaction(req, userId)
     );
+
+    this.registerProcessor('getCruciblePricing', (req, userId) => 
+      this.getCruciblePricing(req,userId)  
+    )
   }
 
   __name__() {
@@ -70,6 +74,12 @@ export class CrucibleRequestProcessor
     ValidationUtils.isTrue(!!crucible, "crucible must be provided");
     ValidationUtils.isTrue(!!amount, "amount must be provided");
     return this.svc.depositGetTransaction(currency, crucible, amount, userId);
+  }
+
+  async getCruciblePricing(req: HttpRequestData, userId: string){
+    ValidationUtils.isTrue(!!req.data.crucible, "crucible must be provided");
+    ValidationUtils.isTrue(!!req.data.base, "crucible must be provided");
+    return this.svc.getPrice(req.data.crucible,req.data.base)
   }
 
   async depositPublicGetTransaction(req: HttpRequestData, userId: string) {

@@ -9,8 +9,8 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { CRUCIBLE_CONTRACTS_V_0_1, STAKING_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
-import { Console } from "console";
 import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
+import {OneInchPricingService} from 'common-backend/dist/oneinchPricingSvc/OneInchPricingService';
 export class CrucibleModule implements Module {
   static async configuration() {
     AppConfig.instance().orElse('', () => ({
@@ -53,7 +53,7 @@ export class CrucibleModule implements Module {
           c.get(BasicAllocation),
           conf.actor,
           privateKey,
-          c.get(OneInchClient)
+          c.get(OneInchPricingService)
         )
     );
     container.register(
@@ -63,7 +63,9 @@ export class CrucibleModule implements Module {
 
     container.register(OneInchClient,(c)=>new OneInchClient(c.get(EthereumSmartContractHelper),c.get(LoggerFactory)))
 
-		await container.get<ChainEventService>(ChainEventService).init(conf.database);
+    container.register(OneInchPricingService, (c)=> new OneInchPricingService(c.get(OneInchClient)))
+		
+    await container.get<ChainEventService>(ChainEventService).init(conf.database);
     
 		// Register staking...
 		await container.registerModule(

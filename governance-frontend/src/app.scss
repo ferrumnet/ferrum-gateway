@@ -60,6 +60,8 @@
 
 .flex{
     display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;      
 }
 .f-sider-item .f-item-link .f-item-icon svg {
     fill: white;
@@ -166,4 +168,8 @@
             }
         }
     }
+}
+
+.landing-page{
+    max-height: 90vh;
 }

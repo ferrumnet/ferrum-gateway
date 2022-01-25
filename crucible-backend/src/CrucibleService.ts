@@ -7,7 +7,7 @@ import { CrucibleToken, CrucibleToken__factory, CrucibleRouter__factory, Crucibl
 import { AllocationSignature, BigUtils, CrucibleInfo,
 	CurrencyValue, DEFAULT_SWAP_PROTOCOLS,
 	MultiSigActor, StoredAllocationCsv, UserContractAllocation,
-	UserCrucibleInfo, CrucibleAllocationMethods,
+	UserCrucibleInfo, CrucibleAllocationMethods, SwapProtocol,
  } from 'types';
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { ChainUtils } from "ferrum-chain-clients";
@@ -19,6 +19,7 @@ import { sha256 } from 'ferrum-crypto';
 import { MultiSigUtils } from 'web3-tools/dist/MultiSigUtils';
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
+import { OneInchPricingService } from "common-backend/dist/oneinchPricingSvc/OneInchPricingService";
 
 export const CACHE_TIMEOUT = 120 * 1000; // 2 mins
 const AllocationMethods = CrucibleAllocationMethods;
@@ -42,7 +43,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		private basicAllocation: BasicAllocation,
 		private signingActor: MultiSigActor,
 		private sk: HexString,
-		private oneInch: OneInchClient
+		private oneInchPricing: OneInchPricingService
 	) {
 		super();
 	}
@@ -340,6 +341,29 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			await this.crucibleModel.find({}).exec() :
 			await this.crucibleModel.find({network}).exec();
 		return crucibles.map(c => c.toJSON());
+	}
+
+	public async getPrice(crucible:string,baseCurrency:string){
+		
+		return this.cache.getAsync(`CRUCIBLE-PRICING-${crucible}-${baseCurrency}`,
+			async () => {
+				const crPricing = await this.oneInchPricing.usdPrice(crucible)
+				const basePricing = await this.oneInchPricing.usdPrice(baseCurrency)
+				if(crPricing && basePricing){
+					return {
+						cruciblePrice: {
+							cruciblePrice: crPricing.fromTokenAmount,
+							usdtPrice: crPricing.toTokenAmount
+						},
+						basePrice: {
+							basePrice: basePricing.fromTokenAmount,
+							usdtPrice: basePricing.toTokenAmount
+						}
+					}
+				}
+				return ''
+			},
+		CACHE_TIMEOUT);
 	}
 
 	private async crucibleFromNetwork(crucible: string): Promise<CrucibleInfo> {

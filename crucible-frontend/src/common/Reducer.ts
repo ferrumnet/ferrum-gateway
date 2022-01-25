@@ -60,6 +60,8 @@ function clientReducer(state: AppGlobalState, action: AnyAction) {
       };
     case CrucibleClientActions.SELECT_CRUCIBLE:
       return { ...state, crucible: action.payload.crucible };
+    case CrucibleClientActions.LOADED_CRUCIBLE_PRICE:
+      return { ...state, crucible: {...state.crucible,priceUsdt: action.payload.cruciblePrice,basePriceUsdt:action.payload.basePrice }}
     case CrucibleClientActions.PROCESSING_REQUEST:
         return { ...state, error: action.payload.error };
     case CrucibleClientActions.CLEAR_ERROR:
@@ -85,7 +87,7 @@ export function dataReducer(
     case CommonActions.GROUP_INFO_LOADED:
       return { ...state, groupInfo: action.payload };
     case CommonActions.ERROR_OCCURED:
-      return { ...state, initError: action.payload.message };
+      return { ...state, initError: action.payload.message,waiting: false };
     case CommonActions.RESET_ERROR:
       return { ...state, initError: "" };
     default:

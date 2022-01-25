@@ -50,6 +50,10 @@ input[type="number"] {
   }
 }
 
+.landing-page{
+  max-height: 90vh;
+}
+
 .page_cont {
   position: absolute;
   top: 2em;
@@ -900,6 +904,7 @@ input[type="number"] {
 .flex{
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .fr-btn-container{
@@ -1527,7 +1532,7 @@ iframe {
   position: absolute;
   right: -1px;
   top: -10px;
-  z-index: 1;
+  z-index: 0.5;
 
   &.error{
     background-color: rgba(196, 21, 21, 0.568);

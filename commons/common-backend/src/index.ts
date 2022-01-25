@@ -3,4 +3,5 @@ export * from './CurrencyListSvc';
 export * from './events/ChainEventsService';
 export * from './uniswapv2/UniswapPricingService';
 export * from './app/AppConfig';
-export * from './oneInchClient/OneInchClient';
+export * from './oneinchPricingSvc/OneInchClient';
+export * from './oneinchPricingSvc/OneInchPricingService';

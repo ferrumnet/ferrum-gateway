@@ -1,6 +1,5 @@
 import { EthereumSmartContractHelper, Web3ProviderConfig } from "aws-lambda-helper/dist/blockchain";
 import { ConsoleLogger, LoggerFactory } from "ferrum-plumbing";
-import { OneInchClient } from "src";
 import { UniswapPricingService } from "./UniswapPricingService";
 import { UniswapV2Client } from "./UniswapV2Client";
 import { UniswapV2Router } from "./UniswapV2Router";
@@ -13,11 +12,9 @@ const UNISWAP = 'ETHEREUM:UNISWAP_V2';
 
 async function pricingSvc() {
 	const hel = new EthereumSmartContractHelper(PROVIDERS);
-	const logger = new LoggerFactory((name: string) => new ConsoleLogger(name))
 	// const uni = new UniswapV2Client(hel);
 	const con = new UniswapV2Router(hel);
-	const oneInch = new OneInchClient(hel,logger)
-	const svc = new UniswapPricingService(hel, con,oneInch);
+	const svc = new UniswapPricingService(hel, con);
 	return svc;
 }
 

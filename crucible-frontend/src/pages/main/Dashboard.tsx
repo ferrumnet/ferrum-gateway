@@ -145,11 +145,11 @@ export function Dashboard(props: DashboardProps) {
 											)}
 										/>									
 										<Route>
-											<CrucibleList />
+											<Redirect to="/deploy"/>
+											{/**<CrucibleList />**/}
 										</Route>
 									</Switch>
 									<WaitingComponent />
-									
 								</div>
 							</FContainer>
 						</FMain>

@@ -4,6 +4,7 @@ import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { addAction, CommonActions } from './CommonActions';
 import { CrucibleInfo, CRUCIBLE_CONTRACTS_V_0_1, Utils } from 'types';
 import { Actions as TxModal } from './transactionModal';
+import { useContextSelector } from '@fluentui/react-northstar';
 
 export const CrucibleClientActions = {
 	CRUCIBLES_LOADED: 'CRUCIBLES_LOADED',
@@ -12,7 +13,8 @@ export const CrucibleClientActions = {
 	SELECT_CRUCIBLE: 'SELECT_CRUCIBLE',
 	PROCESSING_REQUEST: 'PROCESSING_REQUEST',
 	APP_ACTION_ERROR: 'APP_ACTION_ERROR',
-	CLEAR_ERROR: 'CLEAR_ERROR'
+	CLEAR_ERROR: 'CLEAR_ERROR',
+	LOADED_CRUCIBLE_PRICE: 'LOADED_CRUCIBLE_PRICE'
 };
 
 const Actions = CrucibleClientActions;
@@ -26,7 +28,6 @@ export class CrucibleClient {
 		try {
 			const [network, address] = Utils.parseCurrency(crucibleCurrency);
 			const crucible = await this.updateCrucible(dispatch, network, address);
-			console.log(crucible,'cruciblecruciblecrucible')
 			dispatch(addAction(Actions.SELECT_CRUCIBLE, {crucible}));
 			return
 		} catch (e) {
@@ -110,7 +111,6 @@ export class CrucibleClient {
 		}catch (e) {
 			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}finally{
-			dispatch(addAction(CommonActions.WAITING_DONE, {}));
 		}
 	}
 
@@ -203,6 +203,24 @@ export class CrucibleClient {
 		const cc = CRUCIBLE_CONTRACTS_V_0_1[network];
 		ValidationUtils.isTrue(!!cc, `Network "${network}" not supported`);
 		return cc;
+	}
+
+	async getPairPrice(dispatch:Dispatch,crucible:string,base:string){
+		try {
+			const cruciblePairPrice = await this.api.api({
+				command: 'getCruciblePricing',
+				data: {crucible, base },
+				params: [],
+			} as JsonRpcRequest);
+			if(!!cruciblePairPrice){
+				console.log(cruciblePairPrice)
+				dispatch(addAction('LOADED_CRUCIBLE_PRICE',{cruciblePrice: cruciblePairPrice.cruciblePrice.usdtPrice,basePrice: cruciblePairPrice.basePrice.usdtPrice}))
+				return cruciblePairPrice
+			}
+		} catch (e) {
+			console.log(e)
+		}
+
 	}
 
 	async deploy(dispatch: Dispatch<AnyAction>,

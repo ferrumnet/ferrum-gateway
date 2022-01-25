@@ -46,7 +46,7 @@ export function CrucibleHome() {
 				
 				<FCard className='mini-card'>
 					<span className='header'>{crucible?.symbol || 'Crucible Token'} Price (USD)</span>
-					<span className='content'>${BigUtils.safeParse(crucible?.priceUsdt || '0').times(100).toString()}</span>
+					<span className='content'>${crucible?.priceUsdt || 0}</span>
 				</FCard>
 			</div>
 		
