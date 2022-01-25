@@ -26,6 +26,11 @@ export const GovernanceContractList: RegisteredContract[] = [
 		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
 	},
 	{
+		network: 'RINKEBY',
+		contractAddress: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
 		network: 'POLYGON',
 		contractAddress: '0xe369b5407f1ac0e956ae79ff91ead86e71c3cf14',
 		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',

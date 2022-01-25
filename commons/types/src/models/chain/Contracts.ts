@@ -8,6 +8,11 @@ export interface CrucibleContracts {
 	staking: string;
 }
 
+//old contracts
+//'0x574c03527ca611a727c54ca65c963807c5db1332'
+//0x9158c7bb428059ef23a705282cdc0f37f104ef81
+//'0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF'
+//'0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76'
 export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 	'RINKEBY': {
 		factory: '0x574c03527ca611a727c54ca65c963807c5db1332',
