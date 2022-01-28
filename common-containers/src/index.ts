@@ -7,3 +7,4 @@ export * from './clients/ApiClient';
 export * from './chain/ChainEventItem';
 export * from './chain/ApprovableButtonWrapper';
 export * from './chain/TransactionList';
+export * from './common/SwitchNetwork';

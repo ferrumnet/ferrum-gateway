@@ -5,6 +5,7 @@ import { useHistory, useParams } from 'react-router';
 import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils } from 'types';
 import { FCard, FButton } from "ferrum-design-system";
 import { ConnectButtonWapper } from 'common-containers';
+
 export function CrucibleHome() {
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state => state.data.state.crucible);
 	let userCrucible = useSelector<CrucibleAppState, UserCrucibleInfo|undefined>(state => crucible?.currency ? state.connection.userState.userCrucibleInfo[crucible!.currency] : undefined);
@@ -97,6 +98,13 @@ export function CrucibleHome() {
 								title={'Mint'}
 								disabled={!depositOpen || Number(crucible?.openCap) === 0 ||!connected}
 								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/mint`)}
+								//onClick={()=>onMint()}
+								
+							/>
+							<FButton 
+								title={'Stake'}
+								disabled={true}
+								//onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/mint`)}
 								//onClick={()=>onMint()}
 								
 							/>

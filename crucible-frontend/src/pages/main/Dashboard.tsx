@@ -9,6 +9,7 @@ import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3
 import { CrucibleList } from '../crucibleLgcy/CrucibleList';
 import { Redirect, Route, Switch, useParams } from 'react-router';
 import { Deploy } from '../deploy/Deploy';
+import { DeployNamed } from '../deploy/deployNamed';
 import {WithdrawCrucible} from '../crucibleItem/transaction/withdraw';
 import {MintCrucible} from '../crucibleItem/transaction/mint';
 import {CrucibleHome} from '../crucibleItem/home/index';
@@ -32,6 +33,7 @@ import {UserCrucible} from './UserCrucible';
 import Modal from 'office-ui-fabric-react/lib/Modal';
 import {Alert} from 'react-bootstrap';
 import { ToastProvider, useToasts } from 'react-toast-notifications';
+import { addAction, CommonActions } from '../../common/CommonActions';
 
 interface DashboardState {
 }
@@ -39,14 +41,14 @@ interface DashboardState {
 export interface DashboardProps {
 }
 
-const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payload: {connected: boolean}, ctx) => {
+const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payload: {connected: boolean,network:string}, ctx) => {
 	const [client, curList, web3Client] = inject3<CrucibleClient, CurrencyList, UnifyreExtensionWeb3Client>(CrucibleClient, CurrencyList, UnifyreExtensionWeb3Client);
 	const state = ctx.getState() as CrucibleAppState;
 	const connectedAddr = addressForUser(state.connection.account?.user);
 	const network = connectedAddr?.network;
+	
 	const allCrucibles = await client.getAllCruciblesFromDb(ctx.dispatch, network || ''); // If not connected will return result for all networks
 	// Make sure we have user balance for all the crucibles listed
-	console.log(allCrucibles,'allCrucibles')
 	const curs = curList.get();
 	curList.set([...curs, ...allCrucibles!?.map(c => c.currency).filter(cur => curs.indexOf(cur) < 0)]);
 
@@ -54,6 +56,7 @@ const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payloa
 		const userProfile = await web3Client.getUserProfile();
 		ctx.dispatch(connectSlice.actions.connectionSucceeded({userProfile}));
 	}
+
 });
 
 export const dashboardSlice = createSlice({
@@ -68,9 +71,10 @@ export const dashboardSlice = createSlice({
 
 const Error = (props:{error:string}) => {
 	const { addToast } = useToasts();
+	const dispatch = useDispatch()
 	useEffect(()=>{
 		if(props.error){
-			addToast(props.error,{appearance: 'error'})
+			addToast(props.error,{appearance: 'error',onDismiss:()=>dispatch(addAction(CommonActions.RESET_ERROR, {}))})
 		}
 	},[props.error])
 	return<></>
@@ -83,11 +87,13 @@ export function Dashboard(props: DashboardProps) {
 
 	const initialized = useSelector<CrucibleAppState, boolean>(state => state.data.init.initialized);
 	const connected = useSelector<CrucibleAppState, boolean>(state => !!state.connection.account.user?.userId);
+	const network = useSelector<CrucibleAppState, string>(state => state.connection.account.user?.accountGroups[0]?.addresses[0]?.network);
+
 	const dispatch = useDispatch();
 
 	useEffect(() => {
 		if (initialized && connected) {
-			dispatch(initializeDashboardThunk({connected}));
+			dispatch(initializeDashboardThunk({connected,network:network}));
 		}
 	}, [initialized, connected]);
 
@@ -143,7 +149,12 @@ export function Dashboard(props: DashboardProps) {
 											render={({ match: { url } }) =>  (
 												<UserCrucible url={url}/>
 											)}
-										/>									
+										/>
+										<Route
+											path="/deployNamed"
+										>
+											<DeployNamed/>
+										</Route>									
 										<Route>
 											<Redirect to="/deploy"/>
 											{/**<CrucibleList />**/}

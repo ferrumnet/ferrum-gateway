@@ -66,6 +66,10 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		return [al1, al2];
 	}
 
+	async getConfiguredRouters(){
+		return this.config.contracts || [];
+	}
+
 	async getAllocation(
 		crucible: string,
 		userAddress: string,
@@ -269,6 +273,40 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress);
 	}
 
+	async deployNamedGetTransaction(
+		userAddress: string,
+		baseCurrency: string,
+		feeOnTransfer: string,
+		feeOnWithdraw: string,
+		name: string,
+		symbol:string
+	): Promise<CustomTransactionCallRequest> {
+		ValidationUtils.isTrue(!!userAddress, 'userAddress is required');
+		ValidationUtils.isTrue(!!baseCurrency, 'baseCurrency is required');
+		ValidationUtils.isTrue(!!feeOnTransfer, 'feeOnTransfer is required');
+		ValidationUtils.isTrue(!!feeOnWithdraw, 'feeOnWithdraw is required');
+		ValidationUtils.isTrue(!!name, 'name is required');
+		ValidationUtils.isTrue(!!symbol, 'symbol is required');
+		const [network, baseToken] = EthereumSmartContractHelper.parseCurrency(baseCurrency);
+		const factory = await this.factory(network);
+		const feeOnTransferX10000 = BigUtils.parseOrThrow(feeOnTransfer, 'feeOnTransfer')
+			.mul(10000).toFixed(0);
+		const feeOnWithdrawX10000 = BigUtils.parseOrThrow(feeOnWithdraw, 'feeOnWithdraw')
+			.mul(10000).toFixed(0);
+		ValidationUtils.isTrue(
+			feeOnWithdrawX10000 != '0' && feeOnTransferX10000 != '0', 'at least one fee is required');
+		const t = await factory.populateTransaction.createCrucibleDirect(
+			baseToken,
+			name,
+			symbol,
+			feeOnTransferX10000,
+			feeOnWithdrawX10000,
+			{ from: userAddress }
+			);
+		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress);
+	}
+
+
 	async stakeForGetTransaction(
 		userAddress: string,
 		currency: string,
@@ -349,6 +387,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			async () => {
 				const crPricing = await this.oneInchPricing.usdPrice(crucible)
 				const basePricing = await this.oneInchPricing.usdPrice(baseCurrency)
+				console.log(crPricing,basePricing)
 				if(crPricing && basePricing){
 					return {
 						cruciblePrice: {

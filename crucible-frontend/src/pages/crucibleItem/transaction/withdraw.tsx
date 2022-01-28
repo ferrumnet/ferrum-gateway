@@ -3,7 +3,7 @@ import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleBox } from './../../crucibleLgcy/CrucibleBox';
-import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods } from 'types';
+import { CrucibleInfo, Utils,UserCrucibleInfo,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
 import { useHistory, useParams } from 'react-router';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient, CrucibleClientActions } from '../../../common/CrucibleClient';
@@ -16,6 +16,8 @@ import { ConnectButtonWapper } from 'common-containers';
 import {
     ValidationUtils
   } from "ferrum-plumbing";
+  import {ApprovableButton} from './../../../common/ApprovableBtn';
+import {changeNetwork} from 'common-containers';
 
 const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
     async (payload: {
@@ -28,7 +30,7 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
     try {
         const {network, currency, crucible, amount} = payload;
         const client = inject<CrucibleClient>(CrucibleClient);
-        ValidationUtils.isTrue(((Number(payload.balance)-Number(amount)) > 0.1),'Not Enough Balance Available in Token for this transaction');
+        ValidationUtils.isTrue(((Number(payload.balance)-Number(amount)) > 0.1),'Not Enough Crucible Token Balance Available for this transaction');
         const transactionId = await client.withdraw(ctx.dispatch,currency, crucible, amount);
         if (!!transactionId) {
             ctx.dispatch(TxModal.toggleModal({mode:'submitted',show: true}))
@@ -70,7 +72,8 @@ export function WithdrawCrucible(){
 	// if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
 	// 	crucible = undefined;
 	// }
-    console.log(userCrucible)
+    let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
+
     return (
         <>
 		    <div className='fr-flex-container'>
@@ -95,7 +98,7 @@ export function WithdrawCrucible(){
                         <span className="title underline">
                             Withdraw Crucible Token
                         </span>
-                        <span role="img" aria-label="wizard-icon" style={{"margin": "4px",'fontSize': '15px'}}>&#127855;</span>
+                        <span role="img" aria-label="wizard-icon" style={{"margin": "2px",'fontSize': '15px'}}>&#127855;</span>
                     </div>
                     <div>
                         <FInputText
@@ -105,6 +108,9 @@ export function WithdrawCrucible(){
                             value={amount}
                             type={'Number'}
                         />
+                    </div>
+                    <div className='subtxt'>
+                        You have {userCrucible?.balance} available in Crucible Token {userCrucible?.symbol}.
                     </div>
                     <div className="down-btn">
                         <span >
@@ -142,31 +148,35 @@ export function WithdrawCrucible(){
                             </span>
                         </div>
                     </div>
-                    { !connected ?
+                        { (!connected || (netowrk!=crucible!.network)) ?
                             <ConnectButtonWapper View={(props)=>(
                                 <FButton 
-                                    title={'Connect to Wallet'}
-									disabled={!!connected}
-                                    onClick={()=>{}}
-                                    //onClick={()=>onMint()}
-                                />)
-                            }/>
+                                    title={(netowrk!=crucible?.network) ? 'Switch to Crucible Network' : 'Connect to Wallet'}
+                                    disabled={!!connected && (netowrk==crucible?.network)}
+                                    {...props}
+                                    onClick={()=>changeNetwork(crucible!.network)}
+                                />)}
+                            />
                         :
-                            <FButton 
-                            title={`${transactionStatus==='waiting' ? 'Processing' : 'Withdraw'}`}
-                            disabled={!enableWithdraw||Number(amount)<=0||transactionStatus==='waiting'||!connected}
-                            className={'cr-large-btn'}
-                            onClick={()=> dispatch(doWithdraw({
-                                network: network,
-                                crucible: crucible!.currency,
-                                currency: crucible!.baseCurrency,
-                                amount:amount,
-                                balance: userCrucible?.balance|| '0'
-                            }))}
-                            //disabled={!crucible?.enableWithdraw}
-                            //onClick={()=>onWithdraw()}
-                        />
+                            <ApprovableButton
+                                disabled={!enableWithdraw||Number(amount)<=0||transactionStatus==='waiting'||!connected}
+                                text={`${transactionStatus==='waiting' ? 'Processing' : 'Withdraw'}`}
+                                contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
+                                amount={'1'}
+                                onClick={()=> dispatch(doWithdraw({
+                                    network: network,
+                                    crucible: crucible?.currency||'',
+                                    currency: crucible?.baseCurrency||'',
+                                    amount:amount,
+                                    balance: userCrucible?.balance|| '0'
+                                }))}
+                                currency={crucible!.baseCurrency}
+                                userAddress={connected}
+                            />          
                     }
+                    <FCard className='center' style={{"paddingTop":"6px","fontSize":"12px"}}>
+                        <span role="img" aria-label="wizard-icon" style={{"marginRight": "0px","lineHeight": 2}}>&#127855;</span> Crucible withdrawal depoists equivalent base token in your wallet.
+                    </FCard>	
                 </FCard>
             </>
 

@@ -1088,6 +1088,12 @@ iframe {
   padding: 5px 5px;
   font-size: 0.8rem;
 }
+
+.subtxt2{
+  padding: 10px 0px;
+  font-size: 0.9rem;
+}
+
 .crucible-filled-card{
   background-color: white !important;
   color: black;
@@ -1098,7 +1104,7 @@ iframe {
   row-gap: 8px;
   border-color: #caa461 !important;
   margin: 0px auto;
-  padding: 3rem 1rem;
+  padding: 3rem 1.5rem;
   padding-bottom: 1rem;
   padding-top: 1rem;
   margin-top: 2rem;
@@ -1121,6 +1127,8 @@ iframe {
         margin-bottom: 40rem;
       }
     }
+
+    
 
 
   }
@@ -1170,6 +1178,7 @@ iframe {
 
   .title{
     width: 90%;
+    font-size: 15px;
     text-align: center;
   }
 
@@ -1191,6 +1200,26 @@ iframe {
     padding: 0.5rem 0.5rem;
     font-weight: 500;
     font-size: 24px;
+  }
+}
+
+.cr-input2{
+  padding: 0px !important;
+  font-size: 16px !important;
+
+  ::-moz-placeholder {
+    /* Firefox 19+ */
+    color: rgb(136, 136, 136);
+    font-size: 12px !important;
+    font-weight: bold;
+  }
+
+  :-ms-input-placeholder {
+    font-size: 12px !important;
+  }
+
+  :-moz-placeholder {
+    font-size: 12px !important;
   }
 }
 

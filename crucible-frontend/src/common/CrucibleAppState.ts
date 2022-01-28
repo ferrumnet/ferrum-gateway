@@ -7,6 +7,8 @@ export interface DeployState {
 	feeOnTransfer: string;
 	feeOnWithdraw: string;
 	error?: string;
+	crucibleName:string;
+	crucibleSymbol: string;
 }
 
 export interface CrucibleBoxState {

@@ -7,10 +7,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState, DeployState } from '../../common/CrucibleAppState';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../../common/CrucibleClient';
-import { inject } from 'types';
+import { inject,ChainEventBase } from 'types';
 import { addressForUser } from 'common-containers';
 import { FCard, FInputText, FButton } from "ferrum-design-system";
 import { ConnectButtonWapper } from 'common-containers';
+import { addAction, CommonActions } from '../../common/CommonActions';
+import { transactionListSlice } from 'common-containers/dist/chain/TransactionList';
+import { APPLICATION_NAME } from '../../common/CommonActions';
 
 // fee is in ratios
 interface DeployProps extends DeployState {
@@ -28,10 +31,31 @@ function stateToProps(state: CrucibleAppState): DeployProps {
 const launchCrucible = createAsyncThunk('crucible/launch', async (payload: { props: DeployProps }, ctx) => {
 	const client = inject<CrucibleClient>(CrucibleClient);
 	const { props } = payload;
+	const state = ctx.getState() as CrucibleAppState;
+	const connectedAddr = addressForUser(state.connection.account?.user);
+	const configuredCrucibles = await client.getConfiguredCrucibleRouters(ctx.dispatch);
+
+	if(connectedAddr?.address && (!props.network || !configuredCrucibles[props.network!])){
+		ctx.dispatch(addAction(CommonActions.ERROR_OCCURED, {message: `There is no Crucible Router Currently Configured for ${props.network}. Kindly Retry on a Configured Network` }));
+		return
+	}
+	
 	const txId = await client.deploy(ctx.dispatch, `${props.network}:${props.baseToken.toLowerCase()}`,
 		(Number(props.feeOnTransfer)/100).toString(), (Number(props.feeOnWithdraw)/100).toString());
 	if (txId) {
+		const event = {
+			createdAt: 0,
+			id: txId,
+			network: props.network,
+			eventType: 'transaction',
+			application: APPLICATION_NAME,
+			status: 'pending',
+			transactionType: 'create_crucible',
+			userAddress: connectedAddr?.address,
+		} as ChainEventBase;
+		ctx.dispatch(transactionListSlice.actions.addTransaction(event));
 		ctx.dispatch(deploySlice.actions.reset());
+		return
 	}
 });
 
@@ -41,10 +65,20 @@ export const deploySlice = createSlice({
 		baseToken: '',
 		feeOnTransfer: '',
 		feeOnWithdraw: '',
+		crucibleName:'',
+		crucibleSymbol: ''
 	} as DeployState,
 	reducers: {
 		baseTokenChanged: (state, action) => {
 			state.baseToken = action.payload.value;
+			state.error = undefined;
+		},
+		crucibleNameChanged: (state, action) => {
+			state.crucibleName = action.payload.value;
+			state.error = undefined;
+		},
+		crucibleSymbolChanged: (state, action) => {
+			state.crucibleSymbol = action.payload.value;
 			state.error = undefined;
 		},
 		feeOnTransferChanged: (state, action) => {
@@ -82,25 +116,24 @@ export function Deploy() {
 						Deploy Crucible Token {`${props.network ? `on ${props.network}` : ''}`}
 					</span>
 				</div>
-				{(appError) && (<span>{appError} <br/></span>)}
 				<div className='extend-mgb'>
-					<div className='subtxt'>
-						Base Token Address
+					<div className='subtxt2'>
+						Crucible Base Token Address
                     </div>
 					<FInputText
-						className={'crucible-input'}
+						className={'cr-input2'}
 						placeholder={'Base Token Address'}
 						value={props.baseToken}
 						onChange={(e:any) => dispatch(deploySlice.actions.baseTokenChanged({value: e.target.value}))}
 					/>
 				</div>
 				<div className='extend-mgb'>
-					<div className='subtxt'>
-						Transfer Fee Ratio
+					<div className='subtxt2'>
+						Crucible Transfer Fee Ratio
                     </div>
 					<FInputText
-						className={'crucible-input'}
-						placeholder={'Transfer Fee Ratio %'}
+						className={'cr-input2'}
+						placeholder={'Transfer Fee %'}
 						value={props.feeOnTransfer}
 						type={'number'}
 						onChange={(e:any) => dispatch(deploySlice.actions.feeOnTransferChanged({value: e.target.value}))}
@@ -108,13 +141,13 @@ export function Deploy() {
 				</div>
 				<Row/>
 				<div className='extend-mgb'>
-					<div className='subtxt'>
-						Withdraw Fee Ratio
+					<div className='subtxt2'>
+						Crucible Withdraw Fee Ratio
                     </div>
 					<FInputText
-						className={'crucible-input'}
+						className={'cr-input2'}
 						type={'number'}
-						placeholder={'Withdraw Fee Ratio %'}
+						placeholder={'Withdraw Fee %'}
 						value={props.feeOnWithdraw}
 						onChange={(e:any) => dispatch(deploySlice.actions.feeOnWithdrawChanged({value: e.target.value}))}
 					/>

@@ -33,6 +33,7 @@ export function TransactionSummaryButton() {
 	
 	return (
 		<TransactionSummary
+			address={user.accountGroups[0]?.addresses[0]?.address}
 			network={network || ''}
 			eventIsRelevant={(e: ChainEventBase) => e.application === APPLICATION_NAME}
 			summaryView={TransactionSummarySkin as any}

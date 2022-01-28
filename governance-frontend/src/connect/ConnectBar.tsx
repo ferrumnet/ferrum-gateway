@@ -1,7 +1,7 @@
 import React from 'react';
 import { Networks } from 'ferrum-plumbing';
 // @ts-ignore
-import { TopBar, ConnectButton } from 'component-library';
+import { TopBar, ConnectButton,CnctButton } from 'component-library';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 import { FRM, FRMX } from 'types';
 

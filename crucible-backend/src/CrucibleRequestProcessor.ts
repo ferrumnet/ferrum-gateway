@@ -12,6 +12,8 @@ export class CrucibleRequestProcessor
 
     this.registerProcessor("getAllocation", (req) => this.getAllocation(req));
 
+    this.registerProcessor("getConfiguredRouters", (req) => this.getRouters());
+
     this.registerProcessor("depositGetTransaction", (req, userId) =>
       this.depositGetTransaction(req, userId!)
     );
@@ -40,6 +42,10 @@ export class CrucibleRequestProcessor
       this.deployGetTransaction(req, userId)
     );
 
+    this.registerProcessor("deployNamedGetTransaction", (req, userId) =>
+      this.deployNamedGetTransaction(req, userId)
+    );
+
     this.registerProcessor("depositAddLiquidityAndStake", (req, userId) =>
       this.depositAddLiquidityAndStake(req, userId)
     );
@@ -65,6 +71,10 @@ export class CrucibleRequestProcessor
       `ALLOC:${crucible}:${userAddress}`,
       async () => this.svc.getAllocations(crucible, userAddress)
     );
+  }
+
+  async getRouters(){
+    return this.svc.getConfiguredRouters()
   }
 
   async depositGetTransaction(req: HttpRequestData, userId: string) {
@@ -116,6 +126,22 @@ export class CrucibleRequestProcessor
       baseCurrency,
       feeOnTransfer,
       feeOnWithdraw
+    );
+  }
+
+  async deployNamedGetTransaction(req: HttpRequestData, userId: string) {
+    ValidationUtils.allRequired(
+      ["baseCurrency", "feeOnTransfer", "feeOnWithdraw","symbol","name"],
+      req
+    );
+    const { baseCurrency, feeOnTransfer, feeOnWithdraw, name, symbol } = req.data;
+    return this.svc.deployNamedGetTransaction(
+      userId,
+      baseCurrency,
+      feeOnTransfer,
+      feeOnWithdraw,
+      name,
+      symbol
     );
   }
 

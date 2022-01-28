@@ -42,6 +42,22 @@ export class CrucibleClient {
 	
 	}
 
+	async getConfiguredCrucibleRouters(dispatch: Dispatch<AnyAction>) {
+		try {
+
+			const crucibleRouters = await this.api.api({
+				command: 'getConfiguredRouters',data: {userAddress: this.api.getAddress()},params: [],
+			} as JsonRpcRequest);
+			return crucibleRouters;
+			
+		} catch (e) {
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}finally{
+
+		}
+	
+	}
+
 	async getUserCrucibleInfo(dispatch: Dispatch<AnyAction>,
 		crucible: string) {
 		try {
@@ -88,7 +104,7 @@ export class CrucibleClient {
 	async updateCrucible(dispatch: Dispatch<AnyAction>, network: string, contractAddress: string) {
 		const crucible = await this.api.api({
 			command: 'getCrucible',
-			data: {crucible: `RINKEBY:${contractAddress.toLowerCase()}`},
+			data: {crucible: `${network.toUpperCase()}:${contractAddress}`},
 			params: [],
 		} as JsonRpcRequest);
 		if (!!crucible) {
@@ -245,11 +261,49 @@ export class CrucibleClient {
 				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
 			}
 			return res
-		} catch (e) {
-			console.error('deposit', e);
-			
-			console.log(e,'eeee',(e as Error).message)
+		} catch (e) {			
+			console.log(e,(e as Error).message)
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
 			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
 		}
 	}
+
+	async deployNamed(dispatch: Dispatch<AnyAction>,
+		baseCurrency: string,
+		feeOnTransfer: string,
+		feeOnWithdraw: string,
+		symbol:string,
+		name: string
+		) {
+	try {
+		const res =  await this.api.runServerTransaction(
+			async () => {
+				const [network,] = Utils.parseCurrency(baseCurrency);
+				const req =  this.api.api({
+					command: 'deployNamedGetTransaction',
+					data: {baseCurrency, feeOnTransfer, feeOnWithdraw,symbol, name}, params: [] } as JsonRpcRequest);
+				if(!!req){
+					dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+					return req
+				}
+			}
+		)
+		if(!!res){
+			dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+		}
+		return res
+	} catch (e) {			
+		console.log(e,(e as Error).message)
+		//@ts-ignore
+		if(e.code && e.code === 4001){
+			dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+			return
+		}
+		dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+	}
+}
 }
