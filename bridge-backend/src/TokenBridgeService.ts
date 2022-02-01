@@ -326,6 +326,23 @@ export class TokenBridgeService
     return rv ? rv.toJSON() : rv;
   }
 
+  async resetWithdrawItemTransactions(
+    id: string
+  ): Promise<UserBridgeWithdrawableBalanceItem> {
+    this.verifyInit();
+    const rv = await this.balanceItem!.findOne({ id });
+    if(rv && rv.used === 'pending'){
+      const res = await this.balanceItem.findOneAndUpdate(
+        { 'receiveTransactionId':id },
+        { used: "failed" }
+      )
+      //@ts-ignore
+      return rv ? rv.toJSON() : rv;
+    }
+    //@ts-ignore
+    return '';
+  }
+
   async newWithdrawItem(
     item: UserBridgeWithdrawableBalanceItem
   ): Promise<void> {
@@ -386,35 +403,36 @@ export class TokenBridgeService
       !!item,
       "Withdraw item with the provided id not found."
     );
-    const pendingTxs = (item.useTransactions || []).filter(
-      (t) => t.status === "pending" || t.status === "failed"
-    );
-    if (!pendingTxs.length && item.used === "pending") {
-      item.used = "pending";
-    }
-    for (const tx of pendingTxs) {
-      const txStatus = await this.helper.getTransactionStatus(
-        item.sendNetwork,
-        tx.id,
-        tx.timestamp || Date.now()
-      );
-      tx.status = txStatus;
-      console.log(
-        `Updating status for withdraw item ${id}: ${item.sendNetwork} ${txStatus}-${tx.id}`
-      );
-      if (txStatus === ("failed")) {
-        item.used = "failed";
-      } else if (txStatus === "successful") {
-        item.used = "completed";
-      } else {
-        if (tx.timestamp < Date.now() - QUICK_TIMEOUT_MILLIS) {
-          item.used = "failed";
-        } else {
-          item.used = "pending";
-        }
+
+    ///loop through use transactions , if anything is pending, check newest status and update use
+
+    let update = false;
+
+    for (const tx of item.useTransactions){
+      if(tx.status === 'pending' || tx.status === '' || !tx.status){
+        const txStatus = await this.helper.getTransactionStatus(
+          item.sendNetwork,
+          tx.id,
+          tx.timestamp || Date.now()
+        );
+        tx.status = txStatus
+        update = true;
       }
     }
-    return await this.updateWithdrawItem(item);
+
+    const successful = item.useTransactions.find((t)=>t.status==='successful');
+    const pending = item.useTransactions.find((t)=>t.status==='pending');
+    const failed = item.useTransactions.find((t)=>t.status==='failed' || t.status==='timedout');
+
+    if(successful){ item.used = "completed";}
+    else if(pending){ item.used = "pending";}
+    else if(failed){ item.used = "failed";}
+    else item.used = ""
+
+    if(update){
+      return await this.updateWithdrawItem(item);
+    }
+    return item
   }
 
   async updateWithdrawItemAddTransaction(id: string, tid: string) {
@@ -454,7 +472,7 @@ export class TokenBridgeService
       item.useTransactions = item.useTransactions || [];
       item.useTransactions.push({
         id: tid,
-        status: txStatus,
+        status: txStatus || '',
         timestamp: txTime,
       });
       if (txStatus === "failed") {
