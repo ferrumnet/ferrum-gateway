@@ -10,6 +10,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../../common/CrucibleClient';
 import { CrucibleInfo, inject } from 'types';
 import { addAction,CommonActions } from '../../common/CommonActions';
+import { StakeCrucible } from '../crucibleItem/transaction/stake';;
 
 export const loadCrucible = createAsyncThunk('crucible/load',
 	async (payload: { crucibleCurrency: string }, ctx) => {
@@ -68,6 +69,11 @@ export function UserCrucible (props: {url:string})  {
             </Route>
             <Route path={`${props.url}/mint`}>
                 <MintCrucible />
+            </Route>
+            <Route
+                path={`${props.url}/stake`}
+            >
+                <StakeCrucible/>								
             </Route>
         </>
     )

@@ -103,8 +103,8 @@ export function CrucibleHome() {
 							/>
 							<FButton 
 								title={'Stake'}
-								disabled={true}
-								//onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/mint`)}
+								disabled={Number(userCrucible?.balance)<=0}
+								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/stake`)}
 								//onClick={()=>onMint()}
 								
 							/>

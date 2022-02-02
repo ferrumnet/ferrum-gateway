@@ -964,7 +964,7 @@ iframe {
   padding: 0px;
   border-radius: 20px;
   margin: 1rem 0rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   border: 1px solid #f7f8fa;
   font-size: 12px;
   .heading{
@@ -1087,6 +1087,13 @@ iframe {
 .subtxt{
   padding: 5px 5px;
   font-size: 0.8rem;
+
+  .f-input-checkbox-group{
+    label{
+      padding-top: 4.5px;
+    }
+  }
+
 }
 
 .subtxt2{

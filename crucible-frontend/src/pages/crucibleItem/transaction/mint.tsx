@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField,FInputCheckbox } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
@@ -16,6 +16,7 @@ import {
 } from "ferrum-plumbing";
 import {ApprovableButton} from './../../../common/ApprovableBtn';
 import {changeNetwork} from 'common-containers';
+import { Circle } from 'react-spinners-css';
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
     async (payload: {
@@ -24,16 +25,23 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 		currency: string,
 		amount: string,
 		isPublic: boolean,
-        balance:string
+        balance:string,
+        type: string
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
-        const {network, crucible, currency, amount, isPublic} = payload;
+        const {network, crucible, currency, amount, isPublic,type } = payload;
         console.log('PL":', payload,)
         const client = inject<CrucibleClient>(CrucibleClient);
         const api = inject<ApiClient>(ApiClient);
-        ValidationUtils.isTrue(((Number(payload.balance)-Number(amount)) < 0),'Not Enough Balance Available in Base Token for this transaction');
-        const transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
+        ValidationUtils.isTrue(!((Number(payload.balance)-Number(amount)) < 0),'Not Enough Balance Available in Base Token for this transaction');
+        let staking = payload.type === "mintAndStake"
+        let transactionId
+        if(staking){
+            transactionId = await client.depositAndStake(ctx.dispatch, currency, crucible,'', amount, isPublic);
+        }else{
+            transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
+        }
         if (!!transactionId) {
             ctx.dispatch(crucibleBoxSlice.actions.registerTx({
                 transactionId,
@@ -45,7 +53,7 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
                 eventType: 'transaction',
                 application: APPLICATION_NAME,
                 status: 'pending',
-                transactionType: 'deposit',
+                transactionType: staking ? 'DepositAndMint' : 'Deposit',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
@@ -63,6 +71,7 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 export function MintCrucible(){
     let {network, contractAddress} = useParams() as any;
     const [amount, setAmount] = useState('');
+    const [stake, setStake] = useState(false)
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
 		state.data.state.crucible);
 	const dispatch = useDispatch();
@@ -80,7 +89,8 @@ export function MintCrucible(){
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
-
+    
+    
     return (
         <>
 		    <div className='fr-flex-container'>
@@ -103,7 +113,7 @@ export function MintCrucible(){
                             ←
                         </span>
                         <span className="title underline">
-                            Deposit and Mint Crucible Token
+                            {stake ? 'Mint and Stake Crucible Token' : 'Deposit and Mint Crucible Token'}
                         </span>
                     </div>
                     <div>
@@ -117,7 +127,7 @@ export function MintCrucible(){
                         />
                     </div>
                     <div className='subtxt'>
-                        You have {userCrucible?.baseBalance} available in Base Token {userCrucible?.baseSymbol}.
+                        You have {Number(userCrucible?.baseBalance||'0').toFixed(3)} available in Base Token {userCrucible?.baseSymbol}.
                     </div>
                     {
                         Number(amount) > 0 && 
@@ -128,7 +138,7 @@ export function MintCrucible(){
                                 </span>
                             </div>
                             <div className='subtxt'>
-                                Amount you will receive
+                                Amount you will {stake ? 'stake' : 'receive'}
                             </div>
                             <div>
                                 <FInputTextField
@@ -138,6 +148,9 @@ export function MintCrucible(){
                                     value={amount}
                                     disabled={true}
                                 />
+                            </div>
+                            <div className='subtxt'>
+                                <FInputCheckbox label={'I want to Stake Minted Crucible directly.'} onClick={(e:any) => setStake(e.target.checked)}/>  
                             </div>
                         </>
                     }
@@ -174,7 +187,7 @@ export function MintCrucible(){
                     :
                         <ApprovableButton
                             disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
-                            text={`${transactionStatus==='waiting' ? 'Processing' : 'Mint Crucible🍯'}`}
+                            text={`${transactionStatus==='waiting' ? 'Processing' : (stake ? `Mint And Stake Crucible🍯` : 'Mint Crucible🍯')}`}
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doDeposit({
@@ -182,6 +195,7 @@ export function MintCrucible(){
                                 crucible: crucible?.currency||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
+                                type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
                                 balance: userCrucible?.baseBalance || '0'
                             }))}

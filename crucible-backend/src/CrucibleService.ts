@@ -321,6 +321,36 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress);
 	}
 
+	async stakeAndMint(
+		cur: string,
+		crucible: string,
+		amount: string,
+		stake: string,
+		from: string,
+		): Promise<CustomTransactionCallRequest> {
+			const [network, conAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
+			const currency = await this.baseCurrency(crucible);
+			ValidationUtils.isTrue(currency == cur, "Invalid currency");
+			const amountInt = await this.helper.amountToMachine(currency, amount);
+			const factory = await this.router(network);
+			//const allocation = await this.signedAllocation(from, crucible, AllocationMethods.DEPOSIT, amountInt);
+			// ValidationUtils.isTrue(BigUtils.safeParse(amount).lte(BigUtils.parseOrThrow(allocation.allocation, 'allocation')),
+			// 	`Amount ${amount} larger than allocation "${allocation.allocation}"`);
+			const t = await factory.populateTransaction.depositAndStake(
+				'0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52',
+				'0x05e588c9D6C95F9e6D796C7DE57f32Fa051a5fE0',
+				amountInt,
+				'0x64598E2FDe27ad33448c5443A37D6f08233dAf02',
+				'0x0000000000000000000000000000000000000000000000000000000000000000',
+				0,
+				0,
+				'0x',
+				{from: '0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52'}
+			);
+			return this.helper.fromTypechainTransactionWithGas(network, t, '0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52');
+		}
+
+
 	async remainingFromCap(crucible: string): Promise<CurrencyValue> {
 		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const r = await this.router(network);

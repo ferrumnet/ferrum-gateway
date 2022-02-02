@@ -165,6 +165,77 @@ export class CrucibleClient {
 		}
 	}
 
+	async depositAndStake(dispatch: Dispatch<AnyAction>,
+		currency: string,
+		crucible: string,
+		stakeAddress: string,
+		amount: string,
+		isPublic: boolean,
+		) {
+		try {
+			const res = await this.api.runServerTransaction(
+				async () => {
+					const network = this.api.getNetwork();
+					const req =  await this.api.api({
+							command: 'depositAndStakeGetTransaction',
+							data: {network, currency,crucible, stake: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02', amount}, params: [] } as JsonRpcRequest);
+					if(!!req){
+						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+						return req
+					}
+				});
+				if(!!res){
+					console.log(res)
+					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				}
+				return res
+		} catch (e) {
+			console.error('deposit', e);
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(TxModal.toggleModal({show: false}))
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
+	}
+
+	async stakeCrucible(dispatch: Dispatch<AnyAction>,
+		currency: string,
+		stakeAddress: string,
+		amount: string,
+		isPublic: boolean,
+		) {
+		try {
+			const res = await this.api.runServerTransaction(
+				async () => {
+					const network = this.api.getNetwork();
+					const req =  await this.api.api({
+							command: 'stakeForGetTransaction',
+							data: {network, currency, stake: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02', amount}, params: [] } as JsonRpcRequest);
+					if(!!req){
+						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
+						return req
+					}
+				});
+				if(!!res){
+					console.log(res)
+					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				}
+				return res
+		} catch (e) {
+			console.error('deposit', e);
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(TxModal.toggleModal({show: false}))
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
+	}
+
 	async withdraw(dispatch: Dispatch<AnyAction>,
 		currency: string,
 		crucible: string,

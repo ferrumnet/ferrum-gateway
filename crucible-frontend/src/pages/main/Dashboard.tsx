@@ -154,7 +154,7 @@ export function Dashboard(props: DashboardProps) {
 											path="/deployNamed"
 										>
 											<DeployNamed/>
-										</Route>									
+										</Route>
 										<Route>
 											<Redirect to="/deploy"/>
 											{/**<CrucibleList />**/}
