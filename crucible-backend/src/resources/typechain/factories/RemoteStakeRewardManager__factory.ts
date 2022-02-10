@@ -73,8 +73,13 @@ const _abi = [
         name: "baseToken",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
     ],
-    name: "addMarginalReward",
+    name: "addReward",
     outputs: [
       {
         internalType: "uint256",
@@ -92,13 +97,8 @@ const _abi = [
         name: "baseToken",
         type: "address",
       },
-      {
-        internalType: "address",
-        name: "rewardToken",
-        type: "address",
-      },
     ],
-    name: "addReward",
+    name: "addRewardPublic",
     outputs: [
       {
         internalType: "uint256",
@@ -193,6 +193,29 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "receiveTokenFrom",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -340,6 +363,24 @@ const _abi = [
       },
     ],
     name: "syncStake",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "userStake",
     outputs: [
       {
         internalType: "uint256",
@@ -347,7 +388,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {

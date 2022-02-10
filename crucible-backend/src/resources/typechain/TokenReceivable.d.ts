@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -21,11 +22,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface TokenReceivableInterface extends ethers.utils.Interface {
   functions: {
     "inventory(address)": FunctionFragment;
+    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "inventory", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "receiveTokenFrom",
+    values: [string, string, BigNumberish]
+  ): string;
 
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "receiveTokenFrom",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -75,24 +85,59 @@ export class TokenReceivable extends BaseContract {
 
   functions: {
     inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
   };
 
   inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  receiveTokenFrom(
+    token: string,
+    from: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {};
 
   estimateGas: {
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     inventory(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

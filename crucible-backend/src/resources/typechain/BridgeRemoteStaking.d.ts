@@ -21,12 +21,13 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
   functions: {
-    "addMarginalReward(address)": FunctionFragment;
     "addReward(address,address)": FunctionFragment;
+    "addRewardPublic(address)": FunctionFragment;
     "fakeRewardOf(address,address)": FunctionFragment;
     "fakeRewards(address,address)": FunctionFragment;
     "fakeRewardsTotal(address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
+    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "reflectionContract()": FunctionFragment;
     "rewardOf(address,address)": FunctionFragment;
     "rewardTokens(address)": FunctionFragment;
@@ -35,17 +36,18 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
     "stakedBalance(address)": FunctionFragment;
     "stakes(address,address)": FunctionFragment;
     "syncStake(address,address)": FunctionFragment;
+    "userStake(address,address)": FunctionFragment;
     "withdrawRewards(address)": FunctionFragment;
     "withdrawRewardsFor(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "addMarginalReward",
-    values: [string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "addReward",
     values: [string, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addRewardPublic",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "fakeRewardOf",
@@ -60,6 +62,10 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(functionFragment: "inventory", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "receiveTokenFrom",
+    values: [string, string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "reflectionContract",
     values?: undefined
@@ -90,6 +96,10 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "userStake",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawRewards",
     values: [string]
   ): string;
@@ -98,11 +108,11 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
     values: [string, string]
   ): string;
 
+  decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addMarginalReward",
+    functionFragment: "addRewardPublic",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addReward", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fakeRewardOf",
     data: BytesLike
@@ -116,6 +126,10 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "receiveTokenFrom",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "reflectionContract",
     data: BytesLike
@@ -136,6 +150,7 @@ interface BridgeRemoteStakingInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "stakes", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "syncStake", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "userStake", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawRewards",
     data: BytesLike
@@ -198,14 +213,14 @@ export class BridgeRemoteStaking extends BaseContract {
   interface: BridgeRemoteStakingInterface;
 
   functions: {
-    addMarginalReward(
-      baseToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     addReward(
       baseToken: string,
       rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addRewardPublic(
+      baseToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -227,6 +242,13 @@ export class BridgeRemoteStaking extends BaseContract {
     ): Promise<[BigNumber]>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     reflectionContract(overrides?: CallOverrides): Promise<[string]>;
 
@@ -259,6 +281,12 @@ export class BridgeRemoteStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    userStake(
+      to: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     withdrawRewards(
       baseToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -271,14 +299,14 @@ export class BridgeRemoteStaking extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  addMarginalReward(
-    baseToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   addReward(
     baseToken: string,
     rewardToken: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addRewardPublic(
+    baseToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -297,6 +325,13 @@ export class BridgeRemoteStaking extends BaseContract {
   fakeRewardsTotal(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  receiveTokenFrom(
+    token: string,
+    from: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   reflectionContract(overrides?: CallOverrides): Promise<string>;
 
@@ -326,6 +361,12 @@ export class BridgeRemoteStaking extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  userStake(
+    to: string,
+    token: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   withdrawRewards(
     baseToken: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -338,14 +379,14 @@ export class BridgeRemoteStaking extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addMarginalReward(
-      baseToken: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     addReward(
       baseToken: string,
       rewardToken: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    addRewardPublic(
+      baseToken: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -367,6 +408,13 @@ export class BridgeRemoteStaking extends BaseContract {
     ): Promise<BigNumber>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     reflectionContract(overrides?: CallOverrides): Promise<string>;
 
@@ -391,6 +439,12 @@ export class BridgeRemoteStaking extends BaseContract {
     ): Promise<BigNumber>;
 
     syncStake(
+      to: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    userStake(
       to: string,
       token: string,
       overrides?: CallOverrides
@@ -435,14 +489,14 @@ export class BridgeRemoteStaking extends BaseContract {
   };
 
   estimateGas: {
-    addMarginalReward(
-      baseToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     addReward(
       baseToken: string,
       rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addRewardPublic(
+      baseToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -464,6 +518,13 @@ export class BridgeRemoteStaking extends BaseContract {
     ): Promise<BigNumber>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     reflectionContract(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -493,6 +554,12 @@ export class BridgeRemoteStaking extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    userStake(
+      to: string,
+      token: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     withdrawRewards(
       baseToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -506,14 +573,14 @@ export class BridgeRemoteStaking extends BaseContract {
   };
 
   populateTransaction: {
-    addMarginalReward(
-      baseToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     addReward(
       baseToken: string,
       rewardToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addRewardPublic(
+      baseToken: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -537,6 +604,13 @@ export class BridgeRemoteStaking extends BaseContract {
     inventory(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     reflectionContract(
@@ -576,6 +650,12 @@ export class BridgeRemoteStaking extends BaseContract {
       to: string,
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    userStake(
+      to: string,
+      token: string,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     withdrawRewards(

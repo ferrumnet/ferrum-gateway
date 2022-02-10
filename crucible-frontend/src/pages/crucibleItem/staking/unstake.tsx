@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField,FInputCheckbox } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
@@ -18,7 +18,7 @@ import {ApprovableButton} from './../../../common/ApprovableBtn';
 import {changeNetwork} from 'common-containers';
 import { Circle } from 'react-spinners-css';
 
-const doStake = createAsyncThunk('crucibleBox/doStake',
+const doUnstake = createAsyncThunk('crucibleBox/doUnstake',
     async (payload: {
 		network: string,
 		crucible: string,
@@ -26,16 +26,17 @@ const doStake = createAsyncThunk('crucibleBox/doStake',
 		amount: string,
 		isPublic: boolean,
         balance:string,
+        staking:string,
         type: string
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
-        const {network, crucible, currency, amount, isPublic } = payload;
+        const {network, crucible, currency, amount, isPublic,staking } = payload;
         console.log('PL":', payload,)
         const client = inject<CrucibleClient>(CrucibleClient);
         const api = inject<ApiClient>(ApiClient);
         ValidationUtils.isTrue(!((Number(payload.balance)-Number(amount)) < 0),'Not Enough Balance Available in Crucible Token for this transaction');
-        let transactionId = await client.stakeCrucible(ctx.dispatch, currency, crucible, amount, isPublic);
+        let transactionId = await client.unstake(ctx.dispatch, crucible,currency,  amount,staking);
         if (!!transactionId) {
             ctx.dispatch(crucibleBoxSlice.actions.registerTx({
                 transactionId,
@@ -47,7 +48,7 @@ const doStake = createAsyncThunk('crucibleBox/doStake',
                 eventType: 'transaction',
                 application: APPLICATION_NAME,
                 status: 'pending',
-                transactionType: 'Stake',
+                transactionType: 'unstake',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
@@ -62,8 +63,8 @@ const doStake = createAsyncThunk('crucibleBox/doStake',
     
 });
 
-export function StakeCrucible(){
-    let {network, contractAddress} = useParams() as any;
+export function UnStakeCrucible(){
+    let {network, contractAddress,stakingId} = useParams() as any;
     const [amount, setAmount] = useState('');
     const [stake, setStake] = useState(false)
 	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>
@@ -83,7 +84,15 @@ export function StakeCrucible(){
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
+    //@ts-ignore
+    let active_crucible = crucible?.staking[stakingId as any];
+    let userStake = userCrucible?.stakes.find(e=>e.address === active_crucible.address)
     
+    useEffect(()=>{
+        if(crucible && !active_crucible){
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: 'There is no staking configured for this crucible' }));
+        }
+    },[crucible?.contractAddress])
     
     return (
         <>
@@ -107,13 +116,13 @@ export function StakeCrucible(){
                             ←
                         </span>
                         <span className="title underline">
-                            Stake Crucible Token
+                            Unstake Crucible
                         </span>
                     </div>
                     <div>
                         <FInputText
                             className={'crucible-input'}
-                            placeholder={'Amount to Stake'}
+                            placeholder={'Amount to unstake'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={amount}
                             type={Number}
@@ -121,7 +130,7 @@ export function StakeCrucible(){
                         />
                     </div>
                     <div className='subtxt'>
-                        You have {Number(userCrucible?.balance||'0').toFixed(3)} {userCrucible?.symbol} available to Stake.
+                        You have {Number(userStake?.stakeOf||'0').toFixed(3)} {userCrucible?.symbol} available to unstake.
                     </div>
                     <div className='cr-footer'>
                         <div className='heading'>
@@ -155,19 +164,20 @@ export function StakeCrucible(){
                     :
                         <ApprovableButton
                             disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
-                            text={`${transactionStatus==='waiting' ? 'Processing' : 'Stake Crucible🍯'}`}
+                            text={`${transactionStatus==='waiting' ? 'Processing' : 'Unstake Crucible🍯'}`}
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
-                            onClick={()=> dispatch(doStake({
+                            onClick={()=> dispatch(doUnstake({
                                 network: network,
-                                crucible: crucible?.currency||'',
+                                crucible: crucible?.contractAddress||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
-                                balance: userCrucible?.balance || '0'
+                                balance: userCrucible?.balance || '0',
+                                staking: (active_crucible?.address as string)
                             }))}
-                            currency={crucible!.baseCurrency}
+                            currency={crucible!.currency}
                             userAddress={connected}
                         />                                
                     }

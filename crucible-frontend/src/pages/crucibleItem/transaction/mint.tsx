@@ -26,19 +26,20 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 		amount: string,
 		isPublic: boolean,
         balance:string,
-        type: string
+        type: string,
+        stake?:string
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
-        const {network, crucible, currency, amount, isPublic,type } = payload;
+        const {network, crucible, currency, amount, isPublic,stake } = payload;
         console.log('PL":', payload,)
         const client = inject<CrucibleClient>(CrucibleClient);
         const api = inject<ApiClient>(ApiClient);
         ValidationUtils.isTrue(!((Number(payload.balance)-Number(amount)) < 0),'Not Enough Balance Available in Base Token for this transaction');
         let staking = payload.type === "mintAndStake"
         let transactionId
-        if(staking){
-            transactionId = await client.depositAndStake(ctx.dispatch, currency, crucible,'', amount, isPublic);
+        if(staking && stake){
+            transactionId = await client.depositAndStake(ctx.dispatch, currency, crucible,stake, amount, isPublic);
         }else{
             transactionId = await client.deposit(ctx.dispatch, currency, crucible, amount, isPublic);
         }
@@ -89,8 +90,9 @@ export function MintCrucible(){
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
-    
-    
+    let [selectedStaking,setSelectedStaking] = useState('');
+    console.log(crucible,'cruciblecrucible')
+
     return (
         <>
 		    <div className='fr-flex-container'>
@@ -149,9 +151,35 @@ export function MintCrucible(){
                                     disabled={true}
                                 />
                             </div>
-                            <div className='subtxt'>
-                                <FInputCheckbox label={'I want to Stake Minted Crucible directly.'} onClick={(e:any) => setStake(e.target.checked)}/>  
-                            </div>
+                            {
+                                //@ts-ignore
+                                crucible?.staking?.length > 0 &&
+                                    <div className='subtxt'>
+                                        <FInputCheckbox label={'I want to Stake Minted Crucible directly.'} onClick={(e:any) => setStake(e.target.checked)}/>  
+                                    </div>
+                            }
+                           
+                            {
+                                stake && 
+                                    //@ts-ignore
+                                    crucible?.staking?.length > 0 &&
+                                    <>
+                                        <div className='subtxt'>Select A Staking Pool :</div>
+                                        {
+                                            //@ts-ignore
+                                            crucible?.staking.map( (e,idx) => (
+                                                <div className={`staking-option cr-footer ${selectedStaking===e.address ? 'selected': ''}`} onClick={() => (setSelectedStaking(e.address))}>
+                                                    <div className='heading'>
+                                                        Staking Contract : {' '}<span className='label label2'>{' '} {Utils.shorten(e.address)} </span>
+                                                    </div>
+                                                    <div className='heading heading2'>
+                                                        Staked Volume : {' '}<span className='label label2'>{' '} {e.totalStake} {userCrucible?.symbol}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        }
+                                    </>
+                            }
                         </>
                     }
                    
@@ -186,7 +214,7 @@ export function MintCrucible(){
 
                     :
                         <ApprovableButton
-                            disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'}
+                            disabled={!depositOpen||Number(amount)<=0||transactionStatus==='waiting'||(stake&&!selectedStaking)}
                             text={`${transactionStatus==='waiting' ? 'Processing' : (stake ? `Mint And Stake Crucible🍯` : 'Mint Crucible🍯')}`}
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
@@ -197,7 +225,8 @@ export function MintCrucible(){
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
-                                balance: userCrucible?.baseBalance || '0'
+                                balance: userCrucible?.baseBalance || '0',
+                                stake: selectedStaking||''
                             }))}
                             currency={crucible!.baseCurrency}
                             userAddress={connected}

@@ -31,6 +31,7 @@ export interface CrucibleInfo extends CrucibleBase, CrucibleAllocations, Crucibl
 	feeOnTransferRate: string;
 	feeOnWithdrawRate: string;
 	feeDescription: string;
+	staking?: {[key:string]:string}[]
 }
 
 export interface UserCrucibleInfo extends  CrucibleBase {

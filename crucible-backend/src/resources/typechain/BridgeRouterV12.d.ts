@@ -36,7 +36,7 @@ interface BridgeRouterV12Interface extends ethers.utils.Interface {
     "swapAndCross(address,uint256,uint256,address[],uint256,uint256,address,address,address)": FunctionFragment;
     "swapAndCrossETH(address,uint256,address[],uint256,uint256,address,address,address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "withdrawSigned(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
+    "withdrawSigned(address,address,uint256,uint32,bytes32,bytes)": FunctionFragment;
     "withdrawSignedAndSwap(address,address,uint256,uint32,bytes32,uint256,address[],uint256,bytes)": FunctionFragment;
     "withdrawSignedAndSwapETH(address,address,uint256,uint32,bytes32,uint256,address[],uint256,bytes)": FunctionFragment;
   };
@@ -103,15 +103,7 @@ interface BridgeRouterV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSigned",
-    values: [
-      string,
-      string,
-      BigNumberish,
-      string,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSignedAndSwap",
@@ -332,7 +324,6 @@ export class BridgeRouterV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
-      swapToToken: string,
       sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
@@ -457,7 +448,6 @@ export class BridgeRouterV12 extends BaseContract {
     token: string,
     payee: string,
     amount: BigNumberish,
-    swapToToken: string,
     sourceChainId: BigNumberish,
     swapTxId: BytesLike,
     multiSignature: BytesLike,
@@ -574,7 +564,6 @@ export class BridgeRouterV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
-      swapToToken: string,
       sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
@@ -710,7 +699,6 @@ export class BridgeRouterV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
-      swapToToken: string,
       sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,
@@ -836,7 +824,6 @@ export class BridgeRouterV12 extends BaseContract {
       token: string,
       payee: string,
       amount: BigNumberish,
-      swapToToken: string,
       sourceChainId: BigNumberish,
       swapTxId: BytesLike,
       multiSignature: BytesLike,

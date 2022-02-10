@@ -27,6 +27,7 @@ interface SwapDropInterface extends ethers.utils.Interface {
     "inventory(address)": FunctionFragment;
     "make(address,address,address,address)": FunctionFragment;
     "makers(address)": FunctionFragment;
+    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "take(address,address,address,uint256,uint256,uint256,bool,uint32,bytes32,bytes)": FunctionFragment;
     "tokens(address)": FunctionFragment;
     "topUp(address)": FunctionFragment;
@@ -45,6 +46,10 @@ interface SwapDropInterface extends ethers.utils.Interface {
     values: [string, string, string, string]
   ): string;
   encodeFunctionData(functionFragment: "makers", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "receiveTokenFrom",
+    values: [string, string, BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "take",
     values: [
@@ -76,6 +81,10 @@ interface SwapDropInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "make", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "makers", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "receiveTokenFrom",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "take", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "topUp", data: BytesLike): Result;
@@ -155,6 +164,13 @@ export class SwapDrop extends BaseContract {
 
     makers(arg0: string, overrides?: CallOverrides): Promise<[string]>;
 
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     take(
       to: string,
       id: string,
@@ -200,6 +216,13 @@ export class SwapDrop extends BaseContract {
 
   makers(arg0: string, overrides?: CallOverrides): Promise<string>;
 
+  receiveTokenFrom(
+    token: string,
+    from: string,
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   take(
     to: string,
     id: string,
@@ -241,6 +264,13 @@ export class SwapDrop extends BaseContract {
     ): Promise<BigNumber>;
 
     makers(arg0: string, overrides?: CallOverrides): Promise<string>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     take(
       to: string,
@@ -319,6 +349,13 @@ export class SwapDrop extends BaseContract {
 
     makers(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     take(
       to: string,
       id: string,
@@ -372,6 +409,13 @@ export class SwapDrop extends BaseContract {
     makers(
       arg0: string,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    receiveTokenFrom(
+      token: string,
+      from: string,
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     take(

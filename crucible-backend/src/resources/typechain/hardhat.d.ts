@@ -13,9 +13,49 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "OwnableUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.OwnableUpgradeable__factory>;
+    getContractFactory(
+      name: "ERC20Upgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Upgradeable__factory>;
+    getContractFactory(
+      name: "ERC20BurnableUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20BurnableUpgradeable__factory>;
+    getContractFactory(
+      name: "IERC20MetadataUpgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20MetadataUpgradeable__factory>;
+    getContractFactory(
+      name: "IERC20Upgradeable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC20Upgradeable__factory>;
+    getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
+    getContractFactory(
+      name: "IBeacon",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBeacon__factory>;
+    getContractFactory(
+      name: "ERC1967Proxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC1967Proxy__factory>;
+    getContractFactory(
+      name: "ERC1967Upgrade",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC1967Upgrade__factory>;
+    getContractFactory(
+      name: "Proxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Proxy__factory>;
+    getContractFactory(
+      name: "TransparentUpgradeableProxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TransparentUpgradeableProxy__factory>;
     getContractFactory(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -49,9 +89,21 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BridgeRouterV12__factory>;
     getContractFactory(
+      name: "BridgeRoutingTable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BridgeRoutingTable__factory>;
+    getContractFactory(
+      name: "HarmonyBridgePool",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.HarmonyBridgePool__factory>;
+    getContractFactory(
       name: "IBridgePool",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IBridgePool__factory>;
+    getContractFactory(
+      name: "IBridgeRoutingTable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBridgeRoutingTable__factory>;
     getContractFactory(
       name: "ERC20",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -68,6 +120,10 @@ declare module "hardhat/types/runtime" {
       name: "FerrumDeployer",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.FerrumDeployer__factory>;
+    getContractFactory(
+      name: "Freezable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Freezable__factory>;
     getContractFactory(
       name: "IBurnable",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -89,13 +145,29 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Allocatable__factory>;
     getContractFactory(
+      name: "IDaoCallable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IDaoCallable__factory>;
+    getContractFactory(
       name: "MultiSigCheckable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MultiSigCheckable__factory>;
     getContractFactory(
+      name: "MultiSigProofOfStake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MultiSigProofOfStake__factory>;
+    getContractFactory(
+      name: "PublicMultiSigCheckable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.PublicMultiSigCheckable__factory>;
+    getContractFactory(
       name: "SigCheckable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.SigCheckable__factory>;
+    getContractFactory(
+      name: "TokenDao",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TokenDao__factory>;
     getContractFactory(
       name: "IUniswapV2Factory",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -169,6 +241,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Playground__factory>;
     getContractFactory(
+      name: "IronSafe",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IronSafe__factory>;
+    getContractFactory(
       name: "IPoolDrop",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IPoolDrop__factory>;
@@ -176,6 +252,34 @@ declare module "hardhat/types/runtime" {
       name: "PoolDrop",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.PoolDrop__factory>;
+    getContractFactory(
+      name: "MultiChainToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MultiChainToken__factory>;
+    getContractFactory(
+      name: "WrappedToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.WrappedToken__factory>;
+    getContractFactory(
+      name: "IQuantumPortalFeeManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IQuantumPortalFeeManager__factory>;
+    getContractFactory(
+      name: "IQuantumPortalPoc",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IQuantumPortalPoc__factory>;
+    getContractFactory(
+      name: "QuantumPortalFeeManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.QuantumPortalFeeManager__factory>;
+    getContractFactory(
+      name: "QuantumPortalPoc",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.QuantumPortalPoc__factory>;
+    getContractFactory(
+      name: "QuantumPortalLedgerMgr",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.QuantumPortalLedgerMgr__factory>;
     getContractFactory(
       name: "BaseStakingV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -209,6 +313,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IRewardPool__factory>;
     getContractFactory(
+      name: "ISlashableStake",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ISlashableStake__factory>;
+    getContractFactory(
       name: "IStakeInfo",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IStakeInfo__factory>;
@@ -225,6 +333,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Admined__factory>;
     getContractFactory(
+      name: "ITokenReceivable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ITokenReceivable__factory>;
+    getContractFactory(
       name: "StakingV2CommonSignatures",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.StakingV2CommonSignatures__factory>;
@@ -240,6 +352,10 @@ declare module "hardhat/types/runtime" {
       name: "RemoteStakeRewardManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.RemoteStakeRewardManager__factory>;
+    getContractFactory(
+      name: "TestRemoteStakeRewardManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.TestRemoteStakeRewardManager__factory>;
     getContractFactory(
       name: "FerrumRouterV2",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -292,6 +408,66 @@ declare module "hardhat/types/runtime" {
       name: "IHasTaxDistributor",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IHasTaxDistributor__factory>;
+    getContractFactory(
+      name: "DaoFerrumToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DaoFerrumToken__factory>;
+    getContractFactory(
+      name: "DaoMintableErc20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DaoMintableErc20__factory>;
+    getContractFactory(
+      name: "DaoMintableLockableErc20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DaoMintableLockableErc20__factory>;
+    getContractFactory(
+      name: "MinimalErc20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MinimalErc20__factory>;
+    getContractFactory(
+      name: "MinimalErc20Deployer",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.MinimalErc20Deployer__factory>;
+    getContractFactory(
+      name: "DirectMinimalErc20",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DirectMinimalErc20__factory>;
+    getContractFactory(
+      name: "FerrumProxyTokenDeployer",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.FerrumProxyTokenDeployer__factory>;
+    getContractFactory(
+      name: "GenericUpgradableToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GenericUpgradableToken__factory>;
+    getContractFactory(
+      name: "GenericUpgradableTokenMintable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.GenericUpgradableTokenMintable__factory>;
+    getContractFactory(
+      name: "IGenericUpgradableToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IGenericUpgradableToken__factory>;
+    getContractFactory(
+      name: "IGenericUpgradableTokenMintable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IGenericUpgradableTokenMintable__factory>;
+    getContractFactory(
+      name: "BasicLocker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BasicLocker__factory>;
+    getContractFactory(
+      name: "ILocker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILocker__factory>;
+    getContractFactory(
+      name: "ILockerUser",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILockerUser__factory>;
+    getContractFactory(
+      name: "ISafetyLocker",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ISafetyLocker__factory>;
 
     // default types
     getContractFactory(

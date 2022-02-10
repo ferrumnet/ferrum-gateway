@@ -110,7 +110,7 @@ export function WithdrawCrucible(){
                         />
                     </div>
                     <div className='subtxt'>
-                        You have {Number(userCrucible?.balance||'0').toFixed(3)} available in Crucible Token {userCrucible?.symbol}.
+                        You have {Number(userCrucible?.balance||'0').toFixed(3)} available in Crucible {userCrucible?.symbol}.
                     </div>
                     <div className="down-btn">
                         <span >

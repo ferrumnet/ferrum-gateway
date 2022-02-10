@@ -61,6 +61,14 @@ export class CrucibleRequestProcessor
     this.registerProcessor('getCruciblePricing', (req, userId) => 
       this.getCruciblePricing(req,userId)  
     )
+
+    this.registerProcessor('unStakeGetTransaction', (req, userId) => 
+      this.unStakeGetTransaction(req,userId)  
+    )
+
+    this.registerProcessor('withdrawRewardsGetTransaction', (req, userId) => 
+      this.withdrawRewardsGetTransaction(req,userId)  
+    )
   }
 
   __name__() {
@@ -75,6 +83,25 @@ export class CrucibleRequestProcessor
       `ALLOC:${crucible}:${userAddress}`,
       async () => this.svc.getAllocations(crucible, userAddress)
     );
+  }
+
+
+  async withdrawRewardsGetTransaction(req: HttpRequestData, userId: string) {
+    const { staking, crucible, amount } = req.data;
+    ValidationUtils.isTrue(!!userId, "user must be signed in");
+    ValidationUtils.isTrue(!!staking, "staking must be provided");
+    ValidationUtils.isTrue(!!crucible, "crucible must be provided");
+    ValidationUtils.isTrue(!!amount, "amount must be provided");
+    return await this.svc.withdrawRewardsGetTransaction(crucible,staking,userId)
+  }
+
+  async unStakeGetTransaction(req: HttpRequestData, userId: string) {
+    const { staking, crucible, amount } = req.data;
+    ValidationUtils.isTrue(!!userId, "user must be signed in");
+    ValidationUtils.isTrue(!!staking, "staking must be provided");
+    ValidationUtils.isTrue(!!crucible, "crucible must be provided");
+    ValidationUtils.isTrue(!!amount, "amount must be provided");
+    return await this.svc.unstakeGetTransaction(crucible,staking,amount,userId)
   }
 
   async getRouters(){

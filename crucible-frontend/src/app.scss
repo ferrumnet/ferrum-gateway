@@ -901,6 +901,35 @@ input[type="number"] {
   color: black;
 }
 
+.header{
+  &.page-back{
+    margin-top: 1rem;
+    color: black;
+    .title{
+      width: 97.7%;
+      text-align: center;
+    }
+
+    .underline {
+      position:relative;
+    }
+    
+    .underline:after{
+      content: "";
+      position: absolute;
+      bottom: -7px;
+      left: 45%;
+      border-radius: 30px;
+      width: 10%;
+      border-bottom: 3px solid #d9bb8a;
+      text-align: center;
+      align-items: center;
+      margin: 0px auto;
+    }
+  }
+}
+
+
 .flex{
   display: flex;
   justify-content: space-between;
@@ -921,10 +950,31 @@ input[type="number"] {
 
 }
 
+.back-btn{
+  cursor: pointer;
+}
+
+.staking-option{
+  margin-top: 0rem !important;
+  margin-bottom: 0.2rem !important;
+  &:hover{
+    background-color: #cba261ee;
+    color: #1615158c;
+  }
+}
+
 .block{
   display: block;
   position: relative;
 }
+
+.selected{
+  &.staking-option{
+    background-color: #cba3618c;
+    color: #1615158c;
+  }
+}
+
 .crucibleItemCard{
   z-index: 2;
   box-shadow: rgb(0 0 0 / 10%) 0px 4px 10px;
@@ -932,6 +982,19 @@ input[type="number"] {
   border-radius: 10px;
   margin-top: 3rem;
   display: block;
+
+  &.staking{
+    display: grid;
+    grid-auto-rows: auto;
+    row-gap: 14px;
+    color: white;
+    margin-top: 1rem;
+  }
+
+  .staking_detail{
+    font-size: 14px;
+  }
+
   .header{
     color: white;
     font-weight: 500;
@@ -978,7 +1041,17 @@ iframe {
     justify-content: flex-start;
     padding: 1rem;
     font-weight: 500;
+    .label2{
+      padding-left: 2px;
+    }
+    &.heading2{
+      padding-top: 0rem;
+
+     
+    }
   }
+
+  
 
   .content{
     border: 1px solid rgb(247, 248, 250);
@@ -993,6 +1066,9 @@ iframe {
       row-gap: 8px;
       text-align: center;
 
+      .label2{
+        padding-right: 2px;
+      }
       .label{
         font-weight: 500;
       }
@@ -1084,9 +1160,13 @@ iframe {
   }
 }
 
+.empty{
+  margin-top: 10%;
+}
+
 .subtxt{
   padding: 5px 5px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
 
   .f-input-checkbox-group{
     label{
@@ -1159,9 +1239,7 @@ iframe {
   }
 
   .underline {
-
     position:relative;
-  
   }
   
   .underline:after{
@@ -1601,5 +1679,79 @@ iframe {
     color: rgb(255, 255, 255);
     padding: 8px 15px !important;
     margin-right: 20px !important;
+  }
+}
+
+.staking_block{
+  background: #edeef282;
+  opacity: 1;
+  margin-top: -10px;
+  border-bottom-right-radius: 20px;
+  border-bottom-left-radius: 20px;
+  padding: 32px 1.25rem 1rem;
+  z-index: 0.1;
+  color: black;
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: 25px;
+
+  .header{
+    text-transform: uppercase;
+    text-align: center;
+    &.underline {
+      position:relative;
+    }
+    
+    &.underline:after{
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 45%;
+      border-radius: 30px;
+      width: 10%;
+      border-bottom: 2.5px solid #d9bb8a;
+      text-align: center;
+      align-items: center;
+      margin: 0px auto;
+    }  
+  }
+
+  .staking_info{
+    width: 60%;
+    font-size: 12px;
+    display: grid;
+    grid-auto-rows: auto;
+    row-gap: 14px;
+    margin: 0px auto;
+
+    .bold{
+      font-weight: 500;
+      font-size: 12px;
+    }
+    span{
+      width: 30%;
+      text-align: start;
+    }
+
+    .value{
+      text-align: start;
+    }
+  }
+
+  
+  
+}
+
+.btn-container-oneliner{
+  display: flex;
+  justify-content: space-around;
+  padding-top: 15px;
+  .f-btn-primary{
+    font-size: 0.8rem;
+    width: 30%;
+    padding: 1rem 1.5rem;
+    span{
+      width: 90%;
+    }
   }
 }

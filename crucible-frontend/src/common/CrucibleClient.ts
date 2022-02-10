@@ -178,7 +178,7 @@ export class CrucibleClient {
 					const network = this.api.getNetwork();
 					const req =  await this.api.api({
 							command: 'depositAndStakeGetTransaction',
-							data: {network, currency,crucible, stake: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02', amount}, params: [] } as JsonRpcRequest);
+							data: {network, currency,crucible, stake: stakeAddress, amount}, params: [] } as JsonRpcRequest);
 					if(!!req){
 						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
 						return req
@@ -203,9 +203,9 @@ export class CrucibleClient {
 
 	async stakeCrucible(dispatch: Dispatch<AnyAction>,
 		currency: string,
-		stakeAddress: string,
+		crucible: string,
 		amount: string,
-		isPublic: boolean,
+		stake: string,
 		) {
 		try {
 			const res = await this.api.runServerTransaction(
@@ -213,7 +213,7 @@ export class CrucibleClient {
 					const network = this.api.getNetwork();
 					const req =  await this.api.api({
 							command: 'stakeForGetTransaction',
-							data: {network, currency, stake: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02', amount}, params: [] } as JsonRpcRequest);
+							data: {network, currency: `${network}:${crucible}`, stake, amount}, params: [] } as JsonRpcRequest);
 					if(!!req){
 						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
 						return req
@@ -273,17 +273,89 @@ export class CrucibleClient {
 
 	async stakeFor(dispatch: Dispatch<AnyAction>,
 			stakeId: string, currency: string, amount: string) {
-		return await this.api.runServerTransaction(async () => {
-			const [network,] = Utils.parseCurrency(currency);
-			const res = await this.api.api(
-			{ command: 'stakeForGetTransaction', params: [], data: {
-				currency,
-				stake: (await this.contract(network)).staking,
-				amount,
-			}});
-			console.log('PRE RES', res)
-			return res;
-		});
+		try {
+			const res =  await this.api.runServerTransaction(async () => {
+				const [network,] = Utils.parseCurrency(currency);
+				const res = await this.api.api(
+				{ command: 'stakeForGetTransaction', params: [], data: {
+					currency,
+					stake: (await this.contract(network)).staking,
+					amount,
+				}});
+				console.log('PRE RES', res)
+				return res;
+			});
+			if(!!res){
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+			}
+			return res
+		} catch (e) {			
+			console.log(e,(e as Error).message)
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
+	}
+
+	async unstake(dispatch: Dispatch<AnyAction>,
+		crucible: string, currency: string, amount: string,staking:string) {
+		try {
+				const res =  await this.api.runServerTransaction(async () => {
+					const [network,] = Utils.parseCurrency(currency);
+					const res = await this.api.api(
+					{ command: 'unStakeGetTransaction', params: [], data: {
+						crucible:`${network}:${crucible}`,
+						staking,
+						amount,
+					}});
+					console.log('PRE RES', res)
+					return res;
+				});
+				if(!!res){
+					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				}
+				return res
+		} catch (e) {			
+			console.log(e,(e as Error).message)
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
+	}
+
+	async withdrawRewards(dispatch: Dispatch<AnyAction>,
+		crucible: string, currency: string, amount: string,staking?:string) {
+		try {
+				const res =  await this.api.runServerTransaction(async () => {
+				const [network,] = Utils.parseCurrency(currency);
+				const res = await this.api.api(
+				{ command: 'withdrawRewardsGetTransaction', params: [], data: {
+					crucible:`${network}:${crucible}`,
+					staking,
+					amount,
+				}});
+				console.log('PRE RES', res)
+				return res;
+			});
+			if(!!res){
+				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+			}
+			return res
+		} catch (e) {			
+			console.log(e,(e as Error).message)
+			//@ts-ignore
+			if(e.code && e.code === 4001){
+				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				return
+			}
+			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
+		}
 	}
 
 	async contract(network: string) {

@@ -21,11 +21,20 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface PlaygroundInterface extends ethers.utils.Interface {
   functions: {
     "log()": FunctionFragment;
+    "testMultiSig(bytes,bytes32[],bytes32[],uint8[])": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "log", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "testMultiSig",
+    values: [BytesLike, BytesLike[], BytesLike[], BigNumberish[]]
+  ): string;
 
   decodeFunctionResult(functionFragment: "log", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "testMultiSig",
+    data: BytesLike
+  ): Result;
 
   events: {};
 }
@@ -75,21 +84,73 @@ export class Playground extends BaseContract {
 
   functions: {
     log(overrides?: CallOverrides): Promise<[void]>;
+
+    testMultiSig(
+      multiSig: BytesLike,
+      rs: BytesLike[],
+      ss: BytesLike[],
+      vs: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<
+      [([number, string, string] & { v: number; r: string; s: string })[]] & {
+        sigs: ([number, string, string] & {
+          v: number;
+          r: string;
+          s: string;
+        })[];
+      }
+    >;
   };
 
   log(overrides?: CallOverrides): Promise<void>;
 
+  testMultiSig(
+    multiSig: BytesLike,
+    rs: BytesLike[],
+    ss: BytesLike[],
+    vs: BigNumberish[],
+    overrides?: CallOverrides
+  ): Promise<
+    ([number, string, string] & { v: number; r: string; s: string })[]
+  >;
+
   callStatic: {
     log(overrides?: CallOverrides): Promise<void>;
+
+    testMultiSig(
+      multiSig: BytesLike,
+      rs: BytesLike[],
+      ss: BytesLike[],
+      vs: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<
+      ([number, string, string] & { v: number; r: string; s: string })[]
+    >;
   };
 
   filters: {};
 
   estimateGas: {
     log(overrides?: CallOverrides): Promise<BigNumber>;
+
+    testMultiSig(
+      multiSig: BytesLike,
+      rs: BytesLike[],
+      ss: BytesLike[],
+      vs: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     log(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    testMultiSig(
+      multiSig: BytesLike,
+      rs: BytesLike[],
+      ss: BytesLike[],
+      vs: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

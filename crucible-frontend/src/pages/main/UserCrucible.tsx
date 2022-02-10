@@ -3,6 +3,10 @@ import { Redirect, Route, Switch, useParams,useHistory} from 'react-router';
 import {WithdrawCrucible} from '../crucibleItem/transaction/withdraw';
 import {MintCrucible} from '../crucibleItem/transaction/mint';
 import {CrucibleHome} from '../crucibleItem/home/index';
+import { StakeCrucible } from '../crucibleItem/staking/stake';
+import { UnStakeCrucible } from '../crucibleItem/staking/unstake';;
+import { WithdrawStakeCrucible } from '../crucibleItem/staking/withdraw-rewards';;
+import { StakingList } from '../crucibleItem/staking/stakingList';
 import { addressForUser } from 'common-containers';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../common/CrucibleAppState';
@@ -10,7 +14,6 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { CrucibleClient } from '../../common/CrucibleClient';
 import { CrucibleInfo, inject } from 'types';
 import { addAction,CommonActions } from '../../common/CommonActions';
-import { StakeCrucible } from '../crucibleItem/transaction/stake';;
 
 export const loadCrucible = createAsyncThunk('crucible/load',
 	async (payload: { crucibleCurrency: string }, ctx) => {
@@ -70,11 +73,25 @@ export function UserCrucible (props: {url:string})  {
             <Route path={`${props.url}/mint`}>
                 <MintCrucible />
             </Route>
+            <Route path={`${props.url}/staking`}>
+                <StakingList/>
+            </Route>
             <Route
-                path={`${props.url}/stake`}
+                path={`${props.url}/:stakingId/stake`}
             >
                 <StakeCrucible/>								
             </Route>
+            <Route
+                path={`${props.url}/:stakingId/unstake`}
+            >
+                <UnStakeCrucible/>								
+            </Route>
+            <Route
+                path={`${props.url}/:stakingId/withdraw-rewards`}
+            >
+                <WithdrawStakeCrucible/>								
+            </Route>
+          
         </>
     )
 }

@@ -25,8 +25,8 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 		staking: '',
 	},
 	'BSC': {
-		factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
-		router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+		factory: '0x60267694219dc99aa00e866508b9aebbcf6649dd',
+		router: '0x54c4c29e8f46b100ef10af9331dabff33dfb1d62',
 		staking: '',
 	},
 	'ETHEREUM': {
@@ -41,13 +41,37 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 	},
 };
 
-export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts> = {
-	'RINKEBY': {
-		router: '',
-		factory: '',
+export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts[]> = {
+	'RINKEBY': [{
+		factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
+		router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
 		openEnded: '',
 		timed: '',
-	},
+		address: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02'
+	}],
+	'BSC': [
+		{
+			factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
+			router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+			openEnded: '',
+			timed: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02',
+			address: '0x64598E2FDe27ad33448c5443A37D6f08233dAf02'
+		},
+		{
+			factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
+			router: '0x54C4c29e8f46B100eF10Af9331DaBFf33dfb1d62',
+			openEnded: '',
+			timed: '0x669319FD48A5364F725aa66b4C57Bb473194AEa5',
+			address: '0x669319FD48A5364F725aa66b4C57Bb473194AEa5'
+		},
+		{
+			factory: '0x60267694219DC99aa00E866508B9aEbbCf6649dd',
+			router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+			openEnded: '',
+			timed: '0xAb0433AA0b5e05f1FF0FD293CFf8bEe15882cCAd',
+			address: '0xAb0433AA0b5e05f1FF0FD293CFf8bEe15882cCAd'
+		},
+	],
 };
 
 export const BRIDGE_V1_CONTRACTS: NetworkedConfig<string> = {

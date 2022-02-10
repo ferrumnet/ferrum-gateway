@@ -3,7 +3,7 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, Network, ValidationUtils, Networks, HexString } from "ferrum-plumbing";
 import { Connection, Model, Document } from "mongoose";
 import { CrucibleConfig, CrucibleAllocationCsvModel, CrucibleInfoModel } from "./CrucibleTypes";
-import { CrucibleToken, CrucibleToken__factory, CrucibleRouter__factory, CrucibleFactory, CrucibleFactory__factory } from "./resources/typechain";
+import { CrucibleToken, CrucibleToken__factory, CrucibleRouter__factory, CrucibleFactory, CrucibleFactory__factory,StakeOpen__factory,StakeOpen } from "./resources/typechain";
 import { AllocationSignature, BigUtils, CrucibleInfo,
 	CurrencyValue, DEFAULT_SWAP_PROTOCOLS,
 	MultiSigActor, StoredAllocationCsv, UserContractAllocation,
@@ -69,6 +69,11 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	async getConfiguredRouters(){
 		return this.config.contracts || [];
 	}
+
+	async getConfiguredStakings(){
+		return this.config.stakingContracts || [];
+	}
+
 
 	async getAllocation(
 		crucible: string,
@@ -210,11 +215,12 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 				baseAmountInt,
 				ammRouter,
 				staking,
-				allocation.expirySeconds,
+				'0x',
 				deadline,
 				this.signingActor.groupId,
 				MultiSigUtils.toBytes(allocation.signature),
-				{ from: userAddress, value: targetAmountInt }) : 
+				'0x'
+			):
 			await r.populateTransaction.depositAddLiquidityStake(
 				userAddress,
 				crucible,
@@ -223,11 +229,11 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 				targetAmountInt,
 				ammRouter,
 				staking,
-				allocation.expirySeconds,
+				'0x',
 				deadline,
 				this.signingActor.groupId,
 				MultiSigUtils.toBytes(allocation.signature),
-				{ from: userAddress });
+				'0x')
 		return EthereumSmartContractHelper.fromTypechainTransaction(t);
 	}
 
@@ -245,6 +251,37 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			await this.helper.amountToMachine(currency, amount),
 			{from: to});
 		return this.helper.fromTypechainTransactionWithGas(network, t, to);
+	}
+
+	async unstakeGetTransaction(
+		crucible: string,
+		staking:string,
+		amount: string,
+		userAddress:string
+	){
+		const [network,crucibleAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const stakingClient = await this.staking(staking,network);
+		const t = await stakingClient.populateTransaction.withdraw(
+			userAddress,crucibleAddress,
+			await this.helper.amountToMachine(crucible, amount),
+			{from: userAddress}
+		)
+		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress)
+	}
+
+	async withdrawRewardsGetTransaction(
+		crucible: string,
+		staking:string,
+		userAddress:string
+	){
+		const [network,crucibleAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const stakingClient = await this.staking(staking,network);
+		const t = await stakingClient.populateTransaction.withdrawRewards(
+			userAddress,
+			crucibleAddress,
+			{from: userAddress}
+		)
+		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress)
 	}
 
 	async deployGetTransaction(
@@ -337,17 +374,17 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			// ValidationUtils.isTrue(BigUtils.safeParse(amount).lte(BigUtils.parseOrThrow(allocation.allocation, 'allocation')),
 			// 	`Amount ${amount} larger than allocation "${allocation.allocation}"`);
 			const t = await factory.populateTransaction.depositAndStake(
-				'0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52',
-				'0x05e588c9D6C95F9e6D796C7DE57f32Fa051a5fE0',
+				from,
+				conAddress,
 				amountInt,
-				'0x64598E2FDe27ad33448c5443A37D6f08233dAf02',
-				'0x0000000000000000000000000000000000000000000000000000000000000000',
+				stake,
+				'0x' + '00'.repeat(32),
 				0,
 				0,
 				'0x',
-				{from: '0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52'}
+				{from}
 			);
-			return this.helper.fromTypechainTransactionWithGas(network, t, '0x0Bdb79846e8331A19A65430363f240Ec8aCC2A52');
+			return this.helper.fromTypechainTransactionWithGas(network, t, from);
 		}
 
 
@@ -385,6 +422,21 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const al2 = await this.getAllocation(crucible, userAddress, AllocationMethods.DEPOSIT_ADD_LIQUIDITY_STAKE);
 		if (!!al1?.allocation) { allocations.push(al1); }
 		if (!!al2?.allocation) { allocations.push(al2); }
+		const [network, contractAddress] = EthereumSmartContractHelper.parseCurrency(crucible);
+		const stakingConfigured = await this.getConfiguredStakings()
+		const stakes = []
+		if(stakingConfigured[network]){
+			for(let stakingContract of stakingConfigured[network]){
+				const stakingType = await this.stakingConfigured(stakingContract.address,network,contractAddress)
+				if(Number(stakingType[0]||'0') > 0){
+					const totalStake = await this.stakingTotal(stakingContract.address,network,contractAddress)
+					const stakeOf = await this.stakingOf(stakingContract.address,network,contractAddress,userAddress)
+					const rewardOf= await this.stakingRewardOf(stakingContract.address,network,contractAddress,userAddress,contractAddress)
+					stakes.push({stakingType,totalStake,stakeOf,rewardOf,address: stakingContract.address})
+				}
+			}
+			
+		}
 		const userInfo = {
 			currency: crucible,
 			baseCurrency,
@@ -394,7 +446,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			baseSymbol: await this.helper.symbol(baseCurrency),
 			uniswapPairBalance: '',
 			allocations,
-			stakes: [],
+			stakes,
 		} as UserCrucibleInfo;
 		if (info.uniswapPairCurrency) {
 			const pair = await this.crucible(info.uniswapPairCurrency);
@@ -474,6 +526,18 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const totalSupply = await this.crucibleSupply(crucible.currency);
 		const r = await this.router(network);
 		const openCapInt = (await r.openCaps(contractAddress)).toString();
+		const stakingConfigured = await this.getConfiguredStakings()
+		const stakes = []
+		if(stakingConfigured[network]){
+			for(let stakingContract of stakingConfigured[network]){
+				const stakingType = await this.stakingConfigured(stakingContract.address,network,contractAddress)
+				if(Number(stakingType[0]||'0') > 0){
+					const totalStake = await this.stakingTotal(stakingContract.address,network,contractAddress)
+					const totalPoolReward =  await this.totalPoolReward(stakingContract.address,network,contractAddress,contractAddress)
+					stakes.push({...stakingContract,totalStake,stakingType,totalPoolReward})
+				}
+			}
+		}
 		return {
 			...crucible,
 			network,
@@ -491,7 +555,46 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 			feeOnWithdrawRate,
 			totalSupply,
 			feeDescription: '',
+			staking:stakes
 		} as CrucibleInfo;
+	}
+
+
+	private async stakingConfigured(contract:string,network:string,id:string): Promise<any> {
+		ValidationUtils.isTrue(!!contract, '"staking contract" must be provided');
+		return this.cache.getAsync<any>(`CRUCIBLE-STAKING-stakingConfigured-${contract}-${id}`, async () => {
+			const staking = await this.staking(contract,network);
+			const type = await staking.stakings(id)
+			return type
+		});
+	}
+
+	private async stakingTotal(contract:string,network:string,id:string): Promise<string> {
+		ValidationUtils.isTrue(!!contract, '"staking contract" must be provided');
+		const staking = await this.staking(contract,network);
+		const stakedTotal = await staking.stakedBalance(id)
+		return this.helper.amountToHuman(`${network}:${id}`,stakedTotal?.toString())
+	}
+
+	private async stakingOf(contract:string,network:string,id:string,userAddress:string): Promise<string> {
+		ValidationUtils.isTrue(!!contract, '"staking contract" must be provided');
+		const staking = await this.staking(contract,network);
+		const stakeValue = await staking.stakeOf(id,userAddress)
+		return this.helper.amountToHuman(`${network}:${id}`,stakeValue?.toString())
+	}
+
+	private async stakingRewardOf(contract:string,network:string,id:string,userAddress:string,crucible:string): Promise<string> {
+		ValidationUtils.isTrue(!!contract, '"staking contract" must be provided');
+		const staking = await this.staking(contract,network);
+		const stakeValue = await staking.rewardOf(id,userAddress,[crucible])
+		return this.helper.amountToHuman(`${network}:${crucible}`,stakeValue?.toString())
+	}
+
+	private async totalPoolReward(contract:string,network:string,id:string,crucible:string): Promise<string> {
+		ValidationUtils.isTrue(!!contract, '"staking contract" must be provided');
+		const staking = await this.staking(contract,network);
+		const stakeValue = await staking.rewardsTotal(id,crucible)
+		return this.helper.amountToHuman(`${network}:${crucible}`,stakeValue.toString())
 	}
 
 	private async baseCurrency(crucible: string): Promise<string> {
@@ -547,5 +650,10 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const provider = await this.helper.ethersProvider(network);
 		return CrucibleToken__factory.connect(address, provider);
+	}
+
+	async staking(stakingContract: string,network:string): Promise<StakeOpen> {
+		const provider = await this.helper.ethersProvider(network);
+		return StakeOpen__factory.connect(stakingContract, provider);
 	}
 }

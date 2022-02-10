@@ -12,7 +12,8 @@ export function CrucibleHome() {
 	const depositOpen = crucible ? (crucible.activeAllocationCount > 0 || BigUtils.truthy(BigUtils.safeParse(crucible!.openCap))) : false;
 	const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
 	let connected = useSelector<CrucibleAppState, string|undefined>(state => state.connection.account.user.accountGroups[0].addresses[0]?.address);
-	
+	const stakes = useSelector<CrucibleAppState, any>(state => state.connection.userState.userCrucibleInfo.stakes || []);
+	console.log(userCrucible?.stakes,'stakesss')
 	const history = useHistory();
 	// if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
 	// 	crucible = undefined;
@@ -104,7 +105,7 @@ export function CrucibleHome() {
 							<FButton 
 								title={'Stake'}
 								disabled={Number(userCrucible?.balance)<=0}
-								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/stake`)}
+								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/staking`)}
 								//onClick={()=>onMint()}
 								
 							/>
