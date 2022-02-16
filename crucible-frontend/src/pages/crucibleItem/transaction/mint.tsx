@@ -16,7 +16,7 @@ import {
 } from "ferrum-plumbing";
 import {ApprovableButton} from './../../../common/ApprovableBtn';
 import {changeNetwork} from 'common-containers';
-import { Circle } from 'react-spinners-css';
+import { CardFooter } from './../../../common/CardFooter';
 
 const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
     async (payload: {
@@ -183,25 +183,7 @@ export function MintCrucible(){
                         </>
                     }
                    
-                    <div className='cr-footer'>
-                        <div className='heading'>
-                            Crucible Token Info
-                        </div>
-                        <div className='content'>
-                            <span>
-                               <span>{`${BigUtils.safeParse(crucible?.feeOnTransferRate || '0').times(100).toString()}%`}</span>
-                               <span className='label'> Withdraw Fee</span>
-                            </span>
-                            <span>
-                                <span>{`${BigUtils.safeParse(crucible?.feeOnWithdrawRate || '0').times(100).toString()}%`}</span>
-                               <span className='label'> Transfer Fee</span>
-                            </span>
-                            <span>
-                                <span>{crucible?.symbol}</span>
-                               <span className='label'>Crucible Token</span>
-                            </span>
-                        </div>
-                    </div>
+                    <CardFooter crucible={crucible}/>
                     { (!connected || (netowrk!=crucible?.network)) ?
                         <ConnectButtonWapper View={(props)=>(
                             <FButton 

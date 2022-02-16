@@ -13,9 +13,8 @@ export function StakingList() {
 	const enableWithdraw = userCrucible ? userCrucible!.balance !== '' && userCrucible!.balance !== '0' : false;
 	let connected = useSelector<CrucibleAppState, string|undefined>(state => state.connection.account.user.accountGroups[0].addresses[0]?.address);
 	const history = useHistory();
-	// if (!Utils.addressEqual(crucible?.contractAddress!, contractAddress)) {
-	// 	crucible = undefined;
-	// }
+	
+	const getUserDetail = (active_crucible: { [key: string]: string; }) => userCrucible?.stakes.find(e=>e?.address === active_crucible?.address)
 	
 	return (
 		<>
@@ -48,9 +47,16 @@ export function StakingList() {
 							<FCard className='crucibleItemCard staking'>
 								<div className='staking_detail'>Crucible Staking Address : {e.address}</div>
 								<div className='staking_detail'>Crucible Token : {crucible?.symbol}</div>
-								<div className='staking_detail'>Staking Type : {e.stakingType[0]}</div>
-								<div className='staking_detail'>Total Pool Staked Volume : {e.totalStake}</div>
-								<div className='staking_detail'>Total Pool Reward Available : {e.totalPoolReward}</div>
+								<div className='staking_detail'>Staking Type : {e?.stakingType ? e?.stakingType[0] : '0'}</div>
+								<div className='staking_detail'>Total Pool Staked Volume : {e.totalStake || '0'}</div>
+								<div className='staking_detail'>Total Pool Reward Available : {e.totalPoolReward || '0'}</div>
+								{
+									Number(getUserDetail(e)?.stakeOf) ? (<>
+										<div className='staking_detail'>Your Staked Balance : {getUserDetail(e)?.stakeOf || '0'} {crucible?.symbol}</div>
+										<div className='staking_detail'>Your Accumulated Reward : {getUserDetail(e)?.rewardOf || '0'} {crucible?.symbol}</div>	
+									</>) : ''
+								}
+								
 								<div className='btn-container-oneliner'>
 									<>
 										

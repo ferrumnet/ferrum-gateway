@@ -19,6 +19,9 @@ export function CrucibleHome() {
 	// 	crucible = undefined;
 	// }
 
+	const getUserTotalStaked = () =>(userCrucible?.stakes||[]).map(e => Number(e?.stakeOf)).reduce((a:number, b:number) => a + b, 0);
+	const getUserTotalReward = () =>(userCrucible?.stakes||[]).map(e => Number(e?.rewardOf)).reduce((a:number, b:number) => a + b, 0);
+
 	return (
 		<>
 			<div className='cr-header'> {crucible?.name}</div>
@@ -34,7 +37,7 @@ export function CrucibleHome() {
 					<span className='header'>
 						Total Supply
 					</span>
-					<span className='content'>{crucible?.totalSupply || 0} {crucible?.symbol}</span>
+					<span className='content'>{Number(crucible?.totalSupply || 0||'0').toFixed(3)} {crucible?.symbol}</span>
 				</FCard>
 				
 			</div>
@@ -68,11 +71,21 @@ export function CrucibleHome() {
 						</div>
 				}
 				<FCard className='crucibleItemCard'>
-					<span className='header'>Your Available Crucible Liquidity</span>
-					<FCard className={'content-card flex no-left no-bottom'}>
-						<span className='content'>{userCrucible?.balance || 0}</span>
-						<div className='content2'>{crucible?.symbol || 'Crucible Token symbol'}</div>
-					</FCard>
+					<>
+						<span className='header'>Your Available Crucible Liquidity</span>
+						<FCard className={'content-card flex no-left no-bottom'}>
+							<span className='content'>{userCrucible?.balance || 0}</span>
+							<div className='content2'>{crucible?.symbol || 'Crucible Token symbol'}</div>
+						</FCard>
+						<FCard className={'content-card mini flex no-left no-bottom'}>
+							<span className='content'>{(getUserTotalStaked() || 0)} {crucible?.symbol}</span>
+							<div className='content2'>{'Your Staked Volume'}</div>
+						</FCard>
+						<FCard className={'content-card mini flex no-left no-bottom'}>
+							<span className='content'>{getUserTotalReward() || 0} {crucible?.symbol}</span>
+							<div className='content2'>{'Your Total Reward(s) Accrued'}</div>
+						</FCard>
+					</>
 				</FCard>
 			</div>
 			<div>
@@ -104,7 +117,7 @@ export function CrucibleHome() {
 							/>
 							<FButton 
 								title={'Stake'}
-								disabled={Number(userCrucible?.balance)<=0}
+								disabled={!userCrucible?.balance || userCrucible?.stakes.length <= 0}
 								onClick={()=> history.push(`/crucible/${crucible?.network}/${crucible?.contractAddress}/staking`)}
 								//onClick={()=>onMint()}
 								

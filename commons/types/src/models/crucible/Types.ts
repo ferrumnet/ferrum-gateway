@@ -42,6 +42,7 @@ export interface UserCrucibleInfo extends  CrucibleBase {
 	baseSymbol: string;
 	allocations: UserContractAllocation[];
 	stakes: UserStakeSummary[];
+	staking?: {[key:string]:string}[]
 }
 
 export const CrucibleAllocationMethods = {

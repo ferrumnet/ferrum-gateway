@@ -18,8 +18,12 @@ input::-webkit-inner-spin-button {
   border-radius: 0px !important;
 }
 
-
-
+.f-main{
+  .f-container {
+    padding-top: 50px;
+    padding-bottom: 30px;
+  }
+}
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
@@ -51,7 +55,6 @@ input[type="number"] {
 }
 
 .landing-page{
-  max-height: 90vh;
 }
 
 .page_cont {
@@ -1008,6 +1011,18 @@ input[type="number"] {
     color: white;
     font-size: 36px;
     align-items: baseline;
+
+    &.mini{
+      padding-top: 0.5rem;
+      .content{
+        font-size: 14px;
+        font-weight: 200;
+      }
+      .content2{
+        font-size: 12px;
+        font-weight: 200;
+      }
+    }
   }
 
   .content2{

@@ -68,7 +68,7 @@ export class CrucibleClient {
 				params: [],
 			} as JsonRpcRequest);
 			if (!!userCrucibleInfo) {
-				dispatch(addAction(Actions.USER_CRUCIBLE_LOADED, {userCrucibleInfo}));
+				await dispatch(addAction(Actions.USER_CRUCIBLE_LOADED, {userCrucibleInfo}));
 			}
 			return userCrucibleInfo;
 		} catch (e) {

@@ -107,7 +107,7 @@ export function TransactionModal(){
                                                         "currency": crucible?.contractAddress,
                                                         "address": crucible?.contractAddress,
                                                         "symbol": crucible?.symbol,
-                                                        "decimals": 14,
+                                                        "decimals": 18,
                                                         "logoURI": ''
                                                     }}
                                                 />

@@ -16,7 +16,7 @@ import {
 } from "ferrum-plumbing";
 import {ApprovableButton} from './../../../common/ApprovableBtn';
 import {changeNetwork} from 'common-containers';
-import { Circle } from 'react-spinners-css';
+import { CardFooter } from './../../../common/CardFooter';
 
 const doStake = createAsyncThunk('crucibleBox/doStake',
     async (payload: {
@@ -84,8 +84,7 @@ export function StakeCrucible(){
 		).find(a => a.method === CrucibleAllocationMethods.DEPOSIT)?.allocation || '';
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
-    //@ts-ignore
-    let active_crucible = crucible?.staking[stakingId as any];
+    let active_crucible = crucible?.staking![stakingId as any] || {};
     
     useEffect(()=>{
         if(crucible && !active_crucible){
@@ -131,25 +130,7 @@ export function StakeCrucible(){
                     <div className='subtxt'>
                         You have {Number(userCrucible?.balance||'0').toFixed(3)} {userCrucible?.symbol} available to Stake.
                     </div>
-                    <div className='cr-footer'>
-                        <div className='heading'>
-                            Crucible Token Info
-                        </div>
-                        <div className='content'>
-                            <span>
-                               <span>{`${BigUtils.safeParse(crucible?.feeOnTransferRate || '0').times(100).toString()}%`}</span>
-                               <span className='label'> Withdraw Fee</span>
-                            </span>
-                            <span>
-                                <span>{`${BigUtils.safeParse(crucible?.feeOnWithdrawRate || '0').times(100).toString()}%`}</span>
-                               <span className='label'> Transfer Fee</span>
-                            </span>
-                            <span>
-                                <span>{crucible?.symbol}</span>
-                               <span className='label'>Crucible Token</span>
-                            </span>
-                        </div>
-                    </div>
+                    <CardFooter crucible={crucible}/>
                     { (!connected || (netowrk!=crucible?.network)) ?
                         <ConnectButtonWapper View={(props)=>(
                             <FButton 
@@ -172,7 +153,7 @@ export function StakeCrucible(){
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
-                                stakingAddress: active_crucible.address,
+                                stakingAddress: active_crucible?.address || '0x',
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
                                 balance: userCrucible?.balance || '0'
                             }))}
