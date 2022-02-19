@@ -4,15 +4,17 @@ import { CrucibleInfo } from "types";
 import { CrucibleClientActions } from "./CrucibleClient";
 import { crucibleBoxSlice } from "../pages/crucibleLgcy/CrucibleBox";
 import { deploySlice } from "./../pages/deploy/Deploy";
+import { dashboardSlice } from "./../pages/main/Dashboard";
 import { StakingSlice } from "../staking/StakingClient";
 import { TransactionModalSlice } from './../common/transactionModal';
-import { CommonActions } from "./CommonActions";
+import { APPLICATION_NAME, CommonActions } from "./CommonActions";
 import { AppGlobalState, AppUserState } from "./CrucibleAppState";
 
 export const uiReducer = combineReducers({
   crucibleBox: crucibleBoxSlice.reducer,
   deploy: deploySlice.reducer,
-  transactionModal: TransactionModalSlice.reducer
+  transactionModal: TransactionModalSlice.reducer,
+  dashboardSlice: dashboardSlice.reducer 
 });
 
 export function userReducer(
@@ -88,8 +90,18 @@ export function dataReducer(
       return { ...state, groupInfo: action.payload };
     case CommonActions.ERROR_OCCURED:
       return { ...state, initError: action.payload.message,waiting: false };
+    case 'transactionListSlice/transactionUpdated':
+      if(action.payload.application === APPLICATION_NAME ){
+        if(action.payload.status === 'successful'){
+          return { ...state, txUpdate: {status:'success',type: action.payload.transactionType, id: action.payload.id },waiting: false };
+        }
+        if(action.payload.status === 'failed'){
+          return { ...state, txUpdate: {status:'error',type: action.payload.transactionType, id: action.payload.id },waiting: false };
+        }
+      }
+      return {...state}
     case CommonActions.RESET_ERROR:
-      return { ...state, initError: "" };
+      return { ...state, initError: "",txUpdate: "" };
     default:
   		state = {...state, stake: StakingSlice.reducer(state.stake, action)};
       return clientReducer(state!, action);

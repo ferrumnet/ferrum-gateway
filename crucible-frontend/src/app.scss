@@ -6,6 +6,14 @@
   }
 }
 
+body{
+  line-height: 1.1 !important;
+}
+
+.btn-processing{
+  background-color: #ff4600 !important;
+  max-width: 100% !important;
+}
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -34,7 +42,7 @@ input[type="number"] {
 }
 
 .is-disabled {
-  background-color: rgba(128, 128, 128, 0.205) !important;
+  background-color: #80808034 !important;
 }
 
 .buttonwithloader {
@@ -949,7 +957,7 @@ input[type="number"] {
   border-radius: 8px;
   padding: 1rem 4rem;
   font-size: 1rem;
-  box-shadow: rgb(0 0 0 / 10%) 0px 4px 10px;
+  box-shadow: #0000001a 0px 4px 10px;
 
 }
 
@@ -980,7 +988,7 @@ input[type="number"] {
 
 .crucibleItemCard{
   z-index: 2;
-  box-shadow: rgb(0 0 0 / 10%) 0px 4px 10px;
+  box-shadow: #0000001a 0px 4px 10px;
   background: radial-gradient(91.85% 100% at 1.84% 0%, #d7a348 0%, #54390a 100%) !important;
   border-radius: 10px;
   margin-top: 3rem;
@@ -1210,7 +1218,7 @@ iframe {
   padding-bottom: 1rem;
   padding-top: 1rem;
   margin-top: 2rem;
-  box-shadow: rgb(0 0 0 / 1%) 0px 0px 1px, rgb(0 0 0 / 4%) 0px 4px 8px, rgb(0 0 0 / 4%) 0px 16px 24px, rgb(0 0 0 / 1%) 0px 24px 32px;
+  box-shadow: #00000003 0px 0px 1px, #0000000a 0px 4px 8px, #0000000a 0px 16px 24px, #00000003 0px 24px 32px;
   width: 65%;
 
   .f-input-group{
@@ -1631,9 +1639,7 @@ iframe {
     width: 100%;
     font-weight: 500;
     font-size: 1.25rem;
-  }
-
-  
+  } 
 }
 .transaction-list{
   display: flex;
@@ -1649,6 +1655,8 @@ iframe {
   display: grid;
   grid-auto-rows: auto;
   row-gap: 6px;
+      max-height: 78px;
+    font-size: 12px;
 }
 
 .tag{
@@ -1664,7 +1672,7 @@ iframe {
   z-index: 0.5;
 
   &.error{
-    background-color: rgba(196, 21, 21, 0.568);
+    background-color: #c4151591;
   }
 }
 
@@ -1691,7 +1699,7 @@ iframe {
     cursor: pointer;
     user-select: none;
     font-weight: 500;
-    color: rgb(255, 255, 255);
+    color: #ffffff;
     padding: 8px 15px !important;
     margin-right: 20px !important;
   }
@@ -1708,7 +1716,7 @@ iframe {
   color: black;
   display: grid;
   grid-auto-rows: auto;
-  row-gap: 25px;
+  row-gap: 15px;
 
   .header{
     text-transform: uppercase;

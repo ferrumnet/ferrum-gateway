@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { Dispatch, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../common/CrucibleAppState';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AnyAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressForUser, connectSlice, initThunk } from 'common-containers';
-import { inject3 } from 'types';
+import { CrucibleInfo, inject, inject3, Utils } from 'types';
 import { CrucibleClient } from '../../common/CrucibleClient';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { CrucibleList } from '../crucibleLgcy/CrucibleList';
@@ -25,7 +25,7 @@ import '../../app.scss'
 import { GlobalStyles } from "../../common/GlobalStyles";
 import { ThemeProvider } from "styled-components";
 import { DefaultTheme } from '../../common/DefaultTheme';
-import { TransactionSummary } from 'common-containers/dist/chain/TransactionList';
+import { TransactionSummary,transactionListSlice } from 'common-containers/dist/chain/TransactionList';
 import { TransactionSummaryButton } from '../../transactions/TransactionSummaryButton';
 import { FLayout, FContainer, FMain, ThemeBuilder } from "ferrum-design-system";
 import { TransactionModal } from '../../common/transactionModal';
@@ -34,7 +34,10 @@ import Modal from 'office-ui-fabric-react/lib/Modal';
 import {Alert} from 'react-bootstrap';
 import { ToastProvider, useToasts } from 'react-toast-notifications';
 import { addAction, CommonActions } from '../../common/CommonActions';
-
+import { notification } from 'antd';
+import { TransactionList } from 'common-containers/dist/chain/TransactionList';
+import { APPLICATION_NAME } from '../../common/CommonActions';
+import {loadCrucibleUserInfo} from './UserCrucible';
 interface DashboardState {
 }
 
@@ -59,6 +62,12 @@ const initializeDashboardThunk = createAsyncThunk('crucible/init', async (payloa
 
 });
 
+const updateUserBalance = async (dispatch: Dispatch<AnyAction>) => {
+	const web3Client = inject<UnifyreExtensionWeb3Client>(UnifyreExtensionWeb3Client);
+	const userProfile = await web3Client.getUserProfile();
+	dispatch(connectSlice.actions.connectionSucceeded({userProfile}));
+}
+
 export const dashboardSlice = createSlice({
 	name: 'crucible/dashboard',
 	initialState: {} as DashboardState,
@@ -80,17 +89,57 @@ const Error = (props:{error:string}) => {
 	return<></>
 }
 
+const TransactionStatus = (props:{status:any}) => {
+	const events = useSelector<CrucibleAppState,any>(state=>state?.data?.transactions) || [];
+	const pendingCount = events.filter((e:any) => e.status === 'pending').length;
+	const dispatch = useDispatch()
+	let crucible = useSelector<CrucibleAppState, CrucibleInfo|undefined>(state =>state.data.state.crucible);
+	useEffect(()=>{
+		if(props.status?.status === 'success' || props.status?.status === 'failed'){
+			notification['success']({
+				message: `Crucible Transaction ${props.status?.status}`,
+				onClose: async () => {
+					dispatch(addAction(CommonActions.RESET_ERROR, {}))
+					await updateUserBalance(dispatch)
+					crucible && dispatch(loadCrucibleUserInfo({crucibleCurrency: `${crucible.network}:${crucible.contractAddress}`}))
+				},
+				description: props.status.status === 'success' ? 
+				`${props.status.type} Transaction Successful ${ Utils.shorten(props.status.id)}` : 
+				`${props.status.type} Transaction Failed ${Utils.shorten(props.status.id)}`,
+				
+			})
+		}
+	},[props.status?.status])
+
+	return<>
+		{
+			Number(pendingCount||'0') > 0 &&
+			<TransactionList
+				eventIsRelevant={e => e.application === APPLICATION_NAME}
+				eventView={()=><></>}
+			/>
+		}
+	</>
+}
+
+const TransactionTracker = () => {
+	return<>
+		<TransactionList
+			eventIsRelevant={e => e.application === APPLICATION_NAME}
+			eventView={()=><></>}
+		/>
+	</>
+}
+
 export function Dashboard(props: DashboardProps) {
     const initError = useSelector<CrucibleAppState, string | undefined>(state => state.data.init.initError);
 	const appError = useSelector<CrucibleAppState, string | undefined>(state => state.data.state.initError);
-	const dataError = useSelector<CrucibleAppState, string | undefined>(state => state.data.state.error);
-
+	const txUpdate = useSelector<CrucibleAppState, any | undefined>(state => state.data.state.txUpdate);
 	const initialized = useSelector<CrucibleAppState, boolean>(state => state.data.init.initialized);
 	const connected = useSelector<CrucibleAppState, boolean>(state => !!state.connection.account.user?.userId);
 	const network = useSelector<CrucibleAppState, string>(state => state.connection.account.user?.accountGroups[0]?.addresses[0]?.network);
-
 	const dispatch = useDispatch();
-
+	
 	useEffect(() => {
 		if (initialized && connected) {
 			dispatch(initializeDashboardThunk({connected,network:network}));
@@ -116,7 +165,6 @@ export function Dashboard(props: DashboardProps) {
 		/>
 	);
 
-
     return (
         <>
             {!!initError ? (
@@ -130,11 +178,12 @@ export function Dashboard(props: DashboardProps) {
 					<GlobalStyles />
 					<FLayout>
 						<FMain>
-							
 							{header}
 							{
 								appError &&  <Error error={appError}/>
 							}
+							<TransactionStatus status={txUpdate}/>
+							
 							<TransactionModal/>
 							<FContainer>
 								
@@ -161,6 +210,7 @@ export function Dashboard(props: DashboardProps) {
 										</Route>
 									</Switch>
 									<WaitingComponent />
+									<TransactionTracker/>
 								</div>
 							</FContainer>
 						</FMain>

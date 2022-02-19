@@ -19,6 +19,7 @@ import {
   import {ApprovableButton} from './../../../common/ApprovableBtn';
 import {changeNetwork} from 'common-containers';
 import { CardFooter } from './../../../common/CardFooter';
+import "antd/dist/antd.css";
 
 const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
     async (payload: {
@@ -26,7 +27,8 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
 		currency: string,
 		crucible: string,
 		amount: string,
-        balance:string
+        balance:string,
+        resetAmount: () => void
 	}, ctx) => {
     try {
         const {network, currency, crucible, amount} = payload;
@@ -43,9 +45,10 @@ const doWithdraw = createAsyncThunk('crucibleBox/doWithdraw',
                 eventType: 'transaction',
                 application: APPLICATION_NAME,
                 status: 'pending',
-                transactionType: 'withdraw',
+                transactionType: 'Withdraw crucible',
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+            payload.resetAmount()
         }
     } catch (e) {
         console.log(e)
@@ -147,11 +150,12 @@ export function WithdrawCrucible(){
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doWithdraw({
-                                network: network,
+                                network:  crucible?.network||'',
                                 crucible: crucible?.currency||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
-                                balance: userCrucible?.balance|| '0'
+                                balance: userCrucible?.balance|| '0',
+                                resetAmount: () => setAmount('')
                             }))}
                             currency={crucible!.baseCurrency}
                             userAddress={connected}

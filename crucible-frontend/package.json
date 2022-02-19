@@ -33,9 +33,7 @@
     "styled-components": "^5.3.0",
     "types": "1.0.0",
     "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git",
-    "web-vitals": "^1.0.1",
-    "ferrum-design-system": "git+https://github.com/ferrumnet/ferrum-design-system.git",
-    "@types/ferrum-design-system": "git+https://github.com/ferrumnet/ferrum-design-system.git"
+    "web-vitals": "^1.0.1"
   },
   "scripts": {
     "start": "react-app-rewired  start",

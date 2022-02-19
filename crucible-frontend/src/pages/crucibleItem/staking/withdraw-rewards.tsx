@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField,FInputCheckbox } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputCheckbox } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
@@ -27,7 +27,8 @@ const doWithdrawRewards = createAsyncThunk('crucibleBox/doWithdrawRewards',
 		isPublic: boolean,
         balance:string,
         staking:string,
-        type: string
+        type: string,
+        resetAmount: () => void
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
@@ -52,6 +53,7 @@ const doWithdrawRewards = createAsyncThunk('crucibleBox/doWithdrawRewards',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+            payload.resetAmount()
         }
     } catch (e) {
         console.log(e)
@@ -124,7 +126,7 @@ export function WithdrawStakeCrucible(){
                             placeholder={'Amount to Withdraw'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={Number(userStake?.rewardOf||'0').toFixed(3)}
-                            type={Number}
+                            type={'Number'}
                             disabled={true}
                             //setMax={() => setAmount((userCrucible.allocation && BigUtils.safeParse(crucible.allocation).lt(BigUtils.safeParse(userCrucible.balance))) ? userCrucible.allocation : userCrucible.balance)}
                         />
@@ -150,14 +152,15 @@ export function WithdrawStakeCrucible(){
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doWithdrawRewards({
-                                network: network,
+                                network: crucible?.network || network,
                                 crucible: crucible?.contractAddress||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount: userStake?.rewardOf||'0',
                                 type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
                                 balance: userCrucible?.balance || '0',
-                                staking: active_crucible.address
+                                staking: active_crucible.address,
+                                resetAmount: () => setAmount('')
                             }))}
                             currency={crucible!.currency}
                             userAddress={connected}

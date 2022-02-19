@@ -33,7 +33,8 @@ export interface AppGlobalState extends AppInitializingState {
 	crucibles: { [k: string]: CrucibleInfo[] };
 	crucible: CrucibleInfo;
 	stake: StakingState;
-	error: string
+	error: string,
+	txUpdate: any
 }
 
 export type CrucibleAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

@@ -149,8 +149,8 @@ export class CrucibleClient {
 					}
 				});
 				if(!!res){
-					console.log(res)
 					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+					return res
 				}
 				return res
 		} catch (e) {
@@ -185,8 +185,8 @@ export class CrucibleClient {
 					}
 				});
 				if(!!res){
-					console.log(res)
 					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+					return res
 				}
 				return res
 		} catch (e) {
@@ -220,8 +220,8 @@ export class CrucibleClient {
 					}
 				});
 				if(!!res){
-					console.log(res)
 					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+					return res
 				}
 				return res
 		} catch (e) {
@@ -287,6 +287,7 @@ export class CrucibleClient {
 			});
 			if(!!res){
 				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				return res
 			}
 			return res
 		} catch (e) {			
@@ -316,6 +317,7 @@ export class CrucibleClient {
 				});
 				if(!!res){
 					dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+					return res
 				}
 				return res
 		} catch (e) {			
@@ -345,6 +347,7 @@ export class CrucibleClient {
 			});
 			if(!!res){
 				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				return res
 			}
 			return res
 		} catch (e) {			
@@ -352,6 +355,7 @@ export class CrucibleClient {
 			//@ts-ignore
 			if(e.code && e.code === 4001){
 				dispatch(TxModal.toggleModal({mode:'rejected',show: true}))
+				
 				return
 			}
 			dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (e as Error).message || '' }));
@@ -402,6 +406,7 @@ export class CrucibleClient {
 			if(!!res){
 				console.log(res)
 				dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+				return res
 			}
 			return res
 		} catch (e) {			
@@ -437,6 +442,7 @@ export class CrucibleClient {
 		)
 		if(!!res){
 			dispatch(TxModal.toggleModal({mode:'submitted',show: true, txId: res}))
+			return res
 		}
 		return res
 	} catch (e) {			

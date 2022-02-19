@@ -27,7 +27,8 @@ const doUnstake = createAsyncThunk('crucibleBox/doUnstake',
 		isPublic: boolean,
         balance:string,
         staking:string,
-        type: string
+        type: string,
+        resetAmount: () => void
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
@@ -52,6 +53,7 @@ const doUnstake = createAsyncThunk('crucibleBox/doUnstake',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+            payload.resetAmount()
         }
     } catch (e) {
         console.log(e)
@@ -118,12 +120,12 @@ export function UnStakeCrucible(){
                         </span>
                     </div>
                     <div>
-                        <FInputText
+                        <FInputTextField
                             className={'crucible-input'}
                             placeholder={'Amount to unstake'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={amount}
-                            type={Number}
+                            type={'Number'}
                             //setMax={() => setAmount((userCrucible.allocation && BigUtils.safeParse(crucible.allocation).lt(BigUtils.safeParse(userCrucible.balance))) ? userCrucible.allocation : userCrucible.balance)}
                         />
                     </div>
@@ -148,14 +150,15 @@ export function UnStakeCrucible(){
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doUnstake({
-                                network: network,
+                                network: crucible?.network || network,
                                 crucible: crucible?.contractAddress||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
                                 balance: userStake?.stakeOf||'0',
-                                staking: (active_crucible?.address as string)
+                                staking: (active_crucible?.address as string),
+                                resetAmount: () => setAmount('')
                             }))}
                             currency={crucible!.currency}
                             userAddress={connected}

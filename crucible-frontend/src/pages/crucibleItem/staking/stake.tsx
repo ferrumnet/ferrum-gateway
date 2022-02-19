@@ -27,7 +27,8 @@ const doStake = createAsyncThunk('crucibleBox/doStake',
 		isPublic: boolean,
         balance:string,
         stakingAddress: string,
-        type: string
+        type: string,
+        resetAmount: () => void
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
@@ -52,6 +53,7 @@ const doStake = createAsyncThunk('crucibleBox/doStake',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+            payload.resetAmount()
         }
     } catch (e) {
         console.log(e)
@@ -148,14 +150,15 @@ export function StakeCrucible(){
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doStake({
-                                network: network,
+                                network: crucible?.network || network,
                                 crucible: crucible?.contractAddress||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
                                 stakingAddress: active_crucible?.address || '0x',
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
-                                balance: userCrucible?.balance || '0'
+                                balance: userCrucible?.balance || '0',
+                                resetAmount: () => setAmount('')
                             }))}
                             currency={crucible!.currency}
                             userAddress={connected}

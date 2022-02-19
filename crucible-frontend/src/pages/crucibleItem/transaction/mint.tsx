@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField,FInputCheckbox } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputCheckbox,FInputTextField } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
@@ -27,7 +27,8 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
 		isPublic: boolean,
         balance:string,
         type: string,
-        stake?:string
+        stake?:string,
+        resetAmount: () => void
 	}, ctx) => {
     try {
         ctx.dispatch(addAction(CrucibleClientActions.PROCESSING_REQUEST, {}));
@@ -54,10 +55,11 @@ const doDeposit = createAsyncThunk('crucibleBox/doDeposit',
                 eventType: 'transaction',
                 application: APPLICATION_NAME,
                 status: 'pending',
-                transactionType: staking ? 'DepositAndMint' : 'Deposit',
+                transactionType: 'Mint',
                 userAddress: api.getAddress(),
             } as ChainEventBase;
             ctx.dispatch(transactionListSlice.actions.addTransaction(event));
+            payload.resetAmount()
         }
     } catch (e) {
         console.log(e)
@@ -91,7 +93,6 @@ export function MintCrucible(){
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
     let [selectedStaking,setSelectedStaking] = useState('');
-    console.log(crucible,'cruciblecrucible')
 
     return (
         <>
@@ -119,12 +120,12 @@ export function MintCrucible(){
                         </span>
                     </div>
                     <div>
-                        <FInputText
+                        <FInputTextField
                             className={'crucible-input'}
                             placeholder={'Amount to Mint'}
                             onChange={ (v:any) => setAmount(v.target.value)}
                             value={amount}
-                            type={Number}
+                            type={'number'}
                             //setMax={() => setAmount((userCrucible.allocation && BigUtils.safeParse(crucible.allocation).lt(BigUtils.safeParse(userCrucible.balance))) ? userCrucible.allocation : userCrucible.balance)}
                         />
                     </div>
@@ -201,14 +202,15 @@ export function MintCrucible(){
                             contractAddress={CRUCIBLE_CONTRACTS_V_0_1[crucible?.network||''].router}
                             amount={'1'}
                             onClick={()=> dispatch(doDeposit({
-                                network: network,
+                                network: crucible?.network||'',
                                 crucible: crucible?.currency||'',
                                 currency: crucible?.baseCurrency||'',
                                 amount:amount,
                                 type: stake ? "mintAndStake" : "mint",
                                 isPublic: !!crucible?.openCap && !userDirectAllocation,
                                 balance: userCrucible?.baseBalance || '0',
-                                stake: selectedStaking||''
+                                stake: selectedStaking||'',
+                                resetAmount: () => setAmount('')
                             }))}
                             currency={crucible!.baseCurrency}
                             userAddress={connected}

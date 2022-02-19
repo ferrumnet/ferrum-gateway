@@ -33,6 +33,10 @@
       "path": "../crucible-frontend"
     },
     {
+      "name": "crucible-frontend",
+      "path": "../crucible-frontend"
+    },
+    {
       "name": "governance-backend",
       "path": "../governance-backend"
     },

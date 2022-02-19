@@ -8,8 +8,6 @@ import { Dashboard } from './pages/main/Dashboard';
 import { dataReducer, uiReducer, userReducer } from './common/Reducer';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { CrucibleModule } from './common/CrucibleModule';
-import { TransactionListProvider } from 'common-containers/dist/chain/TransactionList';
-import { APPLICATION_NAME } from './common/CommonActions';
 import { Environment } from 'types';
 import { ToastProvider, useToasts } from 'react-toast-notifications';
 
@@ -23,7 +21,6 @@ const store = StoreBuilder.build(
 function App() {
   return (
     <StoreBuilder.Provider store={store}>
-        <TransactionListProvider application={APPLICATION_NAME} />
         <ToastProvider placement='top-center' >
           <Router>
             <Dashboard />
