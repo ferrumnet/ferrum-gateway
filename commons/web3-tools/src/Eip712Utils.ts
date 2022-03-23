@@ -85,6 +85,7 @@ export function produceSignature(
 }
 
 export function verifySignature(hash: HexString, userAddress: string, signature: HexString) {
+    //@ts-ignore
 	const sig = fromRpcSig(Buffer.from(signature.replace('0x', ''), 'hex'));
 	const pub = ecrecover(Buffer.from(hash, 'hex'), sig.v, sig.r, sig.s);
 	const addr  = `0x${publicToAddress(pub).toString('hex').toLowerCase()}`;
@@ -120,6 +121,7 @@ export function multiSigToBytes(sigs: string[]): string {
 	let sig: string = '';
 	let vs: string = '';
 	for (let i = 0; i<sigs.length; i++) {
+        //@ts-ignore
 		const rsv = fromRpcSig(hex2Buf(sigs[i]));
 		sig = sig + `${rsv.r.toString('hex')}${rsv.s.toString('hex')}`;
 		vs = vs + rsv.v.toString(16);
