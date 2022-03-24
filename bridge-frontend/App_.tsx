@@ -12,7 +12,7 @@ import { ToastProvider, useToasts } from "react-toast-notifications";
 import { GlobalStyles } from "./theme/GlobalStyles";
 
 const _module = new BridgeModule();
-const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://tymkxhvpfj.us-east-2.awsapprunner.com/";
 const store = StoreBuilder.build(
   userReducer,
   dataReducer,

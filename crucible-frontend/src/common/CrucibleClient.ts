@@ -143,6 +143,7 @@ export class CrucibleClient {
 					const req =  await this.api.api({
 							command: isPublic ? 'depositPublicGetTransaction' : 'depositGetTransaction',
 							data: {network, currency, crucible, amount}, params: [] } as JsonRpcRequest);
+					console.log(req,'reqreqree')
 					if(!!req){
 						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
 						return req
@@ -179,6 +180,7 @@ export class CrucibleClient {
 					const req =  await this.api.api({
 							command: 'depositAndStakeGetTransaction',
 							data: {network, currency,crucible, stake: stakeAddress, amount}, params: [] } as JsonRpcRequest);
+					//{request: sent_eth_tra....}
 					if(!!req){
 						dispatch(TxModal.toggleModal({mode:'waiting',show: true}))
 						return req
