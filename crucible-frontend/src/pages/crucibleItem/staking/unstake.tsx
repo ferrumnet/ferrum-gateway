@@ -86,7 +86,7 @@ export function UnStakeCrucible(){
     let connected = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.address : undefined);
     let netowrk = useSelector<CrucibleAppState, string|undefined>(state =>crucible?.currency ? state.connection.account.user.accountGroups[0].addresses[0]?.network : undefined);
     let active_crucible = crucible?.staking![stakingId as any] || {};
-    let userStake = userCrucible?.stakes.find(e=>e.address === active_crucible.address)
+    let userStake = (userCrucible?.stakes||[])?.find(e=>e.address === active_crucible.address)
     
     useEffect(()=>{
         if(crucible && !active_crucible){
@@ -160,7 +160,7 @@ export function UnStakeCrucible(){
                                 staking: (active_crucible?.address as string),
                                 resetAmount: () => setAmount('')
                             }))}
-                            currency={crucible!.currency}
+                            currency={crucible!.baseCurrency}
                             userAddress={connected}
                         />                                
                     }

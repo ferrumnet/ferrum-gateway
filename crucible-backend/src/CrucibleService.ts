@@ -353,7 +353,8 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const [network, token] = EthereumSmartContractHelper.parseCurrency(currency);
 		const router = await this.router(network);
 		const amountInt = await this.helper.amountToMachine(currency, amount);
-		const t = await router.populateTransaction.stakeFor(userAddress, token, stake,
+		const t = await router.populateTransaction.stakeFor(
+			userAddress, token, stake,
 			amountInt, {from: userAddress});
 		return this.helper.fromTypechainTransactionWithGas(network, t, userAddress);
 	}

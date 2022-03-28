@@ -18,7 +18,7 @@ export class StakingRequestProcessor
     this.registerProcessor("stakeGetTransaction", (req, userId) =>
 			this.stakeGetTransaction(req, userId));
 
-    this.registerProcessor("withdrawGetTransaction", (req, userId) =>
+    this.registerProcessor("withdrawStakeGetTransaction", (req, userId) =>
 			this.withdrawGetTransaction(req, userId));
 
     this.registerProcessor("takeRewardsGetTransaction", (req, userId) =>
@@ -26,36 +26,36 @@ export class StakingRequestProcessor
 	}
 
 	async stakeInfo(req: HttpRequestData): Promise<any> {
-		const {network, stakeType, stakeId} = req.data;
-		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId'], req.data);
-		return this.svc.stakeInfo(network, stakeType, stakeId);
+		const {network, stakeType, stakeId,stakingAddress} = req.data;
+		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId',"stakingAddress"], req.data);
+		return this.svc.stakeInfo(network, stakeType, stakeId,stakingAddress);
 	}
 
 	async userStakeInfo(req: HttpRequestData, userId: string): Promise<any> {
-		const {network, stakeType, stakeId} = req.data;
+		const {network, stakeType, stakeId,stakingAddress} = req.data;
 		ValidationUtils.isTrue(!!userId, 'Not signed in to the backend');
-		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId'], req.data);
-		return this.svc.userStakeInfo(userId, network, stakeType, stakeId);
+		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId',"stakingAddress"], req.data);
+		return this.svc.userStakeInfo(userId, network, stakeType, stakeId,stakingAddress);
 	}
 
 	async stakeGetTransaction(req: HttpRequestData, userId: string): Promise<any> {
-		const {stakeType, stakeId, currency, amount} = req.data;
+		const {stakeType, stakeId, currency, amount,stakingAddress} = req.data;
 		ValidationUtils.isTrue(!!userId, 'Not signed in to the backend');
-		ValidationUtils.allRequired(['stakeType', 'stakeId', 'currency', 'amount'], req.data);
-		return this.svc.stakeGetTransaction(userId, stakeType, stakeId, currency, amount);
+		ValidationUtils.allRequired(['stakeType', 'stakeId', 'currency', 'amount',"stakingAddress"], req.data);
+		return this.svc.stakeGetTransaction(userId, stakeType, stakeId, currency, amount,stakingAddress);
 	}
 
 	async withdrawGetTransaction(req: HttpRequestData, userId: string): Promise<any> {
-		const {stakeType, stakeId, currency, amount} = req.data;
+		const {stakeType, stakeId, currency, amount,stakingAddress} = req.data;
 		ValidationUtils.isTrue(!!userId, 'Not signed in to the backend');
-		ValidationUtils.allRequired(['stakeType', 'stakeId', 'currency', 'amount'], req.data);
-		return this.svc.withdrawGetTransaction(userId, stakeType, stakeId, currency, amount);
+		ValidationUtils.allRequired(['stakeType', 'stakeId', 'currency', 'amount',"stakingAddress"], req.data);
+		return this.svc.withdrawGetTransaction(userId, stakeType, stakeId, currency, amount,stakingAddress);
 	}
 
 	async takeRewardsGetTransaction(req: HttpRequestData, userId: string): Promise<any> {
-		const {network, stakeType, stakeId} = req.data;
+		const {network, stakeType, stakeId,stakingAddress} = req.data;
 		ValidationUtils.isTrue(!!userId, 'Not signed in to the backend');
-		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId'], req.data);
-		return this.svc.takeRewardsGetTransaction(userId, network, stakeType, stakeId);
+		ValidationUtils.allRequired(['network', 'stakeType', 'stakeId',"stakingAddress"], req.data);
+		return this.svc.takeRewardsGetTransaction(userId, network, stakeType, stakeId,stakingAddress);
 	}
 }

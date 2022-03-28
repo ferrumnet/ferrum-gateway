@@ -13,6 +13,8 @@ export interface CrucibleContracts {
 //0x9158c7bb428059ef23a705282cdc0f37f104ef81
 //'0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF'
 //'0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76'
+//'0x54c4c29e8f46b100ef10af9331dabff33dfb1d62' - router
+
 export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 	'RINKEBY': {
 		factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
@@ -25,8 +27,8 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 		staking: '',
 	},
 	'BSC': {
-		factory: '0x60267694219dc99aa00e866508b9aebbcf6649dd',
-		router: '0x54c4c29e8f46b100ef10af9331dabff33dfb1d62',
+		factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
+		router: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
 		staking: '',
 	},
 	'ETHEREUM': {
@@ -66,11 +68,18 @@ export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts[]> = {
 		},
 		{
 			factory: '0x60267694219DC99aa00E866508B9aEbbCf6649dd',
-			router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
-			openEnded: '',
+			router: '0x54c4c29e8f46b100ef10af9331dabff33dfb1d62',
+			openEnded: '0xAb0433AA0b5e05f1FF0FD293CFf8bEe15882cCAd',
 			timed: '0xAb0433AA0b5e05f1FF0FD293CFf8bEe15882cCAd',
 			address: '0xAb0433AA0b5e05f1FF0FD293CFf8bEe15882cCAd'
 		},
+		{
+			factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
+			router: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
+			openEnded: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
+			timed: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
+			address: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73'
+		}
 	],
 };
 
