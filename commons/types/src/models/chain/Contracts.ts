@@ -28,7 +28,7 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 	},
 	'BSC': {
 		factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
-		router: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
+		router: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
 		staking: '',
 	},
 	'ETHEREUM': {
