@@ -8,6 +8,8 @@ import IconCryptoMoonbase from '../assets/images/moonbase.png'
 import IconCryptoFantom from '../assets/images/fantom.svg'
 import IconCryptoHarmony from '../assets/images/harmony.png'
 import IconCryptoShibuya from '../assets/images/shibuya.png'
+import IconCryptoShiden from '../assets/images/shiden.png'
+
 
 export const networkImages = {
   "BSC":IconCryptoBNB,
@@ -25,6 +27,8 @@ export const networkImages = {
   "HARMONY_TESTNET_0":IconCryptoHarmony,
   "FTM_MAINNET":IconCryptoFantom,
   "SHIDEN_TESTNET":IconCryptoShibuya,
+  "SHIDEN_MAINNET":IconCryptoShiden,
+
 
 
 }
