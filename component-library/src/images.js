@@ -7,6 +7,7 @@ import IconCryptoAvax from '../assets/images/avax.png'
 import IconCryptoMoonbase from '../assets/images/moonbase.png'
 import IconCryptoFantom from '../assets/images/fantom.svg'
 import IconCryptoHarmony from '../assets/images/harmony.png'
+import IconCryptoShibuya from '../assets/images/shibuya.png'
 
 export const networkImages = {
   "BSC":IconCryptoBNB,
@@ -23,7 +24,7 @@ export const networkImages = {
   "FTM_TESTNET":IconCryptoAvax,
   "HARMONY_TESTNET_0":IconCryptoHarmony,
   "FTM_MAINNET":IconCryptoFantom,
-  "SHIDEN_TESTNET":IconCryptoAvax,
+  "SHIDEN_TESTNET":IconCryptoShibuya,
 
 
 }
