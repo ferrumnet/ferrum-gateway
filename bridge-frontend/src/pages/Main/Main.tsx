@@ -135,7 +135,7 @@ export const MainPageSlice = createSlice({
 });
 
 export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
-    async (payload: { destNetwork: string, sourceCurrency: string,targetNetworks: NetworkDropdown[] }, ctx) => {
+    async (payload: { destNetwork: string, sourceCurrency: string, currentNetwork:string, targetNetworks: NetworkDropdown[] }, ctx) => {
         try {
             ctx.dispatch(addAction(CommonActions.WAITING, { source: 'swap' }));
             const client = inject<BridgeClient>(BridgeClient);
@@ -156,8 +156,8 @@ export const loadLiquidity = createAsyncThunk('connect/changeNetwork',
             }
 
             // reset destination netowkr when the same with source network
-            const swapProps = ((ctx.getState() as BridgeAppState).ui.swapPage)
-            if(swapProps.destNetwork == swapProps.network){
+            const swapProps = ((ctx.getState() as BridgeAppState).ui.pairPage)
+            if(swapProps.destNetwork == payload.currentNetwork){
                 ctx.dispatch(Actions.resetDestNetwork({ value: payload.targetNetworks[0].key }))
             }
 
@@ -295,7 +295,7 @@ export const ConnectBridge = () => {
 
     //TODO: Initialize this without useEffect
     useEffect(() => {
-        dispatch(loadLiquidity({ destNetwork, sourceCurrency: currency,targetNetworks: pageProps.targetNetworks }));
+        dispatch(loadLiquidity({ destNetwork, sourceCurrency: currency, currentNetwork:network, targetNetworks: pageProps.targetNetworks }));
     }, [destNetwork, currency, network])
 
     const onWithdrawSuccessMessage = async (txNet: string, tx: string, txCur: string) => {
