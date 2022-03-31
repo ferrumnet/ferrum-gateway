@@ -105,6 +105,8 @@ export class Utils {
                 return `https://ftmscan.com/tx/${tid}`;
             case 'shiden_testnet':
                  return `https://shibuya.subscan.io/tx/${tid}`;
+            case 'shiden_mainnet':
+                return `https://blockscout.com/shiden/tx/${tid}`;
             default:
                 return Networks.for(network).explorer + `/tx/${tid}`;
         }
