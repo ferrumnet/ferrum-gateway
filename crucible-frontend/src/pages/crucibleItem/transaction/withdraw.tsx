@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleBox } from './../../crucibleLgcy/CrucibleBox';
@@ -125,7 +125,7 @@ export function WithdrawCrucible(){
                         Amount you will receive
                     </div>
                     <div>
-                        <FInputTextField
+                        <FInputText
                             className={'crucible-text-input'}
                             postfix={<div className='input-label'>{userCrucible?.baseSymbol}</div>}
                             label={''}

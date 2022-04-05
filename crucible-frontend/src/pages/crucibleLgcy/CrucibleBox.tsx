@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState } from 'react';
 import { CrucibleInfo, BigUtils, inject,
 	UserCrucibleInfo, CrucibleAllocationMethods, Utils, UserStakeInfo, CRUCIBLE_CONTRACTS_V_0_1, ChainEventBase, } from "types";

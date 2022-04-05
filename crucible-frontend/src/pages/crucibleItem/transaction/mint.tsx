@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputCheckbox,FInputTextField } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputCheckbox } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
@@ -120,7 +120,7 @@ export function MintCrucible(){
                         </span>
                     </div>
                     <div>
-                        <FInputTextField
+                        <FInputText
                             className={'crucible-input'}
                             placeholder={'Amount to Mint'}
                             onChange={ (v:any) => setAmount(v.target.value)}
@@ -144,7 +144,7 @@ export function MintCrucible(){
                                 Amount you will {stake ? 'stake' : 'receive'}
                             </div>
                             <div>
-                                <FInputTextField
+                                <FInputText
                                     className={'crucible-text-input'}
                                     placeholder={'Amount you will receive'}
                                     postfix={<div className='input-label'>{userCrucible?.symbol}</div>}

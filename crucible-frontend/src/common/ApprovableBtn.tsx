@@ -7,6 +7,7 @@ import { FLayout, FContainer,FCard, FInputText, FButton } from "ferrum-design-sy
 function ApprovableButtonInternal(props: {disabled: boolean, text: string, onClick: () => void} & IApprovableButtonWrapperViewProps) {
 
 	const disabled = props.pendingApproval || (props.isApprovalMode ? false : props.disabled);
+	//@ts-ignore
 	const theme = useContext(ThemeContext);
 	const styles = themedStyles(theme);   
 

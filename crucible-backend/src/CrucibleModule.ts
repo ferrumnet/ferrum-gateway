@@ -14,8 +14,8 @@ import {OneInchPricingService} from 'common-backend/dist/oneinchPricingSvc/OneIn
 export class CrucibleModule implements Module {
   static async configuration() {
     AppConfig.instance().orElse('', () => ({
-      contracts: CRUCIBLE_CONTRACTS_V_0_1,
-      stakingContracts: STAKING_CONTRACTS_V_0_1,
+      contracts: AppConfig.instance().get("CRUCIBLE_CONTRACTS_V_0_1") || CRUCIBLE_CONTRACTS_V_0_1,
+      stakingContracts: AppConfig.instance().get("STAKING_CONTRACTS_V_0_1") || STAKING_CONTRACTS_V_0_1,
       actor: {
         address: AppConfig.env("CRUCIBLE_ACTOR_ADDRESS", 'N/A'),
         contractAddress: '', // Contract will be taken  from other configs

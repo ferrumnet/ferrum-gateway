@@ -67,6 +67,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 	}
 
 	async getConfiguredRouters(){
+		console.log(this.config)
 		return this.config.contracts || [];
 	}
 
@@ -393,6 +394,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 		const [network, address] = EthereumSmartContractHelper.parseCurrency(crucible);
 		const r = await this.router(network);
 		const cap = await r.openCaps(address);
+		console.log(cap,'cappppppp')
 		const currency = await this.baseCurrency(crucible);
 		return {
 			currency,

@@ -23,6 +23,7 @@ const addSignature = createAsyncThunk('method/addSignature',
 		request: GovernanceTransaction,}, ctx) => {
 		const state = ctx.getState() as GovernanceAppState;
 		const client = inject<GovernanceClient>(GovernanceClient);
+		console.log(payload.contract.identifier.version)
 		const signature = await client.signMessage(
 			payload.network, payload.contract.identifier.name,
 			payload.contract.identifier.version, payload.contractAddress, payload.method, 
@@ -39,6 +40,7 @@ const signAndSave = createAsyncThunk('method/signAndSave',
 		const state = ctx.getState() as GovernanceAppState;
 		const client = inject<GovernanceClient>(GovernanceClient);
 		const args = state.ui.newMethod.values;
+		console.log(payload.contract.identifier.version)
 		const signature = await client.signMessage(
 			payload.network, payload.contract.identifier.name,
 			payload.contract.identifier.version, payload.contractAddress, payload.method, args);

@@ -22,13 +22,13 @@ export const CRUCIBLE_CONTRACTS_V_0_1: NetworkedConfig<CrucibleContracts> = {
 		staking: '',
 	},
 	'BSC_TESTNET': {
-		factory: '0x2E15Ad5a416BC23ad80B6A1882e885b797a78CaF',
-		router: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+		factory: '0x5b2b943Bd0598111C27c6B0AEf6255338e08D43d',
+		router: '0x7807a7CEc6EA97025AE2f7eBF1C4f2fBcbD401A4',
 		staking: '',
 	},
 	'BSC': {
-		factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
-		router: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
+		factory: '0xaa703e8114600C83240145B4B524d7547A3743be',
+		router: '0x830A8E8Eb51639d79b50b24374A4a52541fD7788',
 		staking: '',
 	},
 	'ETHEREUM': {
@@ -75,11 +75,26 @@ export const STAKING_CONTRACTS_V_0_1: NetworkedConfig<StakingContracts[]> = {
 		},
 		{
 			factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
-			router: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
-			openEnded: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
-			timed: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73',
-			address: '0x3b83a1a700af32d17ce138d2527b2b48adba9b73'
+			router: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
+			openEnded: '0xeab8290c54b6307016a736ff2191bf2aaef3b697',
+			timed: '0xeab8290c54b6307016a736ff2191bf2aaef3b697',
+			address: '0xeab8290c54b6307016a736ff2191bf2aaef3b697'
+		},
+		{
+			factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
+			router: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
+			openEnded: '0xeab8290c54b6307016a736ff2191bf2aaef3b697',
+			timed: '0xeab8290c54b6307016a736ff2191bf2aaef3b697',
+			address: '0xeab8290c54b6307016a736ff2191bf2aaef3b697'
+		},
+		{
+			factory: '0x948b3c3d27bc472c46addf617439248e9269e1e1',
+			router: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
+			openEnded: '0xd87f304ca205fb104dc014696227742d20c8f10a',
+			timed: '0xd87f304ca205fb104dc014696227742d20c8f10a',
+			address: '0xd87f304ca205fb104dc014696227742d20c8f10a'
 		}
+		//0xd87f304ca205fb104dc014696227742d20c8f10a
 	],
 };
 

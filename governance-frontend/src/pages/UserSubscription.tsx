@@ -14,6 +14,7 @@ export function UserSubscription() {
 		state => state.data.state.selectedContract);
 	const quorum = useSelector<GovernanceAppState, QuorumSubscription>(
 		state => state.connection.userState.quorum);
+	console.log(quorum,'quorumquorumquorum')
 	return (
 		<>
 		<Card title={'Connected Account'} subTitle=''>
@@ -22,8 +23,8 @@ export function UserSubscription() {
 				<h4><div className='title-mini'>Contract:</div> {contract.id}</h4>
 				<h4><div className='title-mini'>At:</div> {contractAddress}</h4>
 				<h4><div className='title-mini'>Quorum:</div> {quorum.quorum || 'Not registered'}</h4>
-				<h4><div className='title-mini'>Group ID:</div> {quorum.groupId}</h4>
-				<h4><div className='title-mini'>Min signatures:</div> {quorum.minSignatures}</h4>
+				{/* //<h4><div className='title-mini'>Group ID:</div> {quorum.groupId.hex as any}</h4> */}
+				<h4><div className='title-mini'>Min signatures:</div> {quorum?.minSignatures}</h4>
 			</div>
 		</Card>
 		</>

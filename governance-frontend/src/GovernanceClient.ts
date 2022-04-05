@@ -170,6 +170,7 @@ export class GovernanceClient {
 		const eipArgs: any = { [method.name]: method.args };
 		const data: any = {};
 		method.args.forEach((a, i) => { data[a.name] = values[i]; });
+		console.log(contractName,contractVersion,Networks.for(network).chainId,contractAddress,method.name)
 		const ds = {
 			name: contractName,
 			version: contractVersion,

@@ -27,6 +27,7 @@ export interface CrucibleViewProps {
 }
 
 export function CrucibleView(props: CrucibleViewProps) {
+	//@ts-ignore
 	const theme = useContext(ThemeContext);
 	const styles = themedStyles(theme);   
 	const mintBox = props.mint === 'closed' ? (

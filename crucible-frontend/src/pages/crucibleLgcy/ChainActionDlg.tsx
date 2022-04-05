@@ -35,6 +35,7 @@ export interface ChainActionDlgProps {
 }
 
 export function ChainActionDlg(props: ChainActionDlgProps) {
+	//@ts-ignore
 	const theme = useContext(ThemeContext);
 	const styles = themedStyles(theme);   
 	console.log('Action DLG', props)
@@ -142,6 +143,7 @@ function ApprovableButtonInternal(props:
 		IApprovableButtonWrapperViewProps) {
 	const disabled = props.pendingApproval ||
 						(props.isApprovalMode ? false : props.disabled);
+	//@ts-ignore
 	const theme = useContext(ThemeContext);
 	const styles = themedStyles(theme);   
 	return (

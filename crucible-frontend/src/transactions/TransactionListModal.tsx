@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React from 'react';
 import { TransactionList } from 'common-containers/dist/chain/TransactionList';
 import Modal from 'office-ui-fabric-react/lib/Modal';

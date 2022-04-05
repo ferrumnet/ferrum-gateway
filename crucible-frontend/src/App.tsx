@@ -14,8 +14,8 @@ import { ToastProvider, useToasts } from 'react-toast-notifications';
 const _module = new CrucibleModule();
 const store = StoreBuilder.build(
             userReducer, dataReducer, uiReducer, _module, 
-            "https://22phwrgczz.us-east-2.awsapprunner.com/",
-            // "https://22phwrgczz.us-east-2.awsapprunner.com",
+            //"http://localhost:8080/",
+            "https://22phwrgczz.us-east-2.awsapprunner.com",
             //Environment.defaultEndPoint(),
             //'https://4ikenxgwge.execute-api.us-east-2.amazonaws.com/default/kb-staging-backend',
             );

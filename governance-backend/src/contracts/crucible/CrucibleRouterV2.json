@@ -1,12 +1,12 @@
 {
-	"id": "FERRUM_CRUCIBLE_ROUTER:000.001",
+	"id": "FERRUM_CRUCIBLE_ROUTER:000.002",
 	"identifier": {
 		"name": "FERRUM_CRUCIBLE_ROUTER",
 		"version": "000.001"
 	},
 	"methods": [
 		{
-			"name": "updateCrucibleFees",
+			"name": "UpdateCrucibleFees",
 			"adminOnly": false,
 			"governanceOnly": true,
 			"args": [

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FLayout, FContainer,FCard, FInputText, FButton,FInputTextField,FInputCheckbox } from "ferrum-design-system";
+import { FLayout, FContainer,FCard, FInputText, FButton,FInputCheckbox } from "ferrum-design-system";
 import { useDispatch, useSelector } from 'react-redux';
 import { CrucibleAppState } from '../../../common/CrucibleAppState';
 import { CrucibleInfo,UserCrucibleInfo, Utils,BigUtils,inject,ChainEventBase,CrucibleAllocationMethods,CRUCIBLE_CONTRACTS_V_0_1 } from 'types';
@@ -120,7 +120,7 @@ export function UnStakeCrucible(){
                         </span>
                     </div>
                     <div>
-                        <FInputTextField
+                        <FInputText
                             className={'crucible-input'}
                             placeholder={'Amount to unstake'}
                             onChange={ (v:any) => setAmount(v.target.value)}

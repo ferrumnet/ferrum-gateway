@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState } from 'react';
 import Modal from 'office-ui-fabric-react/lib/Modal';
 import { ResponsiveMode } from 'office-ui-fabric-react';
