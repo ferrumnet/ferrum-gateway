@@ -2,7 +2,7 @@ import { Networks } from "ferrum-plumbing";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
 export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET'
- ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0','FTM_TESTNET','FTM_MAINNET','SHIDEN_TESTNET'];
+ ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0','FTM_TESTNET','FTM_MAINNET','SHIDEN_TESTNET','SHIDEN_MAINNET'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
