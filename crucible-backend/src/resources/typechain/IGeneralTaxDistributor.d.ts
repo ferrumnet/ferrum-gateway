@@ -22,24 +22,15 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IGeneralTaxDistributorInterface extends ethers.utils.Interface {
   functions: {
     "distributeTax(address)": FunctionFragment;
-    "distributeTaxAvoidOrigin(address,address)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "distributeTax",
     values: [string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "distributeTaxAvoidOrigin",
-    values: [string, string]
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "distributeTax",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "distributeTaxAvoidOrigin",
     data: BytesLike
   ): Result;
 
@@ -94,12 +85,6 @@ export class IGeneralTaxDistributor extends BaseContract {
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   distributeTax(
@@ -107,20 +92,8 @@ export class IGeneralTaxDistributor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  distributeTaxAvoidOrigin(
-    token: string,
-    origin: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     distributeTax(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -130,23 +103,11 @@ export class IGeneralTaxDistributor extends BaseContract {
       token: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     distributeTax(
       token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

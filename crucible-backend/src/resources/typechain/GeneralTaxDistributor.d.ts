@@ -24,7 +24,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     "admin()": FunctionFragment;
     "configureToken(address,uint256,tuple[],uint216)": FunctionFragment;
     "distributeTax(address)": FunctionFragment;
-    "distributeTaxAvoidOrigin(address,address)": FunctionFragment;
     "distributeTaxDirect(address)": FunctionFragment;
     "globalTargetConfig()": FunctionFragment;
     "lowThresholdX1000()": FunctionFragment;
@@ -41,7 +40,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     "tokenTargetConfigs(address)": FunctionFragment;
     "tokenTargetInfos(address,uint256)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "turnRandimation(uint8)": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
@@ -57,10 +55,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "distributeTax",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "distributeTaxAvoidOrigin",
-    values: [string, string]
   ): string;
   encodeFunctionData(
     functionFragment: "distributeTaxDirect",
@@ -117,10 +111,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "turnRandimation",
-    values: [BigNumberish]
-  ): string;
 
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(
@@ -129,10 +119,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "distributeTax",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "distributeTaxAvoidOrigin",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -188,10 +174,6 @@ interface GeneralTaxDistributorInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "turnRandimation",
     data: BytesLike
   ): Result;
 
@@ -260,12 +242,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTax(
       token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -366,11 +342,6 @@ export class GeneralTaxDistributor extends BaseContract {
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    turnRandimation(
-      off: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
   };
 
   admin(overrides?: CallOverrides): Promise<string>;
@@ -385,12 +356,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
   distributeTax(
     token: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  distributeTaxAvoidOrigin(
-    token: string,
-    origin: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -489,11 +454,6 @@ export class GeneralTaxDistributor extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  turnRandimation(
-    off: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     admin(overrides?: CallOverrides): Promise<string>;
 
@@ -506,12 +466,6 @@ export class GeneralTaxDistributor extends BaseContract {
     ): Promise<void>;
 
     distributeTax(token: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     distributeTaxDirect(
       token: string,
@@ -605,11 +559,6 @@ export class GeneralTaxDistributor extends BaseContract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    turnRandimation(
-      off: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
@@ -637,12 +586,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTax(
       token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -721,11 +664,6 @@ export class GeneralTaxDistributor extends BaseContract {
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    turnRandimation(
-      off: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -741,12 +679,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     distributeTax(
       token: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    distributeTaxAvoidOrigin(
-      token: string,
-      origin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -828,11 +760,6 @@ export class GeneralTaxDistributor extends BaseContract {
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    turnRandimation(
-      off: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

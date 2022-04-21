@@ -37,7 +37,6 @@ interface StakeOpenInterface extends ethers.utils.Interface {
     "lockSeconds(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardOf(address,address,address[])": FunctionFragment;
     "rewardsTotal(address,address)": FunctionFragment;
@@ -102,10 +101,6 @@ interface StakeOpenInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "lockSeconds", values: [string]): string;
   encodeFunctionData(functionFragment: "name", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "receiveTokenFrom",
-    values: [string, string, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
@@ -223,10 +218,6 @@ interface StakeOpenInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveTokenFrom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -400,13 +391,6 @@ export class StakeOpen extends BaseContract {
     ): Promise<[string] & { _name: string }>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -587,13 +571,6 @@ export class StakeOpen extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
-  receiveTokenFrom(
-    token: string,
-    from: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -769,13 +746,6 @@ export class StakeOpen extends BaseContract {
     name(id: string, overrides?: CallOverrides): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -1015,13 +985,6 @@ export class StakeOpen extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1200,13 +1163,6 @@ export class StakeOpen extends BaseContract {
     name(id: string, overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }

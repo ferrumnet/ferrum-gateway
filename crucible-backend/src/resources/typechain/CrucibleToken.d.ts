@@ -36,13 +36,11 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     "inventory(address)": FunctionFragment;
     "name()": FunctionFragment;
     "overrideFee(address,uint8,uint64)": FunctionFragment;
-    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "router()": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "upgradeRouter(address)": FunctionFragment;
     "withdraw(address,uint256)": FunctionFragment;
   };
 
@@ -82,10 +80,6 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     functionFragment: "overrideFee",
     values: [string, BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "receiveTokenFrom",
-    values: [string, string, BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
@@ -99,10 +93,6 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "transferFrom",
     values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeRouter",
-    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
@@ -136,10 +126,6 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     functionFragment: "overrideFee",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveTokenFrom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
@@ -151,22 +137,16 @@ interface CrucibleTokenInterface extends ethers.utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeRouter",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "Deposited(address,uint256,address)": EventFragment;
     "FeeSet(address,uint8,uint64)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Withdrawn(uint256,uint256,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Deposited"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FeeSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdrawn"): EventFragment;
@@ -272,13 +252,6 @@ export class CrucibleToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     router(overrides?: CallOverrides): Promise<[string]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
@@ -295,11 +268,6 @@ export class CrucibleToken extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeRouter(
-      _router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -366,13 +334,6 @@ export class CrucibleToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  receiveTokenFrom(
-    token: string,
-    from: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   router(overrides?: CallOverrides): Promise<string>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
@@ -389,11 +350,6 @@ export class CrucibleToken extends BaseContract {
     from: string,
     to: string,
     value: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeRouter(
-    _router: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -454,13 +410,6 @@ export class CrucibleToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     router(overrides?: CallOverrides): Promise<string>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
@@ -480,8 +429,6 @@ export class CrucibleToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    upgradeRouter(_router: string, overrides?: CallOverrides): Promise<void>;
-
     withdraw(
       to: string,
       amount: BigNumberish,
@@ -499,15 +446,6 @@ export class CrucibleToken extends BaseContract {
     ): TypedEventFilter<
       [string, string, BigNumber],
       { owner: string; spender: string; value: BigNumber }
-    >;
-
-    Deposited(
-      token?: null,
-      amount?: null,
-      to?: null
-    ): TypedEventFilter<
-      [string, BigNumber, string],
-      { token: string; amount: BigNumber; to: string }
     >;
 
     FeeSet(
@@ -593,13 +531,6 @@ export class CrucibleToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     router(overrides?: CallOverrides): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
@@ -616,11 +547,6 @@ export class CrucibleToken extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    upgradeRouter(
-      _router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -698,13 +624,6 @@ export class CrucibleToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -721,11 +640,6 @@ export class CrucibleToken extends BaseContract {
       from: string,
       to: string,
       value: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeRouter(
-      _router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

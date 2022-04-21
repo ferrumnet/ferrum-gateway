@@ -29,30 +29,6 @@ const _abi = [
     stateMutability: "nonpayable",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "origin",
-        type: "address",
-      },
-    ],
-    name: "distributeTaxAvoidOrigin",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
 ];
 
 export class IGeneralTaxDistributor__factory {

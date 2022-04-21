@@ -16,25 +16,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "quorumId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "subscriber",
-        type: "address",
-      },
-    ],
-    name: "AddedToQuorum",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
         name: "admin",
         type: "address",
       },
@@ -62,97 +43,8 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "id",
-            type: "address",
-          },
-          {
-            internalType: "uint64",
-            name: "groupId",
-            type: "uint64",
-          },
-          {
-            internalType: "uint16",
-            name: "minSignatures",
-            type: "uint16",
-          },
-          {
-            internalType: "uint8",
-            name: "ownerGroupId",
-            type: "uint8",
-          },
-        ],
-        indexed: false,
-        internalType: "struct MultiSigCheckable.Quorum",
-        name: "quorum",
-        type: "tuple",
-      },
-    ],
-    name: "QuorumCreated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "id",
-            type: "address",
-          },
-          {
-            internalType: "uint64",
-            name: "groupId",
-            type: "uint64",
-          },
-          {
-            internalType: "uint16",
-            name: "minSignatures",
-            type: "uint16",
-          },
-          {
-            internalType: "uint8",
-            name: "ownerGroupId",
-            type: "uint8",
-          },
-        ],
-        indexed: false,
-        internalType: "struct MultiSigCheckable.Quorum",
-        name: "quorum",
-        type: "tuple",
-      },
-    ],
-    name: "QuorumUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "address",
-        name: "quorumId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "subscriber",
-        type: "address",
-      },
-    ],
-    name: "RemovedFromQuorum",
-    type: "event",
-  },
-  {
     inputs: [],
-    name: "GOVERNANCE_GROUP_ID_MAX",
+    name: "GOVERNANCE_GROUP_ID",
     outputs: [
       {
         internalType: "uint16",
@@ -176,14 +68,47 @@ const _abi = [
         type: "address",
       },
       {
+        internalType: "uint16",
+        name: "groupId",
+        type: "uint16",
+      },
+      {
+        internalType: "uint16",
+        name: "minSignatures",
+        type: "uint16",
+      },
+    ],
+    name: "addToQuorum",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "quorumId",
+        type: "address",
+      },
+      {
+        internalType: "uint16",
+        name: "groupId",
+        type: "uint16",
+      },
+      {
+        internalType: "uint16",
+        name: "minSignatures",
+        type: "uint16",
+      },
+      {
         internalType: "bytes32",
         name: "salt",
         type: "bytes32",
-      },
-      {
-        internalType: "uint64",
-        name: "expiry",
-        type: "uint64",
       },
       {
         internalType: "bytes",
@@ -191,7 +116,7 @@ const _abi = [
         type: "bytes",
       },
     ],
-    name: "addToQuorum",
+    name: "addToQuorumGovernance",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -217,9 +142,9 @@ const _abi = [
         type: "bytes32",
       },
       {
-        internalType: "uint64",
+        internalType: "uint16",
         name: "expectedGroupId",
-        type: "uint64",
+        type: "uint16",
       },
       {
         internalType: "bytes",
@@ -228,52 +153,6 @@ const _abi = [
       },
     ],
     name: "cancelSaltedSignature",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_address",
-        type: "address",
-      },
-    ],
-    name: "forceRemoveFromQuorum",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "quorumId",
-        type: "address",
-      },
-      {
-        internalType: "uint64",
-        name: "groupId",
-        type: "uint64",
-      },
-      {
-        internalType: "uint16",
-        name: "minSignatures",
-        type: "uint16",
-      },
-      {
-        internalType: "uint8",
-        name: "ownerGroupId",
-        type: "uint8",
-      },
-      {
-        internalType: "address[]",
-        name: "addresses",
-        type: "address[]",
-      },
-    ],
-    name: "initialize",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -326,19 +205,14 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint64",
+        internalType: "uint16",
         name: "groupId",
-        type: "uint64",
+        type: "uint16",
       },
       {
         internalType: "uint16",
         name: "minSignatures",
         type: "uint16",
-      },
-      {
-        internalType: "uint8",
-        name: "ownerGroupId",
-        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -360,19 +234,14 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint64",
+        internalType: "uint16",
         name: "groupId",
-        type: "uint64",
+        type: "uint16",
       },
       {
         internalType: "uint16",
         name: "minSignatures",
         type: "uint16",
-      },
-      {
-        internalType: "uint8",
-        name: "ownerGroupId",
-        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -382,19 +251,13 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "_address",
         type: "address",
       },
     ],
-    name: "quorumsSubscribers",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
+    name: "removeFromQuorum",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -410,17 +273,12 @@ const _abi = [
         type: "bytes32",
       },
       {
-        internalType: "uint64",
-        name: "expiry",
-        type: "uint64",
-      },
-      {
         internalType: "bytes",
         name: "multiSignature",
         type: "bytes",
       },
     ],
-    name: "removeFromQuorum",
+    name: "removeFromQuorumGovernance",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -454,39 +312,6 @@ const _abi = [
       },
     ],
     name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "quorumId",
-        type: "address",
-      },
-      {
-        internalType: "uint16",
-        name: "minSignature",
-        type: "uint16",
-      },
-      {
-        internalType: "bytes32",
-        name: "salt",
-        type: "bytes32",
-      },
-      {
-        internalType: "uint64",
-        name: "expiry",
-        type: "uint64",
-      },
-      {
-        internalType: "bytes",
-        name: "multiSignature",
-        type: "bytes",
-      },
-    ],
-    name: "updateMinSignature",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

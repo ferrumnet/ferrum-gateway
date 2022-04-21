@@ -25,7 +25,6 @@ interface PoolDropInterface extends ethers.utils.Interface {
     "close(address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "pool(address,address,address)": FunctionFragment;
-    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "signers(address)": FunctionFragment;
     "take(address,address,uint256,bytes32,bytes)": FunctionFragment;
     "tokens(address)": FunctionFragment;
@@ -40,10 +39,6 @@ interface PoolDropInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "pool",
     values: [string, string, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "receiveTokenFrom",
-    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "signers", values: [string]): string;
   encodeFunctionData(
@@ -68,10 +63,6 @@ interface PoolDropInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "close", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveTokenFrom",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "signers", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "take", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokens", data: BytesLike): Result;
@@ -152,13 +143,6 @@ export class PoolDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     signers(arg0: string, overrides?: CallOverrides): Promise<[string]>;
 
     take(
@@ -205,13 +189,6 @@ export class PoolDrop extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  receiveTokenFrom(
-    token: string,
-    from: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   signers(arg0: string, overrides?: CallOverrides): Promise<string>;
 
   take(
@@ -254,13 +231,6 @@ export class PoolDrop extends BaseContract {
       signer: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     signers(arg0: string, overrides?: CallOverrides): Promise<string>;
 
@@ -320,13 +290,6 @@ export class PoolDrop extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     signers(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
     take(
@@ -377,13 +340,6 @@ export class PoolDrop extends BaseContract {
       id: string,
       token: string,
       signer: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

@@ -21,45 +21,39 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 
 interface MultiSigCheckableInterface extends ethers.utils.Interface {
   functions: {
-    "GOVERNANCE_GROUP_ID_MAX()": FunctionFragment;
-    "addToQuorum(address,address,bytes32,uint64,bytes)": FunctionFragment;
+    "GOVERNANCE_GROUP_ID()": FunctionFragment;
+    "addToQuorum(address,address,uint16,uint16)": FunctionFragment;
+    "addToQuorumGovernance(address,address,uint16,uint16,bytes32,bytes)": FunctionFragment;
     "admin()": FunctionFragment;
-    "cancelSaltedSignature(bytes32,uint64,bytes)": FunctionFragment;
-    "forceRemoveFromQuorum(address)": FunctionFragment;
-    "initialize(address,uint64,uint16,uint8,address[])": FunctionFragment;
+    "cancelSaltedSignature(bytes32,uint16,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "quorumList(uint256)": FunctionFragment;
     "quorumSubscriptions(address)": FunctionFragment;
     "quorums(address)": FunctionFragment;
-    "quorumsSubscribers(address)": FunctionFragment;
-    "removeFromQuorum(address,bytes32,uint64,bytes)": FunctionFragment;
+    "removeFromQuorum(address)": FunctionFragment;
+    "removeFromQuorumGovernance(address,bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "updateMinSignature(address,uint16,bytes32,uint64,bytes)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
   };
 
   encodeFunctionData(
-    functionFragment: "GOVERNANCE_GROUP_ID_MAX",
+    functionFragment: "GOVERNANCE_GROUP_ID",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "addToQuorum",
-    values: [string, string, BytesLike, BigNumberish, BytesLike]
+    values: [string, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addToQuorumGovernance",
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "cancelSaltedSignature",
     values: [BytesLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "forceRemoveFromQuorum",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, BigNumberish, BigNumberish, BigNumberish, string[]]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -72,12 +66,12 @@ interface MultiSigCheckableInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "quorums", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "quorumsSubscribers",
+    functionFragment: "removeFromQuorum",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeFromQuorum",
-    values: [string, BytesLike, BigNumberish, BytesLike]
+    functionFragment: "removeFromQuorumGovernance",
+    values: [string, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -89,20 +83,20 @@ interface MultiSigCheckableInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateMinSignature",
-    values: [string, BigNumberish, BytesLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "usedHashes",
     values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "GOVERNANCE_GROUP_ID_MAX",
+    functionFragment: "GOVERNANCE_GROUP_ID",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "addToQuorum",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addToQuorumGovernance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
@@ -110,11 +104,6 @@ interface MultiSigCheckableInterface extends ethers.utils.Interface {
     functionFragment: "cancelSaltedSignature",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "forceRemoveFromQuorum",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quorumList", data: BytesLike): Result;
   decodeFunctionResult(
@@ -123,11 +112,11 @@ interface MultiSigCheckableInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "quorums", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "quorumsSubscribers",
+    functionFragment: "removeFromQuorum",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "removeFromQuorum",
+    functionFragment: "removeFromQuorumGovernance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -139,27 +128,15 @@ interface MultiSigCheckableInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateMinSignature",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "usedHashes", data: BytesLike): Result;
 
   events: {
-    "AddedToQuorum(address,address)": EventFragment;
     "AdminSet(address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "QuorumCreated(tuple)": EventFragment;
-    "QuorumUpdated(tuple)": EventFragment;
-    "RemovedFromQuorum(address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AddedToQuorum"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "QuorumCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "QuorumUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RemovedFromQuorum"): EventFragment;
 }
 
 export class MultiSigCheckable extends BaseContract {
@@ -206,13 +183,22 @@ export class MultiSigCheckable extends BaseContract {
   interface: MultiSigCheckableInterface;
 
   functions: {
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<[number]>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<[number]>;
 
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -223,20 +209,6 @@ export class MultiSigCheckable extends BaseContract {
       salt: BytesLike,
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -251,11 +223,10 @@ export class MultiSigCheckable extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
@@ -263,23 +234,21 @@ export class MultiSigCheckable extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     removeFromQuorum(
       _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    removeFromQuorumGovernance(
+      _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -298,25 +267,25 @@ export class MultiSigCheckable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
   };
 
-  GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<number>;
+  GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
 
   addToQuorum(
     _address: string,
     quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addToQuorumGovernance(
+    _address: string,
+    quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
     salt: BytesLike,
-    expiry: BigNumberish,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -330,20 +299,6 @@ export class MultiSigCheckable extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  forceRemoveFromQuorum(
-    _address: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  initialize(
-    quorumId: string,
-    groupId: BigNumberish,
-    minSignatures: BigNumberish,
-    ownerGroupId: BigNumberish,
-    addresses: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   owner(overrides?: CallOverrides): Promise<string>;
 
   quorumList(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
@@ -352,11 +307,10 @@ export class MultiSigCheckable extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, number, number] & {
+    [string, number, number] & {
       id: string;
-      groupId: BigNumber;
+      groupId: number;
       minSignatures: number;
-      ownerGroupId: number;
     }
   >;
 
@@ -364,23 +318,21 @@ export class MultiSigCheckable extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, number, number] & {
+    [string, number, number] & {
       id: string;
-      groupId: BigNumber;
+      groupId: number;
       minSignatures: number;
-      ownerGroupId: number;
     }
   >;
 
-  quorumsSubscribers(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   removeFromQuorum(
     _address: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  removeFromQuorumGovernance(
+    _address: string,
     salt: BytesLike,
-    expiry: BigNumberish,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -399,25 +351,25 @@ export class MultiSigCheckable extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  updateMinSignature(
-    quorumId: string,
-    minSignature: BigNumberish,
-    salt: BytesLike,
-    expiry: BigNumberish,
-    multiSignature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<number>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
 
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -431,20 +383,6 @@ export class MultiSigCheckable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     owner(overrides?: CallOverrides): Promise<string>;
 
     quorumList(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
@@ -453,11 +391,10 @@ export class MultiSigCheckable extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
@@ -465,23 +402,21 @@ export class MultiSigCheckable extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     removeFromQuorum(
       _address: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    removeFromQuorumGovernance(
+      _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -495,27 +430,10 @@ export class MultiSigCheckable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {
-    AddedToQuorum(
-      quorumId?: null,
-      subscriber?: null
-    ): TypedEventFilter<
-      [string, string],
-      { quorumId: string; subscriber: string }
-    >;
-
     AdminSet(admin?: null): TypedEventFilter<[string], { admin: string }>;
 
     OwnershipTransferred(
@@ -525,66 +443,25 @@ export class MultiSigCheckable extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
-
-    QuorumCreated(
-      quorum?: null
-    ): TypedEventFilter<
-      [
-        [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        }
-      ],
-      {
-        quorum: [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        };
-      }
-    >;
-
-    QuorumUpdated(
-      quorum?: null
-    ): TypedEventFilter<
-      [
-        [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        }
-      ],
-      {
-        quorum: [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        };
-      }
-    >;
-
-    RemovedFromQuorum(
-      quorumId?: null,
-      subscriber?: null
-    ): TypedEventFilter<
-      [string, string],
-      { quorumId: string; subscriber: string }
-    >;
   };
 
   estimateGas: {
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<BigNumber>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -595,20 +472,6 @@ export class MultiSigCheckable extends BaseContract {
       salt: BytesLike,
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -626,15 +489,14 @@ export class MultiSigCheckable extends BaseContract {
 
     quorums(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     removeFromQuorum(
       _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    removeFromQuorumGovernance(
+      _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -653,28 +515,28 @@ export class MultiSigCheckable extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    GOVERNANCE_GROUP_ID_MAX(
+    GOVERNANCE_GROUP_ID(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -685,20 +547,6 @@ export class MultiSigCheckable extends BaseContract {
       salt: BytesLike,
       expectedGroupId: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -719,15 +567,14 @@ export class MultiSigCheckable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     removeFromQuorum(
       _address: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeFromQuorumGovernance(
+      _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -743,15 +590,6 @@ export class MultiSigCheckable extends BaseContract {
 
     transferOwnership(
       newOwner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

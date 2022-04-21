@@ -22,39 +22,40 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface BridgePoolV12Interface extends ethers.utils.Interface {
   functions: {
     "DEFAULT_FEE_X10000()": FunctionFragment;
-    "GOVERNANCE_GROUP_ID_MAX()": FunctionFragment;
+    "GOVERNANCE_GROUP_ID()": FunctionFragment;
     "NAME()": FunctionFragment;
     "VERSION()": FunctionFragment;
     "addLiquidity(address,address)": FunctionFragment;
-    "addToQuorum(address,address,bytes32,uint64,bytes)": FunctionFragment;
+    "addToQuorum(address,address,uint16,uint16)": FunctionFragment;
+    "addToQuorumGovernance(address,address,uint16,uint16,bytes32,bytes)": FunctionFragment;
     "admin()": FunctionFragment;
-    "cancelSaltedSignature(bytes32,uint64,bytes)": FunctionFragment;
+    "allowTarget(address,uint256,address,uint16,bytes)": FunctionFragment;
+    "allowedTargets(uint32,address)": FunctionFragment;
+    "cancelSaltedSignature(bytes32,uint16,bytes)": FunctionFragment;
+    "configToken(address,uint64,bool,uint16,uint256[],address[],uint16,bytes)": FunctionFragment;
+    "disallowTarget(address,uint256)": FunctionFragment;
     "feeDistributor()": FunctionFragment;
-    "forceRemoveFromQuorum(address)": FunctionFragment;
-    "initialize(address,uint64,uint16,uint8,address[])": FunctionFragment;
     "inventory(address)": FunctionFragment;
     "liquidity(address,address)": FunctionFragment;
     "owner()": FunctionFragment;
     "quorumList(uint256)": FunctionFragment;
     "quorumSubscriptions(address)": FunctionFragment;
     "quorums(address)": FunctionFragment;
-    "quorumsSubscribers(address)": FunctionFragment;
-    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
-    "removeFromQuorum(address,bytes32,uint64,bytes)": FunctionFragment;
+    "removeFromQuorum(address)": FunctionFragment;
+    "removeFromQuorumGovernance(address,bytes32,bytes)": FunctionFragment;
     "removeLiquidity(address,address,uint256,uint256,address)": FunctionFragment;
     "removeLiquidityIfPossible(address,address,uint256)": FunctionFragment;
     "removeLiquiditySigned(address,address,uint256,uint32,bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "router()": FunctionFragment;
-    "routingTable()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setFeeDistributor(address)": FunctionFragment;
     "setRouter(address)": FunctionFragment;
-    "setRoutingTable(address)": FunctionFragment;
+    "setWithdrawConfig(address,uint64,uint16,bool,uint16,bytes)": FunctionFragment;
     "swap(address,address,uint256,address,address,address,address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "updateMinSignature(address,uint16,bytes32,uint64,bytes)": FunctionFragment;
     "usedHashes(bytes32)": FunctionFragment;
+    "withdrawConfigs(address)": FunctionFragment;
     "withdrawSigned(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
     "withdrawSignedVerify(address,address,uint256,address,uint32,bytes32,bytes)": FunctionFragment;
   };
@@ -64,7 +65,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "GOVERNANCE_GROUP_ID_MAX",
+    functionFragment: "GOVERNANCE_GROUP_ID",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
@@ -75,24 +76,45 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "addToQuorum",
-    values: [string, string, BytesLike, BigNumberish, BytesLike]
+    values: [string, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addToQuorumGovernance",
+    values: [string, string, BigNumberish, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "allowTarget",
+    values: [string, BigNumberish, string, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowedTargets",
+    values: [BigNumberish, string]
+  ): string;
   encodeFunctionData(
     functionFragment: "cancelSaltedSignature",
     values: [BytesLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "configToken",
+    values: [
+      string,
+      BigNumberish,
+      boolean,
+      BigNumberish,
+      BigNumberish[],
+      string[],
+      BigNumberish,
+      BytesLike
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "disallowTarget",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "feeDistributor",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "forceRemoveFromQuorum",
-    values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [string, BigNumberish, BigNumberish, BigNumberish, string[]]
   ): string;
   encodeFunctionData(functionFragment: "inventory", values: [string]): string;
   encodeFunctionData(
@@ -110,16 +132,12 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "quorums", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "quorumsSubscribers",
+    functionFragment: "removeFromQuorum",
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "receiveTokenFrom",
-    values: [string, string, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "removeFromQuorum",
-    values: [string, BytesLike, BigNumberish, BytesLike]
+    functionFragment: "removeFromQuorumGovernance",
+    values: [string, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "removeLiquidity",
@@ -138,10 +156,6 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "router", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "routingTable",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
   encodeFunctionData(
     functionFragment: "setFeeDistributor",
@@ -149,8 +163,15 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "setRouter", values: [string]): string;
   encodeFunctionData(
-    functionFragment: "setRoutingTable",
-    values: [string]
+    functionFragment: "setWithdrawConfig",
+    values: [
+      string,
+      BigNumberish,
+      BigNumberish,
+      boolean,
+      BigNumberish,
+      BytesLike
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "swap",
@@ -161,12 +182,12 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateMinSignature",
-    values: [string, BigNumberish, BytesLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "usedHashes",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawConfigs",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "withdrawSigned",
@@ -198,7 +219,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "GOVERNANCE_GROUP_ID_MAX",
+    functionFragment: "GOVERNANCE_GROUP_ID",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "NAME", data: BytesLike): Result;
@@ -211,20 +232,35 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     functionFragment: "addToQuorum",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "addToQuorumGovernance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "allowTarget",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "allowedTargets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "cancelSaltedSignature",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "configToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "disallowTarget",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "feeDistributor",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "forceRemoveFromQuorum",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "liquidity", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -235,15 +271,11 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "quorums", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "quorumsSubscribers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveTokenFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "removeFromQuorum",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeFromQuorumGovernance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -263,10 +295,6 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "routingTable",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setFeeDistributor",
@@ -274,7 +302,7 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setRouter", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setRoutingTable",
+    functionFragment: "setWithdrawConfig",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
@@ -282,11 +310,11 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "usedHashes", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "updateMinSignature",
+    functionFragment: "withdrawConfigs",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "usedHashes", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawSigned",
     data: BytesLike
@@ -297,27 +325,19 @@ interface BridgePoolV12Interface extends ethers.utils.Interface {
   ): Result;
 
   events: {
-    "AddedToQuorum(address,address)": EventFragment;
     "AdminSet(address)": EventFragment;
     "BridgeLiquidityAdded(address,address,uint256)": EventFragment;
     "BridgeLiquidityRemoved(address,address,uint256,uint256,address,uint256)": EventFragment;
     "BridgeSwap(address,address,address,uint256,address,address,address,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "QuorumCreated(tuple)": EventFragment;
-    "QuorumUpdated(tuple)": EventFragment;
-    "RemovedFromQuorum(address,address)": EventFragment;
     "TransferBySignature(address,address,uint256,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AddedToQuorum"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BridgeLiquidityAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BridgeLiquidityRemoved"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BridgeSwap"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "QuorumCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "QuorumUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RemovedFromQuorum"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferBySignature"): EventFragment;
 }
 
@@ -367,7 +387,7 @@ export class BridgePoolV12 extends BaseContract {
   functions: {
     DEFAULT_FEE_X10000(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<[number]>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<[number]>;
 
     NAME(overrides?: CallOverrides): Promise<[string]>;
 
@@ -382,13 +402,37 @@ export class BridgePoolV12 extends BaseContract {
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     admin(overrides?: CallOverrides): Promise<[string]>;
+
+    allowTarget(
+      token: string,
+      chainId: BigNumberish,
+      targetToken: string,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    allowedTargets(
+      chainId: BigNumberish,
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     cancelSaltedSignature(
       salt: BytesLike,
@@ -397,21 +441,25 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    configToken(
+      token: string,
+      feeX10000: BigNumberish,
+      noFee: boolean,
+      withdrawQuorumGroupId: BigNumberish,
+      targetChainIds: BigNumberish[],
+      targetTokens: string[],
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    disallowTarget(
+      token: string,
+      chainId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     feeDistributor(overrides?: CallOverrides): Promise<[string]>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -432,11 +480,10 @@ export class BridgePoolV12 extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
@@ -444,30 +491,21 @@ export class BridgePoolV12 extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
+    removeFromQuorum(
+      _address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    removeFromQuorum(
+    removeFromQuorumGovernance(
       _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -504,8 +542,6 @@ export class BridgePoolV12 extends BaseContract {
 
     router(overrides?: CallOverrides): Promise<[string]>;
 
-    routingTable(overrides?: CallOverrides): Promise<[string]>;
-
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -521,8 +557,13 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    setRoutingTable(
-      _routingTable: string,
+    setWithdrawConfig(
+      token: string,
+      feeX10000: BigNumberish,
+      groupId: BigNumberish,
+      noFee: boolean,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -542,16 +583,18 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<[boolean]>;
+
+    withdrawConfigs(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, number, boolean] & {
+        feeX10000: BigNumber;
+        groupId: number;
+        noFee: boolean;
+      }
+    >;
 
     withdrawSigned(
       token: string,
@@ -578,7 +621,7 @@ export class BridgePoolV12 extends BaseContract {
 
   DEFAULT_FEE_X10000(overrides?: CallOverrides): Promise<BigNumber>;
 
-  GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<number>;
+  GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
 
   NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -593,13 +636,37 @@ export class BridgePoolV12 extends BaseContract {
   addToQuorum(
     _address: string,
     quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  addToQuorumGovernance(
+    _address: string,
+    quorumId: string,
+    groupId: BigNumberish,
+    minSignatures: BigNumberish,
     salt: BytesLike,
-    expiry: BigNumberish,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   admin(overrides?: CallOverrides): Promise<string>;
+
+  allowTarget(
+    token: string,
+    chainId: BigNumberish,
+    targetToken: string,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  allowedTargets(
+    chainId: BigNumberish,
+    _address: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   cancelSaltedSignature(
     salt: BytesLike,
@@ -608,21 +675,25 @@ export class BridgePoolV12 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  configToken(
+    token: string,
+    feeX10000: BigNumberish,
+    noFee: boolean,
+    withdrawQuorumGroupId: BigNumberish,
+    targetChainIds: BigNumberish[],
+    targetTokens: string[],
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  disallowTarget(
+    token: string,
+    chainId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   feeDistributor(overrides?: CallOverrides): Promise<string>;
-
-  forceRemoveFromQuorum(
-    _address: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  initialize(
-    quorumId: string,
-    groupId: BigNumberish,
-    minSignatures: BigNumberish,
-    ownerGroupId: BigNumberish,
-    addresses: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
 
   inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -640,11 +711,10 @@ export class BridgePoolV12 extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, number, number] & {
+    [string, number, number] & {
       id: string;
-      groupId: BigNumber;
+      groupId: number;
       minSignatures: number;
-      ownerGroupId: number;
     }
   >;
 
@@ -652,30 +722,21 @@ export class BridgePoolV12 extends BaseContract {
     arg0: string,
     overrides?: CallOverrides
   ): Promise<
-    [string, BigNumber, number, number] & {
+    [string, number, number] & {
       id: string;
-      groupId: BigNumber;
+      groupId: number;
       minSignatures: number;
-      ownerGroupId: number;
     }
   >;
 
-  quorumsSubscribers(
-    arg0: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  receiveTokenFrom(
-    token: string,
-    from: string,
-    amount: BigNumberish,
+  removeFromQuorum(
+    _address: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  removeFromQuorum(
+  removeFromQuorumGovernance(
     _address: string,
     salt: BytesLike,
-    expiry: BigNumberish,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -712,8 +773,6 @@ export class BridgePoolV12 extends BaseContract {
 
   router(overrides?: CallOverrides): Promise<string>;
 
-  routingTable(overrides?: CallOverrides): Promise<string>;
-
   setAdmin(
     _admin: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -729,8 +788,13 @@ export class BridgePoolV12 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  setRoutingTable(
-    _routingTable: string,
+  setWithdrawConfig(
+    token: string,
+    feeX10000: BigNumberish,
+    groupId: BigNumberish,
+    noFee: boolean,
+    expectedGroupId: BigNumberish,
+    multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -750,16 +814,18 @@ export class BridgePoolV12 extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  updateMinSignature(
-    quorumId: string,
-    minSignature: BigNumberish,
-    salt: BytesLike,
-    expiry: BigNumberish,
-    multiSignature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+  withdrawConfigs(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, number, boolean] & {
+      feeX10000: BigNumber;
+      groupId: number;
+      noFee: boolean;
+    }
+  >;
 
   withdrawSigned(
     token: string,
@@ -786,7 +852,7 @@ export class BridgePoolV12 extends BaseContract {
   callStatic: {
     DEFAULT_FEE_X10000(overrides?: CallOverrides): Promise<BigNumber>;
 
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<number>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<number>;
 
     NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -801,13 +867,37 @@ export class BridgePoolV12 extends BaseContract {
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
     admin(overrides?: CallOverrides): Promise<string>;
+
+    allowTarget(
+      token: string,
+      chainId: BigNumberish,
+      targetToken: string,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    allowedTargets(
+      chainId: BigNumberish,
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     cancelSaltedSignature(
       salt: BytesLike,
@@ -816,21 +906,25 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    configToken(
+      token: string,
+      feeX10000: BigNumberish,
+      noFee: boolean,
+      withdrawQuorumGroupId: BigNumberish,
+      targetChainIds: BigNumberish[],
+      targetTokens: string[],
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    disallowTarget(
+      token: string,
+      chainId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     feeDistributor(overrides?: CallOverrides): Promise<string>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -848,11 +942,10 @@ export class BridgePoolV12 extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
@@ -860,30 +953,21 @@ export class BridgePoolV12 extends BaseContract {
       arg0: string,
       overrides?: CallOverrides
     ): Promise<
-      [string, BigNumber, number, number] & {
+      [string, number, number] & {
         id: string;
-        groupId: BigNumber;
+        groupId: number;
         minSignatures: number;
-        ownerGroupId: number;
       }
     >;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
+    removeFromQuorum(
+      _address: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    removeFromQuorum(
+    removeFromQuorumGovernance(
       _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -918,8 +1002,6 @@ export class BridgePoolV12 extends BaseContract {
 
     router(overrides?: CallOverrides): Promise<string>;
 
-    routingTable(overrides?: CallOverrides): Promise<string>;
-
     setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
 
     setFeeDistributor(
@@ -929,8 +1011,13 @@ export class BridgePoolV12 extends BaseContract {
 
     setRouter(_router: string, overrides?: CallOverrides): Promise<void>;
 
-    setRoutingTable(
-      _routingTable: string,
+    setWithdrawConfig(
+      token: string,
+      feeX10000: BigNumberish,
+      groupId: BigNumberish,
+      noFee: boolean,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -950,16 +1037,18 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<boolean>;
+
+    withdrawConfigs(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, number, boolean] & {
+        feeX10000: BigNumber;
+        groupId: number;
+        noFee: boolean;
+      }
+    >;
 
     withdrawSigned(
       token: string,
@@ -985,14 +1074,6 @@ export class BridgePoolV12 extends BaseContract {
   };
 
   filters: {
-    AddedToQuorum(
-      quorumId?: null,
-      subscriber?: null
-    ): TypedEventFilter<
-      [string, string],
-      { quorumId: string; subscriber: string }
-    >;
-
     AdminSet(admin?: null): TypedEventFilter<[string], { admin: string }>;
 
     BridgeLiquidityAdded(
@@ -1025,23 +1106,23 @@ export class BridgePoolV12 extends BaseContract {
 
     BridgeSwap(
       from?: null,
+      token?: string | null,
       originToken?: null,
-      token?: null,
       targetNetwork?: null,
       targetToken?: null,
       swapTargetTokenTo?: null,
-      targetAddress?: null,
+      targetAddrdess?: null,
       amount?: null
     ): TypedEventFilter<
       [string, string, string, BigNumber, string, string, string, BigNumber],
       {
         from: string;
-        originToken: string;
         token: string;
+        originToken: string;
         targetNetwork: BigNumber;
         targetToken: string;
         swapTargetTokenTo: string;
-        targetAddress: string;
+        targetAddrdess: string;
         amount: BigNumber;
       }
     >;
@@ -1052,56 +1133,6 @@ export class BridgePoolV12 extends BaseContract {
     ): TypedEventFilter<
       [string, string],
       { previousOwner: string; newOwner: string }
-    >;
-
-    QuorumCreated(
-      quorum?: null
-    ): TypedEventFilter<
-      [
-        [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        }
-      ],
-      {
-        quorum: [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        };
-      }
-    >;
-
-    QuorumUpdated(
-      quorum?: null
-    ): TypedEventFilter<
-      [
-        [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        }
-      ],
-      {
-        quorum: [string, BigNumber, number, number] & {
-          id: string;
-          groupId: BigNumber;
-          minSignatures: number;
-          ownerGroupId: number;
-        };
-      }
-    >;
-
-    RemovedFromQuorum(
-      quorumId?: null,
-      subscriber?: null
-    ): TypedEventFilter<
-      [string, string],
-      { quorumId: string; subscriber: string }
     >;
 
     TransferBySignature(
@@ -1118,7 +1149,7 @@ export class BridgePoolV12 extends BaseContract {
   estimateGas: {
     DEFAULT_FEE_X10000(overrides?: CallOverrides): Promise<BigNumber>;
 
-    GOVERNANCE_GROUP_ID_MAX(overrides?: CallOverrides): Promise<BigNumber>;
+    GOVERNANCE_GROUP_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1133,13 +1164,37 @@ export class BridgePoolV12 extends BaseContract {
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    allowTarget(
+      token: string,
+      chainId: BigNumberish,
+      targetToken: string,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    allowedTargets(
+      chainId: BigNumberish,
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     cancelSaltedSignature(
       salt: BytesLike,
@@ -1148,21 +1203,25 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    configToken(
+      token: string,
+      feeX10000: BigNumberish,
+      noFee: boolean,
+      withdrawQuorumGroupId: BigNumberish,
+      targetChainIds: BigNumberish[],
+      targetTokens: string[],
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    disallowTarget(
+      token: string,
+      chainId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     feeDistributor(overrides?: CallOverrides): Promise<BigNumber>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
 
     inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1186,22 +1245,14 @@ export class BridgePoolV12 extends BaseContract {
 
     quorums(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
+    removeFromQuorum(
+      _address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    removeFromQuorum(
+    removeFromQuorumGovernance(
       _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1238,8 +1289,6 @@ export class BridgePoolV12 extends BaseContract {
 
     router(overrides?: CallOverrides): Promise<BigNumber>;
 
-    routingTable(overrides?: CallOverrides): Promise<BigNumber>;
-
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1255,8 +1304,13 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    setRoutingTable(
-      _routingTable: string,
+    setWithdrawConfig(
+      token: string,
+      feeX10000: BigNumberish,
+      groupId: BigNumberish,
+      noFee: boolean,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1276,16 +1330,12 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     usedHashes(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    withdrawConfigs(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     withdrawSigned(
       token: string,
@@ -1315,7 +1365,7 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    GOVERNANCE_GROUP_ID_MAX(
+    GOVERNANCE_GROUP_ID(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1332,13 +1382,37 @@ export class BridgePoolV12 extends BaseContract {
     addToQuorum(
       _address: string,
       quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    addToQuorumGovernance(
+      _address: string,
+      quorumId: string,
+      groupId: BigNumberish,
+      minSignatures: BigNumberish,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    allowTarget(
+      token: string,
+      chainId: BigNumberish,
+      targetToken: string,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    allowedTargets(
+      chainId: BigNumberish,
+      _address: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     cancelSaltedSignature(
       salt: BytesLike,
@@ -1347,21 +1421,25 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    configToken(
+      token: string,
+      feeX10000: BigNumberish,
+      noFee: boolean,
+      withdrawQuorumGroupId: BigNumberish,
+      targetChainIds: BigNumberish[],
+      targetTokens: string[],
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    disallowTarget(
+      token: string,
+      chainId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     feeDistributor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    forceRemoveFromQuorum(
-      _address: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    initialize(
-      quorumId: string,
-      groupId: BigNumberish,
-      minSignatures: BigNumberish,
-      ownerGroupId: BigNumberish,
-      addresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
 
     inventory(
       arg0: string,
@@ -1391,22 +1469,14 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    quorumsSubscribers(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
+    removeFromQuorum(
+      _address: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    removeFromQuorum(
+    removeFromQuorumGovernance(
       _address: string,
       salt: BytesLike,
-      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1443,8 +1513,6 @@ export class BridgePoolV12 extends BaseContract {
 
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    routingTable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     setAdmin(
       _admin: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1460,8 +1528,13 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRoutingTable(
-      _routingTable: string,
+    setWithdrawConfig(
+      token: string,
+      feeX10000: BigNumberish,
+      groupId: BigNumberish,
+      noFee: boolean,
+      expectedGroupId: BigNumberish,
+      multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1481,17 +1554,13 @@ export class BridgePoolV12 extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    updateMinSignature(
-      quorumId: string,
-      minSignature: BigNumberish,
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
     usedHashes(
       arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawConfigs(
+      arg0: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

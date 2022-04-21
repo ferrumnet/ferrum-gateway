@@ -24,7 +24,6 @@ interface ICrucibleTokenInterface extends ethers.utils.Interface {
     "baseToken()": FunctionFragment;
     "deposit(address)": FunctionFragment;
     "overrideFee(address,uint8,uint64)": FunctionFragment;
-    "upgradeRouter(address)": FunctionFragment;
     "withdraw(address,uint256)": FunctionFragment;
   };
 
@@ -35,10 +34,6 @@ interface ICrucibleTokenInterface extends ethers.utils.Interface {
     values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "upgradeRouter",
-    values: [string]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdraw",
     values: [string, BigNumberish]
   ): string;
@@ -47,10 +42,6 @@ interface ICrucibleTokenInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "overrideFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeRouter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
@@ -118,11 +109,6 @@ export class ICrucibleToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    upgradeRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     withdraw(
       to: string,
       amount: BigNumberish,
@@ -146,11 +132,6 @@ export class ICrucibleToken extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  upgradeRouter(
-    router: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   withdraw(
     to: string,
     amount: BigNumberish,
@@ -168,8 +149,6 @@ export class ICrucibleToken extends BaseContract {
       newFeeX10000: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    upgradeRouter(router: string, overrides?: CallOverrides): Promise<void>;
 
     withdraw(
       to: string,
@@ -197,11 +176,6 @@ export class ICrucibleToken extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    upgradeRouter(
-      router: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     withdraw(
       to: string,
       amount: BigNumberish,
@@ -223,11 +197,6 @@ export class ICrucibleToken extends BaseContract {
       target: string,
       overrideType: BigNumberish,
       newFeeX10000: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeRouter(
-      router: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

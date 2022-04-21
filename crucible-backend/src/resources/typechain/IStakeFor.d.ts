@@ -79,22 +79,22 @@ export class IStakeFor extends BaseContract {
 
   functions: {
     stakeFor(
-      staker: string,
       token: string,
+      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   stakeFor(
-    staker: string,
     token: string,
+    staker: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     stakeFor(
-      staker: string,
       token: string,
+      staker: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -103,16 +103,16 @@ export class IStakeFor extends BaseContract {
 
   estimateGas: {
     stakeFor(
-      staker: string,
       token: string,
+      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     stakeFor(
-      staker: string,
       token: string,
+      staker: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };

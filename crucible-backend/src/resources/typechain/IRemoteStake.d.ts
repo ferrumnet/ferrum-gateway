@@ -141,7 +141,7 @@ export class IRemoteStake extends BaseContract {
       to: string,
       token: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     withdrawRewardsFor(
       to: string,

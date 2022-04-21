@@ -69,19 +69,6 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "router",
-        type: "address",
-      },
-    ],
-    name: "upgradeRouter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
         name: "to",
         type: "address",
       },

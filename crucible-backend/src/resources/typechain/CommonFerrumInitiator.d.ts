@@ -36,7 +36,6 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
     "openEnded(address,address,string,uint32,uint256,uint32,address,address[],bool,address,address,address,bytes32,bytes,uint32)": FunctionFragment;
     "owner()": FunctionFragment;
     "publicStaking(address,string,address,uint32,bytes,uint32)": FunctionFragment;
-    "receiveTokenFrom(address,address,uint256)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "rewardsTotal(address,address)": FunctionFragment;
     "setAdmin(address,address,uint8)": FunctionFragment;
@@ -111,10 +110,6 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "publicStaking",
     values: [string, string, string, BigNumberish, BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "receiveTokenFrom",
-    values: [string, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -208,10 +203,6 @@ interface CommonFerrumInitiatorInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "publicStaking",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveTokenFrom",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -394,13 +385,6 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -569,13 +553,6 @@ export class CommonFerrumInitiator extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  receiveTokenFrom(
-    token: string,
-    from: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -741,13 +718,6 @@ export class CommonFerrumInitiator extends BaseContract {
       minApy: BigNumberish,
       signature: BytesLike,
       signatureLifetime: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -978,13 +948,6 @@ export class CommonFerrumInitiator extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1150,13 +1113,6 @@ export class CommonFerrumInitiator extends BaseContract {
       minApy: BigNumberish,
       signature: BytesLike,
       signatureLifetime: BigNumberish,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    receiveTokenFrom(
-      token: string,
-      from: string,
-      amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

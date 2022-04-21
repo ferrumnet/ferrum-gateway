@@ -45,7 +45,13 @@ const _abi = [
       },
     ],
     name: "syncStake",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
