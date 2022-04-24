@@ -13,6 +13,8 @@ function href(): string {
 }
 
 export class Utils {
+    static readonly ZERO_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000';
+
     static getQueryparams(): any {
         const rv: any = {};
         const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));

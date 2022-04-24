@@ -18,6 +18,9 @@
     "bridge-frontend",
     "leaderboard-frontend",
     "leaderboard-backend",
+    "qp-explorer-commons",
+    "qp-explorer-frontend",
+    "qp-explorer-node",
     "commons/*",
     "bridge-cron"
   ],
