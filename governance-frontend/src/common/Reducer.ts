@@ -2,7 +2,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import { AnyAction } from "redux";
 import { QuorumSubscription } from "types";
 import { GovernanceClientActions } from "../GovernanceClient";
-import { methodSlice, newMethodSlice } from "../pages/Method";
+import { methodSlice, newMethodSlice } from "../pages/CallMethod/Method";
 import { CommonActions } from "./CommonActions";
 import { AppGlobalState, AppUserState } from "./GovernanceAppState";
 

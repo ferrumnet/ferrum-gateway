@@ -3,7 +3,7 @@ import { Injectable, LocalCache, ValidationUtils } from "ferrum-plumbing";
 import { NetworkedConfig, StakeInfo, StakeRewardInfo, 
 	StakeType, stakeTypeToInt, UserStakeInfo, StakingContracts, Utils, UserStakeRewardInfo } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
-import { RouterV2Staking__factory,
+import { RouterV2Staking__factory,CrucibleRouter__factory,
 	StakeOpen, StakeOpen__factory, StakeTimed__factory } from "../resources/typechain";
 import { PopulatedTransaction } from "ethers";
 
@@ -13,7 +13,7 @@ export class StakingService implements Injectable {
 	private cache = new LocalCache();
 	constructor (
 		private helper: EthereumSmartContractHelper,
-		private contracts: NetworkedConfig<StakingContracts>,
+		private contracts: NetworkedConfig<StakingContracts[]>,
 	) {}
 
 	__name__() { return 'StakingService'; }
@@ -29,65 +29,76 @@ export class StakingService implements Injectable {
 
 	// TODO: Implement allocation...
 	async stakeGetTransaction(userAddress: string, stakeType: StakeType,
-			stakeId: string, currency: string, amount: string)
+			stakeId: string, currency: string, amount: string,stakingAddress:string)
 	: Promise<CustomTransactionCallRequest> {
-		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
-		const router = this.router(network);
+		const [network,token] = EthereumSmartContractHelper.parseCurrency(currency);
+		const router = this.router(network,stakingAddress);
 		const amountBig = await this.helper.amountToMachine(currency, amount);
-		const tx = await router.populateTransaction.stake(userAddress, stakeTypeToInt(stakeType), stakeId, amountBig, { from: userAddress });
+		const tx = await router.populateTransaction.stakeFor(
+			userAddress, 
+			token, 
+			stakingAddress, 
+			amountBig, 
+			{ from: userAddress }
+		);
+		
+		return this.helper.fromTypechainTransactionWithGas(network, tx, userAddress);
+
 		console.log('POPULATED TX ');
 			return EthereumSmartContractHelper.fromTypechainTransaction(tx);
 		// return this.fromTypechain(network, tx, userAddress);
 	}
 
 	async takeRewardsGetTransaction(userAddress: string, network: string,
-			stakeType: StakeType, stakeId: string) {
-		const stake = this.stake(network, stakeType) as StakeOpen;
+			stakeType: StakeType, stakeId: string,stakingAddress:string) {
+		const stake = this.stake(network, stakeType,stakingAddress) as StakeOpen;
 		// const rewCurs = (await this.rewardCurrencies(network, stakeType, stakeId))
 		// 	.map(EthereumSmartContractHelper.parseCurrency).map(p => p[1]);
-		const tx = await stake.populateTransaction.withdrawRewards(userAddress, stakeId);
+		const tx = await stake.populateTransaction.withdrawRewards(userAddress, stakeId,{from: userAddress});
 		return this.helper.fromTypechainTransactionWithGas(network, tx, userAddress);
 	}
 
-	async withdrawGetTransaction(userAddress: string, stakeType: StakeType, stakeId: string, currency: string, amount: string) {
+	async withdrawGetTransaction(userAddress: string, stakeType: StakeType, stakeId: string, currency: string, amount: string,stakingAddress:string) {
 		const [network,] = EthereumSmartContractHelper.parseCurrency(currency);
 		const amountBig = await this.helper.amountToMachine(currency, amount);
-		const stake = this.stake(network, stakeType) as StakeOpen;
-		const tx = await stake.populateTransaction.withdraw(userAddress, stakeId, amountBig);
+		const stake = this.stake(network, stakeType,stakingAddress) as StakeOpen;
+		const tx = await stake.populateTransaction.withdraw(userAddress, stakeId, amountBig,{from: userAddress});
 		return this.helper.fromTypechainTransactionWithGas(network, tx, userAddress);
 	}
 
-	async stakeOf(userAddress: string, network: string, stakeType: StakeType, stakeId: string) {
-		const base = await this.baseCurrency(network, stakeType, stakeId);
-		const st = await this.stake(network, stakeType).stakeOf(stakeId, userAddress);
+	async stakeOf(userAddress: string, network: string, stakeType: StakeType, stakeId: string,stakingAddress:string) {
+		const base = await this.baseCurrency(network, stakeType, stakeId,stakingAddress);
+		const st = await this.stake(network, stakeType,stakingAddress).stakeOf(stakeId, userAddress);
 		return this.helper.amountToHuman(base, st.toString());
 	}
 
-	async rewardOf(userAddress: string, network: string, stakeType: StakeType, stakeId: string) {
-		const base = await this.baseCurrency(network, stakeType, stakeId);
-		const st = await this.stake(network, stakeType).stakeOf(stakeId, userAddress);
+	async rewardOf(userAddress: string, network: string, stakeType: StakeType, stakeId: string,stakingAddress:string) {
+		const base = await this.baseCurrency(network, stakeType, stakeId,stakingAddress);
+		const st = await this.stake(network, stakeType,stakingAddress).stakeOf(stakeId, userAddress);
 		return this.helper.amountToHuman(base, st.toString());
 	}
 
-	async userStakeInfo(userAddress: string, network: string, sType: StakeType, stakeId: string,
+	async userStakeInfo(userAddress: string, network: string, sType: StakeType, stakeId: string,stakingAddress:string
 		): Promise<UserStakeInfo> {
-		const stake = await this.stake(network, sType) as StakeOpen;
+		console.log(network,sType,stakingAddress)
+		const stake = await this.stake(network, sType,stakingAddress) as StakeOpen;
+		console.log(stake,"POPOPO21111")
 		const rewards: UserStakeRewardInfo[] = [];
-		const rewardToks = await this.rewardCurrencies(network, sType, stakeId);
+		const rewardToks = await this.rewardCurrencies(network, sType, stakeId,stakingAddress);
 		for(const rew of rewardToks) {
 			const rewardCurrency = Utils.toCurrency(network, rew);
 			rewards.push({
 				rewardCurrency,
 				rewardSymbol: await this.helper.symbol(rew),
 				rewardAmount: (await stake.rewardOf(stakeId, userAddress,
-					await this.rewardTokens(network, sType, stakeId))).toString(),
+					await this.rewardTokens(network, sType, stakeId,stakingAddress))).toString(),
 			} as UserStakeRewardInfo)
 		}
 		const nextWithdrawalTime = (await stake.withdrawTimeOf(stakeId, userAddress)).toNumber();
 		return {
 			network,
 			nextWithdrawalTime,
-			stake: await this.stakeOf(userAddress, network, sType, stakeId),
+			stake: await this.stakeOf(userAddress, network, sType, stakeId,stakingAddress),
 			stakeId,
 			stakeType: sType,
 			userAddress,
@@ -95,9 +106,9 @@ export class StakingService implements Injectable {
 		} as UserStakeInfo;
 	}
 
-	async stakeInfo(network: string, sType: StakeType, stakeId: string): Promise<StakeInfo> {
+	async stakeInfo(network: string, sType: StakeType, stakeId: string,stakingAddress:string): Promise<StakeInfo> {
 		return this.cache.getAsync(`STAKE_INFO-${network}-${sType}-${stakeId}`, async () => {
-			const stake = await this.stake(network, sType);
+			const stake = await this.stake(network, sType,stakingAddress);
 			const baseToken = await stake.baseToken(stakeId);
 			const baseCurrency = Utils.toCurrency(network, baseToken);
 			const baseSymbol = await this.helper.symbol(baseCurrency);
@@ -130,36 +141,37 @@ export class StakingService implements Injectable {
 		}, TEN_MINUTES_MILLI);
 	}
 
-	private async rewardCurrencies(network: string, sType: StakeType, stakeId: string): Promise<string[]> {
-		const rewToks = await this.rewardTokens(network, sType, stakeId);
+	private async rewardCurrencies(network: string, sType: StakeType, stakeId: string,stakingAddress:string): Promise<string[]> {
+		const rewToks = await this.rewardTokens(network, sType, stakeId,stakingAddress);
 		return (rewToks || []).map(t => Utils.toCurrency(network, t));
 	}
 
-	private async rewardTokens(network: string, sType: StakeType, stakeId: string) {
+	private async rewardTokens(network: string, sType: StakeType, stakeId: string,stakingAddress:string) {
 		return this.cache.getAsync(`REWARD_TOKENS-${network}-${sType}-${stakeId}`, async () => {
-			return await this.stake(network, sType).allowedRewardTokenList(stakeId);
+			return await this.stake(network, sType,stakingAddress).allowedRewardTokenList(stakeId);
 		});
 	}
 
-	private async baseCurrency(network: string, sType: StakeType, stakeId: string) {
+	private async baseCurrency(network: string, sType: StakeType, stakeId: string,stakingAddress:string) {
 		return this.cache.getAsync(`BASE-${network}-${sType}-${stakeId}`, async () => {
-			const stake = (await this.stake(network, sType)).baseToken(stakeId);
+			const stake = (await this.stake(network, sType,stakingAddress)).baseToken(stakeId);
 			return `${network}:${(await stake).toLowerCase()}`;
 		});
 	}
 
-	private stake(network: string, sType: StakeType) {
+	private stake(network: string, sType: StakeType,stakingAddress:string) {
 		ValidationUtils.isTrue(sType === 'openEnded' || sType === 'timed', 'Invalid stake type ' + sType);
 		const provider = this.helper.ethersProvider(network);
-		const address = sType === 'openEnded' ? this.contracts[network]?.openEnded : this.contracts[network]?.timed;
+		console.log(this.contracts[network],provider)
+		const address = sType === 'openEnded' ? (this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.openEnded : (this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.timed;
 		ValidationUtils.isTrue(!!address, `Not staking configured for ${network} - ${sType}`);
 		return sType === 'openEnded' ? StakeOpen__factory.connect(address, provider) : StakeTimed__factory.connect(address, provider);
 	}
 
-	private router(network: string) {
-		const routerAddress =this.contracts[network]?.router; 
+	private router(network: string,stakingAddress:string) {
+		const routerAddress =(this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.router; 
 		ValidationUtils.isTrue(!!routerAddress, `Not staking router configured for ${network}`);
 		const provider = this.helper.ethersProvider(network);
-		return RouterV2Staking__factory.connect(routerAddress, provider);
+		return CrucibleRouter__factory.connect(routerAddress, provider);
 	}
 }

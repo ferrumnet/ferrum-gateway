@@ -14,6 +14,7 @@ export interface StakingContracts {
 	openEnded: string;
 	timed: string;
 	factory: string;
+	address?:string;
 }
 
 export interface StakeRewardInfo {

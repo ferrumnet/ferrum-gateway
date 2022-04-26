@@ -5,7 +5,7 @@ import { StakingService } from "./StakingService";
 import { NetworkedConfig, StakingContracts } from "types";
 
 export interface StakingConfig {
-	contracts: NetworkedConfig<StakingContracts>;
+	contracts: NetworkedConfig<StakingContracts[]>;
 }
 
 export class StakingModule implements Module {

@@ -1,5 +1,6 @@
 import { RegisteredContract, GovernanceContract } from 'types';
 import * as CrucibleRouterJson from './crucible/CrucibleRouter.json';
+import * as CrucibleRouterV2Json from './crucible/CrucibleRouterV2.json';
 import * as MultiSig from './multiSig/MultiSig.json';
 import * as TokenDao from './tokenDao/TokenDao.json';
 
@@ -16,6 +17,7 @@ function merge(base: GovernanceContract, child: GovernanceContract): GovernanceC
 
 export const GovernanceContractDefinitions: { [k: string]: GovernanceContract } = {
 		'FERRUM_CRUCIBLE_ROUTER:000.001': merge(MultiSig, CrucibleRouterJson),
+		'FERRUM_CRUCIBLE_ROUTER:000.002': merge(MultiSig, CrucibleRouterV2Json),
 		'TOKEN_DAO:001.000': merge(MultiSig, TokenDao),
 }
 
@@ -23,6 +25,46 @@ export const GovernanceContractList: RegisteredContract[] = [
 	{
 		network: 'RINKEBY',
 		contractAddress: '0x9158c7bb428059ef23a705282cdc0f37f104ef81',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
+		network: 'BSC_TESTNET',
+		contractAddress: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
+		network: 'BSC_TESTNET',
+		contractAddress: '0x05d9Fdbb9B21907b1E8f8122D11FEb450B4b2870',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.002',
+	},
+	{
+		network: 'BSC_TESTNET',
+		contractAddress: '0x7807a7CEc6EA97025AE2f7eBF1C4f2fBcbD401A4',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.002',
+	},
+	{
+		network: 'BSC',
+		contractAddress: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
+		network: 'BSC',
+		contractAddress: '0x54C4c29e8f46B100eF10Af9331DaBFf33dfb1d62',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
+		network: 'BSC',
+		contractAddress: '0x3b83A1a700af32d17cE138d2527b2b48AdbA9b73',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
+	},
+	{
+		network: 'BSC',
+		contractAddress: '0x830A8E8Eb51639d79b50b24374A4a52541fD7788',
+		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.002',
+	},
+	{
+		network: 'RINKEBY',
+		contractAddress: '0xfE31f63BCd6Dd0297649Bb384ef2C89149c16A76',
 		governanceContractId: 'FERRUM_CRUCIBLE_ROUTER:000.001',
 	},
 	{

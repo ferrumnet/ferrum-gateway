@@ -175,6 +175,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	) {
 		const tx = await this.getGovTransaction(requestId);
 		ValidationUtils.isTrue(!!tx, 'requestId not found: ' + requestId);
+		console.log(tx.governanceContractId,'tx.governanceContractIdtx.governanceContractId')
 		const [c, m] = await this.getMethod(tx.governanceContractId, tx.method);
 		const quorumData = await this.contract(tx.network, tx.contractAddress)
 			.quorums(tx.quorum);

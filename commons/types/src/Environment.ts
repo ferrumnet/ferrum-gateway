@@ -13,7 +13,7 @@ export class Environment {
 		qa: 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev',
 		uat: 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev',
 		staging: 'https://api-gateway.stage.svcs.ferrumnetwork.io/gateway-backend-staging',
-		prod: 'https://sij6ulh6gc.execute-api.us-east-2.amazonaws.com/default/prod-gateway-backend',
+		prod: 'https://api-gateway.svcs.ferrumnetwork.io/gateway-backend-prod',
 	};
 
 	static uiStage(): AppUiStage {

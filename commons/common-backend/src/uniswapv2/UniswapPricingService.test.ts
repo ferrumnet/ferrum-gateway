@@ -1,4 +1,5 @@
 import { EthereumSmartContractHelper, Web3ProviderConfig } from "aws-lambda-helper/dist/blockchain";
+import { ConsoleLogger, LoggerFactory } from "ferrum-plumbing";
 import { UniswapPricingService } from "./UniswapPricingService";
 import { UniswapV2Client } from "./UniswapV2Client";
 import { UniswapV2Router } from "./UniswapV2Router";

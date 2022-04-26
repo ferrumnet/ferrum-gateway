@@ -1,6 +1,6 @@
 import { Container, Module } from 'ferrum-plumbing';
 import { ApiClient } from 'common-containers';
-import { CrucibleClient } from '../CrucibleClient';
+import { CrucibleClient } from './CrucibleClient';
 import { StakingClient } from '../staking/StakingClient';
 
 export class CrucibleModule implements Module {

@@ -6,6 +6,61 @@
 	},
 	"methods": [
 		{
+			"name": "updateCrucibleFees",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "crucible"},
+				{"type": "uint64", "name": "newFeeOnTransferX10000"},
+				{"type": "uint64", "name": "newFeeOnWithdrawX10000"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "crucible",
+						"type": "address"
+					},
+					{
+						"internalType": "uint64",
+						"name": "newFeeOnTransferX10000",
+						"type": "uint64"
+					},
+					{
+						"internalType": "uint64",
+						"name": "newFeeOnWithdrawX10000",
+						"type": "uint64"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "salt",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint64",
+						"name": "expiry",
+						"type": "uint64"
+					},
+					{
+						"internalType": "uint64",
+						"name": "expectedGroupId",
+						"type": "uint64"
+					},
+					{
+						"internalType": "bytes",
+						"name": "multiSignature",
+						"type": "bytes"
+					}
+				],
+				"name": "updateCrucibleFees",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
 			"name": "SetOpenCap",
 			"adminOnly": false,
 			"governanceOnly": true,
@@ -49,6 +104,58 @@
 					}
 				],
 				"name": "setOpenCap",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "OverrideFee",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "crucible"},
+				{"type": "address", "name": "target"},
+				{"type": "uint8", "name": "overrideType"},
+				{"type": "uint64", "name": "newFeeX10000"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "crucible",
+					"type": "address"
+				}, {
+					"internalType": "address",
+					"name": "target",
+					"type": "address"
+				}, {
+					"internalType": "enum ICrucibleToken.State",
+					"name": "overrideType",
+					"type": "uint8"
+				}, {
+					"internalType": "uint64",
+					"name": "newFeeX10000",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "uint64",
+					"name": "expectedGroupId",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "overrideFee",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"

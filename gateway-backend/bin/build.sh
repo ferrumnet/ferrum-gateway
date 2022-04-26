@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
-docker_account=806611346442.dkr.ecr.us-east-2.amazonaws.com
+
+docker_account= 806611346442.dkr.ecr.us-east-2.amazonaws.com
 build_version=1.0.0
 curdir="$(cd "$(dirname "$0")"; pwd -P)/$(basename "$0")"
 rundir="$(dirname "$curdir")"

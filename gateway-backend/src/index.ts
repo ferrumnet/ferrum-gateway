@@ -42,7 +42,7 @@ export class GatewayModule implements Module {
       cmkKeyId: AppConfig.env('CMK_KEY_ID'),
       jwtRandomBase: AppConfig.env('JWT_RANDOM_KEY'),
     }));
-      
+
     await BridgeModule.configuration();
     await CrucibleModule.configuration();
     await BridgeNodesRemoteAccessRequestProcessor.configuration();
