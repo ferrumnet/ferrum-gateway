@@ -8,7 +8,7 @@ import IconCryptoMoonbase from '../assets/images/moonbase.png'
 import IconCryptoFantom from '../assets/images/fantom.svg'
 import IconCryptoHarmony from '../assets/images/harmony.png'
 import IconCryptoShibuya from '../assets/images/shibuya.png'
-import IconCryptoShiden from '../assets/images/shiden.png'
+import IconCryptoShiden from '../assets/images/shiden.jpg'
 
 
 export const networkImages = {
