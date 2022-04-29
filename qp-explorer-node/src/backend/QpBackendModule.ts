@@ -1,7 +1,7 @@
 import { EthereumSmartContractHelper, } from "aws-lambda-helper/dist/blockchain";
 import { AuthTokenParser, } from 'aws-lambda-helper';
-import { Container, Module, LoggerFactory } from "ferrum-plumbing";
-import { AppConfig, WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
+import { Container, Module, LoggerFactory, ConsoleLogger } from "ferrum-plumbing";
+import { AppConfig, CommonBackendModule, WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
 import { CommonRpcHttpHandler } from 'common-backend/dist/app/CommonRpcHttpHandler';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalExplorerRequestProcessor } from "./QuantumPortalExplorerRequestProcessor";
@@ -30,6 +30,8 @@ export class QpBackendModule implements Module {
         'JWT_RANDOM_KEY': c.jwtRandomBase,
       }));
 
+    container.register(LoggerFactory, () => new LoggerFactory(n => new ConsoleLogger(n)));
+
     container.registerSingleton(QpExplorerService,
       c => new QpExplorerService(
         c.get(LoggerFactory),
@@ -51,6 +53,8 @@ export class QpBackendModule implements Module {
           c.get(LoggerFactory),
         )
     );
+
+    await container.registerModule(new CommonBackendModule());
 
     const conf = AppConfig.instance().get<QpExplorerNodeConfig>();
 		await container.get<QpExplorerService>(QpExplorerService).init(conf.database);

@@ -6,8 +6,6 @@ import { QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
     QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalLedgerMgr, QuantumPortalLedgerMgr__factory, } from "../resources";
-import { Utils } from "types";
-
 
 export class QpExplorerService extends MongooseConnection implements Injectable  {
     private cache = new LocalCache();

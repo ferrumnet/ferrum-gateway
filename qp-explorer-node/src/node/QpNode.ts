@@ -31,25 +31,35 @@ export class QpNode extends MongooseConnection implements Injectable  {
         this.txModel = QuantumPortalRemoteTransactoinModel(con);
     }
 
-    async process(network: string) {
+    async process(network: string, remoteNetwork: string) {
         // Process blocks for a network
         // For simplicity we only pick blocks are are finalized.
         // TODO: Include non-finalized blocks and update them as they are finalized
-        const lastBlockNonce = await this.getLastBlockNonceFromDb(network);
-        const currentBlockNonce = await this.getCurrentBlockNonce(network);
+        const lastBlockNonce = await this.getLastBlockNonceFromDb(network, remoteNetwork);
+        const currentBlockNonce = await this.getCurrentBlockNonce(network, remoteNetwork);
         this.log.info(`Loading blocks from ${lastBlockNonce} to ${currentBlockNonce}`);
+        if (!lastBlockNonce && !currentBlockNonce) {
+            // This is the first block. Try to process the first block
+            await this.processBlockByNonce(network, remoteNetwork, 0);
+            return;
+        }
         // TODO: Run in parallel if necessary
-        for (let i=lastBlockNonce + 1; i<=currentBlockNonce; i++) {
+        for (let i=(lastBlockNonce || 0) + 1; i<=currentBlockNonce; i++) {
             this.log.info(`Processing block ${network}:${i}`);
-            await this.processBlockByNonce(network, i);
+            try {
+                await this.processBlockByNonce(network, remoteNetwork, i);
+            } catch (e) {
+                this.log.error(`Error procssing block ${i} (${network} => ${remoteNetwork}}). Skipping...`, e);
+            }
         }
     }
 
-    async processBlockByNonce(network: string, i: number) {
+    async processBlockByNonce(network: string, remoteNetwork: string, i: number) {
         // Get the mined block and transactions.
         // Save them all in the db.
         // Update the last db loaded
-        const block = await this.getBlockByNonce(network, i);
+        const block = await this.getBlockByNonce(network, remoteNetwork, i);
+        ValidationUtils.isTrue(Utils.isNonzeroAddress(block.blockHash), `No block found ${network}:${i}`);
         const txs = block.transactions;
         txs.forEach((t, i) => {
             t.blockHash = block.blockHash;
@@ -60,41 +70,46 @@ export class QpNode extends MongooseConnection implements Injectable  {
         await this.saveTransactions(txs);
     }
 
-    private async getLastBlockNonceFromDb(network: string): Promise<number> {
-        const lb = await this.blockModel.find({network}).sort({nonce: -1}).limit(1).exec();
+    private async getLastBlockNonceFromDb(network: string, remoteNetwork): Promise<number|undefined> {
+        const lb = await this.blockModel.find({networkId: network, remoteNetworkId: remoteNetwork}).sort({nonce: -1}).limit(1).exec();
         if (!lb.length) {
-            return 0;
+            return;
         }
         return lb[0].nonce;
     }
 
-    private async getCurrentBlockNonce(network: string): Promise<number> {
+    private async getCurrentBlockNonce(network: string, remoteNetwork: string): Promise<number> {
         // lastFinalizedBlock
         const mgr = await this.mgr(network);
         const chainId = Networks.for(network).chainId;
-        const fb = await mgr.lastFinalizedBlock(chainId);
+        const remoteChainId = Networks.for(remoteNetwork).chainId;
+        const fb = await mgr.lastFinalizedBlock(remoteChainId);
         return fb.nonce.toNumber();
         // TODO: Update to include mined blocks and finalized blocks in parallel
     }
 
-    private async getBlockByNonce(network: string, nonce: number): Promise<QuantumPortalMinedBlock> {
+    private async getBlockByNonce(network: string, remoteNetwork: string, nonce: number): Promise<QuantumPortalMinedBlock> {
         // minedBlockByNonce -> Block & Transactions
         // key -> FinKey
         // Get finalization for the block
         const mgr = await this.mgr(network);
-        const version = await mgr.VERSION();
-        const chainId = Networks.for(network).chainId;
-        const [block, txs] = await mgr.minedBlockByNonce(chainId, nonce);
+        const version = await this.mgrVersion(network);
+        const remoteChainId = Networks.for(remoteNetwork).chainId;
+        const [block, txs] = await mgr.minedBlockByNonce(remoteChainId, nonce);
         const minerAddress = block.miner;
         const transactions: QuantumPortalRemoteTransactoin[] = [];
         for (let t of txs) {
-            const tokenId = Utils.toCurrency(network, t.token.toString());
-            const amountDisplay = await this.helper.amountToHuman(tokenId, t.amount.toString());
+            const token = t.token.toString();
+            const hasToken = Utils.isNonzeroAddress(token);
+            const tokenId = hasToken ? Utils.toCurrency(network, token) : '';
+            const amountDisplay = hasToken ? await this.helper.amountToHuman(tokenId, t.amount.toString()) : t.amount.toString();
             const transaction = {
+                networkId: remoteNetwork, // Transactions are mined in opposite direction
+                remoteNetworkId: network,
                 timestamp: t.timestamp.toNumber(),
-                remoteContract: t.remoteContract.toString(),
-                sourceMsgSender: t.sourceMsgSender.toString(),
-                sourceBeneficiary: t.sourceBeneficiary.toString(),
+                remoteContract: t.remoteContract.toString().toLowerCase(),
+                sourceMsgSender: t.sourceMsgSender.toString().toLowerCase(),
+                sourceBeneficiary: t.sourceBeneficiary.toString().toLowerCase(),
                 tokenId,
                 amountRaw: t.amount.toString(),
                 amountDisplay,
@@ -116,11 +131,12 @@ export class QpNode extends MongooseConnection implements Injectable  {
             blockHash: block.blockHash,
             minerId: `${Utils.toCurrency(network, minerAddress)}`,
             networkId: network,
+            remoteNetworkId: remoteNetwork,
             nonce: block.blockMetadata.nonce.toNumber(),
             stake: block.stake.toString(),
             timestamp: block.blockMetadata.timestamp.toNumber(),
             totalValue: block.totalValue.toString(),
-            version: await this.mgrVersion(network),
+            version,
             transactions,
             transactionCount: transactions.length,
             finalization,
@@ -129,7 +145,7 @@ export class QpNode extends MongooseConnection implements Injectable  {
 
     private async saveBlock(block: QuantumPortalMinedBlock) {
         this.verifyInit();
-        const res = await new this.blockModel!({...block, transactions: []});
+        const res = await new this.blockModel!({...block, transactions: []}).save();
         ValidationUtils.isTrue(!!res, 'Error saving block' + block);
     }
 
@@ -148,7 +164,7 @@ export class QpNode extends MongooseConnection implements Injectable  {
     async mgrVersion(network): Promise<string> {
         return this.cache.getAsync(network + 'MGR_VERSION', async () => {
             const mgr = await this.mgr(network);
-            return mgr.VERSION.toString();
+            return (await mgr.VERSION()).toString();
         });
     }
 }

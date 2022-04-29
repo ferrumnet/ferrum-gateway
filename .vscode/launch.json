@@ -7,6 +7,22 @@
 		{
 			"type": "pwa-node",
 			"request": "launch",
+			"name": "QP node",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/qp-explorer-node/src/node/Server.ts",
+			"preLaunchTask": "tsc: build - qp-explorer-node/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"env": {
+				"CONFIG_FILES": "${workspaceFolder}/qp-explorer-node/config.json"
+			}
+		},
+		{
+			"type": "pwa-node",
+			"request": "launch",
 			"name": "V12 node",
 			"skipFiles": [
 				"<node_internals>/**"

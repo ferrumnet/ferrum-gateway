@@ -1,11 +1,11 @@
 import { ValidationUtils } from "ferrum-plumbing";
 import { QuantumPortalRemoteTransactoin } from "qp-explorer-commons";
 import { Utils } from "types";
-import { Eth } from "web3-eth";
+import Eth from "web3-eth";
 import { soliditySha3 } from 'web3-utils';
 
 export class QpUtils {
-  static eth = new Eth();
+  static eth = new (Eth as any)() as Eth.Eth;
   static txHash(tx: QuantumPortalRemoteTransactoin): string {
     const [_, token] = !!tx.tokenId ? Utils.parseCurrency(tx.tokenId) : [,];
     const encoded = QpUtils.eth.abi.encodeParameters([

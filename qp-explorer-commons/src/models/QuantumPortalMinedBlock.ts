@@ -12,6 +12,7 @@ export interface QuantumPortalBlockFinalization {
 export interface QuantumPortalMinedBlock {
     version: string;
     networkId: string;
+    remoteNetworkId: string;
     nonce: number;
     timestamp: number;
     finalization?: QuantumPortalBlockFinalization;
@@ -34,6 +35,7 @@ const quantumPortalBlockFinalizationSchema = new Schema<Document&QuantumPortalBl
 const quantumPortalMinedBlockSchema = new Schema<Document&QuantumPortalMinedBlock>({
     version: String,
     networkId: String,
+    remoteNetworkId: String,
     nonce: Number,
     timestamp: Number,
     finalization: quantumPortalBlockFinalizationSchema,

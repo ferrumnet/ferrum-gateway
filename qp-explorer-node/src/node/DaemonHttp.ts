@@ -29,11 +29,12 @@ function sendOk(res: http.ServerResponse, message: string) {
 
 async function syncForNetwork(
   network: string,
+  remoteNetwork: string,
 ): Promise<string> {
   ValidationUtils.isTrue(!!network, '"network" is required');
   const c = await containerLazy.getAsync();
   const node = c.get<QpNode>(QpNode);
-  await node.process(network);
+  await node.process(network, remoteNetwork);
   return "Request submitted";
 }
 
@@ -57,7 +58,8 @@ export class DaemonHttp {
           .on("end", async () => {
             const command = Utils._getQueryparam(url, "command");
             const network = Utils._getQueryparam(url, "network");
-            console.log(`${url}?command=${command}&network=${network}`);
+            const remoteNetwork = Utils._getQueryparam(url, "remoteNetwork");
+            console.log(`${url}?command=${command}&network=${network}=>${remoteNetwork}`);
 
             try {
               let output: string = "";
@@ -65,6 +67,7 @@ export class DaemonHttp {
                 case "sync":
                   output = await syncForNetwork(
                     network,
+                    remoteNetwork,
                   );
                   break;
                 default:

@@ -14,6 +14,7 @@ export class QuantumPortalExplorerRequestProcessor
         private svc: QpExplorerService,
     ) {
         super();
+        this.registerProcessor('getHttpProviders', () => ({}) as any);
         this.registerProcessor('QpRecentBlocks', req =>
             this.svc.recentBlocks(req.data.page || 0, req.data.pageSize || 40));
         this.registerProcessor('QpRecentTxs', req => 
