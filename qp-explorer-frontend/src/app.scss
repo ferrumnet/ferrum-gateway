@@ -5,6 +5,14 @@
     border-color: #ceaa69;
   }
 }
+.link-style {
+  text-decoration: none;
+}
+.pointer-cursor {
+  cursor: pointer;
+  color: rgb(225 175 84 / 50%);
+  text-decoration: none;
+}
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
