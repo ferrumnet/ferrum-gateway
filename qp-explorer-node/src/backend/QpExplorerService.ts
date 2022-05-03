@@ -3,15 +3,17 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { MongooseConnection } from 'aws-lambda-helper';
 import { Connection, Document, Model } from 'mongoose';
 import { QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
-    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock } from 'qp-explorer-commons';
+    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalLedgerMgr, QuantumPortalLedgerMgr__factory, } from "../resources";
+import { AbiItem } from "web3-tools";
 
 export class QpExplorerService extends MongooseConnection implements Injectable  {
     private cache = new LocalCache();
     private log: Logger;
     private blockModel: Model<QuantumPortalMinedBlock&Document> | undefined;
     private txModel: Model<QuantumPortalRemoteTransactoin&Document> | undefined;
+    private accountModel: Model<QuantumPortalAccount&Document> | undefined;
 
     constructor(
         logFac: LoggerFactory,
@@ -27,6 +29,7 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
     initModels(con: Connection): void {
         this.blockModel = QuantumPortalMinedBlockModel(con);
         this.txModel = QuantumPortalRemoteTransactoinModel(con);
+        this.accountModel = QuantumPortalAccountModel(con);
     }
 
     async recentBlocks(page: number, pageSize: number): Promise<QuantumPortalMinedBlock[]> {
@@ -69,16 +72,69 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
        return rv.toJSON();
    }
 
+   async account(address: string): Promise<QuantumPortalAccount> {
+       ValidationUtils.isTrue(!!address, '"address" required');
+       this.verifyInit();
+       const rv = await this.accountModel.findOne({address}).exec();
+       if (!rv) {
+           return {
+               address: address.toLowerCase(),
+               contract: {},
+               isContract: false,
+           } as QuantumPortalAccount;
+       }
+       return rv.toJSON() as any;
+   }
+
+   async accountTransactions(address: string, page: number = 0, pageSize: number = 40): Promise<QuantumPortalRemoteTransactoin[]> {
+        ValidationUtils.isTrue(!!address, '"address" required');
+        address = address.toLocaleLowerCase();
+        this.verifyInit();
+        const rv = await this.txModel.find(
+            { '$or': [
+                { remoteContract: address },
+                { sourceMsgSender: address },
+                { sourceBeneficiary: address },
+            ]}
+        ).sort({timestamp: -1}).skip(page * pageSize).limit(pageSize).exec();
+        if (!rv) {
+           return [];
+        }
+        return rv.map(r => r.toJSON());
+   }
+
+   async accountBalances(address: string): Promise<QuantumPortalAccountBalance[]> {
+       // TODO:
+       // Get balance for all the base chains at least.
+       // TODO2:
+       // On the node, also check all the "Transfer" events and keep list of potential
+       // tokens in an account address.
+       // Also cache aggressively
+       return [];
+   }
+
+   async callMethod(network: string,
+            contractAddress: string,
+            abi: AbiItem,
+            method: string,
+            args: string[]) {
+		const web3 = await this.helper.web3(network);
+        const contract = new web3.Contract(abi, contractAddress);
+        const res = await contract.methods[method](...args).call();
+        if (!Array.isArray(res)) {
+            return res.toString();
+        }
+        const rv = { result: [], obj: {} } as any;
+        abi.outputs.forEach((out, i) => {
+            rv.result.push(res[i].toString());
+            rv.obj[out.name] = res[i].toString();
+        });
+        return rv;
+   }
+
    	private async mgr(network: string): Promise<QuantumPortalLedgerMgr> {
 		const provider = await this.helper.ethersProvider(network);
         const contract = quantumPortalContracts(network);
 		return QuantumPortalLedgerMgr__factory.connect(contract.manager, provider);
 	}
-
-    private async mgrVersion(network): Promise<string> {
-        return this.cache.getAsync(network + 'MGR_VERSION', async () => {
-            const mgr = await this.mgr(network);
-            return mgr.VERSION.toString();
-        });
-    }
 }

@@ -1,27 +1,26 @@
 import { JsonRpcRequest, } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
+import { AbiItem } from 'web3-tools';
 
 export const CommonActions = {
     WAITING: 'WAITING',
     WAITING_DONE: 'WAITING_DONE',
-    CONTINUATION_DATA_RECEIVED: 'CONTINUATION_DATA_RECEIVED',
-    CONTINUATION_DATA_FAILED: 'CONTINUATION_DATA_FAILED',
-    GROUP_INFO_LOADED: 'GROUP_INFO_LOADED',
     ERROR_OCCURED: 'ERROR_OCCURED',
-    RESET_ERROR: 'RESET_ERROR'
+    RESET_ERROR: 'RESET_ERROR',
 };
 
 export function addAction(type: string, payload: any) {
     return { type, payload };
 }
 
-export const APPLICATION_NAME = 'CRUCIBLE';
 export const QpExplorerActions = {
 	BLOCKS_UPDATED: 'BLOCKS_UPDATED',
 	TXS_UPDATED: 'TXS_UPDATED',
 	BLOCK_UPDATED: 'BLOCK_UPDATED',
 	TX_UPDATED: 'TX_UPDATED',
+	ACCOUNT_INFO_UPDATED: 'ACCOUNT_INFO_UPDATED',
+	CONTRACT_FIELD_LOADED: 'CONTRACT_FIELD_LOADED',
 };
 
 const Actions = QpExplorerActions;
@@ -85,5 +84,39 @@ export class QpExplorerClient {
 		if (!!tx) {
 			dispatch(addAction(Actions.TX_UPDATED, tx));
 		}
+	}
+
+	async account(dispatch: Dispatch<AnyAction>, address: string,) {
+        const account = await this.api.api({
+			command: 'QpAccount',
+			data: {address},
+			params: [],
+		} as JsonRpcRequest);
+		if (!!account) {
+			const transactions = await this.api.api({
+				command: 'QpAccountTransactions',
+				data: { address },
+				params: [],
+			} as JsonRpcRequest);
+			const balances = await this.api.api({
+				command: 'QpAccountBalances',
+				data: { address },
+				params: [],
+			} as JsonRpcRequest);
+			dispatch(addAction(Actions.ACCOUNT_INFO_UPDATED, {
+				account,
+				transactions: transactions || [],
+				balances: balances || [],
+			}));
+		}
+	}
+
+	async readContractField(
+		network: string, contract: string, abi: AbiItem[], method: string, args: string[]) {
+		return await this.api.api({
+			command: 'CallMethodOnContract',
+			data: {network, contract, abi, method, args},
+			params: []
+		});
 	}
 }

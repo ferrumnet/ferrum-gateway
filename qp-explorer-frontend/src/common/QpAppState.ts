@@ -1,7 +1,10 @@
 import { AppInitializingState, AppState } from 'common-containers';
-import { QuantumPortalMinedBlock, QuantumPortalRemoteTransactoin } from 'qp-explorer-commons';
+import { QuantumPortalMinedBlock, QuantumPortalRemoteTransactoin,
+    QuantumPortalAccountBalance,
+    QuantumPortalAccount} from 'qp-explorer-commons';
 
 export interface AppUiState {
+    readContract: any;
 };
 
 export interface AppUserState {
@@ -15,6 +18,11 @@ export interface AppGlobalState extends AppInitializingState {
     }|undefined,
     recentTransactions: QuantumPortalRemoteTransactoin[];
     selectedTransaction: QuantumPortalRemoteTransactoin|undefined;
+    selectedAddress: {
+        account: QuantumPortalAccount,
+        transactions: QuantumPortalRemoteTransactoin[],
+        balances: QuantumPortalAccountBalance[],
+    }|undefined,
     error: string|undefined;
 }
 

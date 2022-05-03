@@ -15,7 +15,6 @@ export function Transaction(props: {}) {
   const init = useSelector<QpAppState, boolean>(
     (state) => state.data.init.initialized
   );
-  console.log("TX NODE IS ", txid, network, init);
   const tx = useSelector<
     QpAppState,
     QuantumPortalRemoteTransactoin | undefined
@@ -53,14 +52,17 @@ export function Transaction(props: {}) {
           <Pair
             itemKey={<span>From {sourceChainLogo}</span>}
             value={tx.sourceMsgSender}
+            linkTo={`/address/${(tx.sourceMsgSender || '').toLowerCase()}`}
           />
           <Pair
             itemKey={<span>To {minedChainLogo}</span>}
             value={tx.remoteContract}
+            linkTo={`/address/${(tx.remoteContract || '').toLowerCase()}`}
           />
           <Pair
             itemKey={<span>Benficiary {sourceChainLogo}</span>}
             value={tx.sourceBeneficiary}
+            linkTo={`/address/${(tx.sourceBeneficiary || '').toLowerCase()}`}
           />
           <Pair
             itemKey={<span>Token {sourceChainLogo}</span>}

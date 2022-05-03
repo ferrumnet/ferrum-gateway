@@ -1,10 +1,12 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { QuantumPortalMinedBlock, QuantumPortalRemoteTransactoin } from "qp-explorer-commons";
 import { AnyAction } from "redux";
+import { readContractSlice } from "../pages/ContractInteraction";
 import { CommonActions, QpExplorerActions } from "../QpExplorerClient";
 import { AppGlobalState, AppUserState } from "./QpAppState";
 
 export const uiReducer = combineReducers({
+  readContract: readContractSlice.reducer,
 });
 
 export function userReducer(
@@ -36,6 +38,11 @@ function clientReducer(state: AppGlobalState, action: AnyAction): AppGlobalState
             ...state,
             selectedBlock: action.payload,
         };
+    case QpExplorerActions.ACCOUNT_INFO_UPDATED:
+        return {
+          ...state,
+          selectedAddress: action.payload,
+        };
     default:
       return state;
   }
@@ -47,6 +54,7 @@ export function dataReducer(
     recentTransactions: [],
     selectedBlock: undefined,
     selectedTransaction: undefined,
+    selectedAddress: undefined,
     waiting: false,
     initialized: false,
     error: undefined,

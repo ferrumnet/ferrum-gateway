@@ -1,9 +1,5 @@
-import { HttpRequestProcessor, LambdaHttpHandler, LambdaHttpRequest, RequestProcessorFunction,
-    RequestProcessorFunctionAuth, LambdaHttpHandlerHelper, LambdaHttpResponse, AuthTokenParser,
-    } from "aws-lambda-helper";
-import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { Injectable, LoggerFactory, JsonRpcRequest, } from "ferrum-plumbing";
-import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
+import { HttpRequestProcessor } from "aws-lambda-helper";
+import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { QpExplorerService } from "./QpExplorerService";
 
 export class QuantumPortalExplorerRequestProcessor
@@ -25,6 +21,19 @@ export class QuantumPortalExplorerRequestProcessor
             this.svc.blockTxs(req.data.network, req.data.blockHash));
         this.registerProcessor('QpTx', req =>
             this.svc.tx(req.data.network, req.data.txId));
+        this.registerProcessor('QpAccount', req =>
+            this.svc.account(req.data.address));
+        this.registerProcessor('QpAccountTransactions', req =>
+            this.svc.accountTransactions(req.data.address, req.data.page, req.data.pageSize));
+        this.registerProcessor('QpAccountBalances', req =>
+            this.svc.accountBalances(req.data.address));
+
+        this.registerProcessor('CallMethodOnContract', req => {
+            ValidationUtils.allRequired(
+                ['network', 'contract', 'abi', 'method', 'args'], req.data);
+            return this.svc.callMethod(
+            req.data.network, req.data.contract, req.data.abi, req.data.method, req.data.args)
+        });
     }
 
     __name__(): string {
