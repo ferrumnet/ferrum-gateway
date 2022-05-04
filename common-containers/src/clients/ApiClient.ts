@@ -145,7 +145,6 @@ export class ApiClient implements Injectable {
 	) {
 		ValidationUtils.isTrue(!!this.network, 'Not commected to a network');
 		const res = await fun();
-		console.log('RES ISO', res);
 		ValidationUtils.isTrue(!!res, 'Error calling deposit. No requests');
 		const requestId = await this.client.sendTransactionAsync(this.network as Network, [res], {});
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');

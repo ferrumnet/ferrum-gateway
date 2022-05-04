@@ -34,6 +34,12 @@ export class QuantumPortalExplorerRequestProcessor
             return this.svc.callMethod(
             req.data.network, req.data.contract, req.data.abi, req.data.method, req.data.args)
         });
+        this.registerProcessor('GetMethodTransactionOnContract', req => {
+            ValidationUtils.allRequired(
+                ['network', 'contract', 'abi', 'method', 'args', 'userAddress'], req.data);
+            return this.svc.methodGetTransaction(
+            req.data.network, req.data.contract, req.data.abi, req.data.method, req.data.args, req.data.userAddress)
+        });
     }
 
     __name__(): string {

@@ -1,4 +1,4 @@
-import { JsonRpcRequest, } from 'ferrum-plumbing';
+import { JsonRpcRequest, ValidationUtils } from 'ferrum-plumbing';
 import { ApiClient } from "common-containers";
 import { AnyAction, Dispatch } from '@reduxjs/toolkit';
 import { AbiItem } from 'web3-tools';
@@ -118,5 +118,21 @@ export class QpExplorerClient {
 			data: {network, contract, abi, method, args},
 			params: []
 		});
+	}
+
+	async writeContractField(
+		contract: string, abi: AbiItem[], method: string, args: string[]) {
+		ValidationUtils.isTrue(!!this.api.getAddress(), 'Makes sure to connect first');
+		return this.api.runServerTransaction(
+			async () => {
+				return await this.api.api({
+					command: 'GetMethodTransactionOnContract',
+					data: {
+						network: this.api.getNetwork(),
+						contract, abi, method, args,
+						userAddress: this.api.getAddress()
+					}, params: []
+				});
+			});
 	}
 }

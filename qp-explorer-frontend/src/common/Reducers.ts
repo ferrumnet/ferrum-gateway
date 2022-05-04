@@ -1,12 +1,16 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { QuantumPortalMinedBlock, QuantumPortalRemoteTransactoin } from "qp-explorer-commons";
 import { AnyAction } from "redux";
-import { readContractSlice } from "../pages/ContractInteraction";
+import { updateInputSlice } from "../pages/AbiInputGroup";
+import { readContractSlice } from "../pages/ContractInteractionReader";
+import { writeContractSlice } from "../pages/ContractInteractionWriter";
 import { CommonActions, QpExplorerActions } from "../QpExplorerClient";
 import { AppGlobalState, AppUserState } from "./QpAppState";
 
 export const uiReducer = combineReducers({
   readContract: readContractSlice.reducer,
+  writeContract: writeContractSlice.reducer,
+  abiInputGroup: updateInputSlice.reducer,
 });
 
 export function userReducer(

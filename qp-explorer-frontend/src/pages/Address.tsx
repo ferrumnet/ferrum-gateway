@@ -6,7 +6,8 @@ import { useParams } from "react-router";
 import { inject, Utils } from "types";
 import { QpAppState } from "../common/QpAppState";
 import { QpExplorerClient } from "../QpExplorerClient";
-import { ContractInteraction } from "./ContractInteraction";
+import { ContractInteractionReader } from "./ContractInteractionReader";
+import { ContractInteractionWriter } from "./ContractInteractionWriter";
 import { MultiLinePair, Pair } from "./Pair";
 import { TransactionItem } from "./RecentBlocksAndTxs";
 
@@ -90,7 +91,8 @@ export function Address(props: {}) {
               <>
               <div> &nbsp; </div>
               <h2>Contract [{net}]</h2>
-              <ContractInteraction network={net} />
+              <ContractInteractionReader network={net} />
+              <ContractInteractionWriter network={net} />
               </>
             ))
           }

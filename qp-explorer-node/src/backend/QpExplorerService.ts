@@ -5,7 +5,7 @@ import { Connection, Document, Model } from 'mongoose';
 import { QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
     QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
-import { QuantumPortalLedgerMgr, QuantumPortalLedgerMgr__factory, } from "../resources";
+import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { AbiItem } from "web3-tools";
 
 export class QpExplorerService extends MongooseConnection implements Injectable  {
@@ -132,9 +132,23 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
         return rv;
    }
 
-   	private async mgr(network: string): Promise<QuantumPortalLedgerMgr> {
-		const provider = await this.helper.ethersProvider(network);
-        const contract = quantumPortalContracts(network);
-		return QuantumPortalLedgerMgr__factory.connect(contract.manager, provider);
-	}
+   async methodGetTransaction(network: string,
+            contractAddress: string,
+            abi: AbiItem,
+            method: string,
+            args: string[],
+            from: string): Promise<CustomTransactionCallRequest> {
+		const web3 = await this.helper.web3(network);
+        const contract = new web3.Contract(abi, contractAddress);
+        const p = contract.methods[method](...args);
+        const nonce = await this.helper.web3(network).getTransactionCount(from, 'pending');
+        return EthereumSmartContractHelper.callRequest(
+            contractAddress,
+            '',
+            from,
+            p.encodeABI(),
+            undefined,
+            nonce,
+            `Custom Transaction`);
+   }
 }

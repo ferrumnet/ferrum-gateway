@@ -5,6 +5,8 @@ import { QuantumPortalMinedBlock, QuantumPortalRemoteTransactoin,
 
 export interface AppUiState {
     readContract: any;
+    writeContract: any;
+    abiInputGroup: any;
 };
 
 export interface AppUserState {

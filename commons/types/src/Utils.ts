@@ -195,6 +195,22 @@ export class Utils {
         }
         return '0x' + s;
     }
+
+    static isHex(s: string): boolean {
+        const re = /^(0x|)[0-9a-f]+$/i;
+        return re.test(s);
+    }
+
+    static isAddress(s: string): boolean {
+        return Utils.isHex(s) && 
+            (s.startsWith('0x')  || s.startsWith('0X')) &&
+            s.length === 42;
+    }
+
+    static isBigInt(s: string): boolean {
+        const re = /^[0-9]+$/i;
+        return re.test(s);
+    }
 }
 
 export class ParseBigError extends Error { }
