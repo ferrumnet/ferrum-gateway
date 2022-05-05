@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { FInputText } from "ferrum-design-system";
+import { FButton, FInputText, FLink } from "ferrum-design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Utils } from "types";
-import { AbiItem, AbiItemInputType } from "web3-tools";
+import { AbiItem, AbiItemInputType, Uint256Type } from "web3-tools";
 import { QpAppState } from "../common/QpAppState";
 
 export const updateInputSlice = createSlice({
@@ -10,13 +10,20 @@ export const updateInputSlice = createSlice({
     initialState: {
         errors: {} as { [k: string]: string },
         values: {} as { [k: string]: string },
+        displayValues: {} as { [k: string]: string },
+        convertToWei: {} as { [k: string]: boolean },
     },
     reducers: {
         valueChanged: (state, action) => {
-            const {key, value, error} = action.payload;
+            const {key, value, displayVal, error} = action.payload;
             state.values[key as string] = (value || '').toString();
+            state.displayValues[key as string] = (displayVal || '').toString();
             state.errors[key as string] = error;
         },
+        convertToWei: (state, action) => {
+            const { key } = action.payload;
+            state.convertToWei[key] = !state.convertToWei[key];
+        }
     },
 });
 
@@ -48,26 +55,44 @@ export function AbiInputGroup(props: {
     const dispatch = useDispatch();
     const fields = useSelector<
         QpAppState,
-        { errors: {[k: string]: string}, values: {[k: string]: string} }
+        {
+            errors: {[k: string]: string},
+            values: {[k: string]: string},
+            displayValues: {[k: string]: string},
+            convertToWei: { [k: string]: boolean } }
     >((state) => state.ui.abiInputGroup);
     return (
         <>
-        {props.item.inputs.map((input, i) => (
+        {props.item.inputs.map((input, i) => {
+            const key = abiInputGroupKey(props.prefix, props.itemIdx, i);
+            const convertToWei = fields.convertToWei[key];
+            let displayVal = convertToWei ? (fields.displayValues[key] || '') : fields.values[key];
+            return (
             <>
                 <FInputText
                     key={i}
                     label={input.name}
-                    value={fields.values[abiInputGroupKey(props.prefix, props.itemIdx, i)]}
+                    value={displayVal}
                     error={fields.errors[abiInputGroupKey(props.prefix, props.itemIdx, i)]}
                     onChange={(e: any) => {
                         const key = abiInputGroupKey(props.prefix, props.itemIdx, i);
-                        const value = e.target.value as string;
+                        const valueDis = e.target.value as string;
+                        const value = convertToWei ? Uint256Type.toWei(valueDis) : valueDis;
                         const error = validateForType(input.type, value);
-                        dispatch(updateInputSlice.actions.valueChanged({ key, value, error }));
+                        dispatch(updateInputSlice.actions.valueChanged({ key, value, displayVal: valueDis, error }));
                     }}
+                    postfix={
+                        Uint256Type.isUint(input.type) ? (
+                            <> <span>{convertToWei ? '(decimal)' : '(wei)'}</span> </>
+                        ) : undefined
+                    }
+                    postfixAction={() =>
+                        dispatch(updateInputSlice.actions.convertToWei({ key }))
+                    }
                 />
             </>
-        ))}
+            );})}
+            <br/>
         {props.children}
         </>
     );

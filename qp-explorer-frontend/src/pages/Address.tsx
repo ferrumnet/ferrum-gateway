@@ -7,7 +7,7 @@ import { inject, Utils } from "types";
 import { QpAppState } from "../common/QpAppState";
 import { QpExplorerClient } from "../QpExplorerClient";
 import { ContractInteractionReader } from "./ContractInteractionReader";
-import { ContractInteractionWriter } from "./ContractInteractionWriter";
+import { ContractInteractionWriter, getConnectedNetwork } from "./ContractInteractionWriter";
 import { MultiLinePair, Pair } from "./Pair";
 import { TransactionItem } from "./RecentBlocksAndTxs";
 
@@ -28,6 +28,7 @@ export function Address(props: {}) {
     QpAppState,
     QuantumPortalRemoteTransactoin[] | undefined
   >((state) => state.data.state.selectedAddress?.transactions) || [];
+  const connectedNetwork = useSelector<QpAppState, string|undefined>(getConnectedNetwork);
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -90,7 +91,7 @@ export function Address(props: {}) {
             (
               <>
               <div> &nbsp; </div>
-              <h2>Contract [{net}]</h2>
+              <h2>Contract [{net}{connectedNetwork === net ? ' - connected': ''}]</h2>
               <ContractInteractionReader network={net} />
               <ContractInteractionWriter network={net} />
               </>

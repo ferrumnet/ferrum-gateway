@@ -76,8 +76,6 @@ export function ContractInteractionReader(props: {network: string}) {
         { errors: {[k: string]: string}, values: {[k: string]: string} }
     >((state) => state.ui.abiInputGroup);
 
-    console.log('ADND WHAT ', fields, 'ADNDS[', abiInputGroupKey('read', 2, 0))
-
     const dispatch = useDispatch();
     const contract = account?.contract[props.network];
     if (!account || !contract) {
@@ -150,12 +148,6 @@ export function ContractInteractionReader(props: {network: string}) {
                 }
             </FCard>
             <div> &nbsp; </div>
-            <FCard>
-                <Pair
-                    itemKey={<h2>Write</h2>}
-                    value={''}
-                />
-            </FCard>
         </>
     )
 }

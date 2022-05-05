@@ -2,13 +2,17 @@ import { FCard } from "ferrum-design-system";
 import { QuantumPortalAccount } from "qp-explorer-commons";
 import { useDispatch, useSelector } from "react-redux"
 import { QpAppState } from "../common/QpAppState"
-import { AbiItem, AbiModel, AbiToUi, AbiUiItem, AbiUiReadableItem } from 'web3-tools';
+import { AbiItem, AbiToUi, AbiUiItem } from 'web3-tools';
 import { Pair } from "./Pair";
 import { FButton } from "ferrum-design-system";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { inject } from "types";
 import { QpExplorerClient } from "../QpExplorerClient";
 import { AbiInputGroup, abiInputGroupKey } from "./AbiInputGroup";
+
+export function getConnectedNetwork(state: QpAppState): string | undefined {
+    return (state.connection.account.user.accountGroups[0]?.addresses || [])[0]?.network;
+}
 
 export const writeContractSlice = createSlice({
     name: 'qp-frontend/writeContractSlice',
@@ -56,7 +60,9 @@ const writeContractField = createAsyncThunk('qp-frontend/writeContractField',
             );
             ctx.dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
         } catch (e) {
-            ctx.dispatch(writeContractSlice.actions.fieldError({method: payload.abiItem.name, error: e}));
+            console.log('Error doing what we do', e)
+            const error = (e as Error).message || (e as Error).toString()
+            ctx.dispatch(writeContractSlice.actions.fieldError({method: payload.abiItem.name, error}));
         }
 	}
 );
@@ -74,6 +80,7 @@ export function ContractInteractionWriter(props: {network: string}) {
         QpAppState,
         { errors: {[k: string]: string}, values: {[k: string]: string} }
     >((state) => state.ui.abiInputGroup);
+    const connectedNetwork = useSelector<QpAppState, string|undefined>(getConnectedNetwork);
     const dispatch = useDispatch();
     const contract = account?.contract[props.network];
     if (!account || !contract) {
@@ -110,6 +117,7 @@ export function ContractInteractionWriter(props: {network: string}) {
                                                 <FButton 
                                                     title={'write' + (writeState.pending[a.abiItem.name] ? ' (wait...)' : '')}
                                                     rounded={true}
+                                                    disabled={connectedNetwork !== props.network}
                                                     onClick={() => dispatch(writeContractField({
                                                         network: props.network,
                                                         address: account.address,
@@ -130,6 +138,7 @@ export function ContractInteractionWriter(props: {network: string}) {
                                             <FButton 
                                                 title={'read' + (writeState.pending[a.abiItem.name] ? ' (wait...)' : '')}
                                                 rounded={true}
+                                                disabled={connectedNetwork !== props.network}
                                                 onClick={() => dispatch(writeContractField({
                                                     network: props.network,
                                                     address: account.address,
@@ -146,12 +155,6 @@ export function ContractInteractionWriter(props: {network: string}) {
                 }
             </FCard>
             <div> &nbsp; </div>
-            <FCard>
-                <Pair
-                    itemKey={<h2>Write</h2>}
-                    value={''}
-                />
-            </FCard>
         </>
     )
 }
