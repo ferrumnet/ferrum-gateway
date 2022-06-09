@@ -103,6 +103,8 @@ export class Utils {
                 return `https://testnet.ftmscan.com/tx/${tid}`;
             case 'harmony_testnet_0':
                 return `https://explorer.pops.one/tx/${tid}`;
+            case 'harmony_mainnet_0':
+                return `https://explorer.harmony.one/tx/${tid}`;
             case 'ftm_mainnet':
                 return `https://ftmscan.com/tx/${tid}`;
             case 'shiden_testnet':
