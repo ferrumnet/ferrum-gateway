@@ -90,4 +90,3 @@ console.log('OPENING UP THE INDEX.TS')
 const handlerClass = new BasicHandlerFunction(new GatewayModule());
 
 export const handler = handlerClass.handler;
-

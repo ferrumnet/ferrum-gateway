@@ -13,6 +13,8 @@ function href(): string {
 }
 
 export class Utils {
+    static readonly ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
     static getQueryparams(): any {
         const rv: any = {};
         const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));
@@ -194,6 +196,22 @@ export class Utils {
             return s;
         }
         return '0x' + s;
+    }
+
+    static isHex(s: string): boolean {
+        const re = /^(0x|)[0-9a-f]+$/i;
+        return re.test(s);
+    }
+
+    static isAddress(s: string): boolean {
+        return Utils.isHex(s) && 
+            (s.startsWith('0x')  || s.startsWith('0X')) &&
+            s.length === 42;
+    }
+
+    static isBigInt(s: string): boolean {
+        const re = /^[0-9]+$/i;
+        return re.test(s);
     }
 }
 
