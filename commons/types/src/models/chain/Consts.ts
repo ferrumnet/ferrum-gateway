@@ -2,7 +2,7 @@ import { Networks } from "ferrum-plumbing";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
 
 export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET'
- ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0','FTM_TESTNET','FTM_MAINNET','SHIDEN_TESTNET','SHIDEN_MAINNET'];
+ ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0','FTM_TESTNET','FTM_MAINNET','SHIDEN_TESTNET','SHIDEN_MAINNET','HARMONY_MAINNET_0'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -35,6 +35,14 @@ export const FRMX: {[k: string]: [string, string]} = {
 };
 
 export const WETH: NetworkedConfig<string> = {
+	'RINKEBY': 'RINKEBY:0xc778417e063141139fce010982780140aa0cd5ab',
+	'ETHEREUM': 'ETHEREUM:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+	'BSC': 'BSC:0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+	'BSC_TESTNET': 'BSC_TESTNET:0xae13d989dac2f0debff460ac112a837c89baa7cd',
+	'POLYGON': 'POLYGON:0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+}
+
+export const ETH: NetworkedConfig<string> = {
 	'RINKEBY': 'RINKEBY:0xc778417e063141139fce010982780140aa0cd5ab',
 	'ETHEREUM': 'ETHEREUM:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
 	'BSC': 'BSC:0xae13d989dac2f0debff460ac112a837c89baa7cd',

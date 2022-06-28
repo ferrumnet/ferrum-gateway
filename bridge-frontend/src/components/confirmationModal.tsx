@@ -41,6 +41,7 @@ const images = {
   'MOON_MOONRIVER':IconCryptoMoonbase,
   'FTM_TESTNET':IconCryptoAvax,
   'HARMONY_TESTNET_0':IconCryptoHarmony,
+  'HARMONY_MAINNET_0':IconCryptoHarmony,
   'FTM_MAINNET':IconCryptoFantom,
   'SHIDEN_TESTNET':IconCryptoShibuya,
   'SHIDEN_MAINNET':IconCryptoShiden

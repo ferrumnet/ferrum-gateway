@@ -2,15 +2,14 @@
 .transaction-list-container {
 	min-width: 300px;
 	max-width: 500px;
-	min-height: 250px;
 	display: flex;
 	flex-direction: column;
-	padding: 16px;
+	padding: 0px 0.5px;
+    padding-top: 10px;
+	margin: 0px;
+    border-radius: 20px;
 }
 
 .transaction-list {
-	border: 2px;
-	border-style: solid;
 	flex: 1;
-	border-radius: 5px;
 }

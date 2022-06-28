@@ -1,0 +1,86 @@
+
+.crucible-view-container {
+	max-width: 600px;
+	min-width: 400px;
+	min-height: 400px;
+	display: flex;
+	flex-direction: column;
+}
+
+.crucible-title {
+	padding: 8px;
+}
+
+.crucible-title span {
+	font-size: medium;
+}
+
+.crucible-symbol {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-direction: row;
+	padding: 16px;
+}
+
+.crucible-symbol-left {
+	flex-direction: column;
+	font-size: large;
+	font-weight: bolder;
+}
+
+.crucible-symbol-right {
+	display: flex;
+	font-size: large;
+	justify-content: flex-end;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.crucible-details {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-direction: row;
+	padding: 16px;
+}
+
+.crucible-details-left {
+	flex-direction: column;
+	font-size: large;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.crucible-details-right {
+	justify-content: flex-end;
+	font-size: large;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.mint-box-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-height: 70px;
+	margin-top: 16px;
+}
+
+.mint-box {
+	display: flex;
+	flex-direction: column;
+	width: 200px;
+	background-color: yellow;
+	border-radius: 5px;
+	border-width: 3px;
+	padding: 8px;
+	min-height: 50px;
+}
+
+.crucible-balance {
+	font-size: x-large;
+}

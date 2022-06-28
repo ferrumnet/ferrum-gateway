@@ -76,6 +76,10 @@ export class NetworkTransactionWatcher implements Injectable {
       backLimit: 5000,
       lastToBlock: undefined,
     },
+    HARMONY_MAINNET_0:{
+      backLimit: 5000,
+      lastToBlock: undefined,
+    },
     SHIDEN_TESTNET:{
       backLimit: 5000,
       lastToBlock: undefined,
@@ -134,6 +138,9 @@ export class NetworkTransactionWatcher implements Injectable {
       ),
       HARMONY_TESTNET_0: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_HARMONY_TESTNET_0)
+      ),
+      HARMONY_MAINNET_0: new Web3(
+        new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_HARMONY_MAINNET_0)
       ),
       SHIDEN_TESTNET: new Web3(
         new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER_SHIDEN_TESTNET)

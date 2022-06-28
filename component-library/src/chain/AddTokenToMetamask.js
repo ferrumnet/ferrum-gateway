@@ -5,6 +5,7 @@ import { PlusOutlined } from '@ant-design/icons';
 export function AddTokenToMetamask({tokenData}) {
     const theme = useContext(ThemeContext);
     const styles = themedStyles(theme);
+    console.log(tokenData,'tokenData')
 	const currency = (tokenData || {}).currency;
 	if (!currency) {
 		return (<span>Cannot add to MetaMask. No token</span>)

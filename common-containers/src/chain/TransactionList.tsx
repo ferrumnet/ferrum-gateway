@@ -14,6 +14,7 @@ interface TransactionListProps {
 interface TransactionViewSummary {
 	pendingCount: number;
 	total: number;
+	address: string;
 }
 
 export interface TransactionViewSummaryProps {
@@ -21,12 +22,13 @@ export interface TransactionViewSummaryProps {
 }
 
 const defaultSummary = {
-	pendingCount: 0, total: 0,
+	pendingCount: 0, total: 0, address: '0x0...'
 } as TransactionViewSummary;
 
 interface TransactionSummaryProps {
 	network: string;
 	eventIsRelevant: (p: ChainEventBase) => boolean;
+	address: string;
 	summaryView: (props: {summary: TransactionViewSummary}) => any;
 }
 
@@ -99,7 +101,7 @@ export function TransactionSummary(props: TransactionSummaryProps) {
 	const allEvents = useSelector((state: AppState<any, any, any>) => state?.data?.transactions) || [];
 	const events = allEvents.filter(e => e.network === props.network && props.eventIsRelevant(e)); 
 	const pendingCount = events.filter(e => e.status === 'pending').length;
-	console.log('All events vs relevant', allEvents.length, events.length, props.network);
+	console.log('All events vs relevant', allEvents.length, events.length, props.network, allEvents);
 	if (!props.network) {
 		console.log('NO NETWORK!');
 		return (
@@ -109,6 +111,7 @@ export function TransactionSummary(props: TransactionSummaryProps) {
 	const summary = {
 		pendingCount,
 		total: events.length,
+		address: props.address
 	} as TransactionViewSummary;
 	console.log('SUMMARY', summary)
 	return (

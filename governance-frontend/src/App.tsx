@@ -1,6 +1,6 @@
 import React from 'react';
 import { StoreBuilder } from 'common-containers';
-import './App.css';
+import './app.scss';
 import { Dashboard } from './pages/Dashboard';
 import { dataReducer, uiReducer, userReducer } from './common/Reducer';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { Environment } from 'types';
 
 const _module = new GovernanceModule();
 const store = StoreBuilder.build(
-            userReducer, dataReducer, uiReducer, _module, Environment.defaultEndPoint());
+            userReducer, dataReducer, uiReducer, _module, "https://22phwrgczz.us-east-2.awsapprunner.com");
 
 function App() {
   return (

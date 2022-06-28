@@ -6,7 +6,7 @@ import { StoredAllocationCsv, CrucibleInfo, NetworkedConfig, MultiSigActor,
 export interface CrucibleConfig {
 	database: MongooseConfig;
 	contracts: NetworkedConfig<CrucibleContracts>;
-	stakingContracts: NetworkedConfig<StakingContracts>;
+	stakingContracts: NetworkedConfig<StakingContracts[]>;
 	actor: MultiSigActor;
 }
 

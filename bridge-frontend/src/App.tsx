@@ -22,7 +22,7 @@ const store = StoreBuilder.build(
   dataReducer,
   uiReducer,
   _module,
-  Environment.defaultEndPoint(),
+  Environment.defaultEndPoint()
 );
 
 const showThemeBuilder = false

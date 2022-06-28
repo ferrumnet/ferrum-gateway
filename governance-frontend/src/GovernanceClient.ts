@@ -28,13 +28,20 @@ export class GovernanceClient {
 	__name__() { return 'GovernanceClient'; }
 
 	async listContracts(dispatch: Dispatch<AnyAction>) {
-		const res = await this.api.api({
-			command: 'listContracts',
-			data: {},
-			params: [],
-		} as JsonRpcRequest);
-		if (!!res) {
-			dispatch(addAction(Actions.CONTRACTS_LOADED, res));
+		try{
+			dispatch(addAction(CommonActions.WAITING,''))
+			const res = await this.api.api({
+				command: 'listContracts',
+				data: {},
+				params: [],
+			} as JsonRpcRequest);
+			if (!!res) {
+				dispatch(addAction(Actions.CONTRACTS_LOADED, res));
+			}
+		}catch(e){
+			console.log(e)
+		}finally{
+			dispatch(addAction(CommonActions.WAITING_DONE,''))
 		}
 	}
 
@@ -163,6 +170,7 @@ export class GovernanceClient {
 		const eipArgs: any = { [method.name]: method.args };
 		const data: any = {};
 		method.args.forEach((a, i) => { data[a.name] = values[i]; });
+		console.log(contractName,contractVersion,Networks.for(network).chainId,contractAddress,method.name)
 		const ds = {
 			name: contractName,
 			version: contractVersion,

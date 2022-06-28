@@ -1,7 +1,7 @@
 import React from 'react';
 import { Networks } from 'ferrum-plumbing';
 // @ts-ignore
-import { TopBar, ConnectButton } from 'component-library';
+import { TopBar, ConnectButton,CnctButton } from 'component-library';
 import { ConnectButtonWapper, IConnectViewProps } from 'common-containers';
 import { FRM, FRMX } from 'types';
 
@@ -24,11 +24,10 @@ export function ConnectBtn(props: IConnectViewProps) {
 }
 
 export function ConnectBar(props: ConnectBarProps) {
-    const ConBot = <ConnectButtonWapper View={ConnectBtn} />
+	const ConBot = <ConnectButtonWapper View={CnctButton} />
     return (
         <TopBar
-            left={<img alt="Ferrum Network"
-                src="https://ferrum.network/wp-content/uploads/2020/09/ferrum-logo.png"/>}
+            left={<></>}
             right={(
                 <>
                   {ConBot}

@@ -21,6 +21,7 @@
     "office-ui-fabric-react": "^7.170.0",
     "popper.js": "^1.16.1",
     "react": "^17.0.2",
+    "react-app-rewired": "^2.1.8",
     "react-accessible-accordion": "^3.3.4",
     "react-bootstrap": "^1.6.0",
     "react-color-gradient-picker": "^0.1.2",
