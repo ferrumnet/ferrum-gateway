@@ -29,9 +29,6 @@ export const networkImages = {
   "FTM_MAINNET":IconCryptoFantom,
   "SHIDEN_TESTNET":IconCryptoShibuya,
   "SHIDEN_MAINNET":IconCryptoShiden,
-
-
-
 }
 
 export const supportedIcons = {

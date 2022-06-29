@@ -223,7 +223,7 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
             .find(Boolean);
             console.log(targetNetworks,networkOptions,allowedTargets,currentPair)
 
-    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from appconfig
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
     const availableLiquidity = appState.data.state
         .bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';

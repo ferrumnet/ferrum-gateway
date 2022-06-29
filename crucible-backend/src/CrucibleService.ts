@@ -18,7 +18,6 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { sha256 } from 'ferrum-crypto';
 import { MultiSigUtils } from 'web3-tools/dist/MultiSigUtils';
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
-import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
 import { OneInchPricingService } from "common-backend/dist/oneinchPricingSvc/OneInchPricingService";
 
 export const CACHE_TIMEOUT = 120 * 1000; // 2 mins
@@ -216,7 +215,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 				baseAmountInt,
 				ammRouter,
 				staking,
-				'0x',
+				// '0x',
 				deadline,
 				this.signingActor.groupId,
 				MultiSigUtils.toBytes(allocation.signature),
@@ -230,7 +229,7 @@ export class CrucibeService extends MongooseConnection implements Injectable {
 				targetAmountInt,
 				ammRouter,
 				staking,
-				'0x',
+				// '0x',
 				deadline,
 				this.signingActor.groupId,
 				MultiSigUtils.toBytes(allocation.signature),

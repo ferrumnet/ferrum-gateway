@@ -9,7 +9,6 @@ import { BasicAllocation } from "common-backend/dist/contracts/BasicAllocation";
 import { CRUCIBLE_CONTRACTS_V_0_1, STAKING_CONTRACTS_V_0_1 } from "types";
 import { StakingConfig, StakingModule } from "./staking/StakingModule";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
-import {OneInchClient} from 'common-backend/dist/oneInchClient/OneInchClient';
 import {OneInchPricingService} from 'common-backend/dist/oneinchPricingSvc/OneInchPricingService';
 export class CrucibleModule implements Module {
   static async configuration() {
@@ -61,9 +60,9 @@ export class CrucibleModule implements Module {
       (c) => new BasicAllocation(c.get(EthereumSmartContractHelper))
     );
 
-    container.register(OneInchClient,(c)=>new OneInchClient(c.get(EthereumSmartContractHelper),c.get(LoggerFactory)))
+    // container.register(OneInchClient,(c)=>new OneInchClient(c.get(EthereumSmartContractHelper),c.get(LoggerFactory)))
 
-    container.register(OneInchPricingService, (c)=> new OneInchPricingService(c.get(OneInchClient)))
+    container.register(OneInchPricingService, (c)=> new OneInchPricingService({} as any /*c.get(OneInchClient)*/))
 		
     await container.get<ChainEventService>(ChainEventService).init(conf.database);
     

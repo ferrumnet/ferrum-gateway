@@ -212,7 +212,7 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): n
     let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
     address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address as any;
     currency = address ? address.currency : addr[0].currency;
-    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from appconfig
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
 	const currentNetwork = supportedNetworks[address.network] || {};
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])

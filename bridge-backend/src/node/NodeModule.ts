@@ -16,6 +16,7 @@ import { WithdrawItemValidator } from "./WithdrawItemValidator";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { WebNativeCryptor, CryptoJsKeyProvider } from 'ferrum-crypto';
 import { LiquidityBalancerProcessor, LiquidityClient } from "./extra/LiquidityBalancerProcessor";
+import { NodeUtils } from "./common/NodeUtils";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
@@ -34,7 +35,7 @@ export class NodeModule implements Module {
       (c) =>
         new TokenBridgeContractClinet(
           c.get(EthereumSmartContractHelper),
-          BRIDGE_V1_CONTRACTS
+		  NodeUtils.bridgeV1ContractsForNode(),
         ));
 
 	container.registerSingleton(TransactionListProvider,

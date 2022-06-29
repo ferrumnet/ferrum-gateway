@@ -29,6 +29,9 @@ global.fetch = fetch;
 export class GatewayModule implements Module {
   async configAsync(container: Container) {
 
+    // Get JSON constants.
+    await AppConfig.instance().loadConstants();
+
     // Set up the configs
     await AppConfig.instance().forChainProviders();
     await AppConfig.instance().fromSecret('', 'BRIDGE');
@@ -48,7 +51,7 @@ export class GatewayModule implements Module {
     await BridgeNodesRemoteAccessRequestProcessor.configuration();
 
     AppConfig.instance()
-      .chainsRequired('', SUPPORTED_CHAINS_FOR_CONFIG)
+      .chainsRequired('', AppConfig.instance().constants()?.bridgeNetworks || SUPPORTED_CHAINS_FOR_CONFIG)
       .required<WithDatabaseConfig&WithJwtRandomBaseConfig>('', c => ({
         'MONGOOSE_CONNECTION_STRING': c.database.connectionString!,
         'JWT_RANDOM_KEY': c.jwtRandomBase,

@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { Big } from 'big.js';
-import { HexString, Networks } from 'ferrum-plumbing';
+import { HexString, NetworkedConfig, Networks } from 'ferrum-plumbing';
 
 export function logError(msg: string, err: Error) {
     console.error(msg, err);
@@ -14,6 +14,13 @@ function href(): string {
 
 export class Utils {
     static readonly ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+    private static linkForAddressConsts: NetworkedConfig<string> = {} as any;
+    private static linkForTransactionConsts: NetworkedConfig<string> = {} as any;
+
+    static initConstants(linkForAddressConsts: NetworkedConfig<string>, linkForTransactionConsts: NetworkedConfig<string>) {
+        Utils.linkForAddressConsts = linkForAddressConsts;
+        Utils.linkForTransactionConsts = linkForTransactionConsts;
+    }
 
     static getQueryparams(): any {
         const rv: any = {};
@@ -72,7 +79,11 @@ export class Utils {
             case 'polygon':
                 return `https://polygonscan.com/address/${addr}`;
             default:
-                return Networks.for(network).explorer + `/address/${addr}`;
+                if (!!Utils.linkForAddressConsts[network]) {
+                    return Utils.linkForAddressConsts[network].replace('{addr}', addr);
+                } else {
+                    return Networks.for(network).explorer + `/address/${addr}`;
+                }
         }
         return '';
     }
@@ -112,7 +123,11 @@ export class Utils {
             case 'shiden_mainnet':
                 return `https://blockscout.com/shiden/tx/${tid}`;
             default:
-                return Networks.for(network).explorer + `/tx/${tid}`;
+                if (!!Utils.linkForTransactionConsts[network]) {
+                    return Utils.linkForTransactionConsts[network].replace('{tid}', tid);
+                } else {
+                    return Networks.for(network).explorer + `/tx/${tid}`;
+                }
         }
         return '';
     }

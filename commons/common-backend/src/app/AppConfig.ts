@@ -1,6 +1,7 @@
 import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
-import { NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
+import { Fetcher, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { loadConfigFromFile } from "../dev/DevConfigUtils";
+import { BackendConstants } from "./BackendConstants";
 
 export const SUPPORTED_CHAINS_FOR_CONFIG = [
     'ETHEREUM', 'BSC', 'POLYGON', 
@@ -38,6 +39,7 @@ export interface WithKmsConfig {
  */
 export class AppConfig {
     private static _instance: AppConfig;
+    private static DEFAULT_CONSTANTS = ''; // TODO: github location
     static instance() {
         if (!AppConfig._instance) {
             AppConfig._instance = new AppConfig();
@@ -60,6 +62,7 @@ export class AppConfig {
     }
 
     private conf: any = {};
+    private _constants: BackendConstants = {} as any;
 
     get<T>(field?: string): T {
         if (field) {
@@ -107,11 +110,20 @@ export class AppConfig {
         return this;
     }
 
+    async loadConstants(path?: string) {
+        const fetcher = new Fetcher(undefined);
+        this._constants = await fetcher.fetch(path || AppConfig.DEFAULT_CONSTANTS, undefined) || {} as any;
+    }
+    
+    constants() {
+        return this._constants;
+    }
+
     async forChainProviders(field?: string, supportedChains?: string[]) {
         return (await this.fromSecret(field || 'providers', 'CHAIN_CONFIG'))
             .orElse(field || 'providers', () => {
                 const v: any = {};
-                (supportedChains ||SUPPORTED_CHAINS_FOR_CONFIG).forEach(c => {
+                (supportedChains || this._constants.bridgeNetworks || SUPPORTED_CHAINS_FOR_CONFIG).forEach(c => {
                     v[c] = process.env['WEB3_PROVIDER_' + c];
                 });
                 return v;
