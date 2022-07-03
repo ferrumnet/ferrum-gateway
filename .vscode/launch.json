@@ -59,7 +59,7 @@
 				"<node_internals>/**"
 			],
 			"program": "${workspaceFolder}/gateway-backend/sim_lambda.js",
-			"preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
+			// "preLaunchTask": "tsc: build - gateway-backend/tsconfig.json",
 			"outFiles": [
 				"${workspaceFolder}/**/*.js"
 			],

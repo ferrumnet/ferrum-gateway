@@ -11,7 +11,7 @@ import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
-import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
+import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, Utils } from "types";
 import { BridgeNodesRemoteAccessRequestProcessor } from "..";
 import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
 import { LiquidityBalancerRequestProcessor } from "./nodeRemoteAccess/LiquidityBalancerRequestProcessor";
@@ -51,9 +51,11 @@ export class BridgeModule implements Module {
 
       .orElse('', () => ({
         bridgeConfig: {
-          contractClient: AppConfig.instance().constants()?.contracts?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS,
+          contractClient: {
+            ...BRIDGE_V1_CONTRACTS,
+          }
         },
-        bridgeV12Config: AppConfig.instance().constants()?.contracts?.bridgeV1Contracts || BRIDGE_V12_CONTRACTS,
+        bridgeV12Config: BRIDGE_V12_CONTRACTS, 
         swapProtocols: {},
         validatorAddressesV1: AppConfig.env('BRIDGE_VALIDATOR_ADDRESSES_V1', '')
           .toLowerCase().split(','),

@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useState} from 'react';
 import { useId } from '@fluentui/react-hooks';
 import {
   mergeStyleSets,
@@ -6,7 +6,7 @@ import {
   Modal,
   IIconProps,
 } from '@fluentui/react';
-import { IconButton, IButtonStyles } from '@fluentui/react/lib/Button';
+import { IButtonStyles } from '@fluentui/react/lib/Button';
 import { Steps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import 'antd/dist/antd.css';
@@ -22,8 +22,7 @@ import IconCryptoMoonbase from '../assets/img/moonbase.png'
 import IconCryptoFantom from '../assets/img/fantom.svg'
 import IconCryptoHarmony from '../assets/img/harmony.png'
 import IconCryptoShibuya from '../assets/img/shibuya.png'
-import IconCryptoShiden from '../assets/img/shiden.png'
-
+import IconCryptoShiden from '../assets/img/shiden.jpg'
 
 import { formatter } from './../common/Utils';
 
@@ -45,9 +44,6 @@ const images = {
   'FTM_MAINNET':IconCryptoFantom,
   'SHIDEN_TESTNET':IconCryptoShibuya,
   'SHIDEN_MAINNET':IconCryptoShiden
-
-
-
 }
 
 const { Step } = Steps;

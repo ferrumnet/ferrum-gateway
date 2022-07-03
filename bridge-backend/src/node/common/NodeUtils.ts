@@ -17,7 +17,12 @@ export class NodeUtils {
     }
 
     static bridgeV1ContractsForNode(): NetworkedConfig<string> {
-        return AppConfig.instance().get('bridgeV1Contracts') || BRIDGE_V1_CONTRACTS
+        const nets = AppConfig.instance().get('bridgeV1Contracts') || BRIDGE_V1_CONTRACTS
+        const rv = {} as a
+        Object.keys(nets).forEach(k => {
+            rv[k] = (nets[k] || '').toLowerCase();
+        });
+        return rv;
     }
 
     static bridgeV1Hash(

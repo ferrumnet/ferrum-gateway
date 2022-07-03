@@ -3,13 +3,6 @@ import { Fetcher, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { loadConfigFromFile } from "../dev/DevConfigUtils";
 import { BackendConstants } from "./BackendConstants";
 
-export const SUPPORTED_CHAINS_FOR_CONFIG = [
-    'ETHEREUM', 'BSC', 'POLYGON', 
-    // 'AVAX',
-    'RINKEBY', 'BSC_TESTNET', 'MUMBAI_TESTNET', 'AVAX_TESTNET','MOON_MOONBASE','AVAX_MAINNET',
-    'MOON_MOONRIVER','HARMONY_TESTNET_0',"FTM_TESTNET","FTM_MAINNET","SHIDEN_TESTNET","SHIDEN_MAINNET","HARMONY_MAINNET_0"
-    ];
-
 require('dotenv').config()
 
 export interface WithJwtRandomBaseConfig {
@@ -39,7 +32,8 @@ export interface WithKmsConfig {
  */
 export class AppConfig {
     private static _instance: AppConfig;
-    private static DEFAULT_CONSTANTS = ''; // TODO: github location
+    private static DEFAULT_CONSTANTS = 'https://raw.githubusercontent.com/ferrumnet/ferrum-token-list/main/bridge/constants.json';
+    private static CONFIG_FILE_PREFIX = 'CONFIG_FILE_';
     static instance() {
         if (!AppConfig._instance) {
             AppConfig._instance = new AppConfig();
@@ -87,12 +81,16 @@ export class AppConfig {
         return this;
     }
 
+    /**
+     * Loads configuration from secret. If secret not configured, it will check the config file.
+     */
     async fromSecret(
         field: string,
         secretSuffix: string,
     ) {
       const region = AppConfig.awsRegion();
       const confArn = process.env[AwsEnvs.AWS_SECRET_ARN_PREFIX + secretSuffix];
+      const confFilePath = process.env[AppConfig.CONFIG_FILE_PREFIX + secretSuffix];
         if (confArn) {
             const conf = await new SecretsProvider(region, confArn).get();
             if (!!field) {
@@ -106,6 +104,8 @@ export class AppConfig {
                     ...conf,
                 };
             }
+        } else if (!!confFilePath) {
+            return this.fromFile(confFilePath);
         }
         return this;
     }
@@ -119,15 +119,14 @@ export class AppConfig {
         return this._constants;
     }
 
+    /**
+     * Configs chain providers. By default it expects the providers field in the config
+     * file.
+     * If the chain config file exists the following environment variables must be provided:
+     * CONFIG_FILE_CHAIN_CONFIG="..."
+     */
     async forChainProviders(field?: string, supportedChains?: string[]) {
-        return (await this.fromSecret(field || 'providers', 'CHAIN_CONFIG'))
-            .orElse(field || 'providers', () => {
-                const v: any = {};
-                (supportedChains || this._constants.bridgeNetworks || SUPPORTED_CHAINS_FOR_CONFIG).forEach(c => {
-                    v[c] = process.env['WEB3_PROVIDER_' + c];
-                });
-                return v;
-            });
+        return (await this.fromSecret(field || 'providers', 'CHAIN_CONFIG'));
     }
 
     getChainProviders(field?: string): NetworkedConfig<string> {

@@ -38,6 +38,18 @@ export class Utils {
         return (queryParams.find(p => p[0] === param) || [])[1];
     }
 
+    static parseEnvAsMap(env: string): any {
+        const parts = env.split(',');
+        const rv = {} as any;
+        parts.forEach(kv => {
+            const [k, v] = kv.split('::');
+            if (k) {
+                rv[k] = v;
+            }
+        });
+        return rv;
+    }
+
     static getRoute(subRoute: string) {
         let base = href().split('?')[0];
         if (!base.endsWith('/')) {

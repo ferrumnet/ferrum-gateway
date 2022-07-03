@@ -1,9 +1,9 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, ValidationUtils } from "ferrum-plumbing";
 import { NetworkedConfig, StakeInfo, StakeRewardInfo, 
-	StakeType, stakeTypeToInt, UserStakeInfo, StakingContracts, Utils, UserStakeRewardInfo } from "types";
+	StakeType, UserStakeInfo, StakingContracts, Utils, UserStakeRewardInfo } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
-import { RouterV2Staking__factory,CrucibleRouter__factory,
+import { CrucibleRouter__factory,
 	StakeOpen, StakeOpen__factory, StakeTimed__factory } from "../resources/typechain";
 import { PopulatedTransaction } from "ethers";
 

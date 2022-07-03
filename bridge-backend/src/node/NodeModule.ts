@@ -30,6 +30,8 @@ export class NodeModule implements Module {
 
 	await container.registerModule(new CommonBackendModule());
 
+	console.log('Contracts configured for the token bridge: ', NodeUtils.bridgeV1ContractsForNode());
+
     container.registerSingleton(
       TokenBridgeContractClinet,
       (c) =>
