@@ -7,7 +7,7 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule, BridgeNodesRemoteAccessRequestProcessor } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig, SUPPORTED_CHAINS_FOR_CONFIG,
+import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig,
   WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
 import { CommonTokenServices } from "./services/CommonTokenServices";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
@@ -38,20 +38,21 @@ export class GatewayModule implements Module {
     await AppConfig.instance().fromSecret('', 'CRUCIBLE');
     await AppConfig.instance().fromSecret('', 'LEADERBOARD');
     await AppConfig.instance().fromSecret('', 'GOVERNANCE');
-    AppConfig.instance().orElse('', () => ({
-      database: {
-        connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
-      },
-      cmkKeyId: AppConfig.env('CMK_KEY_ID'),
-      jwtRandomBase: AppConfig.env('JWT_RANDOM_KEY'),
-    }));
+
+
+    // AppConfig.instance().orElse('', () => ({
+    //   database: {
+    //     connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
+    //   },
+    //   cmkKeyId: AppConfig.env('CMK_KEY_ID'),
+    //   jwtRandomBase: AppConfig.env('JWT_RANDOM_KEY'),
+    // }));
 
     await BridgeModule.configuration();
     await CrucibleModule.configuration();
     await BridgeNodesRemoteAccessRequestProcessor.configuration();
 
     AppConfig.instance()
-      .chainsRequired('', AppConfig.instance().constants()?.bridgeNetworks || SUPPORTED_CHAINS_FOR_CONFIG)
       .required<WithDatabaseConfig&WithJwtRandomBaseConfig>('', c => ({
         'MONGOOSE_CONNECTION_STRING': c.database.connectionString!,
         'JWT_RANDOM_KEY': c.jwtRandomBase,

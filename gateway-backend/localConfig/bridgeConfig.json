@@ -1,0 +1,6 @@
+{
+    "database": {
+        "connectionString": "<insert connection string>"
+    },
+    "jwtRandomBase": "SOME_DUMMY_RANDOM_FOR_TEST"
+}
