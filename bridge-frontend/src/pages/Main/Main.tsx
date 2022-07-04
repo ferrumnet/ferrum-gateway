@@ -201,9 +201,9 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
     currency = Item?.length > 0 ? Item[0].currency : currency;
     address = (addr.filter(e => e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address || {} as any;
     currency = address.currency;
-    const currentNetwork = supportedNetworks[address.network] || {};
+    const currentNetwork = supportedNetworks()[address.network] || {};
 
-    const networkOptions = Object.values(supportedNetworks)
+    const networkOptions = Object.values(supportedNetworks())
         .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true);
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency) || [])
         .map(e => e.targetNetwork);
@@ -398,8 +398,8 @@ export const ConnectBridge = () => {
                         <NetworkSwitch
                             availableNetworks={pageProps.targetNetworks}
                             suspendedNetworks={[]}
-                            currentNetwork={supportedNetworks[pageProps.network] || {}}
-                            currentDestNetwork={supportedNetworks[pageProps.destNetwork]}
+                            currentNetwork={supportedNetworks()[pageProps.network] || {}}
+                            currentDestNetwork={supportedNetworks()[pageProps.destNetwork]}
                             onNetworkChanged={(e: NetworkDropdown) => {
                                 dispatch(Actions.resetDestNetwork({ value: e.key }))
                             }}

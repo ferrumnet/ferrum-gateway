@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressForUser } from 'common-containers';
 import { useDispatch, useSelector } from 'react-redux';
-import { BRIDGE_NETWORKS, inject, NetworkedConfig, supportedNetworks, SwapQuote, TokenDetails, Utils } from 'types';
+import { inject, NetworkedConfig, SwapQuote, TokenDetails, Utils } from 'types';
 import { BridgeAppState } from '../../common/BridgeAppState';
 import { CrossChainSwap } from '../../components/swap/CrossChainSwap';
 import { CrossSwapClient } from '../../clients/CrossSwapClient';
@@ -159,7 +159,6 @@ export function CrossSwap() {
 			onToNetworkChanged={value => 
 				dispatch(crossSwapSlice.actions.toNetworkChanged({value}))}
 			toNetwork={props.toNetwork}
-			toNetworkOptions={BRIDGE_NETWORKS}
 			toCurrency={props.toCurrency}
 			toSymbol={props.quote?.toToken?.symbol}
 			onToCurrencyCanged={value =>

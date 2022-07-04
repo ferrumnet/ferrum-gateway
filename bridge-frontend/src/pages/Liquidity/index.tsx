@@ -272,7 +272,7 @@ function stateToProps(
     appState.data.approval.approvals[
       approvalKey(address.address, contractAddress, currency)
     ];
-  const currentNetwork = supportedNetworks[address.network] || {};
+  const currentNetwork = supportedNetworks()[address.network] || {};
   const Pairs = (
     appState.data.state.currencyPairs.filter(
       (p) => p.sourceCurrency === currency || p.targetCurrency === currency
@@ -283,7 +283,7 @@ function stateToProps(
 
   const AllowedNetworks = Array.from(new Set(Pairs));
 
-  const networkOptions = Object.values(supportedNetworks).filter(
+  const networkOptions = Object.values(supportedNetworks()).filter(
     (n) =>
       allNetworks.indexOf(n.key) >= 0 &&
       n.mainnet === currentNetwork.mainnet &&

@@ -1,11 +1,11 @@
 import React,{useEffect} from 'react';
 import { Connect } from 'unifyre-extension-web3-retrofit/dist/contract/Connect';
-import { Networks, ValidationUtils } from 'ferrum-plumbing';
+import { NetworkedConfig, Networks, ValidationUtils } from 'ferrum-plumbing';
 import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressesForUser, addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
-import { BRIDGE_NETWORKS, inject, inject3, inject5, } from 'types';
+import { inject, inject3, inject5, Utils, } from 'types';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { ApiClient } from '../clients/ApiClient';
 import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract/Web3ModalProvider';
@@ -92,9 +92,10 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         await client.signInWithToken('');
         const net = await connect.getProvider()!.netId();
         const network = await connect.network();
+        const bridgeNetworks: string[] = Utils.getBackendConstants()?.bridgeNetworks || [];
         const newNetworkCurrencies = (currencyList.get() || []).filter(c => c.startsWith(network || 'NA'));
         if (net && newNetworkCurrencies.length == 0) {
-            currencyList.set(BRIDGE_NETWORKS.map(n => Networks.for(n).baseCurrency));
+            currencyList.set(bridgeNetworks.map(n => Networks.for(n).baseCurrency));
         }
         
         // Subscribe to session disconnection

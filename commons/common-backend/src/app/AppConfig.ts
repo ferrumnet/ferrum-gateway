@@ -1,7 +1,7 @@
 import { AwsEnvs, MongooseConfig, SecretsProvider } from "aws-lambda-helper";
 import { Fetcher, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { loadConfigFromFile } from "../dev/DevConfigUtils";
-import { BackendConstants } from "./BackendConstants";
+import { BackendConstants } from 'types';
 
 require('dotenv').config()
 

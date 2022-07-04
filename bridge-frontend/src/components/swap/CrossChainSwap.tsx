@@ -19,7 +19,6 @@ export interface CrossChainSwapProps {
 	toSymbol: string;
 	toAmount: string;
 	onToCurrencyCanged: (cur: string) => void;
-	toNetworkOptions: string[];
 	onToNetworkChanged: (net: string) => void;
 	amountIn: string;
 	onAmountInChanged: (amount: string) => void;
@@ -37,7 +36,7 @@ export interface CrossChainSwapProps {
 }
 
 export function CrossChainSwap(props: CrossChainSwapProps) {
-	const allNetworks = props.fromNetwork ? Object.keys(supportedNetworks)
+	const allNetworks = props.fromNetwork ? Object.keys(supportedNetworks())
 		.filter(k =>
 			Networks.for(props.fromNetwork).testnet === Networks.for(k).testnet
 			) : [];

@@ -1,8 +1,6 @@
 import { Networks } from "ferrum-plumbing";
+import { Utils } from "src";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
-
-export const BRIDGE_NETWORKS = ['ETHEREUM', 'RINKEBY', 'RINKEBY', 'BSC', 'BSC_TESTNET', 'POLYGON', 'MUMBAI_TESTNET', 'AVAX_TESTNET','AVAX_MAINNET'
- ,'MOON_MOONRIVER', 'HARMONY_TESTNET_0','FTM_TESTNET','FTM_MAINNET','SHIDEN_TESTNET','SHIDEN_MAINNET','HARMONY_MAINNET_0'];
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],
@@ -19,16 +17,19 @@ export interface NetworkDropdown {
 	mainnet: boolean;
 }
 
-export const supportedNetworks: { [k: string]: NetworkDropdown} = {};
-BRIDGE_NETWORKS.forEach((b: string) => {
-	const n = Networks.for(b);
-	supportedNetworks[b] = {
-		key: n.id,
-		active: true,
-		display: n.displayName,
-		mainnet: !n.testnet,
-	} as NetworkDropdown;
-});
+export function supportedNetworks(): { [k: string]: NetworkDropdown} {
+	const rv = {} as any;
+	(Utils.getBackendConstants()?.bridgeNetworks || []).forEach((b: string) => {
+		const n = Networks.for(b);
+		rv[b] = {
+			key: n.id,
+			active: true,
+			display: n.displayName,
+			mainnet: !n.testnet,
+		} as NetworkDropdown;
+	});
+	return rv;
+}
 
 export const FRMX: {[k: string]: [string, string]} = {
     'ETHEREUM': ['ETHEREUM:0xf6832EA221ebFDc2363729721A146E6745354b14', 'FRMX'],

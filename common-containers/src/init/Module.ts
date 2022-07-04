@@ -17,7 +17,7 @@ export class CommonModule implements Module {
 
         c.registerSingleton(ApiClient, c => new ApiClient(this.apiUrl, c.get(UnifyreExtensionKitClient)));
         const client = c.get<ApiClient>(ApiClient);
-        const providers: NetworkedConfig<string> = await client.loadHttpProviders();
+        const {providers, _} = await client.loadBackendConstants();
         c.registerSingleton('Web3ModalProvider', () => new Web3ModalProvider(providers));
 
         // c.registerSingleton(UserPreferenceService, () => new UserPreferenceService());
