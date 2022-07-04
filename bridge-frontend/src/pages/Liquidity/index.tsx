@@ -18,7 +18,6 @@ import { Big } from "big.js";
 import {
   AssetsSelector,
   supportedIcons,
-  networkImages,
   AmountInput,
 //@ts-ignore
 } from "component-library";
@@ -573,7 +572,7 @@ export function LiquidityPage() {
                   <AssetsSelector
                     assets={assets}
                     network={pageProps.network}
-                    defaultLogo={networkImages[pageProps.network]}
+                    defaultLogo={Utils.networkLogo(pageProps.network)}
                     onChange={(v: any) => {
                       dispatch(
                         Actions.currencyChanged({ currency: v.currency })
@@ -726,7 +725,7 @@ export function LiquidityPage() {
                         {formatter.format(e[1], true)}
                         <span className="icon-network icon-sm mx-2">
                           <img
-                            src={networkImages[e[0].split(":")[0]]}
+                            src={Utils.networkLogo(e[0].split(":")[0])}
                             alt="img"
                           ></img>
                         </span>

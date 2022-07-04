@@ -1,6 +1,6 @@
 import { Networks } from "ferrum-plumbing";
-import { Utils } from "src";
 import { NetworkedConfig } from "../bridge/TokenBridgeTypes";
+import { Utils } from '../../Utils';
 
 export const FRM: {[k: string]: [string, string,string]} = {
     'ETHEREUM': ['ETHEREUM:0xe5caef4af8780e59df925470b050fb23c43ca68c', 'FRM','ETHEREUM'],

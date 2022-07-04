@@ -25,6 +25,10 @@ export class Utils {
         return Utils.backendConstants;
     }
 
+    static networkLogo(network: string): string | undefined {
+        return (Utils.backendConstants?.networkLogos || {})[network];
+    }
+
     static getQueryparams(): any {
         const rv: any = {};
         const queryParams = (href().split('?')[1] || '').split('&').map(p => p.split('='));

@@ -7,7 +7,7 @@ import { AppAccountState } from 'common-containers';
 import { SignedPairAddress,inject, PairedAddress, BRIDGE_V1_CONTRACTS, } from 'types';
 import { Big } from 'big.js';
 //@ts-ignore
-import { AssetsSelector,supportedIcons,networkImages,AmountInput,TextInput } from 'component-library';
+import { AssetsSelector, TextInput } from 'component-library';
 import { AnyAction, Dispatch } from "redux";
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
@@ -466,7 +466,7 @@ export function NotificationServicePage() {
                             <AssetsSelector 
                                 assets={assets || []}
                                 network={pageProps.network}
-							    defaultLogo={networkImages[pageProps.network]}
+							    defaultLogo={Utils.networkLogo(pageProps.network)}
                                 onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency,history}))}
                                 selectedCurrency={pageProps.currency}
                             />

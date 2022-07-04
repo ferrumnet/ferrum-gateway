@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Theme, ThemeConstantProvider, ThemeContext } from 'unifyre-react-helper';
 //@ts-ignore
-import { OutlinedBtn, networkImages, AssetsSelector, NetworkSwitch, AmountInput, supportedIcons } from 'component-library';
+import { OutlinedBtn, AssetsSelector, NetworkSwitch, AmountInput, supportedIcons } from 'component-library';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
@@ -391,7 +391,7 @@ export const ConnectBridge = () => {
                         <AssetsSelector
                             assets={assets}
                             network={pageProps.network}
-                            defaultLogo={networkImages[pageProps.network]}
+                            defaultLogo={Utils.networkLogo(pageProps.network)}
                             onChange={(v: any) => dispatch(Actions.currencyChanged({ currency: v.currency, history }))}
                             selectedCurrency={pageProps.currency}
                         />
@@ -406,6 +406,7 @@ export const ConnectBridge = () => {
                             setIsNetworkReverse={() => dispatch(Actions.changeIsNetworkReverse({}))}
                             IsNetworkReverse={pageProps.isNetworkReverse}
                             swapping={swapping||((pageProps.swapId != '') && pageProps.progressStatus > 2)}
+                            networkImageFun={net => Utils.networkLogo(net)}
                         />
                         {
                             pageProps.isNetworkReverse &&
@@ -447,7 +448,7 @@ export const ConnectBridge = () => {
                                 <small className="text-pri d-flex align-items-center text-vary-color">
                                     Available Liquidity On {pageProps.destNetwork} ≈ {Number(pageProps.availableLiquidity) > 1 ? (Number(pageProps.availableLiquidity) - 1) : pageProps.availableLiquidity}
                                     <span className="icon-network icon-sm mx-2">
-                                        <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
+                                        <img src={Utils.networkLogo(pageProps.destNetwork)} alt="loading"></img>
                                     </span>
                                 </small>
                             </div>

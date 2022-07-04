@@ -12,39 +12,10 @@ import {ThemeContext, Theme} from 'unifyre-react-helper';
 import 'antd/dist/antd.css';
 //@ts-ignore
 import {RegularBtn} from 'component-library';
-import { Alert,Divider } from 'antd';
-import IconCryptoEth from "cryptocurrency-icons/svg/color/eth.svg";
-import IconCryptoBNB from "cryptocurrency-icons/svg/color/bnb.svg";
-import IconCryptoMAT from "cryptocurrency-icons/svg/color/matic.svg";
-import IconCryptoSOL from "cryptocurrency-icons/svg/color/sol.svg";
-import IconCryptoAvax from '../assets/img/avax.png'
-import IconCryptoMoonbase from '../assets/img/moonbase.png'
-import IconCryptoFantom from '../assets/img/fantom.svg'
-import IconCryptoHarmony from '../assets/img/harmony.png'
-import IconCryptoShibuya from '../assets/img/shibuya.png'
-import IconCryptoShiden from '../assets/img/shiden.jpg'
+import { Divider } from 'antd';
 
 import { formatter } from './../common/Utils';
-
-const images = {
-  "BSC":IconCryptoBNB,
-  "BSC_TESTNET":IconCryptoBNB,
-  "ETHEREUM":IconCryptoEth,
-  "RINKEBY":IconCryptoEth,
-  "POLYGON":IconCryptoMAT,
-  "MUMBAI_TESTNET":IconCryptoMAT,
-  "SOLANA":IconCryptoSOL,
-  'AVAX_TESTNET':IconCryptoAvax,
-  'MOON_MOONBASE':IconCryptoMoonbase,
-  'AVAX_MAINNET':IconCryptoAvax,
-  'MOON_MOONRIVER':IconCryptoMoonbase,
-  'FTM_TESTNET':IconCryptoAvax,
-  'HARMONY_TESTNET_0':IconCryptoHarmony,
-  'HARMONY_MAINNET_0':IconCryptoHarmony,
-  'FTM_MAINNET':IconCryptoFantom,
-  'SHIDEN_TESTNET':IconCryptoShibuya,
-  'SHIDEN_MAINNET':IconCryptoShiden
-}
+import { Utils } from 'types';
 
 const { Step } = Steps;
 
@@ -99,7 +70,7 @@ export function ConfirmationModal (props: {
                     style={{"maxWidth":"32px"}}
                     src={
                     //@ts-ignore
-                    images[props.sourceNetwork]} alt="loading"></img>
+                    Utils.networkLogos(props.sourceNetwork)} alt="loading"></img>
                   <p>{props.sourceNetwork}</p>
                 </div>
                 <span>
