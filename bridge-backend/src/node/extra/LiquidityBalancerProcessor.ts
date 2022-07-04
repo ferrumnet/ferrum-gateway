@@ -9,6 +9,8 @@ import { Transaction, FeeMarketEIP1559Transaction } from '@ethereumjs/tx'
 import Common from '@ethereumjs/common'
 import Web3 from "web3";
 import { HmacAuthProvider } from "aws-lambda-helper/dist/security/HmacAuthProvider";
+import { AppConfig } from "common-backend";
+import { BridgeNodeConfig } from "../BridgeNodeConfig";
 
 const DISCOUNT_RATIO_DOWN = new Big('0.85');
 const DISCOUNT_RATIO_UP = new Big('1.15');
@@ -226,7 +228,8 @@ export class LiquidityBalancerProcessor implements Injectable, NodeProcessor {
 }
 
 function verifyExpectedTx(network: string, removeLiqTx: CustomTransactionCallRequest) {
-    const bridgeContract = BRIDGE_V1_CONTRACTS[network];
+    const bridgeContracts = AppConfig.instance().get<BridgeNodeConfig>('')?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS
+    const bridgeContract = bridgeContracts[network];
     ValidationUtils.isTrue(removeLiqTx.contract === bridgeContract,
         `Security Error: expected bridge contract ${bridgeContract}, but received ${removeLiqTx.contract}`);
     ValidationUtils.isTrue(
@@ -238,7 +241,8 @@ function verifyExpectedTx(network: string, removeLiqTx: CustomTransactionCallReq
 function verifyTxIsApprove(currency: string, tx: CustomTransactionCallRequest) {
     const [network, token] = Utils.parseCurrency(currency);
     ValidationUtils.isTrue(token === tx.contract, 'Approve request must be against the token');
-    const bridgeContract = BRIDGE_V1_CONTRACTS[network];
+    const bridgeContracts = AppConfig.instance().get<BridgeNodeConfig>('')?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS
+    const bridgeContract = bridgeContracts[network];
     ValidationUtils.isTrue(
         tx.data.startsWith(
             `0x095ea7b3000000000000000000000000${bridgeContract.replace('0x','')}`), '');

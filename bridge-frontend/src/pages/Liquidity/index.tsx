@@ -266,7 +266,7 @@ function stateToProps(
         e.currency === `${currNet}:${currency.split(":")[1]}`
     ) || [])[0] || (address as any);
   currency = address ? address.currency : addr[0].currency;
-  const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from app config
+  const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: GET
   const allocation =
     appState.data.approval.approvals[
       approvalKey(address.address, contractAddress, currency)

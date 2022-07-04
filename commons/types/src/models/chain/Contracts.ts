@@ -115,7 +115,6 @@ export const BRIDGE_V1_CONTRACTS: NetworkedConfig<string> = {
 	'FTM_MAINNET':'0x8e01cc26d6dd73581347c4370573ce9e59e74802',
 	'SHIDEN_TESTNET':'0x226fe4ecfd9b5b30f42c9fd55aaa45b2c216a499',
 	'SHIDEN_MAINNET':'0xf62ccc32bf10400167b38777d32f7e3ab461254b'
-
 };
 
 export const BRIDGE_V12_CONTRACTS: NetworkedConfig<BridgeV12Contracts> = {

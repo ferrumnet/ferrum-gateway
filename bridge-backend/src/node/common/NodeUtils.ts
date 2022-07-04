@@ -6,6 +6,7 @@ import Web3 from "web3";
 import * as Eip712 from "web3-tools";
 import { Eip712Params, produceSignature } from "web3-tools";
 import { BridgeSwapEvent } from "../../common/TokenBridgeTypes";
+import { BridgeNodeConfig } from "../BridgeNodeConfig";
 
 export const EXPECTED_WI_SCHEMA_VERSIONS = ["0.1", "1.0", "1.2"];
 
@@ -17,7 +18,7 @@ export class NodeUtils {
     }
 
     static bridgeV1ContractsForNode(): NetworkedConfig<string> {
-        const nets = AppConfig.instance().get('bridgeV1Contracts') || BRIDGE_V1_CONTRACTS
+        const nets = AppConfig.instance().get<BridgeNodeConfig>('')?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS
         const rv = {} as a
         Object.keys(nets).forEach(k => {
             rv[k] = (nets[k] || '').toLowerCase();
