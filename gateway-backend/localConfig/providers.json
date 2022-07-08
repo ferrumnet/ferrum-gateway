@@ -1,20 +1,18 @@
 {
-    "providers": {
-        "ETHEREUM": "https://mainnet.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
-        "RINKEBY": "https://rinkeby.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
-        "BSC_TESTNET": "https://data-seed-prebsc-1-s1.binance.org:8545/",
-        "BSC": "https://bsc-dataseed.binance.org/",
-        "POLYGON": "https://rpc-mainnet.maticvigil.com",
-        "MUMBAI_TESTNET": "https://rpc-mumbai.maticvigil.com",
-        "AVAX_TESTNET": "https://api.avax-test.network/ext/bc/C/rpc",
-        "AVAX_MAINNET": "https://api.avax.network/ext/bc/C/rpc",
-        "MOON_MOONBASE": "https://rpc.testnet.moonbeam.network",
-        "MOON_MOONRIVER": "https://rpc.moonriver.moonbeam.network",
-        "HARMONY_TESTNET_0": "https://api.s0.b.hmny.io/",
-        "HARMONY_MAINNET_0": "https://api.s0.b.hmny.io/",
-        "FTM_TESTNET": "https://rpc.testnet.fantom.network/",
-        "FTM_MAINNET": "",
-        "SHIDEN_TESTNET": "",
-        "SHIDEN_MAINNET": ""
-    }
+    "ETHEREUM": "https://mainnet.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
+    "RINKEBY": "https://rinkeby.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
+    "BSC_TESTNET": "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    "BSC": "https://bsc-dataseed.binance.org/",
+    "POLYGON": "https://rpc-mainnet.maticvigil.com",
+    "MUMBAI_TESTNET": "https://rpc-mumbai.maticvigil.com",
+    "AVAX_TESTNET": "https://api.avax-test.network/ext/bc/C/rpc",
+    "AVAX_MAINNET": "https://api.avax.network/ext/bc/C/rpc",
+    "MOON_MOONBASE": "https://rpc.testnet.moonbeam.network",
+    "MOON_MOONRIVER": "https://rpc.moonriver.moonbeam.network",
+    "HARMONY_TESTNET_0": "https://api.s0.b.hmny.io/",
+    "HARMONY_MAINNET_0": "https://api.s0.b.hmny.io/",
+    "FTM_TESTNET": "https://rpc.testnet.fantom.network/",
+    "FTM_MAINNET": "",
+    "SHIDEN_TESTNET": "",
+    "SHIDEN_MAINNET": ""
 }

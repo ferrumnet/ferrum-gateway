@@ -34,6 +34,7 @@ export class GatewayModule implements Module {
 
     // Set up the configs
     await AppConfig.instance().forChainProviders();
+    console.log('PROVIDERS ARE ', AppConfig.instance().getChainProviders())
     await AppConfig.instance().fromSecret('', 'BRIDGE');
     await AppConfig.instance().fromSecret('', 'CRUCIBLE');
     await AppConfig.instance().fromSecret('', 'LEADERBOARD');

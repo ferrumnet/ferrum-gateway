@@ -275,6 +275,7 @@ export class TokenBridgeContractClinet implements Injectable {
 
     async getAvaialableLiquidity(currency: string){
         const [network, token] = Helper.parseCurrency(currency);
+        console.log('CONTRACTZ?', this.contractAddress);
         const p = await this.helper.erc20(network, token).methods.balanceOf(this.contractAddress[network]).call();
         return this.helper.amountToHuman(currency,p);
     }
