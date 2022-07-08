@@ -68,9 +68,7 @@ export function ConfirmationModal (props: {
                 <div className={styles.centered}>
                   <img 
                     style={{"maxWidth":"32px"}}
-                    src={
-                    //@ts-ignore
-                    Utils.networkLogos(props.sourceNetwork)} alt="loading"></img>
+                    src={Utils.networkLogo(props.sourceNetwork)} alt="loading"></img>
                   <p>{props.sourceNetwork}</p>
                 </div>
                 <span>
@@ -80,8 +78,7 @@ export function ConfirmationModal (props: {
                   <img 
                     style={{"maxWidth":"32px"}}
                     src={
-                    //@ts-ignore
-                    images[props.destinationNatwork]} alt="loading"></img>
+                    Utils.networkLogo(props.destinationNatwork)} alt="loading"></img>
                   <p>{props.destinationNatwork}</p>
                 </div>
               </div>

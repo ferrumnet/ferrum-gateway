@@ -65,8 +65,8 @@ export class AppConfig {
         return this.conf as T;
     }
 
-    fromFile(field?: string) {
-        const conf = loadConfigFromFile<any>();
+    fromFile(field?: string, path?: string) {
+        const conf = loadConfigFromFile<any>(path);
         if (field) {
             this.conf[field] = {
                 ...(this.conf[field] || {}),
@@ -105,7 +105,7 @@ export class AppConfig {
                 };
             }
         } else if (!!confFilePath) {
-            return this.fromFile(confFilePath);
+            this.fromFile(field, confFilePath);
         }
         return this;
     }

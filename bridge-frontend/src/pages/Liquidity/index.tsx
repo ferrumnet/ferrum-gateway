@@ -512,7 +512,7 @@ export function LiquidityPage() {
         },
         duration: 0,
         key: "withdraw",
-      },
+      } as any,
       20
     );
   };

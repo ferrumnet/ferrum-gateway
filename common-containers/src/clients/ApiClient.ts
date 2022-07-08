@@ -2,7 +2,7 @@ import { Injectable, JsonRpcRequest, Network, NetworkedConfig, ValidationUtils }
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos, Utils, BakendConstants } from "types";
+import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos, Utils, BackendConstants } from "types";
 import { CustomTransactionCallRequest, UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
@@ -60,10 +60,10 @@ export class ApiClient implements Injectable {
         return res;
     }
 
-    async loadBackendConstants(): Promise<{providers: NetworkedConfig<string>, constants: BakendConstants}> {
+    async loadBackendConstants(): Promise<{providers: NetworkedConfig<string>, constants: BackendConstants}> {
         let { providers, constants } = (await this.api({
             command: 'getBackendConstants', data: {},
-            params: []}as JsonRpcRequest)) as { providers: any, constants: BakendConstants } || {};
+            params: []}as JsonRpcRequest)) as { providers: any, constants: BackendConstants } || {};
         if (!providers) {
             throw new Error('getHttpProviders returned empty');
         }

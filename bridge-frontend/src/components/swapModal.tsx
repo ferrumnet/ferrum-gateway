@@ -7,7 +7,7 @@ import {
   IIconProps,
 } from '@fluentui/react';
 import { IconButton, IButtonStyles } from '@fluentui/react/lib/Button';
-import { Steps } from 'antd';
+import { Steps as StepsPre, StepsProps } from 'antd';
 import {ThemeContext, Theme} from 'unifyre-react-helper';
 import { LoadingOutlined,ReloadOutlined,CloseCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
@@ -26,7 +26,12 @@ import { BridgeAppState } from './../common/BridgeAppState';
 import { SidePanelProps } from './../components/SidePanel';
 import { MainPageSlice } from './../pages/Main/Main';
 
-const { Step } = Steps;
+const Steps = StepsPre as any as React.FC<StepsProps & {
+children: JSX.Element;
+}>;
+
+
+const { Step } = StepsPre;
 
 // TODO: Update the user profile and allow balance re-fetch without changing the connection
 export const updateData= async (dispatch:Dispatch<AnyAction>) => {
@@ -128,7 +133,8 @@ export function SwapModal (props: {
           <Steps
             className={styles.textStyles}
             direction="vertical" 
-          >
+          > 
+            <>
               <Step 
                 className={styles.textStyles}
                 status={pageProps.step > 1 ? "finish" : "wait"} 
@@ -183,6 +189,7 @@ export function SwapModal (props: {
               description={<></>}
               style={{"color": `${theme.get(Theme.Colors.textColor)}`}}
             />
+            </>
           </Steps>
         </div>
     </div>

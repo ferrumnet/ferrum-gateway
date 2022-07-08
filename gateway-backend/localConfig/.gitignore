@@ -1,2 +1,3 @@
-bridgeConfig.json
-providers.json
+./bridgeConfig.json
+./providers.json
+*.json

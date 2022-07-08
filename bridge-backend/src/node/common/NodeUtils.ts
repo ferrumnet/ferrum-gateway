@@ -19,7 +19,7 @@ export class NodeUtils {
 
     static bridgeV1ContractsForNode(): NetworkedConfig<string> {
         const nets = AppConfig.instance().get<BridgeNodeConfig>('')?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS
-        const rv = {} as a
+        const rv = {} as any;
         Object.keys(nets).forEach(k => {
             rv[k] = (nets[k] || '').toLowerCase();
         });

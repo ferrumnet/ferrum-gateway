@@ -10,7 +10,7 @@ import {
     BridgeTokenConfig, inject, Utils, BRIDGE_V1_CONTRACTS,
 } from 'types';
 import { IConnectViewProps } from 'common-containers';
-import { Steps } from 'antd';
+import { Steps as StepsPre, StepsProps } from 'antd';
 import { SwapModal } from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
@@ -34,7 +34,12 @@ import { addAction, CommonActions } from '../../common/Actions';
 import { useHistory } from 'react-router';
 import { RoutingHelper } from '../../common/RoutingHelper';
 
-const { Step } = Steps;
+const { Step } = StepsPre;
+
+const Steps = StepsPre as any as React.FC<StepsProps & {
+children: JSX.Element;
+}>;
+
 
 export interface MainPageState {
     destNetwork: string,
@@ -330,7 +335,7 @@ export const ConnectBridge = () => {
             },
             duration: 0,
             key: 'withdr',
-        }, 0);
+        } as any, 0);
     };
 
     const onMessage = async (v: string) => {
@@ -406,7 +411,7 @@ export const ConnectBridge = () => {
                             setIsNetworkReverse={() => dispatch(Actions.changeIsNetworkReverse({}))}
                             IsNetworkReverse={pageProps.isNetworkReverse}
                             swapping={swapping||((pageProps.swapId != '') && pageProps.progressStatus > 2)}
-                            networkImageFun={net => Utils.networkLogo(net)}
+                            networkImageFun={(net: any) => Utils.networkLogo(net)}
                         />
                         {
                             pageProps.isNetworkReverse &&
@@ -521,6 +526,7 @@ export const SideBarContainer = () => {
                         direction="vertical"
                         current={0}
                     >
+                        <>
                         <Step
                             status={connected ? "finish" : "wait"}
                             title={<div style={{ ...styles.stepStyle }} className="text-vary-color">
@@ -574,6 +580,7 @@ export const SideBarContainer = () => {
                                 </p>
                             }
                         />
+                        </>
                     </Steps>
                 </div>
             </>

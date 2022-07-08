@@ -1,6 +1,5 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Container, LoggerFactory, Module, panick, ValidationUtils } from "ferrum-plumbing";
-import { BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
 import { BridgeNodeV1 } from "./BridgeNodeV1";
 import { TransactionListProvider } from "./TransactionListProvider";
