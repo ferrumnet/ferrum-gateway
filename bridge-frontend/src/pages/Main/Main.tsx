@@ -226,7 +226,6 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
             .filter(r => r.network === destNetwork)
             .map(c => ({ fee: c.fee, targetNetwork: c.network, targetCurrency: c.currency } as BridgeTokenConfig))
             .find(Boolean);
-            console.log(targetNetworks,networkOptions,allowedTargets,currentPair)
 
     const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from appconfig
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];

@@ -85,21 +85,21 @@ export class Utils {
             return '';
         }
         switch (network.toLocaleLowerCase()) {
-            case 'rinkeby':
-                return `https://rinkeby.etherscan.io/address/${addr}`;
-            case 'ethereum':
-                return `https://etherscan.io/address/${addr}`;
-            case 'bsc':
-                return `https://bscscan.com/address/${addr}`;
-            case 'bsc_testnet':
-                return `https://testnet.bscscan.com/address/${addr}`;
-            case 'mumbai_testnet':
-                return `https://mumbai.polygonscan.com/address/${addr}`;
-            case 'polygon':
-                return `https://polygonscan.com/address/${addr}`;
+            // case 'rinkeby':
+            //     return `https://rinkeby.etherscan.io/address/${addr}`;
+            // case 'ethereum':
+            //     return `https://etherscan.io/address/${addr}`;
+            // case 'bsc':
+            //     return `https://bscscan.com/address/${addr}`;
+            // case 'bsc_testnet':
+            //     return `https://testnet.bscscan.com/address/${addr}`;
+            // case 'mumbai_testnet':
+            //     return `https://mumbai.polygonscan.com/address/${addr}`;
+            // case 'polygon':
+            //     return `https://polygonscan.com/address/${addr}`;
             default:
                 if (!!(Utils.backendConstants?.explorerLinkForAddress || {} as any)[network]) {
-                    return (Utils.backendConstants?.explorerLinkForAddress || {} as any).replace('{addr}', addr);
+                    return (Utils.backendConstants?.explorerLinkForAddress || {} as any).replace('{}', addr);
                 } else {
                     return Networks.for(network).explorer + `/address/${addr}`;
                 }
@@ -109,41 +109,41 @@ export class Utils {
 
     static linkForTransaction(network: string, tid: string) {
         switch (network.toLocaleLowerCase()) {
-            case 'rinkeby':
-                return `https://rinkeby.etherscan.io/tx/${tid}`;
-            case 'ethereum':
-                return `https://etherscan.io/tx/${tid}`;
-            case 'bsc':
-                return `https://bscscan.com/tx/${tid}`;
-            case 'bsc_testnet':
-                return `https://testnet.bscscan.com/tx/${tid}`;
-            case 'mumbai_testnet':
-                return `https://mumbai.polygonscan.com/tx/${tid}`;
-            case 'polygon':
-                return `https://polygonscan.com/tx/${tid}`;
-            case 'avax_testnet':
-                return `https://testnet.snowtrace.io//tx/${tid}`;
-            case 'moon_moonbase':
-                return `https://moonbase.moonscan.io/tx/${tid}`;
-            case 'avax_mainnnet':
-                return `https://snowtrace.io//tx/${tid}`;
-            case 'moon_moonriver':
-                return `https://moonriver.moonscan.io/tx/${tid}`;
-            case 'ftm_testnet':
-                return `https://testnet.ftmscan.com/tx/${tid}`;
-            case 'harmony_testnet_0':
-                return `https://explorer.pops.one/tx/${tid}`;
-            case 'harmony_mainnet_0':
-                return `https://explorer.harmony.one/tx/${tid}`;
-            case 'ftm_mainnet':
-                return `https://ftmscan.com/tx/${tid}`;
-            case 'shiden_testnet':
-                 return `https://shibuya.subscan.io/tx/${tid}`;
-            case 'shiden_mainnet':
-                return `https://blockscout.com/shiden/tx/${tid}`;
+            // case 'rinkeby':
+            //     return `https://rinkeby.etherscan.io/tx/${tid}`;
+            // case 'ethereum':
+            //     return `https://etherscan.io/tx/${tid}`;
+            // case 'bsc':
+            //     return `https://bscscan.com/tx/${tid}`;
+            // case 'bsc_testnet':
+            //     return `https://testnet.bscscan.com/tx/${tid}`;
+            // case 'mumbai_testnet':
+            //     return `https://mumbai.polygonscan.com/tx/${tid}`;
+            // case 'polygon':
+            //     return `https://polygonscan.com/tx/${tid}`;
+            // case 'avax_testnet':
+            //     return `https://testnet.snowtrace.io//tx/${tid}`;
+            // case 'moon_moonbase':
+            //     return `https://moonbase.moonscan.io/tx/${tid}`;
+            // case 'avax_mainnnet':
+            //     return `https://snowtrace.io//tx/${tid}`;
+            // case 'moon_moonriver':
+            //     return `https://moonriver.moonscan.io/tx/${tid}`;
+            // case 'ftm_testnet':
+            //     return `https://testnet.ftmscan.com/tx/${tid}`;
+            // case 'harmony_testnet_0':
+            //     return `https://explorer.pops.one/tx/${tid}`;
+            // case 'harmony_mainnet_0':
+            //     return `https://explorer.harmony.one/tx/${tid}`;
+            // case 'ftm_mainnet':
+            //     return `https://ftmscan.com/tx/${tid}`;
+            // case 'shiden_testnet':
+            //      return `https://shibuya.subscan.io/tx/${tid}`;
+            // case 'shiden_mainnet':
+            //     return `https://blockscout.com/shiden/tx/${tid}`;
             default:
-                if (!!(Utils.backendConstants?.explorerLinkForAddress || {} as any)[network]) {
-                    return (Utils.backendConstants?.explorerLinkForAddress || {} as any)[network].replace('{tid}', tid);
+                if (!!(Utils.backendConstants?.explorerLinkForTransaction || {} as any)[network]) {
+                    return (Utils.backendConstants?.explorerLinkForTransaction || {} as any)[network].replace('{}', tid);
                 } else {
                     return Networks.for(network).explorer + `/tx/${tid}`;
                 }
