@@ -23,7 +23,7 @@ import { CheckCircleTwoTone,PlusOutlined,CloseCircleOutlined } from '@ant-design
 import {
     SyncOutlined,
   } from '@ant-design/icons';
-import { Drawer, Button } from 'antd';
+import { Drawer, Button, Steps as StepsPre, StepsProps } from 'antd';
 import { message, Result } from 'antd';
 import { UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
 import { connectSlice } from "common-containers";
@@ -35,6 +35,7 @@ import { CrossSwapClient } from '../clients/CrossSwapClient';
 import './SidePanel.scss';
 import { TokenLogo } from './TokenLogo';
 import  {renderPaginatedList} from './paginateList';
+
 interface WithdrawSuccessMessage {
 	network: string;
 	txId: string;
@@ -372,7 +373,7 @@ export function SidePane (props:{isOpen:boolean,dismissPanel:() => void}){
         },
         duration: 0,
         key: 'withdr'
-    },12);  
+    } as any,12);  
 
     const paginatedList = renderPaginatedList(userWithdrawalItems,listPage,10)
     return (

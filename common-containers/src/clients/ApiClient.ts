@@ -1,8 +1,8 @@
-import { Injectable, JsonRpcRequest, Network, ValidationUtils } from "ferrum-plumbing";
+import { Injectable, JsonRpcRequest, Network, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { addressForUser } from "../store/AppState";
 import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserProfile";
 import fetch from 'cross-fetch';
-import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos } from "types";
+import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos, Utils, BackendConstants } from "types";
 import { CustomTransactionCallRequest, UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 
 export class ApiClient implements Injectable {
@@ -33,7 +33,6 @@ export class ApiClient implements Injectable {
         return res;
     }
 
-
     getNetwork() { return this.network; }
     getAddress() { return this.address; }
 
@@ -61,14 +60,17 @@ export class ApiClient implements Injectable {
         return res;
     }
 
-    async loadHttpProviders(): Promise<any> {
-        let providers = (await this.api({
-            command: 'getHttpProviders', data: {},
-            params: []}as JsonRpcRequest)) as any;
+    async loadBackendConstants(): Promise<{providers: NetworkedConfig<string>, constants: BackendConstants}> {
+        let { providers, constants } = (await this.api({
+            command: 'getBackendConstants', data: {},
+            params: []}as JsonRpcRequest)) as { providers: any, constants: BackendConstants } || {};
         if (!providers) {
             throw new Error('getHttpProviders returned empty');
         }
-        return providers;
+		if (!!constants) {
+			Utils.initConstants(constants);
+		}
+        return {providers, constants};
     }
 
 	async getContractAllocation(userAddress: string, contractAddress: string, currency: string)
@@ -145,7 +147,6 @@ export class ApiClient implements Injectable {
 	) {
 		ValidationUtils.isTrue(!!this.network, 'Not commected to a network');
 		const res = await fun();
-		console.log('RES ISO', res);
 		ValidationUtils.isTrue(!!res, 'Error calling deposit. No requests');
 		const requestId = await this.client.sendTransactionAsync(this.network as Network, [res], {});
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');

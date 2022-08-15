@@ -16,7 +16,7 @@ import {
   FTruncateText,
 } from "ferrum-design-system";
 
-function TransactionItem(props: {
+export function TransactionItem(props: {
   remoteNetwork: string;
   localNetwork: string;
   hash: string;

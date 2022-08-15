@@ -18,7 +18,8 @@
   "license": "MIT",
   "dependencies": {
     "ferrum-plumbing": "git+https://github.com/ferrumnet/ferrum-plumbing.git",
-    "mongoose": "^6.1.2"
+    "mongoose": "^6.1.2",
+    "web3-tools": "1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

@@ -7,7 +7,7 @@ import { AppAccountState } from 'common-containers';
 import { SignedPairAddress,inject, PairedAddress, BRIDGE_V1_CONTRACTS, } from 'types';
 import { Big } from 'big.js';
 //@ts-ignore
-import { AssetsSelector,supportedIcons,networkImages,AmountInput,TextInput } from 'component-library';
+import { AssetsSelector, TextInput } from 'component-library';
 import { AnyAction, Dispatch } from "redux";
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
@@ -212,14 +212,14 @@ function stateToProps(appState: BridgeAppState,userAccounts: AppAccountState): n
     let currency = state.currency || (currentIdx >= 0 ? bridgeCurrencies[currentIdx] : '');
     address = (addr.filter(e=> e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address as any;
     currency = address ? address.currency : addr[0].currency;
-    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from appconfig
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
-	const currentNetwork = supportedNetworks[address.network] || {};
+	const currentNetwork = supportedNetworks()[address.network] || {};
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency)||[])
     .map(e => e.targetNetwork);
     (appState.data.state.routingTable[currency]?.items || []).forEach(c => Pairs.push(c.network));
     const AllowedNetworks = Array.from(new Set(Pairs));
-    const networkOptions = Object.values(supportedNetworks)
+    const networkOptions = Object.values(supportedNetworks())
     .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true && AllowedNetworks.includes(n.key));
     const liqArr = Object.entries(appState.data.state.bridgeLiquidity);
     const liquidityData = ( liqArr.length > 0 && liqArr.filter((e:any) => e[0]?.split(':')[1] === currency?.split(':')[1])  || []);
@@ -466,7 +466,7 @@ export function NotificationServicePage() {
                             <AssetsSelector 
                                 assets={assets || []}
                                 network={pageProps.network}
-							    defaultLogo={networkImages[pageProps.network]}
+							    defaultLogo={Utils.networkLogo(pageProps.network)}
                                 onChange={(v:any)=> dispatch(Actions.currencyChanged({currency: v.currency,history}))}
                                 selectedCurrency={pageProps.currency}
                             />

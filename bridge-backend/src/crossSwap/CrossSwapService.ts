@@ -1,9 +1,9 @@
 import { MongooseConnection } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { CurrencyListSvc } from "common-backend";
+import { AppConfig, CurrencyListSvc } from "common-backend";
 import { Injectable, Networks, ValidationUtils } from "ferrum-plumbing";
 import { Connection, Model, Document } from "mongoose";
-import { BigUtils, BRIDGE_NETWORKS, CrossChainBridgeQuote,
+import { BigUtils, CrossChainBridgeQuote,
 	FRM, NetworkedConfig,
 	SwapProtocol, SwapProtocolInfo, SwapQuote,
 	BridgeV12Contracts, 
@@ -76,7 +76,8 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 			fromCurrency, toCurrency, throuhCurrencies, amountIn });
 		const [fromNetwork,] = EthereumSmartContractHelper.parseCurrency(fromCurrency);
 		const [toNetwork,] = EthereumSmartContractHelper.parseCurrency(toCurrency);
-		ValidationUtils.isTrue(BRIDGE_NETWORKS.indexOf(fromNetwork) >= 0, `Unsupported network ${fromNetwork}`);
+		ValidationUtils.isTrue(
+			(AppConfig.instance().constants()?.bridgeNetworks || []).indexOf(fromNetwork) >= 0, `Unsupported network ${fromNetwork}`);
 		throuhCurrencies = !!throuhCurrencies.length ? throuhCurrencies : [FRM[fromNetwork][0]];
 
 		ValidationUtils.isTrue(throuhCurrencies.length === 1, 'Only one through currency supported at this time');
@@ -108,7 +109,7 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 
 	async allProtocols(): Promise<SwapProtocolInfo[]> {
 		const rv: SwapProtocolInfo[] = [];
-		for(let net of BRIDGE_NETWORKS) {
+		for(let net of AppConfig.instance().constants()?.bridgeNetworks || []) {
 			const protocols = await this.oneInchClient.protocols(net);
 			protocols.forEach(p => rv.push(p));
 		}

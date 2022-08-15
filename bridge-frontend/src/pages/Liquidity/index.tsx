@@ -18,7 +18,6 @@ import { Big } from "big.js";
 import {
   AssetsSelector,
   supportedIcons,
-  networkImages,
   AmountInput,
 //@ts-ignore
 } from "component-library";
@@ -267,12 +266,12 @@ function stateToProps(
         e.currency === `${currNet}:${currency.split(":")[1]}`
     ) || [])[0] || (address as any);
   currency = address ? address.currency : addr[0].currency;
-  const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
+  const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: GET
   const allocation =
     appState.data.approval.approvals[
       approvalKey(address.address, contractAddress, currency)
     ];
-  const currentNetwork = supportedNetworks[address.network] || {};
+  const currentNetwork = supportedNetworks()[address.network] || {};
   const Pairs = (
     appState.data.state.currencyPairs.filter(
       (p) => p.sourceCurrency === currency || p.targetCurrency === currency
@@ -283,7 +282,7 @@ function stateToProps(
 
   const AllowedNetworks = Array.from(new Set(Pairs));
 
-  const networkOptions = Object.values(supportedNetworks).filter(
+  const networkOptions = Object.values(supportedNetworks()).filter(
     (n) =>
       allNetworks.indexOf(n.key) >= 0 &&
       n.mainnet === currentNetwork.mainnet &&
@@ -513,7 +512,7 @@ export function LiquidityPage() {
         },
         duration: 0,
         key: "withdraw",
-      },
+      } as any,
       20
     );
   };
@@ -573,7 +572,7 @@ export function LiquidityPage() {
                   <AssetsSelector
                     assets={assets}
                     network={pageProps.network}
-                    defaultLogo={networkImages[pageProps.network]}
+                    defaultLogo={Utils.networkLogo(pageProps.network)}
                     onChange={(v: any) => {
                       dispatch(
                         Actions.currencyChanged({ currency: v.currency })
@@ -726,7 +725,7 @@ export function LiquidityPage() {
                         {formatter.format(e[1], true)}
                         <span className="icon-network icon-sm mx-2">
                           <img
-                            src={networkImages[e[0].split(":")[0]]}
+                            src={Utils.networkLogo(e[0].split(":")[0])}
                             alt="img"
                           ></img>
                         </span>

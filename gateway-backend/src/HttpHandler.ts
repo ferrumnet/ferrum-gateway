@@ -17,7 +17,7 @@ import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequ
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 import { LiquidityBalancerRequestProcessor } from 'bridge-backend/dist/src/nodeRemoteAccess/LiquidityBalancerRequestProcessor';
-import { ChainEventService } from "common-backend";
+import { AppConfig, ChainEventService } from "common-backend";
 import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
 import { randomBytes } from "crypto";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
@@ -80,8 +80,8 @@ export class HttpHandler implements LambdaHttpHandler {
           ValidationUtils.isTrue(!!userId, '"userId" os requried');
           body = await this.chainEventService.getUserEvents(userId, req.data.application);
           break;
-        case "getHttpProviders":
-          body = this.newtworkConfig;
+        case "getBackendConstants":
+          body = { providers: this.newtworkConfig, constants: AppConfig.instance().constants() };
           break;
         case "getUserProjects":
           ValidationUtils.isTrue(!!userId, "User must be signed in");

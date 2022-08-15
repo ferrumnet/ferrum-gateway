@@ -15,8 +15,8 @@ export function networkEnvConfig<T>(networks: string[], prefix: string, fun: (v:
 	return  anyValue ? rv : undefined;
 }
 
-export function loadConfigFromFile<T>(): T {
-	let configFiles = ['/config.json'].concat( (process.env.CONFIG_FILES || '').split(',') );
+export function loadConfigFromFile<T>(path?: string): T {
+	let configFiles = !!path ? [path] : ['/config.json'].concat( (process.env.CONFIG_FILES || '').split(',') );
 	let rv: T|undefined = undefined;
 	configFiles.filter(f => fs.existsSync(f))
 		.forEach(f => {

@@ -5,20 +5,14 @@ import { inject } from "types";
 import { Route, Switch } from "react-router";
 import {
   Page,
-  Header,
   CnctButton,
   AppContainer,
-  ContentContainer,
   // @ts-ignore
 } from "component-library";
 import { ConnectButtonWapper } from "common-containers";
-// import { WaitingComponent } from '../common/WebWaiting';
 import "../app.scss";
-import { ThemeProvider } from "styled-components";
 import { QpAppState } from "../common/QpAppState";
 import { QpExplorerClient } from "../QpExplorerClient";
-import { DefaultTheme } from "../common/DefaultTheme";
-import { GlobalStyles } from "../common/GlobalStyles";
 import { RecentBlocksAndTxs } from "./RecentBlocksAndTxs";
 import { Transaction } from "./Transaction";
 import { TransactionsList } from "./TransactionsList";
@@ -31,6 +25,7 @@ import {
   FButton,
   FItem,
 } from "ferrum-design-system";
+import { Address } from "./Address";
 
 const initializeDashboardThunk = createAsyncThunk(
   "crucible/init",
@@ -60,31 +55,11 @@ export function Dashboard(props: {}) {
 
   const header = (
     <>
-      <FHeader
-        showLogo={true}
-        // headerLogo={
-        //   "https://ferrum.network/wp-content/uploads/2021/05/image-1.png"
-        // }
-        titleText={"Quantum Portal Explorer"}
-      >
+      <FHeader showLogo={true} titleText={"Quantum Portal Explorer"}>
         <FItem align="right" display={"flex"}>
           <ConnectButtonWapper View={CnctButton} />
         </FItem>
       </FHeader>
-      {/* <Header>
-      ConnectButton={ConBot}
-      WithdrawlsButton={<></>}
-      SwitchNetworkButton={<></>}
-      ThemeSelector={() => <></>}
-      //     () => <ThemeSelector setter={props.setter}
-      //         newTheme={props.newTheme}
-      //         setIsLight={() => setIsLight(!isLight)}
-      //         group={groupInfo.groupId}
-      //         isLight={isLight} />
-      // }
-      logo={"https://ferrum.network/wp-content/uploads/2021/05/image-1.png"}
-      altText={"Quantum Portal Explorer"}
-      /> */}
     </>
   );
   return (
@@ -115,6 +90,9 @@ export function Dashboard(props: {}) {
                     </Route>
                     <Route path="/tx/:txid">
                       <Transaction />
+                    </Route>
+                    <Route path="/address/:address">
+                      <Address />
                     </Route>
                     <Route>
                       <RecentBlocksAndTxs />

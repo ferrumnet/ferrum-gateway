@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import {NetworkSelector} from "./NetworkSelector";
 import "../../assets/scss/_components.scss";
-import {networkImages as images} from './../images';
 
 export const NetworkSwitch = (
   {
@@ -11,9 +10,9 @@ export const NetworkSwitch = (
     currentNetwork,
     currentDestNetwork,
     onNetworkChanged,
-    setIsNetworkReverse,
     IsNetworkReverse,
-    swapping
+    swapping,
+    networkImageFun = () => '',
   }
 ) => {
   return (
@@ -25,13 +24,13 @@ export const NetworkSwitch = (
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork?.key]}
+              icon={networkImageFun(currentNetwork?.key)}
               showDropdown={false}
               availableNetworks={[]}
             /> :
               <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork?.key]}
+              icon={networkImageFun(currentDestNetwork?.key)}
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
@@ -52,7 +51,7 @@ export const NetworkSwitch = (
             !IsNetworkReverse ?
             <NetworkSelector
               currentNetwork={currentDestNetwork}
-              icon={images[currentDestNetwork?.key]}
+              icon={networkImageFun(currentDestNetwork?.key)}
               availableNetworks={availableNetworks}
               suspendedNetworks={suspendedNetworks}
               onNetworkChanged={onNetworkChanged}
@@ -60,7 +59,7 @@ export const NetworkSwitch = (
             /> :
              <NetworkSelector
               currentNetwork={currentNetwork}
-              icon={images[currentNetwork?.key]}
+              icon={networkImageFun(currentNetwork?.key)}
               showDropdown={false}
               availableNetworks={[]}
             />

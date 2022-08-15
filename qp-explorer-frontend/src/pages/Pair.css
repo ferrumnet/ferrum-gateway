@@ -103,3 +103,10 @@
     width: 100%;
     max-width: 650px;
 }
+
+textarea {
+    width: 100%;
+    min-height: 100px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}

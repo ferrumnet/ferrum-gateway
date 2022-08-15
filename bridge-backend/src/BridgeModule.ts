@@ -1,19 +1,17 @@
 import { MongooseConfig } from "aws-lambda-helper";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { ChainClientFactory, EthereumAddress } from "ferrum-chain-clients";
 import { Container, LoggerFactory, Module } from "ferrum-plumbing";
 import { TokenBridgeService } from "./TokenBridgeService";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
-import { BridgeProcessor } from "./BridgeProcessor";
-import { BridgeProcessorConfig, getEnv } from "./BridgeProcessorTypes";
+import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { AppConfig, CurrencyListSvc, decryptKey } from "common-backend";
+import { AppConfig, CurrencyListSvc } from "common-backend";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
-import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS } from "types";
+import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, Utils } from "types";
 import { BridgeNodesRemoteAccessRequestProcessor } from "..";
 import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
 import { LiquidityBalancerRequestProcessor } from "./nodeRemoteAccess/LiquidityBalancerRequestProcessor";
@@ -53,9 +51,11 @@ export class BridgeModule implements Module {
 
       .orElse('', () => ({
         bridgeConfig: {
-          contractClient: BRIDGE_V1_CONTRACTS,
+          contractClient: {
+            ...BRIDGE_V1_CONTRACTS,
+          }
         },
-        bridgeV12Config: BRIDGE_V12_CONTRACTS,
+        bridgeV12Config: BRIDGE_V12_CONTRACTS, 
         swapProtocols: {},
         validatorAddressesV1: AppConfig.env('BRIDGE_VALIDATOR_ADDRESSES_V1', '')
           .toLowerCase().split(','),

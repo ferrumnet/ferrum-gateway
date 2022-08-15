@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Theme, ThemeConstantProvider, ThemeContext } from 'unifyre-react-helper';
 //@ts-ignore
-import { OutlinedBtn, networkImages, AssetsSelector, NetworkSwitch, AmountInput, supportedIcons } from 'component-library';
+import { OutlinedBtn, AssetsSelector, NetworkSwitch, AmountInput, supportedIcons } from 'component-library';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { BridgeAppState } from '../../common/BridgeAppState';
@@ -10,7 +10,7 @@ import {
     BridgeTokenConfig, inject, Utils, BRIDGE_V1_CONTRACTS,
 } from 'types';
 import { IConnectViewProps } from 'common-containers';
-import { Steps } from 'antd';
+import { Steps as StepsPre, StepsProps } from 'antd';
 import { SwapModal } from './../../components/swapModal';
 import { useBoolean } from '@fluentui/react-hooks';
 import { useToasts } from 'react-toast-notifications';
@@ -34,7 +34,12 @@ import { addAction, CommonActions } from '../../common/Actions';
 import { useHistory } from 'react-router';
 import { RoutingHelper } from '../../common/RoutingHelper';
 
-const { Step } = Steps;
+const { Step } = StepsPre;
+
+const Steps = StepsPre as any as React.FC<StepsProps & {
+children: JSX.Element;
+}>;
+
 
 export interface MainPageState {
     destNetwork: string,
@@ -201,9 +206,9 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
     currency = Item?.length > 0 ? Item[0].currency : currency;
     address = (addr.filter(e => e.currency === (currency) || e.currency === (`${currNet}:${currency.split(':')[1]}`)) || [])[0] || address || {} as any;
     currency = address.currency;
-    const currentNetwork = supportedNetworks[address.network] || {};
+    const currentNetwork = supportedNetworks()[address.network] || {};
 
-    const networkOptions = Object.values(supportedNetworks)
+    const networkOptions = Object.values(supportedNetworks())
         .filter(n => allNetworks.indexOf(n.key) >= 0 && n.mainnet === currentNetwork.mainnet && n.active === true);
     const Pairs = (appState.data.state.currencyPairs.filter(p => p.sourceCurrency === currency || p.targetCurrency === currency) || [])
         .map(e => e.targetNetwork);
@@ -221,9 +226,8 @@ function stateToProps(appState: BridgeAppState): MainPageProps {
             .filter(r => r.network === destNetwork)
             .map(c => ({ fee: c.fee, targetNetwork: c.network, targetCurrency: c.currency } as BridgeTokenConfig))
             .find(Boolean);
-            console.log(targetNetworks,networkOptions,allowedTargets,currentPair)
 
-    const contractAddress = BRIDGE_V1_CONTRACTS[address.network];
+    const contractAddress = BRIDGE_V1_CONTRACTS[address.network]; // TODO: Get from appconfig
     const allocation = appState.data.approval.approvals[approvalKey(address.address, contractAddress, currency)];
     const availableLiquidity = appState.data.state
         .bridgeLiquidity[currentPair?.targetCurrency || 'N/A'] || '0';
@@ -330,7 +334,7 @@ export const ConnectBridge = () => {
             },
             duration: 0,
             key: 'withdr',
-        }, 0);
+        } as any, 0);
     };
 
     const onMessage = async (v: string) => {
@@ -391,21 +395,22 @@ export const ConnectBridge = () => {
                         <AssetsSelector
                             assets={assets}
                             network={pageProps.network}
-                            defaultLogo={networkImages[pageProps.network]}
+                            defaultLogo={Utils.networkLogo(pageProps.network)}
                             onChange={(v: any) => dispatch(Actions.currencyChanged({ currency: v.currency, history }))}
                             selectedCurrency={pageProps.currency}
                         />
                         <NetworkSwitch
                             availableNetworks={pageProps.targetNetworks}
                             suspendedNetworks={[]}
-                            currentNetwork={supportedNetworks[pageProps.network] || {}}
-                            currentDestNetwork={supportedNetworks[pageProps.destNetwork]}
+                            currentNetwork={supportedNetworks()[pageProps.network] || {}}
+                            currentDestNetwork={supportedNetworks()[pageProps.destNetwork]}
                             onNetworkChanged={(e: NetworkDropdown) => {
                                 dispatch(Actions.resetDestNetwork({ value: e.key }))
                             }}
                             setIsNetworkReverse={() => dispatch(Actions.changeIsNetworkReverse({}))}
                             IsNetworkReverse={pageProps.isNetworkReverse}
                             swapping={swapping||((pageProps.swapId != '') && pageProps.progressStatus > 2)}
+                            networkImageFun={(net: any) => Utils.networkLogo(net)}
                         />
                         {
                             pageProps.isNetworkReverse &&
@@ -447,7 +452,7 @@ export const ConnectBridge = () => {
                                 <small className="text-pri d-flex align-items-center text-vary-color">
                                     Available Liquidity On {pageProps.destNetwork} ≈ {Number(pageProps.availableLiquidity) > 1 ? (Number(pageProps.availableLiquidity) - 1) : pageProps.availableLiquidity}
                                     <span className="icon-network icon-sm mx-2">
-                                        <img src={networkImages[pageProps.destNetwork]} alt="loading"></img>
+                                        <img src={Utils.networkLogo(pageProps.destNetwork)} alt="loading"></img>
                                     </span>
                                 </small>
                             </div>
@@ -520,6 +525,7 @@ export const SideBarContainer = () => {
                         direction="vertical"
                         current={0}
                     >
+                        <>
                         <Step
                             status={connected ? "finish" : "wait"}
                             title={<div style={{ ...styles.stepStyle }} className="text-vary-color">
@@ -573,6 +579,7 @@ export const SideBarContainer = () => {
                                 </p>
                             }
                         />
+                        </>
                     </Steps>
                 </div>
             </>

@@ -1,8 +1,9 @@
 import { EthereumSmartContractHelper, } from "aws-lambda-helper/dist/blockchain";
-import { AuthTokenParser, } from 'aws-lambda-helper';
+import { AuthTokenParser, UnifyreBackendProxyService, } from 'aws-lambda-helper';
 import { Container, Module, LoggerFactory, ConsoleLogger } from "ferrum-plumbing";
 import { AppConfig, CommonBackendModule, WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
 import { CommonRpcHttpHandler } from 'common-backend/dist/app/CommonRpcHttpHandler';
+import { CommonRequestsProcessor } from 'common-backend/dist/app/CommonRequestsProcessor';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalExplorerRequestProcessor } from "./QuantumPortalExplorerRequestProcessor";
 import { QpExplorerService } from "./QpExplorerService";
@@ -44,11 +45,17 @@ export class QpBackendModule implements Module {
         c.get(QpExplorerService),
       ));
 
+    container.register(CommonRequestsProcessor,
+      c => new CommonRequestsProcessor(c.get(UnifyreBackendProxyService)));
+
     container.registerSingleton(
       "LambdaHttpHandler",
       (c) =>
         new CommonRpcHttpHandler(
-          [c.get(QuantumPortalExplorerRequestProcessor)],
+          [
+            c.get(CommonRequestsProcessor),
+            c.get(QuantumPortalExplorerRequestProcessor),
+          ],
           c.get(AuthTokenParser),
           c.get(LoggerFactory),
         )

@@ -33,6 +33,7 @@
     "react-toast-notifications": "^2.4.4",
     "styled-components": "^5.3.0",
     "types": "1.0.0",
+    "web3-tools": "1.0.0",
     "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git",
     "web-vitals": "^1.0.1"
   },

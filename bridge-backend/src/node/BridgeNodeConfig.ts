@@ -18,4 +18,5 @@ export interface BridgeNodeConfig {
 	publicAccessKey: string;
 	secretAccessKey: string;
 	liquidityLevels?: { [k: string]: string};
+	bridgeV1Contracts: NetworkedConfig<string>;
 }

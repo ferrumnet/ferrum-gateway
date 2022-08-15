@@ -1,6 +1,5 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Container, LoggerFactory, Module, panick, ValidationUtils } from "ferrum-plumbing";
-import { BRIDGE_V1_CONTRACTS } from "types";
 import { BridgeNodeConfig  } from "./BridgeNodeConfig";
 import { BridgeNodeV1 } from "./BridgeNodeV1";
 import { TransactionListProvider } from "./TransactionListProvider";
@@ -16,6 +15,7 @@ import { WithdrawItemValidator } from "./WithdrawItemValidator";
 import { BridgeNodesRemoteAccessClient } from "../nodeRemoteAccess/BridgeNodesRemoteAccessClient";
 import { WebNativeCryptor, CryptoJsKeyProvider } from 'ferrum-crypto';
 import { LiquidityBalancerProcessor, LiquidityClient } from "./extra/LiquidityBalancerProcessor";
+import { NodeUtils } from "./common/NodeUtils";
 
 export class NodeModule implements Module {
   async configAsync(container: Container) {
@@ -29,12 +29,14 @@ export class NodeModule implements Module {
 
 	await container.registerModule(new CommonBackendModule());
 
+	console.log('Contracts configured for the token bridge: ', NodeUtils.bridgeV1ContractsForNode());
+
     container.registerSingleton(
       TokenBridgeContractClinet,
       (c) =>
         new TokenBridgeContractClinet(
           c.get(EthereumSmartContractHelper),
-          BRIDGE_V1_CONTRACTS
+		  NodeUtils.bridgeV1ContractsForNode(),
         ));
 
 	container.registerSingleton(TransactionListProvider,

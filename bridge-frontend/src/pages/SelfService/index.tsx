@@ -28,8 +28,10 @@ import {
 } from "unifyre-extension-web3-retrofit";
 import { Dropdown } from "react-bootstrap";
 import { changeNetwork } from "../Main/handler";
-import { Timeline } from "antd";
+import { Timeline as TimeLinePre, TimelineProps } from "antd";
 import { SelfServiceState } from "../../common/BridgeAppState";
+
+const Timeline = TimeLinePre as any;
 
 export interface SelfServiceProps extends SelfServiceState {
   symbol: string;
@@ -146,8 +148,8 @@ function stateToProps(appState: BridgeAppState): SelfServiceProps {
   const allNetworks = bridgeCurrencies.map((c) => c.split(":")[0]);
   const addr = addressForUser(appState.connection.account.user) || ({} as any);
   let address = addr[0] || {};
-  const currentNetwork = supportedNetworks[address.network] || {};
-  const networkOptions = Object.values(supportedNetworks).filter(
+  const currentNetwork = supportedNetworks()[address.network] || {};
+  const networkOptions = Object.values(supportedNetworks()).filter(
     (n) =>
       allNetworks.indexOf(n.key) >= 0 &&
       (!address.network || n.mainnet === currentNetwork.mainnet)

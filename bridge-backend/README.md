@@ -36,14 +36,7 @@ docker run --rm --init --env-file /root/bridge/test.env --name bridge-cli naiemk
 
 ## Steps for adding a new chain:
 
-*Ferrum Plumbing*
-- Plumbing (add to the NEtworks type and make sure networks.json has right info - specially the explorer)
+- Update constants.json in the  ferrum-token-list . This includes, the supported networks, logos, and etherescan urls.
+- In the AWS secret for gateway and chain, add the provider address, and the bridge contract address.
+- In the code ferrum-gateway monorepo, types project, consts.ts add the contract address to BRIDGE_V1_CONTRACTS. Note that this is only for UI. We could get the contract list from backend, but I though for security reasons it is better to be hardcoded. So that in the case of backend hack, UI has its separate list of contracts hardcoded.
 
-- add bridge-frontend/src/assets/img/moonbase.png 
-   TODO: Load assets from a json
-- confirmationModa -> Icon for the chain. TODO: Move to a json
-- [LEGIT] AppConfig -> SUPPORTED_CHAINS_FOR_CONFIG
-- [LEGIT] consts -> BRIDGE_NETWORKS
-- Update the WETH address: TODO: Move to config?
-- image.js => Network images. TODO: Move to Json
-- Contracts.ts

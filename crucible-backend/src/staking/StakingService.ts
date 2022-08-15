@@ -1,9 +1,9 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, ValidationUtils } from "ferrum-plumbing";
 import { NetworkedConfig, StakeInfo, StakeRewardInfo, 
-	StakeType, stakeTypeToInt, UserStakeInfo, StakingContracts, Utils, UserStakeRewardInfo } from "types";
+	StakeType, UserStakeInfo, StakingContracts, Utils, UserStakeRewardInfo } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
-import { RouterV2Staking__factory,CrucibleRouter__factory,
+import { CrucibleRouter__factory,
 	StakeOpen, StakeOpen__factory, StakeTimed__factory } from "../resources/typechain";
 import { PopulatedTransaction } from "ethers";
 
@@ -163,13 +163,14 @@ export class StakingService implements Injectable {
 		ValidationUtils.isTrue(sType === 'openEnded' || sType === 'timed', 'Invalid stake type ' + sType);
 		const provider = this.helper.ethersProvider(network);
 		console.log(this.contracts[network],provider)
-		const address = sType === 'openEnded' ? (this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.openEnded : (this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.timed;
+		const address = sType === 'openEnded' ? (this.contracts[network]||[]).find(
+			e=>e.router == stakingAddress)?.openEnded : (this.contracts[network]||[]).find(e=>e.router == stakingAddress)?.timed;
 		ValidationUtils.isTrue(!!address, `Not staking configured for ${network} - ${sType}`);
 		return sType === 'openEnded' ? StakeOpen__factory.connect(address, provider) : StakeTimed__factory.connect(address, provider);
 	}
 
 	private router(network: string,stakingAddress:string) {
-		const routerAddress =(this.contracts[network]||[]).find(e=>e.address == stakingAddress)?.router; 
+		const routerAddress =(this.contracts[network]||[]).find(e=>e.router == stakingAddress)?.router; 
 		ValidationUtils.isTrue(!!routerAddress, `Not staking router configured for ${network}`);
 		const provider = this.helper.ethersProvider(network);
 		return CrucibleRouter__factory.connect(routerAddress, provider);

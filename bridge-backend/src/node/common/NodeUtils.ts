@@ -1,10 +1,12 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { HexString, Networks, ValidationUtils } from "ferrum-plumbing";
+import { AppConfig } from "common-backend";
+import { HexString, NetworkedConfig, Networks, ValidationUtils } from "ferrum-plumbing";
 import { BridgeContractNames, BridgeContractVersions, BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, PayBySignatureData, UserBridgeWithdrawableBalanceItem, Utils } from "types";
 import Web3 from "web3";
 import * as Eip712 from "web3-tools";
 import { Eip712Params, produceSignature } from "web3-tools";
 import { BridgeSwapEvent } from "../../common/TokenBridgeTypes";
+import { BridgeNodeConfig } from "../BridgeNodeConfig";
 
 export const EXPECTED_WI_SCHEMA_VERSIONS = ["0.1", "1.0", "1.2"];
 
@@ -13,6 +15,15 @@ export class NodeUtils {
       return Web3.utils.keccak256(
         wi.receiveTransactionId.toLocaleLowerCase()
       );
+    }
+
+    static bridgeV1ContractsForNode(): NetworkedConfig<string> {
+        const nets = AppConfig.instance().get<BridgeNodeConfig>('')?.bridgeV1Contracts || BRIDGE_V1_CONTRACTS
+        const rv = {} as any;
+        Object.keys(nets).forEach(k => {
+            rv[k] = (nets[k] || '').toLowerCase();
+        });
+        return rv;
     }
 
     static bridgeV1Hash(
@@ -182,7 +193,7 @@ export class NodeUtils {
 			]
 		} as Eip712Params;
 
-		const bridgeContractAddress = BRIDGE_V1_CONTRACTS[tx.targetNetwork];
+		const bridgeContractAddress = NodeUtils.bridgeV1ContractsForNode()[tx.targetNetwork];
 		return {
 			token: tx.targetToken,
 			payee: tx.targetAddress,
@@ -263,7 +274,7 @@ export class NodeUtils {
                 'Invalid payBySig.swapTxId');
             ValidationUtils.isTrue(wi.payBySig.contractName === BridgeContractNames.V1_0,
                 'Invalid payBySig.contractName');
-            ValidationUtils.isTrue(wi.payBySig.contractAddress === BRIDGE_V1_CONTRACTS[wi.sendNetwork],
+            ValidationUtils.isTrue(wi.payBySig.contractAddress === NodeUtils.bridgeV1ContractsForNode()[wi.sendNetwork],
                 'Invalid payBySig.contractAddress');
             ValidationUtils.isTrue(wi.payBySig.hash === NodeUtils.bridgeV1Hash(wi),
                 'Invalid payBySig.hash');
