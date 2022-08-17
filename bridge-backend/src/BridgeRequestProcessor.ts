@@ -4,6 +4,7 @@ import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { RoutingTableService } from "./RoutingTableService";
+import { BridgeProcessor } from "./BridgeProcessor";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor
@@ -14,6 +15,7 @@ export class BridgeRequestProcessor
     private bgs: BridgeConfigStorage,
     private rouitingTable: RoutingTableService,
 		private crossSwap: CrossSwapService,
+    private bridgeProcessor: BridgeProcessor
   ) {
     super();
 
@@ -119,6 +121,16 @@ export class BridgeRequestProcessor
 
 		this.registerProcessor('withdrawAndSwapGetTransaction',
 			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
+    
+    this.registerProcessor("processFromEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromEvmSwapTransaction(req.data);
+    });
+    this.registerProcessor("processFromNonEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromNonEvmSwapTransaction(req.data);
+    });
+    this.registerProcessor("processEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processEvmTx(req.data.network, req.data.txId);
+    });
   }
 
   __name__() {
