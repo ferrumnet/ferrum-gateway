@@ -1,0 +1,227 @@
+{
+	"id": "FERRUM_BASIC_IRON_SAFE:000.001",
+	"identifier": {
+		"name": "FERRUM_BASIC_IRON_SAFE:000.001",
+		"version": "000.001"
+	},
+	"methods": [
+		{
+			"name": "AddToQuorum",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "_address"},
+				{"type": "address", "name": "quorumId"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
+				}, {
+					"internalType": "address",
+					"name": "quorumId",
+					"type": "address"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "addToQuorum",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "RemoveFromQuorum",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "_address"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "removeFromQuorum",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "UpdateMinSignature",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "quorumId"},
+				{"type": "uint16", "name": "minSignature"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "quorumId",
+					"type": "address"
+				}, {
+					"internalType": "uint16",
+					"name": "minSignature",
+					"type": "uint16"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "updateMinSignature",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "AddToQuorum",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "_address"},
+				{"type": "address", "name": "quorumId"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
+				}, {
+					"internalType": "address",
+					"name": "quorumId",
+					"type": "address"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "addToQuorum",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "RemoveFromQuorum",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "_address"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "_address",
+					"type": "address"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "removeFromQuorum",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		},
+		{
+			"name": "SetVeto",
+			"adminOnly": false,
+			"governanceOnly": true,
+			"args": [
+				{"type": "address", "name": "to"},
+				{"type": "bytes32", "name": "salt"},
+				{"type": "uint64", "name": "expiry"}
+			],
+			"abi": {
+				"inputs": [{
+					"internalType": "address",
+					"name": "quorumId",
+					"type": "address"
+				}, {
+					"internalType": "uint16",
+					"name": "minSignature",
+					"type": "uint16"
+				}, {
+					"internalType": "bytes32",
+					"name": "salt",
+					"type": "bytes32"
+				}, {
+					"internalType": "uint64",
+					"name": "expiry",
+					"type": "uint64"
+				}, {
+					"internalType": "bytes",
+					"name": "multiSignature",
+					"type": "bytes"
+				}],
+				"name": "updateMinSignature",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		}
+
+	]
+}

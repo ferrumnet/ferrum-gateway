@@ -22,6 +22,7 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
     ) {
         super();
         this.log = logFac.getLogger(QpExplorerService);
+        console.log('CONFIGZ', JSON.stringify(config, undefined, 2));
     }
 
     __name__(): string { return 'QpExplorerService'; }
