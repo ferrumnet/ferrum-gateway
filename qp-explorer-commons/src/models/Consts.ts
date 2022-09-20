@@ -6,8 +6,8 @@ export interface QuantumPortalContracts {
 
 export const QuantumPortalContractList: { [k: string]: QuantumPortalContracts } = {
     'DEFAULT': {
-        manager: '0xd36312D594852462d6760042E779164EB97301cd',
-        poc: '0x010aC4c06D5aD5Ad32bF29665b18BcA555553151',
+        manager: '0x3d7d171d02d5f37c8eb0d3eea72859d5fc758ffb',
+        poc: '0x2c24a6b225b4c82d3241f5c7c037cc374a979b17',
     },
 }
 

@@ -1,2 +1,2 @@
 export CONFIG_FILE_CHAIN_CONFIG=./localConfig/providers.json
-export CONFIG_FILE_BRIDGE=./localConfig/bridgeConfig.json
+export CONFIG_FILE_QP_EXPLORER=./localConfig/qpConfig.json

@@ -10,12 +10,22 @@ export interface QuantumPortalAccountBalance {
     currentValue: string;
 } 
 
+export interface QuantumPortalContractObject {
+    contractId: string;
+    contractName: string;
+    sourceName: string;
+    abi: AbiModel;
+    byteCode: string;
+    deployedByteCode: string;
+}
+
 export interface QuantumPortalContractAccount {
     address: string;
     network: string;
     abi: AbiModel;
     code: string;
     metadata: Object;
+    contractId: string;
 }
 
 export interface QuantumPortalAccount {
@@ -32,11 +42,23 @@ export interface QuantumPortalAccount {
 //     metadata: Object,
 // });
 
+const quantumPortalContractObjectSchema = new Schema<Document&QuantumPortalContractObject>({
+    contractId: String,
+    contractName: String,
+    sourceName: String,
+    abi: Object,
+    byteCode: String,
+    deployedByteCode: String,
+});
+
 const quantumPortalAccountSchema = new Schema<Document&QuantumPortalAccount>({
     address: String,
     isContract: Boolean,
     contract: Object,
 });
+
+export const QuantumPortalContractObjectModel = (c: Connection) => c.model<QuantumPortalContractObject&Document>(
+    'quantumPortalContractObject', quantumPortalContractObjectSchema);
 
 export const QuantumPortalAccountModel = (c: Connection) => c.model<QuantumPortalAccount&Document>(
     'quantumPortalAccount', quantumPortalAccountSchema);

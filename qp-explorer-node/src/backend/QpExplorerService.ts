@@ -3,9 +3,10 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { MongooseConnection } from 'aws-lambda-helper';
 import { Connection, Document, Model } from 'mongoose';
 import { QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
-    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance } from 'qp-explorer-commons';
+    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance, QuantumPortalContractObject, QuantumPortalContractAccount } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
+import { sha256sync } from 'ferrum-crypto';
 import { AbiItem } from "web3-tools";
 
 export class QpExplorerService extends MongooseConnection implements Injectable  {
@@ -14,6 +15,7 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
     private blockModel: Model<QuantumPortalMinedBlock&Document> | undefined;
     private txModel: Model<QuantumPortalRemoteTransactoin&Document> | undefined;
     private accountModel: Model<QuantumPortalAccount&Document> | undefined;
+    private contractModel: Model<QuantumPortalContractObject&Document> | undefined;
 
     constructor(
         logFac: LoggerFactory,
@@ -151,5 +153,39 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
             undefined,
             nonce,
             `Custom Transaction`);
+   }
+
+   async registerQpContract(
+            networks: string[],
+            contractAddress: string,
+            contract: QuantumPortalContractObject,): Promise<void> {
+        this.verifyInit();
+        // TODO: Validate the contract object
+        ValidationUtils.isTrue(contract.deployedByteCode.startsWith('0x'), '"deployedByteCode" must be hex');
+        contractAddress = contractAddress.toLowerCase();
+        const contractId = sha256sync(contract.deployedByteCode.toLowerCase().replace('0x', ''));
+        contract.contractId = contractId;
+        const existing = await this.contractModel.findOne({contractId}).exec();
+        if (!existing) {
+            await new this.contractModel(contract).save();
+        }
+        let accountObj = await this.accountModel.findOne({address: contractAddress}).exec();
+        const account: QuantumPortalAccount = !!accountObj ? accountObj.toJSON as any : {
+            address: contractAddress,
+            isContract: true,
+            contract: {},
+        } as QuantumPortalAccount;
+        for (const net of networks) {
+            account.contract[net] = {
+                address: contractAddress,
+                network: net,
+                contractId,
+            } as any as QuantumPortalContractAccount;
+        }
+        if (!accountObj) {
+            await new this.accountModel(account).save();
+        } else {
+            await this.accountModel.findOneAndUpdate({address: contractAddress}, account).exec();
+        }
    }
 }
