@@ -97,6 +97,9 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         if (net && newNetworkCurrencies.length == 0) {
             currencyList.set(bridgeNetworks.map(n => Networks.for(n).baseCurrency));
         }
+        if ((currencyList.get() || []).filter(c => c.startsWith(network || 'NA')).length === 0) {
+            console.error(`No default currencies are defined for network ${network}. This may cause issue with connection`);
+        }
         
         // Subscribe to session disconnection
         // console.log('Provider is...', connect.getProvider())
@@ -109,6 +112,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
             ctx.dispatch(reConnect({}));
         });
         const userProfile = await client.getUserProfile();
+        // console.log('USER PROFILE', userProfile);
         const res = await api.signInToServer(userProfile);
         if (res) {
             ctx.dispatch(Actions.connectionSucceeded({userProfile}));

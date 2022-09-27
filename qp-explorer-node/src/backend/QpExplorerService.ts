@@ -3,11 +3,13 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { MongooseConnection } from 'aws-lambda-helper';
 import { Connection, Document, Model } from 'mongoose';
 import { QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
-    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance, QuantumPortalContractObject, QuantumPortalContractAccount } from 'qp-explorer-commons';
+    QuantumPortalRemoteTransactoinModel, QuantumPortalMinedBlock, QuantumPortalAccount, QuantumPortalAccountModel, QuantumPortalAccountBalance,
+    QuantumPortalContractObject, QuantumPortalContractAccount, QuantumPortalContractObjectModel } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 import { sha256sync } from 'ferrum-crypto';
 import { AbiItem } from "web3-tools";
+import Web3 from "web3";
 
 export class QpExplorerService extends MongooseConnection implements Injectable  {
     private cache = new LocalCache();
@@ -33,6 +35,7 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
         this.blockModel = QuantumPortalMinedBlockModel(con);
         this.txModel = QuantumPortalRemoteTransactoinModel(con);
         this.accountModel = QuantumPortalAccountModel(con);
+        this.contractModel = QuantumPortalContractObjectModel(con);
     }
 
     async recentBlocks(page: number, pageSize: number): Promise<QuantumPortalMinedBlock[]> {
@@ -75,7 +78,7 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
        return rv.toJSON();
    }
 
-   async account(address: string): Promise<QuantumPortalAccount> {
+   async account(address: string): Promise<QuantumPortalAccount&{contractObjects: any}> {
        ValidationUtils.isTrue(!!address, '"address" required');
        this.verifyInit();
        const rv = await this.accountModel.findOne({address}).exec();
@@ -84,9 +87,24 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
                address: address.toLowerCase(),
                contract: {},
                isContract: false,
-           } as QuantumPortalAccount;
+               contractObjects: {},
+           };
        }
-       return rv.toJSON() as any;
+       const account = rv.toJSON() as any as QuantumPortalAccount;
+       const contractObjects: any = {};
+       if (account.isContract) {
+            for(let network of Object.keys(account.contract)) {
+                const contractId = account.contract[network].contractId;
+                if (!contractObjects[contractId]) {
+                    const ao = await this.contractModel.findOne({contractId}).exec();
+                    contractObjects[contractId] = ao.toJSON();
+                }
+            }
+       }
+       return {
+            ...account,
+            contractObjects,
+       }
    }
 
    async accountTransactions(address: string, page: number = 0, pageSize: number = 40): Promise<QuantumPortalRemoteTransactoin[]> {
@@ -161,16 +179,18 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
             contract: QuantumPortalContractObject,): Promise<void> {
         this.verifyInit();
         // TODO: Validate the contract object
-        ValidationUtils.isTrue(contract.deployedByteCode.startsWith('0x'), '"deployedByteCode" must be hex');
+        ValidationUtils.isTrue(contract.deployedBytecode.startsWith('0x'), '"deployedByteCode" must be hex');
         contractAddress = contractAddress.toLowerCase();
-        const contractId = sha256sync(contract.deployedByteCode.toLowerCase().replace('0x', ''));
+        ValidationUtils.isTrue(Web3.utils.isAddress(contractAddress), 'Invalid address');
+        const contractId = sha256sync(contract.deployedBytecode.toLowerCase().replace('0x', ''));
         contract.contractId = contractId;
+        console.log('Registering contract with ID', contractId);
         const existing = await this.contractModel.findOne({contractId}).exec();
         if (!existing) {
             await new this.contractModel(contract).save();
         }
         let accountObj = await this.accountModel.findOne({address: contractAddress}).exec();
-        const account: QuantumPortalAccount = !!accountObj ? accountObj.toJSON as any : {
+        const account: QuantumPortalAccount = !!accountObj ? accountObj.toJSON() as any : {
             address: contractAddress,
             isContract: true,
             contract: {},
@@ -187,5 +207,8 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
         } else {
             await this.accountModel.findOneAndUpdate({address: contractAddress}, account).exec();
         }
+
+        const newAccount = await this.account(contractAddress);
+        console.log('REGISTERED', newAccount)
    }
 }

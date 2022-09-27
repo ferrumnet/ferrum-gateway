@@ -15,8 +15,8 @@ export interface QuantumPortalContractObject {
     contractName: string;
     sourceName: string;
     abi: AbiModel;
-    byteCode: string;
-    deployedByteCode: string;
+    bytecode: string;
+    deployedBytecode: string;
 }
 
 export interface QuantumPortalContractAccount {
@@ -47,8 +47,8 @@ const quantumPortalContractObjectSchema = new Schema<Document&QuantumPortalContr
     contractName: String,
     sourceName: String,
     abi: Object,
-    byteCode: String,
-    deployedByteCode: String,
+    bytecode: String,
+    deployedBytecode: String,
 });
 
 const quantumPortalAccountSchema = new Schema<Document&QuantumPortalAccount>({

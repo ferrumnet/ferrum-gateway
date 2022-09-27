@@ -11,7 +11,9 @@ export class QuantumPortalExplorerRequestProcessor
     ) {
         super();
         this.registerProcessor('getBackendConstants', () => ({
-            providers: {}, constants: {},
+            providers: {}, constants: {
+                bridgeNetworks: ['RINKEBY', 'BSC_TESTNET']
+            },
         }) as any);
         this.registerProcessor('QpRecentBlocks', req =>
             this.svc.recentBlocks(req.data.page || 0, req.data.pageSize || 40));
@@ -47,7 +49,7 @@ export class QuantumPortalExplorerRequestProcessor
             ValidationUtils.allRequired(
                 ['networks', 'contractAddress'], req.data);
             ValidationUtils.allRequired(
-                ['contractName', 'sourceName', 'abi', 'byteCode', 'deployedByteCode'], req.data.contract);
+                ['contractName', 'sourceName', 'abi', 'bytecode', 'deployedBytecode'], req.data.contract);
             return this.svc.registerQpContract(
                 req.data.networks,
                 req.data.contractAddress,

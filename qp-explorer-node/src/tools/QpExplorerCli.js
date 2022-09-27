@@ -15,18 +15,22 @@ async function registerContract(url, networks, contractAddress, jsonFile) {
   const js = JSON.parse(fs.readFileSync(jsonFile));
   assure(js, ['contractName', 'sourceName', 'abi', 'bytecode', 'deployedBytecode']);
   await fetch(url, {
-    data: {
-      networks,
-      contractAddress,
-      contract: js,
-    }
+    method: 'POST',
+    body: JSON.stringify({
+      command: 'registerQpContract',
+      data: {
+        networks,
+        contractAddress,
+        contract: js,
+      }
+    }),
   });
   console.log('Fetched...');
 }
 
 const url = process.argv[2];
 const file = process.argv[3];
-const networks = process.argv[4];
+const networks = process.argv[4].replace(' ','').split(',');
 const address = process.argv[5];
 console.log('SYNTAX:');
 console.log('node ./tools/QpExplorerCli.js <backend url> <contract file> <networks> ')

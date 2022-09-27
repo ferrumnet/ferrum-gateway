@@ -32,7 +32,7 @@ export interface AbiUiWritableItem extends AbiUiItem {
 
 export class AbiToUi {
     static map(abi: AbiModel): AbiUiItem[] {
-        return abi.map(a => AbiToUi.mapItem(a));
+        return (abi || []).map(a => AbiToUi.mapItem(a));
     }
 
     static mapItem(item: AbiItem): AbiUiItem {
@@ -58,7 +58,7 @@ export class AbiToUi {
                             abiItem: item,
                             actionType: 'write',
                             label: item.name,
-                            inputs: item.inputs.map(i => ({
+                            inputs: (item.inputs || []).map(i => ({
                                 label: i.name,
                                 type: i.type,
                                 dirty: false,

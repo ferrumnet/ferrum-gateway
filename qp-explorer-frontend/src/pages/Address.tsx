@@ -1,5 +1,5 @@
 import { FCard, FContainer } from "ferrum-design-system";
-import { QuantumPortalAccount, QuantumPortalAccountBalance, QuantumPortalRemoteTransactoin } from "qp-explorer-commons";
+import { QuantumPortalAccount, QuantumPortalAccountBalance, QuantumPortalContractAccount, QuantumPortalRemoteTransactoin } from "qp-explorer-commons";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -62,13 +62,15 @@ export function Address(props: {}) {
           }
           <Pair itemKey={"Is contract"} value={account.isContract ? 'true' : 'false'} />
           {account.isContract && (
-            nets.map((k: string, i: number) => (
+            nets.map((k: string, i: number) => {
+              const co: QuantumPortalContractAccount = (account as any).contractObjects[account.contract[k].contractId];
+              return (
               <React.Fragment key={i}>
-                <MultiLinePair itemKey={"Contract Metadata"} value={account.contract[k].metadata} />
-                <MultiLinePair itemKey={"Contract ABI"} value={JSON.stringify(account.contract[k].abi)} />
-                <MultiLinePair itemKey={"Contract Code"} value={account.contract[k].code} />
-              </React.Fragment>
-            ))
+                <MultiLinePair itemKey={"Contract Metadata"} value={co?.metadata} />
+                <MultiLinePair itemKey={"Contract ABI"} value={JSON.stringify(co?.abi)} />
+                <MultiLinePair itemKey={"Contract Code"} value={co?.code} />
+              </React.Fragment>)
+            })
           )}
         </FCard>
         <div> &nbsp; </div>
@@ -87,7 +89,7 @@ export function Address(props: {}) {
             ))}
         </FCard>
         {account.isContract && 
-          nets.map((net, i) => 
+          nets.map((net, i) =>  
             (
               <>
               <div> &nbsp; </div>

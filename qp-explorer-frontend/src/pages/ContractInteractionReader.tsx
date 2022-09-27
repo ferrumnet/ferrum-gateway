@@ -65,7 +65,7 @@ const readContractField = createAsyncThunk('qp-frontend/readContractField',
 export function ContractInteractionReader(props: {network: string}) {
     const account = useSelector<
         QpAppState,
-        QuantumPortalAccount | undefined
+        QuantumPortalAccount&{contractObjects: any} | undefined
     >((state) => state.data.state.selectedAddress?.account);
     const readState = useSelector<
         QpAppState,
@@ -83,7 +83,7 @@ export function ContractInteractionReader(props: {network: string}) {
             <></>
         );
     }
-    const abi = account.contract[props.network].abi as any;
+    const abi = account.contractObjects[contract.contractId].abi as any;
     const uiAbi = AbiToUi.map(abi);
     
     return (

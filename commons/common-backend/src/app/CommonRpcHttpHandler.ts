@@ -71,7 +71,7 @@ export class CommonRpcHttpHandler implements LambdaHttpHandler, Injectable {
                 statusCode: 200,
             } as LambdaHttpResponse;
         } catch (e) {
-            this.log.error(`Error while calling API. Req: \n${JSON.stringify(req)}\n and Error: \n ${(e as Error).toString}`);
+            this.log.error(`Error while calling API. Req: \n${JSON.stringify(req)}\n and Error: \n ${(e as Error).toString()}`);
             return {
                 body: JSON.stringify({ error: (e as Error).toString() }),
                 headers: {
