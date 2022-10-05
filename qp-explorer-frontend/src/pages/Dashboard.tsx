@@ -55,10 +55,7 @@ export function Dashboard(props: {}) {
 
   const header = (
     <>
-      <FHeader
-        showLogo={true}
-        titleText={"Quantum Portal Explorer"}
-      >
+      <FHeader showLogo={true} titleText={"Quantum Portal Explorer"}>
         <FItem align="right" display={"flex"}>
           <ConnectButtonWapper View={CnctButton} />
         </FItem>

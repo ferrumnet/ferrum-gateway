@@ -17,7 +17,7 @@ import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
 import { PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { fixSig, produceSignatureWithdrawHash } from "./BridgeUtils";
+import { fixSig, produceSignatureNonEvmWithdrawHash, produceSignatureWithdrawHash } from "./BridgeUtils";
 import { toRpcSig } from "ethereumjs-util";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
@@ -126,6 +126,109 @@ export class BridgeProcessor implements Injectable {
       await (c.get<HmacApiKeyStore>(HmacApiKeyStore) as any).close();
 
       console.log('All closed!!!')     
+    }
+  }
+
+    async processFromEvmSwapTransaction({
+    transactionId,
+    // token,
+    amount,
+    // payee,
+    algoChainID,
+    sourceNetwork,
+    // targetWalletAddress,
+    // targetNetwork,
+    targetAddress,
+    targetCurrency,
+    walletAddress,
+  }: any) {
+    const targetAmount = amount;
+    const salt = Web3.utils.keccak256(transactionId.toLocaleLowerCase());
+    const payBySig = await this.createNonEvmSignedPayment(
+      sourceNetwork,
+      targetAddress,
+      targetCurrency,
+      targetAmount,
+      salt,
+      algoChainID,
+      walletAddress
+    );
+    // console.log({ payBySig });
+    return {
+      token: targetCurrency.split(":")[1],
+      targetCurrency,
+      payee: walletAddress,
+      amount: targetAmount,
+      hash: payBySig.hash,
+      messageHash: payBySig.messageHash,
+      salt: salt.replace("0x", "").substring(0, 40),
+      signature: payBySig?.signatures[0]?.signature
+        ? payBySig?.signatures[0]?.signature
+        : payBySig?.signature,
+    };
+  }
+  async processFromNonEvmSwapTransaction({
+    targetAddress,
+    targetNetwork,
+    targetCurrency,
+    transactionId,
+    amount,
+  }: any) {
+    const targetAmount = amount;
+    const salt = Web3.utils.keccak256(transactionId.toLocaleLowerCase());
+    const payBySig = await this.createSignedPayment(
+      targetNetwork,
+      targetAddress,
+      targetCurrency,
+      targetAmount,
+      salt
+    );
+    // console.log({ payBySig });
+    await this.svc.withdrawSignedVerify(
+      targetCurrency,
+      targetAddress,
+      targetAmount,
+      payBySig.hash,
+      "",
+      payBySig.signatures[0].signature,
+      this.processorAddress
+    );
+    return {
+      token: targetCurrency.split(":")[1],
+      targetCurrency,
+      payee: targetAddress,
+      amount: targetAmount,
+      hash: payBySig.hash,
+      salt,
+      signature: payBySig.signatures[0].signature,
+    };
+  }
+
+  async processEvmTx(network: Network, txId: string) {
+    /**
+     * Find all incoming transactions for the given network.
+     * Get the sender details from mongo and verify the pair target.
+     * Send tokens to their address.
+     */
+    const poolAddress = this.config.bridgeConfig.contractClient[network];
+    ValidationUtils.isTrue(
+      !!poolAddress,
+      `No payer for ${network} is configured`
+    );
+    try {
+      const tx = await this.bridgeContract.getSwapEventByTxId(network, txId);
+      this.log.info(`Processing transaction ${tx.transactionId}`);
+      const [existed, processedTx] = await this.processSingleTransaction(tx);
+      if (existed) {
+        this.log.info(
+          `Reached a transaction that was already processed: ${tx.transactionId}`
+        );
+      }
+      if (processedTx) {
+        return processedTx;
+      }
+    } catch (e) {
+      this.log.info(`error: ${e.message}`);
     }
   }
 
@@ -252,6 +355,29 @@ export class BridgeProcessor implements Injectable {
       );
       return [false, undefined];
     }
+  }
+
+  async createNonEvmSignedPayment(
+    network: string,
+    address: string,
+    currency: string,
+    amountStr: string,
+    salt: string,
+    chainId: number,
+    walletAddress: string
+  ): Promise<any> {
+    const [_, token] = EthereumSmartContractHelper.parseCurrency(currency);
+    const payBySig = produceSignatureNonEvmWithdrawHash(
+      this.helper.web3(network),
+      chainId,
+      this.config.bridgeConfig.contractClient[network],
+      token,
+      address,
+      amountStr,
+      salt,
+      walletAddress
+    );
+    return payBySig;
   }
 
   async createSignedPayment(

@@ -52,17 +52,17 @@ export function Transaction(props: {}) {
           <Pair
             itemKey={<span>From {sourceChainLogo}</span>}
             value={tx.sourceMsgSender}
-            linkTo={`/address/${(tx.sourceMsgSender || '').toLowerCase()}`}
+            linkTo={`/address/${(tx.sourceMsgSender || "").toLowerCase()}`}
           />
           <Pair
             itemKey={<span>To {minedChainLogo}</span>}
             value={tx.remoteContract}
-            linkTo={`/address/${(tx.remoteContract || '').toLowerCase()}`}
+            linkTo={`/address/${(tx.remoteContract || "").toLowerCase()}`}
           />
           <Pair
             itemKey={<span>Benficiary {sourceChainLogo}</span>}
             value={tx.sourceBeneficiary}
-            linkTo={`/address/${(tx.sourceBeneficiary || '').toLowerCase()}`}
+            linkTo={`/address/${(tx.sourceBeneficiary || "").toLowerCase()}`}
           />
           <Pair
             itemKey={<span>Token {sourceChainLogo}</span>}
