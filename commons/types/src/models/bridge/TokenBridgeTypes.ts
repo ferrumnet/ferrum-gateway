@@ -61,6 +61,7 @@ export interface PayBySignatureData {
   contractVersion: string;
   contractAddress: string;
   hash: string;
+  messageHash: string;
   signatures: MultiSigSignature[];
 
   signature: string; // For backward compatibility
@@ -144,6 +145,7 @@ const payBySignatureDataSchema = new Schema<PayBySignatureData & Document>({
   contractVersion: String,
   contractAddress: String,
   hash: String,
+  messageHash: String,
   signatures: [signatureSchema],
 
   // Bacward compatibility - TODO: deprecated. Remove with caution

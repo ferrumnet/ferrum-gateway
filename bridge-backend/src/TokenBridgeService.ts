@@ -364,6 +364,23 @@ export class TokenBridgeService
     return { liquidity: await this.contract.getAvaialableLiquidity(address) };
   }
 
+    async getNonEvmUserWithdrawItems(
+    address: string
+  ): Promise<UserBridgeWithdrawableBalanceItem[]> {
+    this.verifyInit();
+    const items = await this.balanceItem!.find({
+      $or: [
+        {
+          sendAddress:address,
+        },
+        {
+          receiveAddress:address,
+        },
+      ],
+    });
+    return items.map((i) => i.toJSON() as any);
+  }
+
   async getUserWithdrawItems(
     network: string,
     address: string
@@ -386,7 +403,7 @@ export class TokenBridgeService
     return items.map((i) => i.toJSON() as any);
   }
 
-  private async updateWithdrawItem(item: UserBridgeWithdrawableBalanceItem) {
+  async updateWithdrawItem(item: UserBridgeWithdrawableBalanceItem) {
     this.verifyInit();
     const res = await this.balanceItem!.findOneAndUpdate(
       { id: item.id },

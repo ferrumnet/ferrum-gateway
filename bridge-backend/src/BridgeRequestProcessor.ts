@@ -131,6 +131,12 @@ export class BridgeRequestProcessor
     this.registerProcessor("processEvmSwapTransaction", (req) => {
       return this.bridgeProcessor.processEvmTx(req.data.network, req.data.txId);
     });
+    this.registerProcessor("createSwapTransaction", (req) => {
+      return this.svc.newWithdrawItem(req.data);
+    });
+    this.registerProcessor("updateSwapWithdrawItem", (req) => {
+      return this.svc.updateWithdrawItem(req.data);
+    });
   }
 
   __name__() {
@@ -201,10 +207,16 @@ export class BridgeRequestProcessor
     const { network } = req.data;
     ValidationUtils.isTrue(!!userId, "user must be signed in");
     ValidationUtils.isTrue(!!network, "'network' must be provided");
-    const items = await this.svc.getUserWithdrawItems(
+    let items = await this.svc.getUserWithdrawItems(
       network,
       userId.toLowerCase()
     );
+    if(req.data.userNonEvmAddress){
+      let nonEvmTxs = await this.svc.getNonEvmUserWithdrawItems(
+      req.data.userNonEvmAddress
+    );
+      items = [...items,...nonEvmTxs]
+    }
     return { withdrawableBalanceItems: items };
   }
 
