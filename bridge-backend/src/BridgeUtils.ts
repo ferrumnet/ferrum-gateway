@@ -43,19 +43,17 @@ export async function produceSignatureNonEvmWithdrawHash(
   swapTxId: string,
   walletAddress: string
 ) {
-  const response = await axios.post("http://localhost:5000/createSignature", {
+  const response = await axios.post("https://algorand-parser.dev.svcs.ferrumnetwork.io/createSignature/createSignature", {
     tokenAddress: Number(token),
     payee: walletAddress,
     salt: swapTxId.replace("0x", ""),
     chainId: netId,
     amount: amountInt,
   });
-//   console.log("hash: ", response.data);
   const message = response.data;
   const privateKey = getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT");
   const sign = eth.accounts.sign(message, privateKey);
-  // console.log({ sign });
-  const recovery = eth.accounts.recover(sign.message, sign.signature);
+  // const recovery = eth.accounts.recover(sign.message, sign.signature);
   // console.log({ recovery });
   return {
     contractName: NAME,

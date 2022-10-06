@@ -131,13 +131,9 @@ export class BridgeProcessor implements Injectable {
 
     async processFromEvmSwapTransaction({
     transactionId,
-    // token,
     amount,
-    // payee,
     algoChainID,
     sourceNetwork,
-    // targetWalletAddress,
-    // targetNetwork,
     targetAddress,
     targetCurrency,
     walletAddress,
