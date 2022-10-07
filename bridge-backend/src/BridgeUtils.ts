@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 import { PayBySignatureData } from 'types';
 import {ValidationUtils} from "ferrum-plumbing";
+import axios from "axios";
 
 const NAME = "FERRUM_TOKEN_BRIDGE_POOL";
 const VERSION = "000.003";
@@ -30,6 +31,45 @@ export function fixSig(sig: HexString) {
         v = '1c'
     }
     return rs+v;
+}
+
+export async function produceSignatureNonEvmWithdrawHash(
+  eth: Eth,
+  netId: number,
+  contractAddress: HexString,
+  token: HexString,
+  payee: HexString,
+  amountInt: string,
+  swapTxId: string,
+  walletAddress: string
+) {
+  const response = await axios.post("https://algorand-parser.dev.svcs.ferrumnetwork.io/createSignature/createSignature", {
+    tokenAddress: Number(token),
+    payee: walletAddress,
+    salt: swapTxId.replace("0x", ""),
+    chainId: netId,
+    amount: amountInt,
+  });
+  const message = response.data;
+  const privateKey = getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT");
+  const sign = eth.accounts.sign(message, privateKey);
+  // const recovery = eth.accounts.recover(sign.message, sign.signature);
+  // console.log({ recovery });
+  return {
+    contractName: NAME,
+    contractVersion: VERSION,
+    contractAddress: contractAddress,
+    amount: amountInt,
+    payee: walletAddress,
+    signature: sign.signature,
+    signatures: [],
+    token,
+    swapTxId: swapTxId.substring(0, 40),
+    sourceChainId: 0,
+    toToken: "",
+    hash: sign.message,
+    messageHash: sign.messageHash,
+  };
 }
 
 export function produceSignatureWithdrawHash(eth: Eth,

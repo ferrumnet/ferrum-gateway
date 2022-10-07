@@ -4,6 +4,7 @@ import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { RoutingTableService } from "./RoutingTableService";
+import { BridgeProcessor } from "./BridgeProcessor";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor
@@ -14,6 +15,7 @@ export class BridgeRequestProcessor
     private bgs: BridgeConfigStorage,
     private rouitingTable: RoutingTableService,
 		private crossSwap: CrossSwapService,
+    private bridgeProcessor: BridgeProcessor
   ) {
     super();
 
@@ -119,6 +121,22 @@ export class BridgeRequestProcessor
 
 		this.registerProcessor('withdrawAndSwapGetTransaction',
 			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
+    
+    this.registerProcessor("processFromEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromEvmSwapTransaction(req.data);
+    });
+    this.registerProcessor("processFromNonEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromNonEvmSwapTransaction(req.data);
+    });
+    this.registerProcessor("processEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processEvmTx(req.data.network, req.data.txId);
+    });
+    this.registerProcessor("createSwapTransaction", (req) => {
+      return this.svc.newWithdrawItem(req.data);
+    });
+    this.registerProcessor("updateSwapWithdrawItem", (req) => {
+      return this.svc.updateWithdrawItem(req.data);
+    });
   }
 
   __name__() {
@@ -189,10 +207,16 @@ export class BridgeRequestProcessor
     const { network } = req.data;
     ValidationUtils.isTrue(!!userId, "user must be signed in");
     ValidationUtils.isTrue(!!network, "'network' must be provided");
-    const items = await this.svc.getUserWithdrawItems(
+    let items = await this.svc.getUserWithdrawItems(
       network,
       userId.toLowerCase()
     );
+    if(req.data.userNonEvmAddress){
+      let nonEvmTxs = await this.svc.getNonEvmUserWithdrawItems(
+      req.data.userNonEvmAddress
+    );
+      items = [...items,...nonEvmTxs]
+    }
     return { withdrawableBalanceItems: items };
   }
 
