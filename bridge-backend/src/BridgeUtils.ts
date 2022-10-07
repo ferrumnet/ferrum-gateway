@@ -43,7 +43,7 @@ export async function produceSignatureNonEvmWithdrawHash(
   swapTxId: string,
   walletAddress: string
 ) {
-  const response = await axios.post("https://algorand-parser.dev.svcs.ferrumnetwork.io/createSignature/createSignature", {
+  const response = await axios.post("https://algorand-parser.dev.svcs.ferrumnetwork.io/createSignature", {
     tokenAddress: Number(token),
     payee: walletAddress,
     salt: swapTxId.replace("0x", ""),
