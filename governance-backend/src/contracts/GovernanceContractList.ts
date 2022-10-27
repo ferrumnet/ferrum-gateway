@@ -82,4 +82,14 @@ export const GovernanceContractList: RegisteredContract[] = [
 		contractAddress: '0x9c3db68bd508d56abfad84272ccb7ddc53431ee8',
 		governanceContractId: 'TOKEN_DAO:001.000', 
 	},
+	{
+		network: 'BSC_TESTNET',
+		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
+		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:001.000', 
+	},
+	{
+		network: 'AVAX_TESTNET',
+		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
+		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:001.000', 
+	},
 ];
