@@ -9,7 +9,8 @@ import { Environment } from 'types';
 
 const _module = new GovernanceModule();
 const store = StoreBuilder.build(
-            userReducer, dataReducer, uiReducer, _module, "https://22phwrgczz.us-east-2.awsapprunner.com");
+            userReducer, dataReducer, uiReducer, _module, Environment.defaultEndPoint());
+            // "https://22phwrgczz.us-east-2.awsapprunner.com");
 
 function App() {
   return (

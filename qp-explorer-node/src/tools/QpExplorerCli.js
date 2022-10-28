@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fetch = require('cross-fetch');
 
 function assure(j, fs) {
   for (f of fs) {

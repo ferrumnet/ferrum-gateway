@@ -26,6 +26,7 @@ import {
   FItem,
 } from "ferrum-design-system";
 import { Address } from "./Address";
+import { MultiStaking } from "./examples/multiStaking/MultiStaking";
 
 const initializeDashboardThunk = createAsyncThunk(
   "crucible/init",
@@ -96,6 +97,9 @@ export function Dashboard(props: {}) {
                     </Route>
                     <Route path="/address/:address">
                       <Address />
+                    </Route>
+                    <Route path="/multistake/:network/:address">
+                      <MultiStaking />
                     </Route>
                     <Route>
                       <RecentBlocksAndTxs />

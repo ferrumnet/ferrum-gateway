@@ -8,7 +8,7 @@ export const CHAIN_LOGO = {
   FRM_TESTNET: <b>[F]</b>,
 } as any;
 
-export function Pair(props: { itemKey: any; value: any; linkTo?: string }) {
+export function Pair(props: { itemKey: any; value: any; linkTo?: string, href?: string }) {
   return (
     <>
       <FContainer className="pair-container">
@@ -19,9 +19,12 @@ export function Pair(props: { itemKey: any; value: any; linkTo?: string }) {
               <Link className={"pointer-cursor"} to={props.linkTo}>
                 {props.value || ""}
               </Link>
-            ) : (
-              props.value || ""
-            )}
+              ) : !!props.href ? (
+                  <a href={props.href} target='_blank'>
+                    {props.value || ''}
+                  </a>
+                ) : props.value || ""
+            }
           </div>
         </FGrid>
       </FContainer>

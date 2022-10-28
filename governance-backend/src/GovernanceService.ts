@@ -307,7 +307,9 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		if (!subscription || !Utils.isNonzeroAddress(subscription[0])) {
 			return undefined;
 		}
-		const [quorum, groupId, minSignatures] = subscription;
+		const mainQuorum = await this.contract(network, contractAddress).quorums(subscription[0]);
+		const minSignatures = mainQuorum.minSignatures;
+		const [quorum, groupId, _] = subscription;
 		return { quorum: quorum.toLowerCase(), groupId, minSignatures } as QuorumSubscription;
 	}
 

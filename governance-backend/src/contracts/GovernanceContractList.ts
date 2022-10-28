@@ -3,6 +3,7 @@ import * as CrucibleRouterJson from './crucible/CrucibleRouter.json';
 import * as CrucibleRouterV2Json from './crucible/CrucibleRouterV2.json';
 import * as MultiSig from './multiSig/MultiSig.json';
 import * as TokenDao from './tokenDao/TokenDao.json';
+import * as BasicIronSafe from './basicIronSafe/BasicIronSafe.json';
 
 function merge(base: GovernanceContract, child: GovernanceContract): GovernanceContract {
 	return {
@@ -18,6 +19,7 @@ function merge(base: GovernanceContract, child: GovernanceContract): GovernanceC
 export const GovernanceContractDefinitions: { [k: string]: GovernanceContract } = {
 		'FERRUM_CRUCIBLE_ROUTER:000.001': merge(MultiSig, CrucibleRouterJson),
 		'FERRUM_CRUCIBLE_ROUTER:000.002': merge(MultiSig, CrucibleRouterV2Json),
+		'FERRUM_BASIC_IRON_SAFE:000.001': merge(MultiSig, BasicIronSafe),
 		'TOKEN_DAO:001.000': merge(MultiSig, TokenDao),
 }
 
@@ -85,11 +87,11 @@ export const GovernanceContractList: RegisteredContract[] = [
 	{
 		network: 'BSC_TESTNET',
 		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
-		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:001.000', 
+		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:000.001', 
 	},
 	{
 		network: 'AVAX_TESTNET',
 		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
-		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:001.000', 
+		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:000.001', 
 	},
 ];
