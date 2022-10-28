@@ -89,9 +89,4 @@ export const GovernanceContractList: RegisteredContract[] = [
 		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
 		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:000.001', 
 	},
-	{
-		network: 'AVAX_TESTNET',
-		contractAddress: '0xff810a9188aef1d1933dc9ec58e4ca4b5c52185f',
-		governanceContractId: 'FERRUM_BASIC_IRON_SAFE:000.001', 
-	},
 ];

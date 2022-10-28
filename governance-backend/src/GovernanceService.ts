@@ -3,7 +3,7 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { Injectable, LocalCache, ValidationUtils, Networks } from "ferrum-plumbing";
 import { Connection, Model, Document, Schema } from "mongoose";
 import { GovernanceContract, GovernanceTransaction,
-	MultiSigSignature, SignableMethod, Utils, QuorumSubscription } from "types";
+	MultiSigSignature, SignableMethod, Utils, QuorumSubscription, RegisteredContract } from "types";
 import { CrucibleRouter__factory } from './resources/typechain/factories/CrucibleRouter__factory';
 import { CrucibleRouter } from './resources/typechain/CrucibleRouter';
 import { GovernanceContractDefinitions, GovernanceContractList } from "./contracts/GovernanceContractList";
@@ -41,9 +41,18 @@ const GovernanceTransactionSchema = new Schema<GovernanceTransaction&Document>({
 
 const GovernanceTransactionModel = (c: Connection) => c.model<GovernanceTransaction&Document>('governanceTransactions', GovernanceTransactionSchema);
 
+const RegisteredContractSchema = new Schema<RegisteredContract&Document>({
+	network: String,
+	contractAddress: String,
+	governanceContractId: String,
+});
+
+const RegisteredContractModel = (c: Connection) => c.model<RegisteredContract&Document>('registeredContract', RegisteredContractSchema);
+
 export class GovernanceService extends MongooseConnection implements Injectable {
 	private cache = new LocalCache();
 	private transactionsModel: Model<GovernanceTransaction&Document> | undefined;
+	private registeredContract: Model<RegisteredContract&Document> | undefined;
 	constructor(
 		private helper: EthereumSmartContractHelper,
 		private tracker: TransactionTracker,
@@ -56,10 +65,17 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	initModels(con: Connection): void {
 		// Store allocations
 		this.transactionsModel = GovernanceTransactionModel(con);
+		this.registeredContract = RegisteredContractModel(con);
 	}
 
 	async listContracts() {
-		return GovernanceContractList;
+		this.verifyInit();
+		const hardCoded = GovernanceContractList;
+		const fromDb = await this.registeredContract.find({}).exec();
+		return [
+			...hardCoded,
+			...fromDb.map(f => f.toJSON()),
+		]
 	}
 
 	async contractById(id: string) {
@@ -309,7 +325,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		}
 		const mainQuorum = await this.contract(network, contractAddress).quorums(subscription[0]);
 		const minSignatures = mainQuorum.minSignatures;
-		const [quorum, groupId, _] = subscription;
+		const [quorum, groupId, ] = subscription;
 		return { quorum: quorum.toLowerCase(), groupId, minSignatures } as QuorumSubscription;
 	}
 
