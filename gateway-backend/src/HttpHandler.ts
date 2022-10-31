@@ -10,14 +10,13 @@ import {
 } from "aws-lambda-helper/dist/HandlerFactory";
 import { JsonRpcRequest, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { ChainEventBase, UserContractAllocation } from "types";
-import { CommonTokenServices } from "./services/CommonTokenServices";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor } from "crucible-backend/dist/src/CrucibleRequestProcessor";
 import { GovernanceRequestProcessor } from "governance-backend";
 import { StakingRequestProcessor } from "crucible-backend/dist/src/staking/StakingRequestProcessor";
 import { LiquidityBalancerRequestProcessor } from 'bridge-backend/dist/src/nodeRemoteAccess/LiquidityBalancerRequestProcessor';
-import { AppConfig, ChainEventService } from "common-backend";
+import { AppConfig, ChainEventService, CommonTokenServices } from "common-backend";
 import { BridgeNodesRemoteAccessRequestProcessor } from 'bridge-backend';
 import { randomBytes } from "crypto";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";

@@ -27,6 +27,7 @@ import {
 } from "ferrum-design-system";
 import { Address } from "./Address";
 import { MultiStaking } from "./examples/multiStaking/MultiStaking";
+import '../App.css';
 
 const initializeDashboardThunk = createAsyncThunk(
   "crucible/init",
@@ -57,8 +58,10 @@ export function Dashboard(props: {}) {
   const header = (
     <>
       <FHeader
+        headerLogo={'https://ferrum.network/espast/2022/08/FN01.png'}
+        className={'logo-top'}
         showLogo={true}
-        titleText={"Quantum Portal Explorer"}
+        titleText={"Quantum Portal"}
       >
         <FItem align="right" display={"flex"}>
           <ConnectButtonWapper View={CnctButton} />

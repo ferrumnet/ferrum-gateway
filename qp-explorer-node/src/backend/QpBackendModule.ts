@@ -45,9 +45,6 @@ export class QpBackendModule implements Module {
         c.get(QpExplorerService),
       ));
 
-    container.register(CommonRequestsProcessor,
-      c => new CommonRequestsProcessor(c.get(UnifyreBackendProxyService)));
-
     container.registerSingleton(
       "LambdaHttpHandler",
       (c) =>

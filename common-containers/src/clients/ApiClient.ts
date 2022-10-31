@@ -85,6 +85,7 @@ export class ApiClient implements Injectable {
 		const requests = await this.api({
 			command: 'approveAllocationGetTransaction',
 			data: {currency, amount: amount || '1', userAddress, contractAddress}, params: [] } as JsonRpcRequest);
+		console.log('REQ ISO ', requests)
 		ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling approve. No requests');
 		console.log('About to submit request', {requests});
 		const requestId = await this.client.sendTransactionAsync(this.network! as any, requests,

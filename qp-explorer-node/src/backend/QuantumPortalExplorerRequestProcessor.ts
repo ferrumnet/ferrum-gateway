@@ -56,6 +56,7 @@ export class QuantumPortalExplorerRequestProcessor
                 req.data.contract,
             );
         });
+
     }
 
     __name__(): string {

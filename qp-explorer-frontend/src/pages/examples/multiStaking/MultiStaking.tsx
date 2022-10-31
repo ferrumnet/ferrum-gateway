@@ -1,6 +1,6 @@
 import { Networks, ValidationUtils } from 'ferrum-plumbing';
 import { AnyAction } from "@reduxjs/toolkit";
-import { FCard, FContainer, FLabel } from "ferrum-design-system";
+import { FButton, FCard, FContainer, FInputText, FLabel } from "ferrum-design-system";
 import React, { Dispatch, useEffect, useReducer } from "react";
 import { useParams } from "react-router";
 import { inject, Utils } from "types";
@@ -10,8 +10,10 @@ import { QpAppState } from '../../../common/QpAppState';
 import { abi as ClientAbi } from './MultiChainStakingClient.json';
 import { abi as MasterAbi } from './MultiChainStakingMaster.json';
 import { Pair } from '../../Pair';
+import { stat } from 'fs';
+import { ApprovableButtonWrapper, IApprovableButtonWrapperViewProps } from 'common-containers';
 
-const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET'];
+const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET', 'RINKEBY', 'ETHEREUM'];
 
 function method(name: string, abi: any[] = MasterAbi) {
     const rv = abi.find(a => a.name === name);
@@ -24,7 +26,6 @@ interface SingleState {
     contract: string;
     baseToken: string;
     stake: string;
-    error?: string;
 }
 
 interface MultiState {
@@ -36,6 +37,9 @@ interface MultiState {
     stakeClosed: boolean;
     totalRewards: string,
     totalStakes: string,
+    stakeAmount: string,
+    withdrawChain: string,
+    error?: string;
 }
 
 const initialState = {
@@ -57,6 +61,16 @@ const reducer = (state: MultiState, action: AnyAction) => {
                 ...state,
                 ...action.payload,
             }
+        case 'UPDATE_STAKE':
+            return {
+                ...state,
+                stakeAmount: action.payload.value,
+            }
+        case 'UPDATE_WITHDRAW_CHAIN':
+            return {
+                ...state,
+                withdrawChain: action.payload.value,
+            }
         case 'ERROR':
             console.error("Error happend", action.payload);
             return {
@@ -70,12 +84,13 @@ const reducer = (state: MultiState, action: AnyAction) => {
 
 async function load(state: MultiState, dispatch: Dispatch<AnyAction>, userAddress: string) {
     const client = inject<QpExplorerClient>(QpExplorerClient);
-    const states: SingleState[] = []
+    const states: SingleState[] = [{
+
+    } as SingleState]
     for(const network of NETWORKS) {
         const netId = Networks.for(network).chainId.toString();
-        const contract = await client.readContractField(
-            state.masterNetwork, state.masterContract, method('remoteAddress'), 'remoteAddress', [netId]);
-        console.log('Got data for contract', network, contract, netId)
+        const contract = state.masterNetwork === network ? state.masterContract : await client.readContractField(
+            state.masterNetwork, state.masterContract, method('remotes'), 'remotes', [netId]);
         if (Utils.isNonzeroAddress(contract)) {
             const baseToken = await client.readContractField(
                 state.masterNetwork, state.masterContract, method('baseTokens'), 'baseTokens', [netId]);
@@ -110,14 +125,71 @@ async function load(state: MultiState, dispatch: Dispatch<AnyAction>, userAddres
     dispatch({ type: 'UPDATE_ALL', payload: newState});
 }
 
+async function stakeMaster(state: MultiState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpExplorerClient>(QpExplorerClient);
+    const txId = await client.writeContractField(state.masterContract, method('stake'), 'stake', [state.stakeAmount]);
+    // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+async function stakeClient(state: MultiState, network: string, dispatch: Dispatch<AnyAction>) {
+    const connected = state.clients.find(c => c.network === network);
+    if (!connected) {
+        dispatch({type: 'ERROR', payload: 'Connected network is not supported'})
+        return;
+    }
+    const client = inject<QpExplorerClient>(QpExplorerClient);
+    const txId = await client.writeContractField(connected.contract, method('stake', ClientAbi), 'stake', [
+        connected.baseToken, state.stakeAmount, '1']);
+    // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+async function closePosition(state: MultiState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpExplorerClient>(QpExplorerClient);
+    const txId = await client.writeContractField(state.masterContract, method('closePosition'), 'closePosition', [
+        '1', state.withdrawChain]);
+    // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+async function closeStakePeriod(state: MultiState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpExplorerClient>(QpExplorerClient);
+    const txId = await client.writeContractField(state.masterContract, method('closeStakePeriod'), 'closeStakePeriod', []);
+    // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+async function enableRewardDistribution(state: MultiState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpExplorerClient>(QpExplorerClient);
+    const txId = await client.writeContractField(state.masterContract, method('enableRewardDistribution'), 'enableRewardDistribution', []);
+    // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+export function StakeButton(props: {state: MultiState, connectedNet: string, userAddress: string,
+        view: (p: IApprovableButtonWrapperViewProps) => any}) {
+    let contract = props.state.clients.find(c => c.network === props.connectedNet);
+    if (!contract) {
+        return (<>
+            <FLabel text={'Network not supported'} />
+        </>);
+    }
+	return <ApprovableButtonWrapper
+			contractAddress={contract.contract.toLowerCase()}
+			currency={Utils.toCurrency(contract.network, contract.baseToken)!}
+			userAddress={props.userAddress}
+			amount={props.state.stakeAmount}
+			// @ts-ignore
+			View={props.view}
+			// View={(ownProps) => <SwapButtonView {...ownProps} {...props} />}
+		/>
+}
+
 export function MultiStaking(props: {}) {
     let {network, address} = useParams() as { network: string, address: string };
     network = (network || '').toUpperCase();
     address = (address || '').toLowerCase();
     const initialized = useSelector<QpAppState, boolean>((state) => state.data.init.initialized);
 	const user = useSelector((state: QpAppState) => state.connection?.account?.user);
-    const [state, dispatch] = useReducer(reducer, initialState);
-    console.log('STATOO', state)
+    const connectedNet = (user.accountGroups[0]?.addresses || [])[0]?.network;
+    const [state, dispatch] = useReducer(reducer, initialState) as [MultiState, Dispatch<AnyAction>];
+    console.log('STATOO', state);
     useEffect(() => {
         if (!state.init) {
             dispatch({type: 'INIT', payload: {network, address}});
@@ -147,10 +219,65 @@ export function MultiStaking(props: {}) {
             <div> &nbsp; </div>
             <FCard>
                 <FLabel text={'Stake Actions'} />
+                {(state.masterNetwork && !!connectedNet) && 
+                    connectedNet === state.masterNetwork ? (
+                        <>
+                            <FInputText label={'Stake amount on server'}
+                                value={state.stakeAmount}
+                                onChange={(e: any) => dispatch({type: 'UPDATE_STAKE', payload: { value: e.target.value }})}
+                                postfix={<FButton title={'STAKE'} onClick={() => stakeMaster(state, dispatch)} />}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <FInputText label={'Stake amount on client'}
+                                value={state.stakeAmount}
+                                onChange={(e: any) => dispatch({type: 'UPDATE_STAKE', payload: { value: e.target.value }})}
+                                postfix={
+                                    <StakeButton state={state} connectedNet={connectedNet}
+                                        userAddress={user.userId}
+                                        view={(p: IApprovableButtonWrapperViewProps) =>
+                                            <FButton title={p.isApprovalMode ? 'APPROVE' : 'STAKE'}
+                                                onClick={() => p.isApprovalMode ? p.onApproveClick() : stakeClient(state, connectedNet, dispatch)} />} />
+                                }
+                            />
+                        </>
+                    )
+                }
+                {state.masterNetwork && (
+                        <FInputText
+                            label={'Network chain ID'}
+                            value={state.withdrawChain}
+                            onChange={(e: any) => dispatch({type: 'UPDATE_WITHDRAW_CHAIN', payload: { value: e.target.value }})}
+                            postfix={
+                                <FButton
+                                    title={'Close Position'}
+                                    onClick={() => closePosition(state, dispatch)}
+                                    disabled={state.masterNetwork !== connectedNet}
+                                />
+                            }
+                        />
+                )}
             </FCard>
             <div> &nbsp; </div>
             <FCard>
                 <FLabel text={'Admin Actions'} />
+                {state.masterNetwork && (
+                    state.stakeClosed ? <FLabel text={'Stake is closed'} /> :
+                    <FButton
+                        title={'Close Stake Period'}
+                        onClick={() => closeStakePeriod(state, dispatch)}
+                        disabled={state.masterNetwork !== connectedNet}
+                    />
+                )}
+                {state.masterNetwork && (
+                    state.canDistRewards ? <FLabel text={'Reward distribution enabled'} /> :
+                    <FButton
+                        title={'Enable Reward Distribution'}
+                        onClick={() => enableRewardDistribution(state, dispatch)}
+                        disabled={state.masterNetwork !== connectedNet}
+                    />
+                )}
             </FCard>
         </FContainer>
         </>

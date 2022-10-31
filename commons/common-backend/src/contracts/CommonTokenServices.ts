@@ -1,6 +1,6 @@
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { CurrencyListSvc } from "common-backend";
 import { Injectable } from "ferrum-plumbing";
+import { CurrencyListSvc } from "../CurrencyListSvc";
 import { TokenDetails, UserContractAllocation, ChainLogos } from "types";
 import { CustomTransactionCallRequest } from "unifyre-extension-sdk";
 

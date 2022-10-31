@@ -37,3 +37,15 @@
     transform: rotate(360deg);
   }
 }
+
+.logo-top {
+  height: 160px;
+}
+
+.logo-top img {
+  width: 300px;
+}
+
+header .f-logo {
+  max-width: 300px;
+}

@@ -7,10 +7,8 @@ import { Container, Module } from "ferrum-plumbing";
 import { BasicHandlerFunction } from "aws-lambda-helper/dist/http/BasicHandlerFunction";
 import { BridgeModule, BridgeNodesRemoteAccessRequestProcessor } from "bridge-backend";
 import { LeaderboardModule } from "leaderboard-backend";
-import { ChainEventService, CommonBackendModule, CurrencyListSvc, AppConfig,
+import { ChainEventService, CommonBackendModule, CommonTokenServices, AppConfig,
   WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
-import { CommonTokenServices } from "./services/CommonTokenServices";
-import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { LeaderboardRequestProcessor } from "leaderboard-backend/dist/src/request-processor/LeaderboardRequestProcessor";
 import { BridgeRequestProcessor } from "bridge-backend/dist/src/BridgeRequestProcessor";
 import { CrucibleRequestProcessor, CrucibleModule } from 'crucible-backend';
@@ -78,9 +76,6 @@ export class GatewayModule implements Module {
           AppConfig.instance().getChainProviders(),
         )
     );
-    container.registerSingleton(
-      CommonTokenServices,
-      (c) => new CommonTokenServices(c.get(EthereumSmartContractHelper), c.get(CurrencyListSvc)));
     
     // Set up modules
     await container.registerModule(new CommonBackendModule());

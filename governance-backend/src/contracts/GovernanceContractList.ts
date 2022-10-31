@@ -19,7 +19,7 @@ function merge(base: GovernanceContract, child: GovernanceContract): GovernanceC
 export const GovernanceContractDefinitions: { [k: string]: GovernanceContract } = {
 		'FERRUM_CRUCIBLE_ROUTER:000.001': merge(MultiSig, CrucibleRouterJson),
 		'FERRUM_CRUCIBLE_ROUTER:000.002': merge(MultiSig, CrucibleRouterV2Json),
-		'FERRUM_BASIC_IRON_SAFE:000.001': merge(MultiSig, BasicIronSafe),
+		'FERRUM_BASIC_IRON_SAFE:000.001': BasicIronSafe,
 		'TOKEN_DAO:001.000': merge(MultiSig, TokenDao),
 }
 

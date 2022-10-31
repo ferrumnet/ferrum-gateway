@@ -31,6 +31,8 @@ import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore
 import { AppConfig, WithDatabaseConfig, WithJwtRandomBaseConfig, WithKmsConfig } from "./app/AppConfig";
 import { randomSalt } from "web3-tools";
 import { OneInchClient } from "./oneinchPricingSvc/OneInchClient";
+import { CommonTokenServices } from "./contracts/CommonTokenServices";
+import { CommonRequestsProcessor } from "./app/CommonRequestsProcessor";
 
 export class CommonBackendModule implements Module {
   constructor() {}
@@ -85,6 +87,12 @@ export class CommonBackendModule implements Module {
 
     container.registerSingleton(HmacApiKeyStore,
       c => new HmacApiKeyStore(c.get<KmsCryptor>(KmsCryptor)));
+
+    container.registerSingleton(CommonTokenServices,
+      c => new CommonTokenServices(c.get(EthereumSmartContractHelper), c.get(CurrencyListSvc)));
+
+    container.registerSingleton(CommonRequestsProcessor,
+      c => new CommonRequestsProcessor(c.get(UnifyreBackendProxyService), c.get(CommonTokenServices)));
 
     await container.registerModule(
       new UnifyreBackendProxyModule("DUMMY",
