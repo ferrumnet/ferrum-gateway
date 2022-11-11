@@ -11,6 +11,7 @@ import { Eth } from 'web3-eth';
 import { Big } from 'big.js';
 
 const GLOB_CACHE = new LocalCache();
+const DEFAULT_GAS = 60000;
 const Helper = EthereumSmartContractHelper;
 
 async function BridgeSwapEventAbi() {
@@ -174,7 +175,10 @@ export class TokenBridgeContractClinet implements Injectable {
 			(w.payBySig as any).salt || w.payBySig.swapTxId, // Backward compatibility with older data
 			Utils.add0x((w.payBySig as any).signature || w.payBySig.signatures[0].signature)
 			);
-        const gas = await this.estimateGasOrDefault(p, from, undefined as any);
+        let gas = await this.estimateGasOrDefault(p, from, undefined as any);
+        if(w.sendNetwork === "POLYGON"){
+            gas = Math.max(gas, DEFAULT_GAS);
+        }
         const nonce = await this.helper.web3(w.sendNetwork).getTransactionCount(from, 'pending');
         return Helper.callRequest(address,
                 w.sendCurrency,
@@ -249,7 +253,10 @@ export class TokenBridgeContractClinet implements Injectable {
         const amountRaw = await this.helper.amountToMachine(currency, amount);
         console.log('About to call swap', {token, amountRaw, targetNetworkInt, targetToken});
         const p = this.instance(network).methods.swap(token, amountRaw, targetNetworkInt, targetToken);
-        const gas = await this.estimateGasOrDefault(p, userAddress, undefined);
+        let gas = await this.estimateGasOrDefault(p, userAddress, undefined);
+        if (network === "POLYGON") {
+            gas = Math.max(gas, DEFAULT_GAS);
+        }
         const nonce = await this.helper.web3(network).getTransactionCount(userAddress, 'pending');
         const address = this.contractAddress[network];
         return Helper.callRequest(address,
