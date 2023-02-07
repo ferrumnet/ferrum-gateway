@@ -3,7 +3,7 @@ import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { MongooseConnection } from 'aws-lambda-helper';
 import { Connection, Document, Model } from 'mongoose';
 import { QuantumPortalMinedBlock, QuantumPortalMinedBlockModel, QuantumPortalRemoteTransactoin,
-    QuantumPortalRemoteTransactoinModel, quantumPortalContracts, QuantumPortalBlockFinalization } from 'qp-explorer-commons';
+    QuantumPortalRemoteTransactoinModel, QuantumPortalBlockFinalization } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalLedgerMgr, QuantumPortalLedgerMgr__factory, } from "../resources";
 import { Utils } from "types";
@@ -157,7 +157,10 @@ export class QpNode extends MongooseConnection implements Injectable  {
 
    	async mgr(network: string): Promise<QuantumPortalLedgerMgr> {
 		const provider = await this.helper.ethersProvider(network);
-        const contract = quantumPortalContracts(network);
+        // TODO: Get the contract from config.
+        // const contract = quantumPortalContracts(network);
+        const contract = this.config.contracts[network]!;
+        ValidationUtils.isTrue(!!contract?.manager, `No contract is configured for network ${network}`);
 		return QuantumPortalLedgerMgr__factory.connect(contract.manager, provider);
 	}
 

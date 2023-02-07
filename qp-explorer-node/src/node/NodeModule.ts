@@ -19,9 +19,10 @@ export class NodeModule implements Module {
 
 	await container.registerModule(new CommonBackendModule());
 
+    await AppConfig.instance().fromSecret('', 'QP_EXPLORER');
 	const conf = {
-
 		providers: AppConfig.instance().getChainProviders(),
+		contracts: AppConfig.instance().get('contracts'),
 	} as QpExplorerNodeConfig;
 	container.registerSingleton(QpNode,
 		c => new QpNode(

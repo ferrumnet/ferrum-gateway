@@ -12,7 +12,7 @@ export class QuantumPortalExplorerRequestProcessor
         super();
         this.registerProcessor('getBackendConstants', () => ({
             providers: {}, constants: {
-                bridgeNetworks: ['RINKEBY', 'BSC_TESTNET', 'AVAX_TESTNET']
+                bridgeNetworks: ['RINKEBY', 'BSC_TESTNET', 'AVAX_TESTNET', 'FERRUM_TESTNET']
             },
         }) as any);
         this.registerProcessor('QpRecentBlocks', req =>
