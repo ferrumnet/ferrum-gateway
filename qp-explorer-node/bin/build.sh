@@ -29,8 +29,8 @@ function parse_git_hash() {
 
 last_commit=$(parse_git_hash)
 echo LAST COM $last_commit
-docker_tag="$docker_account/gateway-backend:$build_version-$last_commit"
-docker_tag_latest="$docker_account/gateway-backend:latest"
+docker_tag="$docker_account/qp-explorer-backend:$build_version-$last_commit"
+docker_tag_latest="$docker_account/qp-explorer-backend:latest"
 
 echo Building docker image $docker_tag
 docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --progress=plain .

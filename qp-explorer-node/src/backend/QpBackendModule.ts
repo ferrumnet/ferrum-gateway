@@ -1,5 +1,5 @@
 import { EthereumSmartContractHelper, } from "aws-lambda-helper/dist/blockchain";
-import { AuthTokenParser, UnifyreBackendProxyService, } from 'aws-lambda-helper';
+import { AuthTokenParser, MongooseConfig, UnifyreBackendProxyService, } from 'aws-lambda-helper';
 import { Container, Module, LoggerFactory, ConsoleLogger } from "ferrum-plumbing";
 import { AppConfig, CommonBackendModule, WithDatabaseConfig, WithJwtRandomBaseConfig } from "common-backend";
 import { CommonRpcHttpHandler } from 'common-backend/dist/app/CommonRpcHttpHandler';
@@ -7,6 +7,7 @@ import { CommonRequestsProcessor } from 'common-backend/dist/app/CommonRequestsP
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalExplorerRequestProcessor } from "./QuantumPortalExplorerRequestProcessor";
 import { QpExplorerService } from "./QpExplorerService";
+import { QpNode } from "../node/QpNode";
 
 export class QpBackendModule implements Module {
   static async configuration() {
@@ -43,6 +44,7 @@ export class QpBackendModule implements Module {
 	  container.registerSingleton(QuantumPortalExplorerRequestProcessor,
       c => new QuantumPortalExplorerRequestProcessor(
         c.get(QpExplorerService),
+        c.get(QpNode),
       ));
 
     container.registerSingleton(
@@ -58,9 +60,21 @@ export class QpBackendModule implements Module {
         )
     );
 
+    const nodeConfig: QpExplorerNodeConfig = {
+      ...AppConfig.instance().get<QpExplorerNodeConfig>(),
+    };
+    container.registerSingleton(
+      QpNode,
+      c => new QpNode(
+        c.get(LoggerFactory),
+        c.get(EthereumSmartContractHelper),
+        nodeConfig,
+      ));
+
     await container.registerModule(new CommonBackendModule());
 
     const conf = AppConfig.instance().get<QpExplorerNodeConfig>();
 		await container.get<QpExplorerService>(QpExplorerService).init(conf.database);
+		await container.get<QpNode>(QpNode).init(conf.database);
   }
 }

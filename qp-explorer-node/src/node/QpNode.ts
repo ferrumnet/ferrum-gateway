@@ -22,6 +22,7 @@ export class QpNode extends MongooseConnection implements Injectable  {
     ) {
         super();
         this.log = logFac.getLogger(QpNode);
+        console.log('Contracts are ', config.contracts, ' which is part of the ', config);
     }
 
     __name__(): string { return 'QpNode'; }

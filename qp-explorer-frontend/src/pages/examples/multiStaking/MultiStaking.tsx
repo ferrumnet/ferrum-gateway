@@ -13,7 +13,7 @@ import { Pair } from '../../Pair';
 import { stat } from 'fs';
 import { ApprovableButtonWrapper, IApprovableButtonWrapperViewProps } from 'common-containers';
 
-const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET', 'RINKEBY', 'ETHEREUM'];
+const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET', 'RINKEBY', 'FERRUM_TESTNET', 'MUMBAI_TESTNET'];
 
 function method(name: string, abi: any[] = MasterAbi) {
     const rv = abi.find(a => a.name === name);

@@ -1,5 +1,6 @@
 import { HttpRequestProcessor } from "aws-lambda-helper";
 import { Injectable, ValidationUtils } from "ferrum-plumbing";
+import { QpNode } from "../node/QpNode";
 import { QpExplorerService } from "./QpExplorerService";
 
 export class QuantumPortalExplorerRequestProcessor
@@ -8,6 +9,7 @@ export class QuantumPortalExplorerRequestProcessor
 {
     constructor(
         private svc: QpExplorerService,
+        private nodeSvc: QpNode,
     ) {
         super();
         this.registerProcessor('getBackendConstants', () => ({
@@ -57,6 +59,10 @@ export class QuantumPortalExplorerRequestProcessor
             );
         });
 
+        this.registerProcessor('nodeSync', req => {
+            ValidationUtils.allRequired(['network', 'remoteNetwork'], req.data);
+            return this.nodeSvc.process(req.data.network, req.data.remoteNetwork);
+        });
     }
 
     __name__(): string {
