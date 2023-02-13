@@ -36,13 +36,13 @@ export class ApiClient implements Injectable {
     getNetwork() { return this.network; }
     getAddress() { return this.address; }
 
-		async getUserEvents(application: string) {
+	async getUserEvents(application: string) {
         ValidationUtils.isTrue(!!this.getAddress(), 'must be signed in');
         ValidationUtils.isTrue(!!application, 'application must be provided');
         const res = await this.api({
             command: 'getUserEvents', data: {userAddress: this.getAddress(), application}, params: [] } as JsonRpcRequest);
         return res;
-		}
+	}
 
     async updateChainEvents(eventType: string, events: {network: Network, id: string}[]):
     Promise<ChainEventBase> {

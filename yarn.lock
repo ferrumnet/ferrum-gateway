@@ -8400,7 +8400,7 @@ ferrum-design-system@^1.0.65:
 
 "ferrum-plumbing@git+https://github.com/ferrumnet/ferrum-plumbing.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#6f6b9addd9026ffd2622ad3af05a061a9677d33b"
+  resolved "git+https://github.com/ferrumnet/ferrum-plumbing.git#106c18678322368a21a162af2447a6189ca6f798"
   dependencies:
     cross-fetch "^3.0.4"
 

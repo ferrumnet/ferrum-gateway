@@ -5,10 +5,11 @@ import { CurrencyList, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { addressesForUser, addressForUser, AppAccountState, AppState, dummyAppUserProfile } from '../store/AppState';
 import { useDispatch, useSelector } from 'react-redux';
-import { inject, inject3, inject5, Utils, } from 'types';
+import { inject, inject3, inject4, inject5, Utils, } from 'types';
 import { AddressDetails } from 'unifyre-extension-sdk/dist/client/model/AppUserProfile';
 import { ApiClient } from '../clients/ApiClient';
 import { Web3ModalProvider } from 'unifyre-extension-web3-retrofit/dist/contract/Web3ModalProvider';
+import { StandaloneClient } from '../clients/StandaloneClient';
 
 export const connectSlice = createSlice({
     name: 'connect',
@@ -67,12 +68,13 @@ export const onDisconnect = createAsyncThunk('connect/onDisconnect',
 });
 
 export const reConnect = createAsyncThunk('connect/reConnect', async (payload: {}, ctx) => {
-    const [client, connect, api] = inject3<UnifyreExtensionWeb3Client, Connect, ApiClient>(
-        UnifyreExtensionWeb3Client, Connect, ApiClient);
+    const [client, connect, api, standaloneApi] = inject4<UnifyreExtensionWeb3Client, Connect, ApiClient, StandaloneClient>(
+        UnifyreExtensionWeb3Client, Connect, ApiClient, StandaloneClient);
     await connect.reset();
     const userProfile = await client.getUserProfile();
     const res = await api.signInToServer(userProfile);
     if (res) {
+        await standaloneApi.signInToServer(userProfile);
         ctx.dispatch(Actions.reconnected({userProfile}));
     } else {
         ctx.dispatch(onDisconnect({}));
@@ -84,6 +86,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
     const [client, connect, currencyList, api, provider] = 
         inject5<UnifyreExtensionWeb3Client, Connect, CurrencyList, ApiClient, Web3ModalProvider>(
             UnifyreExtensionWeb3Client, Connect, CurrencyList, ApiClient, 'Web3ModalProvider');
+    const standaloneApi = inject<StandaloneClient>(StandaloneClient);
     try {
         if (payload.isAutoConnect && !provider.isCached()) {
             return; // Dont try to connect if we are not cached.
@@ -115,6 +118,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         // console.log('USER PROFILE', userProfile);
         const res = await api.signInToServer(userProfile);
         if (res) {
+            await standaloneApi.signInToServer(userProfile);
             ctx.dispatch(Actions.connectionSucceeded({userProfile}));
         } else {
             connect.getProvider()?.disconnect();
