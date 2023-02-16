@@ -9,17 +9,14 @@ rundir="$(dirname "$curdir")"
 backenddir="$(dirname "$rundir")"
 gatewaydir="$(dirname "$backenddir")"
 
-echo Budlding the gateway backend
+echo Budlding the quantum portal backend
 
 cd $gatewaydir
-#STANDALONE=true npx webpack
-#$echo Webpack completed now, building the docker image
-
 is_untracked=$(git diff-index --quiet HEAD -- || echo "untracked")
 
 if [ "$is_untracked" == "untracked" ]; then
   echo Cannot build docker. You have un commited git changes
-  # exit -1
+  exit -1
 fi
 
 # get last commit hash prepended with @ (i.e. @8a323d0)
@@ -33,7 +30,7 @@ docker_tag="$docker_account/qp-explorer-backend:$build_version-$last_commit"
 docker_tag_latest="$docker_account/qp-explorer-backend:latest"
 
 echo Building docker image $docker_tag
-docker build -f $rundir/GatewayBackend.Dockerfile --tag $docker_tag --progress=plain .
+docker build -f $rundir/QpBackend.Dockerfile --tag $docker_tag --progress=plain .
 docker tag $docker_tag "$docker_tag_latest"
 
 echo Done

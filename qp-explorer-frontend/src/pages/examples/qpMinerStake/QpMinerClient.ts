@@ -114,7 +114,7 @@ export class QpMinerClient implements Injectable {
         const currency = Utils.toCurrency(this.network(), token)!;
         const amountMachine = await this.erc.humanToMachine(currency, amount);
         const tx = await gw.populateTransaction.stake(this.address(), amountMachine, { from: this.address(),
-            value: this.network() == 'FRM_MAINNET' || this.network() == 'FRM_TESTNET' ? amountMachine : '0' });
+            value: this.network() == 'FERRUM_MAINNET' || this.network() == 'FERRUM_TESTNET' ? amountMachine : '0' });
         return await this.api.runPopulatedTransaction(tx);
     }
 

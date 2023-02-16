@@ -7,3 +7,5 @@ leaderboard-backend
 crucible-backend
 governance-backend
 gateway-backend
+qp-explorer-common
+qp-explorer-node

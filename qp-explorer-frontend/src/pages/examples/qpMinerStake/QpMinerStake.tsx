@@ -59,8 +59,18 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
         case 'UPDATE_WITHDRAW':
             return {
                 ...state,
-                withdrawAmount: action.payload.value,
+                stake: {
+                    ...stake,
+                    withdrawQueue: [
+                        { amount: '10', opensAt: Math.round(Date.now() / 1000) + 10000  },
+                        { amount: '20', opensAt: Math.round(Date.now() / 1000) + 10000  },
+                    ]
+                }
             }
+            // return {
+            //     ...state,
+            //     withdrawAmount: action.payload.value,
+            // }
         case 'ERROR':
             console.error("Error happend", action.payload);
             const error = action.payload?.error ? action.payload.error.toString() : action.payload.toString(); 
@@ -152,6 +162,8 @@ export function QpMinerStake(props: {}) {
                 <Pair itemKey={'QP Miner Staking Contract'} value={state?.stakeInfo?.qpMinerStakingConract || 'N/A'} />
                 <Pair itemKey={'Stake ID'} value={state?.stakeInfo?.stakeId || 'N/A'} />
                 <Pair itemKey={'Base Token'} value={state?.stakeInfo?.baseToken || 'N/A'} />
+                <Pair itemKey={'Total staked'} value={state?.stakeInfo?.totalStakesDisplay || 'N/A'} />
+                <Pair itemKey={'Total rewars'} value={state?.stakeInfo?.totalRewardsDisplay || 'N/A'} />
                 <Pair itemKey={'Minimum stake required'} value={state?.stakeInfo?.qpMinStakeRequiredDisplay || 'N/A'} />
             </FCard>
             <div> &nbsp; </div>

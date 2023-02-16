@@ -5,7 +5,7 @@ RUN mkdir -p /code
 COPY . /code/
 RUN cd /code/ && yarn
 RUN cd /code/ && /bin/bash ./bin/tsc-all.sh
-RUN cd /code/gateway-backend && STANDALONE=true npx webpack
+RUN cd /code/qp-explorer-node && npx webpack
 
 FROM node:14.17.0-alpine3.12
 ENV GOSU_VERSION 1.12
@@ -41,7 +41,7 @@ RUN set -eux; \
 
 RUN mkdir /runner
 RUN addgroup -S runners && adduser -S runner -G runners
-COPY --from=yarn_builder /code/gateway-backend/target/index.js /runner/
+COPY --from=yarn_builder /code/qp-explorer-node/target/index.js /runner/
 RUN chown runner /runner
 EXPOSE 8080
 ENTRYPOINT ["gosu"]
