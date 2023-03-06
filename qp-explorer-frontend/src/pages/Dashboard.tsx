@@ -29,6 +29,7 @@ import { Address } from "./Address";
 import { MultiStaking } from "./examples/multiStaking/MultiStaking";
 import '../App.css';
 import { QpMinerStake } from "./examples/qpMinerStake/QpMinerStake";
+import { Link } from "react-router-dom";
 
 const initializeDashboardThunk = createAsyncThunk(
   "crucible/init",
@@ -62,7 +63,7 @@ export function Dashboard(props: {}) {
         headerLogo={'https://ferrum.network/espast/2022/08/FN01.png'}
         className={'logo-top'}
         showLogo={true}
-        titleText={"Quantum Portal"}
+        // titleText={"Quantum Portal"}
       >
         <FItem align="right" display={"flex"}>
           <ConnectButtonWapper View={CnctButton} />
@@ -87,6 +88,9 @@ export function Dashboard(props: {}) {
               {header}
               <FContainer className="fluid">
                 <AppContainer>
+                  <FContainer className={'home-link'}>
+                    <Link to='/'>Ferrum Network Quantum Portal Explorer</Link>
+                  </FContainer>
                   {/* <ContentContainer> */}
                   {/* <div className="landing-page"> */}
                   <Switch>

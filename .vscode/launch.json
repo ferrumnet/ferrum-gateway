@@ -82,6 +82,23 @@
 				"CONFIG_FILES": "${workspaceFolder}/bridge-backend/config.json",
 			},
 			"envFile": "${workspaceFolder}/bridge-backend/config.env"
+		},
+		{
+			"type": "pwa-node",
+			"request": "launch",
+			"name": "Qp Explorer Node",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "${workspaceFolder}/qp-explorer-node/src/backend/sim_lambda.ts",
+			"preLaunchTask": "tsc: build - qp-explorer-node/tsconfig.json",
+			"outFiles": [
+				"${workspaceFolder}/**/*.js"
+			],
+			"env": {
+				"CONFIG_FILE_CHAIN_CONFIG": "${workspaceFolder}/qp-explorer-node/localConfig/providers.json",
+				"CONFIG_FILE_QP_EXPLORER": "${workspaceFolder}/qp-explorer-node/localConfig/qpConfig.json",
+			},
 		}
 	]
 }

@@ -16,8 +16,9 @@ const store = StoreBuilder.build(
   dataReducer,
   uiReducer,
   _module,
+  'https://m44jm4huxp.us-east-2.awsapprunner.com/',
   // 'https://mz7ub9w7lj.execute-api.us-east-2.amazonaws.com/default/stagin-crucible-backend',
-  Environment.defaultEndPoint()
+  // Environment.defaultEndPoint()
 );
 
 function App() {

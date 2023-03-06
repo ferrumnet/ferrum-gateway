@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "dist": "webpack",
-    "test": "./node_modules/.bin/jest --detectOpenHandles"
+    "test": "./node_modules/.bin/jest --detectOpenHandles",
+    "backend": "node ./src/backend/sim_lambda.js"
   },
   "author": "",
   "license": "ISC",

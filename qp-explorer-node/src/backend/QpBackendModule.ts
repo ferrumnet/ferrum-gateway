@@ -38,7 +38,6 @@ export class QpBackendModule implements Module {
       c => new QpExplorerService(
         c.get(LoggerFactory),
         c.get(EthereumSmartContractHelper),
-        conf,
       ));
 
 	  container.registerSingleton(QuantumPortalExplorerRequestProcessor,

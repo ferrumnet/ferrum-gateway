@@ -22,11 +22,9 @@ export class QpExplorerService extends MongooseConnection implements Injectable 
     constructor(
         logFac: LoggerFactory,
         private helper: EthereumSmartContractHelper,
-        private config: QpExplorerNodeConfig,
     ) {
         super();
         this.log = logFac.getLogger(QpExplorerService);
-        console.log('CONFIGZ', JSON.stringify(config, undefined, 2));
     }
 
     __name__(): string { return 'QpExplorerService'; }

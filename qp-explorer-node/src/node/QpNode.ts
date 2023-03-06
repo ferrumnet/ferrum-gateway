@@ -6,6 +6,8 @@ import { QuantumPortalMinedBlock, QuantumPortalMinedBlockModel, QuantumPortalRem
     QuantumPortalRemoteTransactoinModel, QuantumPortalBlockFinalization } from 'qp-explorer-commons';
 import { QpExplorerNodeConfig } from "../QpExplorerNodeConfig";
 import { QuantumPortalLedgerMgr, QuantumPortalLedgerMgr__factory, } from "../resources";
+import { QuantumPortalGateway } from "../resources/QuantumPortalGateway";
+import { QuantumPortalGateway__factory } from '../resources/factories/QuantumPortalGateway__factory';
 import { Utils } from "types";
 import { QpUtils } from "../QpUtils";
 
@@ -157,13 +159,17 @@ export class QpNode extends MongooseConnection implements Injectable  {
     }
 
    	async mgr(network: string): Promise<QuantumPortalLedgerMgr> {
+        const gw = await this.gateway(network);
 		const provider = await this.helper.ethersProvider(network);
-        // TODO: Get the contract from config.
-        // const contract = quantumPortalContracts(network);
-        const contract = this.config.contracts[network]!;
-        ValidationUtils.isTrue(!!contract?.manager, `No contract is configured for network ${network}`);
-		return QuantumPortalLedgerMgr__factory.connect(contract.manager, provider);
+		return QuantumPortalLedgerMgr__factory.connect(await gw.quantumPortalLedgerMgr(), provider);
 	}
+
+    async gateway(network: string): Promise<QuantumPortalGateway> {
+		const provider = await this.helper.ethersProvider(network);
+        const contract = this.config.contracts[network]!;
+        ValidationUtils.isTrue(!!contract?.gateway, `No contract is configured for network ${network}`);
+		return QuantumPortalGateway__factory.connect(contract.gateway, provider);
+    }
 
     async mgrVersion(network): Promise<string> {
         return this.cache.getAsync(network + 'MGR_VERSION', async () => {

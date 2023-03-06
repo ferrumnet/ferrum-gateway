@@ -1,13 +1,21 @@
 
 export interface QuantumPortalContracts {
     manager: string;
+    gateway: string;
     poc: string;
+    validatorMgr: string;
+    minerMgr: string;
+    staking: string;
 }
 
 export const QuantumPortalContractList: { [k: string]: QuantumPortalContracts } = {
     'DEFAULT': {
-        manager: '0x3d7d171d02d5f37c8eb0d3eea72859d5fc758ffb',
-        poc: '0x2c24a6b225b4c82d3241f5c7c037cc374a979b17',
+        gateway: '',
+        manager: '',
+        poc: '',
+        minerMgr: '',
+        staking: '',
+        validatorMgr: ''
     },
 }
 

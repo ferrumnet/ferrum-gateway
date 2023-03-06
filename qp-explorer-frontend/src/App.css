@@ -49,3 +49,17 @@
 header .f-logo {
   max-width: 300px;
 }
+
+.home-link {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding: 16px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.home-link a {
+  color: white;
+  text-decoration: none;
+}
