@@ -45,7 +45,7 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
     "lockSeconds(address)": FunctionFragment;
     "name(address)": FunctionFragment;
     "owner()": FunctionFragment;
-    "releaseWithdrawItems(address,address,uint256)": FunctionFragment;
+    "releaseWithdrawItems(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "reverseDelegation(address)": FunctionFragment;
     "rewardOf(address,address,address[])": FunctionFragment;
@@ -135,7 +135,7 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "releaseWithdrawItems",
-    values: [string, string, BigNumberish]
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -566,8 +566,6 @@ export class QuantumPortalStake extends BaseContract {
 
     releaseWithdrawItems(
       staker: string,
-      receiver: string,
-      max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -703,7 +701,11 @@ export class QuantumPortalStake extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { opensAt: BigNumber; amount: BigNumber }
+      [BigNumber, BigNumber, string] & {
+        opensAt: BigNumber;
+        amount: BigNumber;
+        to: string;
+      }
     >;
 
     withdrawItemsQueueParam(
@@ -817,8 +819,6 @@ export class QuantumPortalStake extends BaseContract {
 
   releaseWithdrawItems(
     staker: string,
-    receiver: string,
-    max: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -951,7 +951,11 @@ export class QuantumPortalStake extends BaseContract {
     arg1: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber] & { opensAt: BigNumber; amount: BigNumber }
+    [BigNumber, BigNumber, string] & {
+      opensAt: BigNumber;
+      amount: BigNumber;
+      to: string;
+    }
   >;
 
   withdrawItemsQueueParam(
@@ -1057,10 +1061,10 @@ export class QuantumPortalStake extends BaseContract {
 
     releaseWithdrawItems(
       staker: string,
-      receiver: string,
-      max: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [string[], BigNumber[]] & { paidTo: string[]; amounts: BigNumber[] }
+    >;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -1186,7 +1190,11 @@ export class QuantumPortalStake extends BaseContract {
       arg1: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { opensAt: BigNumber; amount: BigNumber }
+      [BigNumber, BigNumber, string] & {
+        opensAt: BigNumber;
+        amount: BigNumber;
+        to: string;
+      }
     >;
 
     withdrawItemsQueueParam(
@@ -1441,8 +1449,6 @@ export class QuantumPortalStake extends BaseContract {
 
     releaseWithdrawItems(
       staker: string,
-      receiver: string,
-      max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1693,8 +1699,6 @@ export class QuantumPortalStake extends BaseContract {
 
     releaseWithdrawItems(
       staker: string,
-      receiver: string,
-      max: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

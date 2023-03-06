@@ -132,7 +132,7 @@ export class QpMinerClient implements Injectable {
         const stake = await this.stakeContract();
         const id = await stake.STAKE_ID();
         const token = await stake.baseToken(id);
-        const tx = await stake.populateTransaction.releaseWithdrawItems(this.address(), this.address(), '0', { from: this.address() });
+        const tx = await stake.populateTransaction.releaseWithdrawItems(this.address(), { from: this.address() });
         console.log('USING TX, ', tx);
         return await this.api.runPopulatedTransaction(tx);
     }
