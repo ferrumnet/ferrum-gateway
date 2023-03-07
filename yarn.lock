@@ -4543,7 +4543,7 @@ available-typed-arrays@^1.0.5:
 
 "aws-lambda-helper@git+https://github.com/ferrumnet/aws-lambda-helper.git":
   version "1.0.0"
-  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#2928ac7850ebdd85a4b5b7d496d01d49f2341a90"
+  resolved "git+https://github.com/ferrumnet/aws-lambda-helper.git#a07eb8a4dce01c00799de424d5f450a6e0ab7f15"
   dependencies:
     aws-sdk "2.903.0"
     big.js "^5.2.2"
@@ -11833,10 +11833,15 @@ moment-timezone@^0.5.31, moment-timezone@^0.5.x:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@>=2.14.0, moment@^2.24.0, moment@^2.25.3, moment@^2.29.1:
+"moment@>= 2.9.0", moment@^2.24.0, moment@^2.25.3, moment@^2.29.1:
   version "2.29.2"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.2.tgz#00910c60b20843bcba52d37d58c628b47b1f20e4"
   integrity sha512-UgzG4rvxYpN15jgCmVJwac49h9ly9NurikMWGPdVxm8GZD6XjkKPxDTjQQ43gtGgnV3X0cAyWDdP2Wexoquifg==
+
+moment@>=2.14.0:
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
 mongodb-client-encryption@^1.2.5:
   version "1.2.7"
