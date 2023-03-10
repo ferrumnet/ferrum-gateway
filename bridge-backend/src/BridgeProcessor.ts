@@ -318,6 +318,43 @@ export class BridgeProcessor implements Injectable {
     );
     return payBySig;
   }
+
+  async processEvmAndNonEvmTransaction(
+    targetAddress: string,
+    targetNetwork: string,
+    targetCurrency: string,
+    transactionId: string,
+    amount: string,
+  ) {
+    const targetAmount = amount;
+    const salt = Web3.utils.keccak256(transactionId.toLocaleLowerCase());
+    const payBySig = await this.createSignedPayment(
+      targetNetwork,
+      targetAddress,
+      targetCurrency,
+      targetAmount,
+      salt
+    );
+    // console.log({ payBySig });
+    await this.svc.withdrawSignedVerify(
+      targetCurrency,
+      targetAddress,
+      targetAmount,
+      payBySig.hash,
+      "",
+      payBySig.signatures[0].signature,
+      this.processorAddress
+    );
+    return {
+      token: targetCurrency.split(":")[1],
+      targetCurrency,
+      payee: targetAddress,
+      amount: targetAmount,
+      hash: payBySig.hash,
+      salt,
+      signature: payBySig.signatures[0].signature,
+    };
+  }
 }
 
 async function closeIfInitialized(c: Container, t: any) {

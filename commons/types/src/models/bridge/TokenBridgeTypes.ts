@@ -89,7 +89,7 @@ export interface UserBridgeWithdrawableBalanceItem {
   payBySig: PayBySignatureData;
   originCurrency: string;
   sendToCurrency: string;
-
+  networkType: string;
 	// TODO: Refactor and use the transaction trackeble
   used: "" | "pending" | "failed" | "completed";
   useTransactions: { id: string; status: string; timestamp: number }[];
@@ -190,7 +190,7 @@ const userBridgeWithdrawableBalanceItemSchema: Schema = new Schema<
 
   originCurrency: String,
   sendToCurrency: String,
-
+  networkType: String,
   used: String,
   useTransactions: [{ id: String, status: String, timestamp: Number }],
 	execution: transactionTrackableSchema,

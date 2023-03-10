@@ -550,6 +550,26 @@ export class TokenBridgeService
     return;
   }
 
+  async logEvmAndNonEvmTransaction(
+    item: UserBridgeWithdrawableBalanceItem
+  ): Promise<void> {
+    this.verifyInit();
+    await new this.balanceItem!(item).save();  
+  }
+
+  async updateEvmAndNonEvmTransaction(
+    item: UserBridgeWithdrawableBalanceItem
+  ): Promise<UserBridgeWithdrawableBalanceItem> {
+    this.verifyInit();
+    const res = await this.balanceItem!.findOneAndUpdate(
+      { id: item.id },
+      { $set: { ...item } }
+    );
+    ValidationUtils.isTrue(!!res, "Could not update the balance item");
+    return item;
+  }
+
+
   async close() {
     if (this.con) {
       await this.con!.close();

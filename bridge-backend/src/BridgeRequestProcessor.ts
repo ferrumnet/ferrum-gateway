@@ -119,6 +119,21 @@ export class BridgeRequestProcessor
 
 		this.registerProcessor('withdrawAndSwapGetTransaction',
 			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
+
+    this.registerProcessor("logEvmAndNonEvmTransaction", (req) => {
+      return this.svc.logEvmAndNonEvmTransaction(req.data);
+    });
+    this.registerProcessor("updateEvmAndNonEvmTransaction", (req) => {
+      let item :any;
+      if (req.data && req.data.used !== "completed" && req.data.txType === "swap") {
+        const signData = this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.sendAmount);
+        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, signData });
+      }
+      else {
+        item = this.svc.updateEvmAndNonEvmTransaction(req.data);
+      }
+      return item;
+    });
   }
 
   __name__() {
