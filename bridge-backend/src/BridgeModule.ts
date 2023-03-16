@@ -6,16 +6,18 @@ import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
 import { BridgeRequestProcessor } from "./BridgeRequestProcessor";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
-import { AppConfig, CurrencyListSvc } from "common-backend";
+import { AppConfig, CurrencyListSvc, decryptKey } from "common-backend";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { OneInchClient } from "./crossSwap/OneInchClient";
 import { UniswapV2Client } from "common-backend/dist/uniswapv2/UniswapV2Client";
 import { BridgeNotificationSvc } from './BridgeNotificationService';
-import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, Utils } from "types";
+import { BRIDGE_V12_CONTRACTS, BRIDGE_V1_CONTRACTS, getEnv, Utils } from "types";
 import { BridgeNodesRemoteAccessRequestProcessor } from "..";
 import { BridgeNodesRemoteAccessService } from "./nodeRemoteAccess/BridgeNodesRemoteAccessService";
 import { LiquidityBalancerRequestProcessor } from "./nodeRemoteAccess/LiquidityBalancerRequestProcessor";
 import { RoutingTableService } from "./RoutingTableService";
+import { BridgeProcessor } from "./BridgeProcessor";
+import { ChainClientFactory, EthereumAddress } from "ferrum-chain-clients";
 
 export class BridgeModuleCommons implements Module {
 	constructor(private conf: MongooseConfig) { }
@@ -69,16 +71,16 @@ export class BridgeModule implements Module {
     const conf = AppConfig.instance().get<BridgeProcessorConfig>();
 
     // Disabling the birdge processor in favor of the new node structure
-    // const privateKey =
-    //   getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
-    //   (await decryptKey(
-    //     AppConfig.awsRegion(),
-    //     getEnv("KEY_ID"),
-    //     getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
-    //   ));
-    // const processorAddress = (
-    //   await new EthereumAddress("prod").addressFromSk(privateKey)
-    // ).address;
+    const privateKey =
+      getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT") ||
+      (await decryptKey(
+        AppConfig.awsRegion(),
+        getEnv("KEY_ID"),
+        getEnv("PROCESSOR_PRIVATE_KEY_ENCRYPTED")
+      ));
+    const processorAddress = (
+      await new EthereumAddress("prod").addressFromSk(privateKey)
+    ).address;
     container.registerSingleton(
       TokenBridgeContractClinet,
       (c) =>
@@ -87,21 +89,21 @@ export class BridgeModule implements Module {
           conf.bridgeConfig.contractClient
         )
     );
-    // container.registerSingleton(
-    //   BridgeProcessor,
-    //   (c) =>
-    //     new BridgeProcessor(
-    //       conf,
-    //       c.get(ChainClientFactory),
-    //       c.get(TokenBridgeService),
-    //       c.get(TokenBridgeContractClinet),
-    //       c.get(BridgeConfigStorage),
-    //       c.get(EthereumSmartContractHelper),
-    //       privateKey,
-    //       processorAddress,
-    //       c.get(LoggerFactory)
-    //     )
-    // );
+    container.registerSingleton(
+      BridgeProcessor,
+      (c) =>
+        new BridgeProcessor(
+          conf,
+          c.get(ChainClientFactory),
+          c.get(TokenBridgeService),
+          c.get(TokenBridgeContractClinet),
+          c.get(BridgeConfigStorage),
+          c.get(EthereumSmartContractHelper),
+          privateKey,
+          processorAddress,
+          c.get(LoggerFactory)
+        )
+    );
 
     container.registerSingleton(
       BridgeRequestProcessor,
@@ -111,6 +113,7 @@ export class BridgeModule implements Module {
           c.get(BridgeConfigStorage),
           c.get(RoutingTableService),
 					c.get(CrossSwapService),
+          c.get(BridgeProcessor)
         )
     );
     container.registerSingleton(
