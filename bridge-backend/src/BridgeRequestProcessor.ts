@@ -125,6 +125,11 @@ export class BridgeRequestProcessor
     this.registerProcessor("logEvmAndNonEvmTransaction", (req) => {
       return this.svc.logEvmAndNonEvmTransaction(req.data);
     });
+
+    this.registerProcessor("processFromEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromEvmSwapTransaction(req.data);
+    });
+    
     this.registerProcessor("updateEvmAndNonEvmTransaction", (req) => {
       let item :any;
       if (req.data && req.data.used !== "completed" && req.data.txType === "swap") {
