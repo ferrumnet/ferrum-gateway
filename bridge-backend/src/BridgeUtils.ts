@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 import { PayBySignatureData } from 'types';
 import {ValidationUtils} from "ferrum-plumbing";
+import axios from "axios";
 
 const NAME = "FERRUM_TOKEN_BRIDGE_POOL";
 const VERSION = "000.003";
@@ -63,6 +64,45 @@ export function produceSignatureWithdrawHash(eth: Eth,
 		hash,
     } as PayBySignatureData;
 }
+
+export async function produceSignatureNonEvmWithdrawHash(
+    eth: Eth,
+    netId: number,
+    contractAddress: HexString,
+    token: HexString,
+    payee: HexString,
+    amount: string,
+    swapTxId: string,
+    walletAddress: string
+  ) {
+    const response = await axios.post("http://127.0.0.1:3000/create-evm-swap-signature", {
+      tokenAddress: token,
+      payee: walletAddress,
+      salt: swapTxId.replace("0x", ""),
+      chainId: netId,
+      amount,
+    });
+    const message = response.data;
+    const privateKey = getEnv("PROCESSOR_PRIVATE_KEY_CLEAN_TEXT");
+    const sign = eth.accounts.sign(message, privateKey);
+    // const recovery = eth.accounts.recover(sign.message, sign.signature);
+    // console.log({ recovery });
+    return {
+      contractName: NAME,
+      contractVersion: VERSION,
+      contractAddress: contractAddress,
+      amount: amount,
+      payee: walletAddress,
+      signature: sign.signature,
+      signatures: [],
+      token,
+      swapTxId: swapTxId.substring(0, 40),
+      sourceChainId: 0,
+      toToken: "",
+      hash: sign.message,
+      messageHash: sign.messageHash,
+    };
+  }
 
 export function getEnv(env: string) {
     const res = process.env[env];
