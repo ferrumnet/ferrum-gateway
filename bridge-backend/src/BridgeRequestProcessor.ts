@@ -4,6 +4,7 @@ import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { CrossSwapService } from "./crossSwap/CrossSwapService";
 import { HttpRequestData, HttpRequestProcessor } from "aws-lambda-helper";
 import { RoutingTableService } from "./RoutingTableService";
+import { BridgeProcessor } from "./BridgeProcessor";
 
 export class BridgeRequestProcessor
   extends HttpRequestProcessor
@@ -14,6 +15,7 @@ export class BridgeRequestProcessor
     private bgs: BridgeConfigStorage,
     private rouitingTable: RoutingTableService,
 		private crossSwap: CrossSwapService,
+    private bridgeProcessor: BridgeProcessor,
   ) {
     super();
 
@@ -119,6 +121,26 @@ export class BridgeRequestProcessor
 
 		this.registerProcessor('withdrawAndSwapGetTransaction',
 			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
+
+    this.registerProcessor("logEvmAndNonEvmTransaction", (req) => {
+      return this.svc.logEvmAndNonEvmTransaction(req.data);
+    });
+
+    this.registerProcessor("processFromEvmSwapTransaction", (req) => {
+      return this.bridgeProcessor.processFromEvmSwapTransaction(req.data);
+    });
+    
+    this.registerProcessor("updateEvmAndNonEvmTransaction", (req) => {
+      let item :any;
+      if (req.data && req.data.used !== "completed" && req.data.txType === "swap") {
+        const signData = this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
+        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, signData });
+      }
+      else {
+        item = this.svc.updateEvmAndNonEvmTransaction(req.data);
+      }
+      return item;
+    });
   }
 
   __name__() {

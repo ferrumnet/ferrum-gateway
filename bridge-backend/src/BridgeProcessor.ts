@@ -1,9 +1,6 @@
+import { ChainClientFactory, ChainUtils } from "ferrum-chain-clients";
 import {
-  ChainClientFactory,
-  ChainUtils,
-} from "ferrum-chain-clients";
-import {
-	Container,
+  Container,
   Injectable,
   Logger,
   LoggerFactory,
@@ -17,13 +14,17 @@ import { BridgeProcessorConfig } from "./BridgeProcessorTypes";
 import { PayBySignatureData, UserBridgeWithdrawableBalanceItem } from "types";
 import { BridgeConfigStorage } from "./BridgeConfigStorage";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
-import { fixSig, produceSignatureWithdrawHash } from "./BridgeUtils";
+import { fixSig, produceSignatureWithdrawHash, produceSignatureNonEvmWithdrawHash } from "./BridgeUtils";
 import { toRpcSig } from "ethereumjs-util";
 import { TokenBridgeContractClinet } from "./TokenBridgeContractClient";
 import { BridgeSwapEvent } from "./common/TokenBridgeTypes";
 import * as Eip712 from "web3-tools";
 import { Networks } from "ferrum-plumbing/dist/models/types/Networks";
-import { AppConfig, CommonBackendModule, WithDatabaseConfig } from "common-backend";
+import {
+  AppConfig,
+  CommonBackendModule,
+  WithDatabaseConfig,
+} from "common-backend";
 import Web3 from "web3";
 import { HmacApiKeyStore } from "aws-lambda-helper/dist/security/HmacApiKeyStore";
 
@@ -70,25 +71,30 @@ export class BridgeProcessor implements Injectable {
         relevantTokens.map((j: any) => j.sourceCurrency),
         "soucre currencies"
       );
-      
+
       let incoming = (await this.bridgeContract.getSwapEvents(network)) || [];
       const swapTxs = await this.svc.getPendingSwapTxIds(network);
       const swapTxsIds = swapTxs.map((e: any) => e.id);
       let swapEvents = [];
 
-			const txsFromChain = incoming.map((e) => e.transactionId);
+      const txsFromChain = incoming.map((e) => e.transactionId);
       for (const tx of swapTxsIds) {
         if (!txsFromChain.includes(tx)) {
-					try {
-						const event = await this.bridgeContract.getSwapEventByTxId(
-							network as Network,
-							tx
-						);
-						swapEvents.push(event);
-					} catch(e) {
-						console.warn('Could not retrieve swap event for transaction: ', network, tx, e);
-						await this.svc.failSwapTx(network, tx, e.toString());
-					}
+          try {
+            const event = await this.bridgeContract.getSwapEventByTxId(
+              network as Network,
+              tx
+            );
+            swapEvents.push(event);
+          } catch (e) {
+            console.warn(
+              "Could not retrieve swap event for transaction: ",
+              network,
+              tx,
+              e
+            );
+            await this.svc.failSwapTx(network, tx, e.toString());
+          }
         }
       }
 
@@ -122,10 +128,10 @@ export class BridgeProcessor implements Injectable {
     } finally {
       await this.svc.close();
       await this.tokenConfig.close();
-	    const c = await LambdaGlobalContext.container();
+      const c = await LambdaGlobalContext.container();
       await (c.get<HmacApiKeyStore>(HmacApiKeyStore) as any).close();
 
-      console.log('All closed!!!')     
+      console.log("All closed!!!");
     }
   }
 
@@ -166,8 +172,6 @@ export class BridgeProcessor implements Injectable {
       } else {
       }
 
-      
-
       // Creating a new process option.
       // Find the relevant token config for the pair
       // Calculate the target amount
@@ -184,7 +188,7 @@ export class BridgeProcessor implements Injectable {
         targetNetwork,
         sourcecurrency
       );
-      
+
       const targetCurrency = `${targetNetwork}:${ChainUtils.canonicalAddress(
         event.targetNetwork as any,
         event.targetToken
@@ -213,7 +217,7 @@ export class BridgeProcessor implements Injectable {
         targetAmount,
         salt
       );
-      
+
       processed = {
         id: payBySig.hash, // same as signedWithdrawHash
         timestamp: new Date().valueOf(),
@@ -233,17 +237,17 @@ export class BridgeProcessor implements Injectable {
         used: "",
         useTransactions: [],
       } as UserBridgeWithdrawableBalanceItem;
-      
+
       await this.svc.withdrawSignedVerify(
         conf!.targetCurrency,
         targetAddress,
         targetAmount,
         payBySig.hash,
-        '',
+        "",
         payBySig.signatures[0].signature,
         this.processorAddress
       );
-      console.log('withdrawsignedverify')
+      console.log("withdrawsignedverify");
       await this.svc.newWithdrawItem(processed);
       return [true, processed];
     } catch (e) {
@@ -272,8 +276,6 @@ export class BridgeProcessor implements Injectable {
       amountStr,
       salt
     );
-
-    
 
     const params = {
       contractName: "FERRUM_TOKEN_BRIDGE_POOL",
@@ -305,7 +307,7 @@ export class BridgeProcessor implements Injectable {
     const rpcSig = fixSig(
       toRpcSig(baseV, Buffer.from(sigP.r, "hex"), Buffer.from(sigP.s, "hex"), 1)
     );
-    
+
     payBySig.signatures = [{ signature: rpcSig } as any];
     ValidationUtils.isTrue(
       !!payBySig.signatures[0].signature,
@@ -318,54 +320,149 @@ export class BridgeProcessor implements Injectable {
     );
     return payBySig;
   }
+
+  async processFromEvmSwapTransaction({
+    transactionId,
+    amount,
+    chainId,
+    sourceNetwork,
+    targetAddress,
+    targetCurrency,
+    walletAddress,
+  }: any) {
+    const targetAmount = amount;
+    const salt = Web3.utils.keccak256(transactionId.toLocaleLowerCase());
+    const payBySig = await this.createNonEvmSignedPayment(
+      sourceNetwork,
+      targetAddress,
+      targetCurrency,
+      targetAmount,
+      salt,
+      chainId,
+      walletAddress
+    );
+    return {
+      token: targetCurrency.split(":")[1],
+      targetCurrency,
+      payee: walletAddress,
+      amount: targetAmount,
+      hash: payBySig.hash,
+      messageHash: payBySig.messageHash,
+      salt: salt.replace("0x", "").substring(0, 40),
+      signature: payBySig?.signatures[0]?.signature
+        ? payBySig?.signatures[0]?.signature
+        : payBySig?.signature,
+    };
+  }
+
+  async createNonEvmSignedPayment(
+    network: string,
+    address: string,
+    currency: string,
+    amountStr: string,
+    salt: string,
+    chainId: number,
+    walletAddress: string
+  ): Promise<any> {
+    console.log("creating non evm signed payment");
+    const [_, token] = EthereumSmartContractHelper.parseCurrency(currency);
+    const payBySig = produceSignatureNonEvmWithdrawHash(
+      this.helper.web3(network),
+      chainId,
+      this.config.bridgeConfig.contractClient[network],
+      token,
+      address,
+      amountStr,
+      salt,
+      walletAddress
+    );
+    return payBySig;
+  }
+
+  async processEvmAndNonEvmTransaction(
+    targetAddress: string,
+    targetNetwork: string,
+    targetCurrency: string,
+    transactionId: string,
+    amount: string
+  ) {
+    const targetAmount = amount;
+    const salt = Web3.utils.keccak256(transactionId.toLocaleLowerCase());
+    const payBySig = await this.createSignedPayment(
+      targetNetwork,
+      targetAddress,
+      targetCurrency,
+      targetAmount,
+      salt
+    );
+    // console.log({ payBySig });
+    await this.svc.withdrawSignedVerify(
+      targetCurrency,
+      targetAddress,
+      targetAmount,
+      payBySig.hash,
+      "",
+      payBySig.signatures[0].signature,
+      this.processorAddress
+    );
+    return {
+      token: targetCurrency.split(":")[1],
+      targetCurrency,
+      payee: targetAddress,
+      amount: targetAmount,
+      hash: payBySig.hash,
+      salt,
+      signature: payBySig.signatures[0].signature,
+    };
+  }
 }
 
 async function closeIfInitialized(c: Container, t: any) {
-	try {
-		console.log('Force closing ', t);
-		await (c.get(t) as any).close();
-	} catch (e) {
-		console.error('Error force closing ', t, e);
-	}
+  try {
+    console.log("Force closing ", t);
+    await (c.get(t) as any).close();
+  } catch (e) {
+    console.error("Error force closing ", t, e);
+  }
 }
 
 async function prepProcess() {
-	const c = await LambdaGlobalContext.container();
-	try {
+  const c = await LambdaGlobalContext.container();
+  try {
     await AppConfig.instance().forChainProviders();
-    await AppConfig.instance().fromSecret('', 'BRIDGE');
-    await AppConfig.instance().fromSecret('', 'CRUCIBLE');
-    await AppConfig.instance().fromSecret('', 'LEADERBOARD');
-    await AppConfig.instance().fromSecret('', 'GOVERNANCE');
-    AppConfig.instance().orElse('', () => ({
+    await AppConfig.instance().fromSecret("", "BRIDGE");
+    await AppConfig.instance().fromSecret("", "CRUCIBLE");
+    await AppConfig.instance().fromSecret("", "LEADERBOARD");
+    await AppConfig.instance().fromSecret("", "GOVERNANCE");
+    AppConfig.instance().orElse("", () => ({
       database: {
-        connectionString: AppConfig.env('MONGOOSE_CONNECTION_STRING')
+        connectionString: AppConfig.env("MONGOOSE_CONNECTION_STRING"),
       },
-      cmkKeyId: AppConfig.env('CMK_KEY_ID'),
+      cmkKeyId: AppConfig.env("CMK_KEY_ID"),
     }));
-      
+
     await BridgeModule.configuration();
-		await c.registerModule(new CommonBackendModule());
-		await c.registerModule(new BridgeModule());
-		return c.get<BridgeProcessor>(BridgeProcessor);
-	} catch(e) {
-		console.error('Error happened when initializing', e);
-		await closeIfInitialized(c, TokenBridgeService);
-		await closeIfInitialized(c, BridgeConfigStorage);
-		return undefined;
-	}
+    await c.registerModule(new CommonBackendModule());
+    await c.registerModule(new BridgeModule());
+    return c.get<BridgeProcessor>(BridgeProcessor);
+  } catch (e) {
+    console.error("Error happened when initializing", e);
+    await closeIfInitialized(c, TokenBridgeService);
+    await closeIfInitialized(c, BridgeConfigStorage);
+    return undefined;
+  }
 }
 
 export async function processOneWay(network: string, noStop: boolean) {
   const processor = await prepProcess();
-	if (processor) {
-  	await processor.processCrossChain(network as any, noStop);
-	}
+  if (processor) {
+    await processor.processCrossChain(network as any, noStop);
+  }
 }
 
 export async function processOneTx(network: string, txId: string) {
   const processor = await prepProcess();
-	if (processor) {
-  	await processor.processOneTx(network as any, txId);
-	}
+  if (processor) {
+    await processor.processOneTx(network as any, txId);
+  }
 }
