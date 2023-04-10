@@ -126,20 +126,33 @@ export class BridgeRequestProcessor
       return this.svc.logEvmAndNonEvmTransaction(req.data);
     });
 
+    this.registerProcessor("getUserNonEvmWithdrawItems", (req) =>
+      this.getUserWithdrawItems(req, req.data.userAddress)
+    );
+
     this.registerProcessor("processFromEvmSwapTransaction", (req) => {
       return this.bridgeProcessor.processFromEvmSwapTransaction(req.data);
     });
     
-    this.registerProcessor("updateEvmAndNonEvmTransaction", (req) => {
+    this.registerProcessor("updateEvmAndNonEvmTransaction", async (req) => {
       let item :any;
       if (req.data && req.data.used !== "completed" && req.data.txType === "swap") {
-        const signData = this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
-        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, signData });
+        console.log(req.data);
+        const signData = await this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
+        console.log(signData, 'itemitem');
+        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, sendNetwork:  req.data.receiveNetwork, signData });
+        const res = await this.withdrawNonEvmSignedGetTransaction(req, req.data.user, {...req.data, ...signData})
+        return res;
       }
       else {
         item = this.svc.updateEvmAndNonEvmTransaction(req.data);
       }
       return item;
+    });
+
+    this.registerProcessor("withdrawEvmNonEvm", async (req) => {
+      const signData = await this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
+      this.withdrawNonEvmSignedGetTransaction(req, req.data.user, signData)
     });
   }
 
@@ -245,6 +258,12 @@ export class BridgeRequestProcessor
     ValidationUtils.isTrue(!!currency, "'currency' must be provided");
     ValidationUtils.isTrue(!!amount, "'amount must be provided");
     return this.svc.addLiquidityGetTransaction(userId, currency, amount);
+  }
+
+  async withdrawNonEvmSignedGetTransaction(req: HttpRequestData, userId: string, data: any) {
+    const { id } = req.data;
+    ValidationUtils.isTrue(!!userId, "user must be signed in");
+    return this.svc.withdrawNonEvmSignedGetTransaction(id, userId, data);
   }
 
   async withdrawSignedGetTransaction(req: HttpRequestData, userId: string) {
