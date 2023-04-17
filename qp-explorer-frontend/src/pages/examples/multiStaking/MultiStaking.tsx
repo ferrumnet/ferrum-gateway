@@ -12,8 +12,20 @@ import { abi as MasterAbi } from './MultiChainStakingMaster.json';
 import { Pair } from '../../Pair';
 import { stat } from 'fs';
 import { ApprovableButtonWrapper, IApprovableButtonWrapperViewProps } from 'common-containers';
+import { web3Accounts, web3Enable, web3FromAddress } from "@polkadot/extension-dapp";
+import { ContractPromise } from "@polkadot/api-contract";
+import { BN, BN_ONE } from "@polkadot/util";
+import type { WeightV2 } from '@polkadot/types/interfaces';
+const { ApiPromise, WsProvider } = require('@polkadot/api');
+var inkStakingMetadata = require('./ink_qp_staking_metadata.json')
 
-const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET', 'RINKEBY', 'FERRUM_TESTNET', 'MUMBAI_TESTNET'];
+// fallback values for weights
+const MAX_CALL_WEIGHT = new BN(9000000000).isub(BN_ONE);
+const PROOFSIZE = new BN(1000000); 
+
+const INK_CLIENT_STAKING_CONTRACT_ADDRESS = "Zuks8Jkib9NVneMhXpBpLERnBuSHcr2G92noPk5Y9PGd56i";
+
+const NETWORKS = ['BSC_TESTNET', 'AVAX_TESTNET', 'RINKEBY', 'FERRUM_TESTNET', 'MUMBAI_TESTNET', 'SHIBUYA_TESTNET'];
 
 function method(name: string, abi: any[] = MasterAbi) {
     const rv = abi.find(a => a.name === name);
@@ -141,6 +153,54 @@ async function stakeClient(state: MultiState, network: string, dispatch: Dispatc
     const txId = await client.writeContractField(connected.contract, method('stake', ClientAbi), 'stake', [
         connected.baseToken, state.stakeAmount, '1']);
     // dispatch(writeContractSlice.actions.valueRead({method: payload.abiItem.name, txid}));
+}
+
+async function stakeClientInk(state: MultiState, network: string, dispatch: Dispatch<AnyAction>) {
+  // initialize connection to wallet
+  await web3Enable("Ferrum MultiStaking");
+  const allAccounts = await web3Accounts();
+  let walletAddress = allAccounts[0].address;
+  let walletInterface = await web3FromAddress(walletAddress);
+
+  // setup connection to astar testnet
+  const provider = new WsProvider("wss://shibuya-rpc.dwellir.com");
+  const substrateApi = await ApiPromise.create({ provider });
+
+  // The address is the actual on-chain address as ss58 or AccountId object.
+  const contract = new ContractPromise(
+    substrateApi,
+    inkStakingMetadata,
+    INK_CLIENT_STAKING_CONTRACT_ADDRESS
+  );
+
+  // setup the gasLimit and storageLimit, we use max values as default fallback
+  const storageDepositLimit = null;
+
+  const { gasRequired } = await contract.query.stake(
+    walletAddress,
+    {
+      gasLimit: substrateApi?.registry.createType("WeightV2", {
+        refTime: MAX_CALL_WEIGHT,
+        proofSize: PROOFSIZE,
+      }),
+      storageDepositLimit,
+    },
+    state.stakeAmount,
+    0 //fee
+  );
+
+  let actualgasLimit = substrateApi?.registry.createType("WeightV2", gasRequired);
+
+  let txId = await contract.tx
+    .stake(
+      { storageDepositLimit, gasLimit: actualgasLimit },
+      "0x483ce7236433718e0ed79bc46cc1dc2dcc844ed2",
+      1,
+      0
+    )
+    .signAndSend("5DhRPy53ZtbhZ16ACxMSJx4S5zq7ucH8HkAgSruBdfinViRf", {
+      signer: walletInterface.signer,
+    });
 }
 
 async function closePosition(state: MultiState, dispatch: Dispatch<AnyAction>) {
