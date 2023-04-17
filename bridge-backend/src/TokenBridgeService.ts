@@ -112,9 +112,10 @@ export class TokenBridgeService
 
   async withdrawSignedGetTransaction(
     receiveTransactionId: string,
-    userAddress: string
+    userAddress: string,
   ) {
-    const w = await this.getWithdrawItem(receiveTransactionId);
+    const w = await this.getNonEvmWithdrawItem(receiveTransactionId);
+    console.log(w)
     const liquidity = await this.getAvailableLiquidity(w.sendCurrency);
     ValidationUtils.isTrue(
       !(Number(w.sendAmount) >= Number(liquidity.liquidity)),
@@ -132,7 +133,34 @@ export class TokenBridgeService
       ),
       "Provided address is not the receiver of withdraw"
     );
-    return this.contract.withdrawSigned(w, userAddress);
+    return this.contract.withdrawEvmSigned(w, userAddress);
+  }
+
+  async withdrawNonEvmSignedGetTransaction(
+    receiveTransactionId: string,
+    userAddress: string,
+    data: any
+  ) {
+    const w = await this.getNonEvmWithdrawItem(receiveTransactionId);
+    console.log(w)
+    // const liquidity = await this.getAvailableLiquidity(w.sendCurrency);
+    // ValidationUtils.isTrue(
+    //   !(Number(w.sendAmount) >= Number(liquidity.liquidity)),
+    //   `Not enough liquidity on destination network ${w.sendNetwork}`
+    // );
+    ValidationUtils.isTrue(
+      !!w,
+      `Withdraw item with receiveTransactionId ${receiveTransactionId} was not found`
+    );
+    // ValidationUtils.isTrue(
+    //   ChainUtils.addressesAreEqual(
+    //     w.sendNetwork as Network,
+    //     userAddress,
+    //     w.sendAddress
+    //   ),
+    //   "Provided address is not the receiver of withdraw"
+    // );
+    return this.contract.withdrawEvmSigned(data, userAddress);
   }
 
   async addLiquidityGetTransaction(
@@ -296,7 +324,7 @@ export class TokenBridgeService
     expectedAddress: string
   ) {
     console.log("About to call withdrawSignedVerify");
-    await this.runLiquidityCheckScript(targetCurrency);
+   //await this.runLiquidityCheckScript(targetCurrency);
     return await this.contract.withdrawSignedVerify(
       targetCurrency,
       payee,
@@ -322,6 +350,15 @@ export class TokenBridgeService
   ): Promise<UserBridgeWithdrawableBalanceItem> {
     this.verifyInit();
     const rv = await this.balanceItem!.findOne({ receiveTransactionId });
+    //@ts-ignore
+    return rv ? rv.toJSON() : rv;
+  }
+
+  async getNonEvmWithdrawItem(
+    receiveTransactionId: string
+  ): Promise<UserBridgeWithdrawableBalanceItem> {
+    this.verifyInit();
+    const rv = await this.balanceItem!.findOne({ id: receiveTransactionId });
     //@ts-ignore
     return rv ? rv.toJSON() : rv;
   }

@@ -309,6 +309,7 @@ export class BridgeProcessor implements Injectable {
     );
 
     payBySig.signatures = [{ signature: rpcSig } as any];
+    console.log(payBySig.hash.replace("0x", ""), rpcSig, salt);
     ValidationUtils.isTrue(
       !!payBySig.signatures[0].signature,
       `Error generating signature for ${{

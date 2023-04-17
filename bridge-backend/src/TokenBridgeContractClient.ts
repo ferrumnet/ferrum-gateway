@@ -56,6 +56,12 @@ export class TokenBridgeContractClinet implements Injectable {
         // ValidationUtils.isTrue(ChainUtils.addressesAreEqual(network as any, res[1], expectedAddress),
         //     `Invalid signature: expected ${expectedAddress}. Got ${res[1]}`);
     }
+
+    async decode(sig: string, network: string) {
+        const web3 = (await this.helper.web3(network)) as Eth;
+        const response = await web3.accounts.recoverTransaction(sig);
+        console.log(response, 'response-decode')
+    }
 	
 	async getSwapEventByTxId(network: string, txId: string): Promise<BridgeSwapEvent> {
         const address = this.contractAddress[network];
@@ -185,6 +191,27 @@ export class TokenBridgeContractClinet implements Injectable {
                 `Withdraw `);
     }
 
+    async withdrawEvmSigned(w: UserBridgeWithdrawableBalanceItem,
+        from: string): Promise<CustomTransactionCallRequest>{
+        console.log(`About to withdrawSigned`, w);
+
+        const address = this.contractAddress[w.sendNetwork];
+        const p = this.instance(w.sendNetwork).methods.withdrawSigned(
+            //@ts-ignore
+            w.token, w.payee, w.amount, w.salt, w?.signature
+        )
+        const gas = await this.estimateGasOrDefault(p, from, undefined as any);
+        const nonce = await this.helper.web3(w.sendNetwork).getTransactionCount(from, 'pending');
+        console.log(nonce, 'nonce')
+        return Helper.callRequest(address,
+                w.sendCurrency,
+                from,
+                p.encodeABI(),
+                gas ? gas.toFixed() : undefined,
+                nonce,
+                `Withdraw `);
+    }
+
     async approveIfRequired(userAddress: string, currency: string, amount: string):
         Promise<CustomTransactionCallRequest[]> {
         const [network, __] = Helper.parseCurrency(currency);
@@ -241,14 +268,22 @@ export class TokenBridgeContractClinet implements Injectable {
     async swap(userAddress: string, currency: string, amount: string, targetCurrency: string) {
         const [network, token] = Helper.parseCurrency(currency);
         const [targetNetwork, targetToken] = Helper.parseCurrency(targetCurrency);
-        const targetNetworkInt = Networks.for(targetNetwork).chainId;
+        let parsedTargetToken = targetToken;
+        let targetNetworkInt;
+        if (targetNetwork == 'CSPR') {
+            parsedTargetToken = `0x${targetToken.slice(0, 40)}`;
+            targetNetworkInt = 109090
+        } else {
+            targetNetworkInt = Networks.for(targetNetwork).chainId;
+            ValidationUtils.isTrue(!!targetNetworkInt, `'targetNetwork' must be provided for ${targetNetwork}`);
+        }
         ValidationUtils.isTrue(!!targetNetworkInt, `'targetNetwork' must be provided for ${targetNetwork}`);
         ValidationUtils.isTrue(!!userAddress, "'userAddress' must be provided");
         ValidationUtils.isTrue(!!amount, "'amount' must be provided");
-        console.log('About to call swap', {token,  targetNetworkInt, targetToken});
+        console.log('About to call swap', {token,  targetNetworkInt, parsedTargetToken});
         const amountRaw = await this.helper.amountToMachine(currency, amount);
-        console.log('About to call swap', {token, amountRaw, targetNetworkInt, targetToken});
-        const p = this.instance(network).methods.swap(token, amountRaw, targetNetworkInt, targetToken);
+        console.log('About to call swap', {token, amountRaw, targetNetworkInt, parsedTargetToken});
+        const p = this.instance(network).methods.swap(token, amountRaw, targetNetworkInt, parsedTargetToken);
         const gas = await this.estimateGasOrDefault(p, userAddress, undefined);
         const nonce = await this.helper.web3(network).getTransactionCount(userAddress, 'pending');
         const address = this.contractAddress[network];
