@@ -59,6 +59,8 @@ c) Destination networks on the EVM chain.
 
 3) The withdrawal item contains salient information such as the receiveAmount, payBySig, sendTimestamp etc.
 
+This implementation allows for compatibility to swap from capser to bsc, polygon and ethereum testnets.
+
 **PayBySig**
 
 The payBySIg entry in the withdrawal item is the most important part of withdrawal, the paybysig encodes the destination address for swaps to be sent to. The payBySig implementation for casper required a further redesign to the existing EMV paybysig generation as a result of mismatch in address length between the EVM networks (40) and casper network addresses (62).
