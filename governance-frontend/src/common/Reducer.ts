@@ -1,6 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { AnyAction } from "redux";
-import { QuorumSubscription } from "types";
+import { GovernanceTransaction, QuorumSubscription } from "types";
 import { GovernanceClientActions } from "../GovernanceClient";
 import { methodSlice, newMethodSlice } from "../pages/CallMethod/Method";
 import { CommonActions } from "./CommonActions";
@@ -36,6 +36,12 @@ function clientReducer(state: AppGlobalState, action: AnyAction) {
 			return {...state, selectedContract: action.payload};
 		case GovernanceClientActions.TRANSACTIONS_LOADED:
 			return {...state, requests: action.payload};
+		case GovernanceClientActions.TRANSACTION_UPDATED:
+			const tx = action.payload as GovernanceTransaction;
+			const reqs = [...state.requests];
+			const idx = reqs.findIndex(r => r.requestId === tx.requestId);
+			if (idx >= 0) { reqs[idx] = tx; }
+			return {...state, requests: reqs};
 		default:
 			return state;
 	}

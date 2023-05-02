@@ -25,10 +25,15 @@ export interface AppUserState {
 	quorum: QuorumSubscription;
 }
 
+export interface ExampleIronSafeState {
+    vetoLoaded: boolean;
+}
+
 export interface AppGlobalState extends AppInitializingState {
 	contracts: RegisteredContract[];
 	selectedContract: GovernanceContract;
 	requests: GovernanceTransaction[];
+	exampleIronSafe?: ExampleIronSafeState;
 }
 
 export type GovernanceAppState = AppState<AppUserState, AppGlobalState, AppUiState>;

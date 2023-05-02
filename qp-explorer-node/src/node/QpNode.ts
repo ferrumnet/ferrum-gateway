@@ -43,7 +43,7 @@ export class QpNode extends MongooseConnection implements Injectable  {
         this.log.info(`Loading blocks from ${lastBlockNonce} to ${currentBlockNonce}`);
         if (!lastBlockNonce && !currentBlockNonce) {
             // This is the first block. Try to process the first block
-            await this.processBlockByNonce(network, remoteNetwork, 0);
+            await this.processBlockByNonce(network, remoteNetwork, 1);
             return;
         }
         // TODO: Run in parallel if necessary
@@ -161,7 +161,9 @@ export class QpNode extends MongooseConnection implements Injectable  {
    	async mgr(network: string): Promise<QuantumPortalLedgerMgr> {
         const gw = await this.gateway(network);
 		const provider = await this.helper.ethersProvider(network);
-		return QuantumPortalLedgerMgr__factory.connect(await gw.quantumPortalLedgerMgr(), provider);
+        const ledgerMgr = await gw.quantumPortalLedgerMgr();
+        console.log('ledgerMgr', ledgerMgr);
+		return QuantumPortalLedgerMgr__factory.connect(ledgerMgr, provider);
 	}
 
     async gateway(network: string): Promise<QuantumPortalGateway> {

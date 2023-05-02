@@ -31,7 +31,7 @@ const addSignature = createAsyncThunk('method/addSignature',
 		await client.addSignature(ctx.dispatch,
 			payload.request.requestId,
 			payload.contractAddress,
-			signature);
+			signature, {});
 	});
 
 const signAndSave = createAsyncThunk('method/signAndSave',
@@ -49,6 +49,7 @@ const signAndSave = createAsyncThunk('method/signAndSave',
 			payload.contract.id,
 			payload.method.name,
 			args,
+			{},
 			signature);
 	});
 
@@ -206,10 +207,10 @@ export function Method() {
 	const btn = relevantUser ? (
 		isExecutable ? (
 			<>
-				{request?.execution?.status === 'sucess' ? (
+				{request?.execution?.status === 'successful' ? (
 					<>
 					<b>Completed: {
-						request.execution.transactions.find(t => t.status === 'sucess')?.transactionId
+						request.execution.transactions.find(t => t.status === 'successful')?.transactionId
 					}</b>
 					</>
 				) : (

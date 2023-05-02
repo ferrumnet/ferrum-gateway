@@ -63,8 +63,11 @@
 			"outFiles": [
 				"${workspaceFolder}/**/*.js"
 			],
-			"envFile": "${workspaceFolder}/gateway-backend/test-file.env",
-			"runtimeExecutable": "/Users/naiem/.nvm/versions/node/v14.18.2/bin/node"
+			// "envFile": "${workspaceFolder}/gateway-backend/test-file.env",
+			"env": {
+				"CONFIG_FILE_CHAIN_CONFIG": "${workspaceFolder}/gateway-backend/localConfig/providers.json",
+				"CONFIG_FILE_BRIDGE": "${workspaceFolder}/gateway-backend/localConfig/bridgeConfig.json"
+			}
 		},
 		{
 			"type": "pwa-node",

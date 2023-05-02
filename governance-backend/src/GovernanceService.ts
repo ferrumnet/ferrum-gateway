@@ -33,6 +33,7 @@ const GovernanceTransactionSchema = new Schema<GovernanceTransaction&Document>({
 	lastUpdate: Number,
 	method: String,
 	values: [String],
+	metadata: Object,
 	signatures: [Object],
 	archived: Boolean,
 	logs: [String],
@@ -86,15 +87,10 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		return await this.subscription(network, contractAddress, userAddress);
 	}
 
-	async listTransactions(userAddress: string, network: string, contractAddress: string) {
+	async listTransactions(network: string, contractAddress: string) {
 		this.verifyInit();
-		const sub = await this.subscription(network, contractAddress, userAddress);
-		if (!sub) {
-			return [];
-		}
 		const txs = await this.transactionsModel.find(
-			{ 'quorum': sub.quorum}).exec();
-		console.log('Finding ', { 'quorum': sub.quorum}, txs.length)
+			{ network, contractAddress }).exec();
 		return !!txs ? txs.map(t => t.toJSON()) : undefined;
 	}
 
@@ -120,6 +116,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		governanceContractId: string,
 		method: string,
 		args: string[],
+		metadata: Object,
 		userAddress: string,
 		signature: string,
 	) {
@@ -136,6 +133,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 			lastUpdate: Date.now(),
 			method: sig.method,
 			values: args,
+			metadata,
 			signatures: [
 				{
 					creationTime: Date.now(),
@@ -155,6 +153,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		userAddress: string,
 		requestId: string,
 		signature: string,
+		metadata: any,
 	) {
 		this.verifyInit();
 		const tx = await this.getGovTransaction(requestId);
@@ -169,7 +168,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 			creator: userAddress.toLowerCase(),
 			signature,
 		} as MultiSigSignature);
-		await this.transactionsModel.findOneAndUpdate({requestId}, {signatures: tx.signatures});
+		await this.transactionsModel.findOneAndUpdate({requestId}, {signatures: tx.signatures, metadata: {...tx.metadata, ...metadata}});
 		return await this.getGovTransaction(requestId);
 	}
 
@@ -178,7 +177,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		transactionId?: string,
 	) {
 		const r = await this.getGovTransaction(requestId);
-		const execution = await this.tracker.upsert(r.execution || {} as any, transactionId);
+		const execution = await this.tracker.upsert(r.execution || {} as any, r.network, transactionId);
 		if (!!execution) {
 			await this.transactionsModel.findOneAndUpdate({requestId}, {execution});
 		}
@@ -198,7 +197,10 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		const expectedGroupId = quorumData[1];
 		ValidationUtils.isTrue(Utils.isNonzeroAddress(quorumData[0]),
 			`Quorum ${tx.quorum} doesnt exist on ${tx.contractAddress}`);
-		const multiSig = multiSigToBytes(tx.signatures.map(s => s.signature));
+		console.log('Sigs  PRE-sort: ', tx.signatures.map(s => Utils.trim0x(s.creator)).join(','));
+		const sigs = tx.signatures.sort((s1, s2) => Buffer.from(Utils.trim0x(s2.creator), 'hex') < Buffer.from(Utils.trim0x(s1.creator), 'hex') ? 1 : -1);
+		console.log('Sigs POST-sort: ', sigs.map(s => s.creator).join(','));
+		const multiSig = multiSigToBytes(sigs.map(s => s.signature));
 		
 		// Custom logic for expectedGroupId and multiSignature?
 		const web3 = this.helper.web3(tx.network);
@@ -333,7 +335,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		this.verifyInit();
 		ValidationUtils.isTrue(!!requestId, "requestId is required");
 		const res = await this.transactionsModel.findOne({requestId}).exec();
-		return !!res ? res.toJSON() : undefined;
+		return !!res ? res.toJSON() as any : undefined;
 	}
 
 	private contract(network: string, contractAddress: string): CrucibleRouter {

@@ -83,12 +83,12 @@ export interface TransactionTrackableItem {
 	network: string;
 	transactionId: string;
 	timestamp: number;
-	status: 'pending' | 'failed' | 'timedout' | 'sucess';
+	status: 'pending' | 'failed' | 'timedout' | 'successful';
 	message?: string;
 }
 
 export interface TransactionTrackable {
-	status: '' | 'pending' | 'failed' | 'timedout' | 'sucess';
+	status: '' | 'pending' | 'failed' | 'timedout' | 'successful';
 	transactions: TransactionTrackableItem[];
 }
 

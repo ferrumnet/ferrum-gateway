@@ -60,6 +60,7 @@ export class GovernanceRequestProcessor
 			governanceContractId,
 			method,
 			args,
+      metadata,
 			signature,
 	} = req.data;
     ValidationUtils.allRequired([
@@ -68,20 +69,21 @@ export class GovernanceRequestProcessor
 			'governanceContractId',
 			'method',
 			'args',
+      'metadata',
 			'signature',], req.data);
-    return this.svc.proposeTransaction(network, contractAddress, governanceContractId, method, args, userId, signature);
+    return this.svc.proposeTransaction(network, contractAddress, governanceContractId, method, args, metadata, userId, signature);
   }
 
   async addSignature(req: HttpRequestData, userId: string) {
-    const { requestId, signature} = req.data;
-    ValidationUtils.allRequired(['requestId', 'signature'], req.data);
-    return this.svc.addSignature(userId, requestId, signature);
+    const { requestId, signature, metadata} = req.data;
+    ValidationUtils.allRequired(['requestId', 'signature', 'metadata'], req.data);
+    return this.svc.addSignature(userId, requestId, signature, metadata);
   }
 
   async listTransactions(req: HttpRequestData, userId: string) {
     const { network, contractAddress } = req.data;
     ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
-    return this.svc.listTransactions(userId, network, contractAddress);
+    return this.svc.listTransactions(network, contractAddress);
   }
 
   async getSubscription(req: HttpRequestData, userId: string) {

@@ -252,7 +252,7 @@ function WithdrawItemButton(props: {item: UserBridgeWithdrawableBalanceItem, net
                     onPress={() => {}}
                     disabled={true} 
                     completed={true} 
-                    text={'Processing Sucessful'}
+                    text={'Processing Successful'}
                 />
             );
         case 'pending':

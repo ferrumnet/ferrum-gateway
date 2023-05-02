@@ -5,7 +5,7 @@ import { addAction, CommonActions } from './common/CommonActions';
 import { eip712Json, eipTransactionRequest, Eip712TypeDefinition, 
 	DomainSeparator } from "unifyre-extension-web3-retrofit/dist/client/Eip712";
 import { Connect, UnifyreExtensionWeb3Client } from 'unifyre-extension-web3-retrofit';
-import { SignableMethod, Utils } from 'types';
+import { GovernanceTransaction, SignableMethod, Utils } from 'types';
 
 import { recoverTypedSignature_v4 } from 'eth-sig-util';
 
@@ -13,6 +13,7 @@ export const GovernanceClientActions = {
 	CONTRACTS_LOADED: 'CONTRACTS_LOADED',
 	CONTRACT_LOADED: 'CONTRACT_LOADED',
 	TRANSACTIONS_LOADED: 'TRANSACTIONS_LOADED',
+	TRANSACTION_UPDATED: 'TRANSACTION_UPDATED',
 	SUBSCRIPTION_LOADED: 'SUBSCRIPTION_LOADED',
 	CLEAR_SUBSCRIPTION: 'CLEAR_SUBSCRIPTION',
 };
@@ -58,12 +59,13 @@ export class GovernanceClient {
 
 	async reloadTransactions(dispatch: Dispatch<AnyAction>,
 			network: string, contractAddress: string) {
-		const res = await this.api.api({
+		let res = await this.api.api({
 			command: 'listTransactions',
 			data: { network, contractAddress },
 			params: [],
-		} as JsonRpcRequest);
+		} as JsonRpcRequest) as GovernanceTransaction[];
 		if (!!res) {
+			res = res.sort((r1, r2) => r1.created < r2.created ? 1 : -1);
 			dispatch(addAction(Actions.TRANSACTIONS_LOADED, res));
 		}
 	}
@@ -107,17 +109,26 @@ export class GovernanceClient {
 				params: [],
 			} as JsonRpcRequest);
 		})
+		console.log('TX ID:', txId);
 		if (!!txId) {
-			return await this.api.api({
-				command: 'updateTransacionsForRequest',
-				data: {
-					requestId,
-					transactionId: txId,
-				},
-				params: [],
-			} as JsonRpcRequest);
+			await this.updateTransaction(dispatch, requestId, txId);
 		}
 		await this.reloadTransactions(dispatch, network, contractAddress);
+	}
+
+	async updateTransaction(dispatch: Dispatch<AnyAction>, requestId: string, txId?: string) {
+		const res = await this.api.api({
+			command: 'updateTransacionsForRequest',
+			data: {
+				requestId,
+				transactionId: txId,
+			},
+			params: [],
+		} as JsonRpcRequest);
+		if (!!res) {
+			dispatch(addAction(Actions.TRANSACTION_UPDATED, res));
+		}
+		return res;
 	}
 
 	async proposeTransaction(dispatch: Dispatch<AnyAction>,
@@ -125,6 +136,7 @@ export class GovernanceClient {
 			governanceContractId: string,
 			method: string,
 			args: string[],
+			metadata: Object,
 			signature: string,) {
 		const network = this.api.getNetwork();
 		const res = await this.api.api({
@@ -136,6 +148,7 @@ export class GovernanceClient {
 				method,
 				args,
 				signature,
+				metadata,
 			},
 			params: [],
 		} as JsonRpcRequest);
@@ -147,13 +160,16 @@ export class GovernanceClient {
 	async addSignature(dispatch: Dispatch<AnyAction>,
 			requestId: string,
 			contractAddress: string,
-			signature: string,) {
+			signature: string,
+			metadata: any,
+			) {
 		const network = this.api.getNetwork();
 		const res = await this.api.api({
 			command: 'addSignature',
 			data: {
 				requestId,
 				signature,
+				metadata,
 			},
 			params: [],
 		} as JsonRpcRequest);

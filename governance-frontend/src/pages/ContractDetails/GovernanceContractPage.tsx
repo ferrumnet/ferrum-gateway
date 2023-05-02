@@ -40,7 +40,7 @@ export const loadTrans = createAsyncThunk('governanceContract/load',
 });
 
 export function ContractLoader(params:
-		{ network: string, contractAddress: string, contractId: string}) {
+		{ network: string, contractAddress: string, contractId: string }) {
 	const { network, contractAddress, contractId } = params;
 	const initialized = useSelector<GovernanceAppState, boolean>(
 		state => state.data.init.initialized);
@@ -117,7 +117,7 @@ export function GovernanceContractPage() {
 									<p>{
 										r.signatures.length >= quorum.minSignatures ? (
 											(
-												(r.execution?.status === 'sucess') ? 
+												(r.execution?.status === 'successful') ? 
 												(
 													<span>Complete and submitted</span>
 												) : (

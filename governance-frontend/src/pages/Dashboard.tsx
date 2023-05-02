@@ -19,6 +19,7 @@ import { WaitingComponent } from '../common/WebWaiting';
 import { AsideMenu } from "./../components/AsideMenu";
 import { FLayout, FContainer, FMain, ThemeBuilder } from "ferrum-design-system";
 import { addAction, CommonActions } from '../common/CommonActions';
+import { IronSafePage } from './examples/IronSafe/IronSafe';
 
 interface DashboardState {
 }
@@ -82,6 +83,9 @@ export function Dashboard(props: DashboardProps) {
 											</Route>
 											<Route path="/contract/:network/:contractAddress/:contractId">
 												<GovernanceContractPage />
+											</Route>
+											<Route path="/ironsafe/:network/:contractAddress/:contractId">
+												<IronSafePage />
 											</Route>
 											<Route path="/" >
 												<ContractList />

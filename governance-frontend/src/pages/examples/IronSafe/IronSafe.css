@@ -1,0 +1,78 @@
+
+.transaction-head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 8px;
+}
+
+.transaction-head span {
+    margin-right: 8px;
+}
+
+.veto-signed {
+    color: green;
+}
+
+.veto-needed {
+    color: red;
+}
+
+.sigs-complete {
+    color: green;
+}
+
+.sigs-required {
+    color: purple;
+}
+
+.transaction-head .token-line {
+    flex: 1;
+}
+
+.transaction-head .sigs {
+
+}
+
+.tx-status-success {
+    color: green;
+}
+
+.tx-status-failed {
+    color: red;
+}
+
+.transaction-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.transaction-body .details {
+    flex: 1;
+    padding: 16px;
+}
+
+.transaction-body .data-pair {
+    display: flex;
+    justify-content: space-between;
+}
+
+.transaction-body .right-side {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 16px;
+}
+
+.transaction-body .right-side .item {
+    margin-bottom: 8px;
+}
+
+.transaction-body .attach-tx {
+    color: chocolate;
+}
+
+
+

@@ -3,8 +3,9 @@ import { Injectable, ValidationUtils } from "ferrum-plumbing";
 import { Schema, Document } from 'mongoose';
 import { TransactionTrackable, TransactionTrackableItem } from 'types';
 
-function isStatusTerminal(status: '' | 'pending' | 'failed' | 'timedout' | 'sucess') {
-	return !(status === 'pending' || !status);
+function isStatusTerminal(status: '' | 'pending' | 'failed' | 'timedout' | 'successful') {
+	const notTerminal = status === 'pending' || !status;
+	return !notTerminal;
 }
 
 const transactionTrackableItemSchema = new Schema<TransactionTrackableItem&Document>({
@@ -27,6 +28,13 @@ export class TransactionTracker implements Injectable {
 	}
 
 	__name__() { return 'TransactionTracker'; }
+
+	static getItemStatus(item: TransactionTrackable) {
+		const hasSuccess = item.transactions.find(t => t.status === 'successful');
+		const hasPending = item.transactions.find(t => t.status === 'pending');
+		return hasSuccess ? 'successful' : hasPending ? 'pending' :
+			item.transactions[item.transactions.length -1].status;	
+	}
 
 	async upsert(
 		item: TransactionTrackable,
@@ -58,10 +66,9 @@ export class TransactionTracker implements Injectable {
 				}
 				return i;
 			});
-		const hasSuccess = item.transactions.find(t => t.status === 'sucess');
+		const hasSuccess = item.transactions.find(t => t.status === 'successful');
 		const hasPending = item.transactions.find(t => t.status === 'pending');
-		item.status = hasSuccess ? 'sucess' : hasPending ? 'pending' :
-			item.transactions[item.transactions.length -1].status;
+		item.status = TransactionTracker.getItemStatus(item);
 		return item;
 	}
 
@@ -69,8 +76,8 @@ export class TransactionTracker implements Injectable {
 		item: TransactionTrackable,
 		network: string,
 		transactionId: string) {
-		ValidationUtils.isTrue(isStatusTerminal(item.status),
-			'Status is already terminal: ' + transactionId);
+		ValidationUtils.isTrue(item.status !== 'successful',
+			'Status is already successful: ' + transactionId);
 		const now = Date.now();
 		item = {...item};
 		item.transactions = [...(item.transactions || [])];
@@ -81,7 +88,7 @@ export class TransactionTracker implements Injectable {
 		item.transactions.push({
 			network, status, timestamp: now, transactionId
 		} as TransactionTrackableItem);
-		item.status = 'pending';
+		item.status = TransactionTracker.getItemStatus(item);
 		return item;
 	}
 }

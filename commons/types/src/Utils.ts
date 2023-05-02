@@ -99,7 +99,7 @@ export class Utils {
             //     return `https://polygonscan.com/address/${addr}`;
             default:
                 if (!!(Utils.backendConstants?.explorerLinkForAddress || {} as any)[network]) {
-                    return (Utils.backendConstants?.explorerLinkForAddress || {} as any).replace('{}', addr);
+                    return (Utils.backendConstants?.explorerLinkForAddress || {} as any)[network].replace('{}', addr);
                 } else {
                     return Networks.for(network).explorer + `/address/${addr}`;
                 }
@@ -246,6 +246,14 @@ export class Utils {
     static isBigInt(s: string): boolean {
         const re = /^[0-9]+$/i;
         return re.test(s);
+    }
+
+    static errorToString(e: Error): string {
+        if (!e) return '';
+        if (e.message) {
+            return e.message;
+        }
+        return e.toString();
     }
 }
 
