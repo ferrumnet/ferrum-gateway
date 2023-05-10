@@ -41,7 +41,7 @@ $ docker run -p 8080:8080 ${docker-image-id from build}
 
 After executing either of the above changes, backend should be running localhost:8080
 
-Also docker image can be pulled from `806611346442.dkr.ecr.us-east-2.amazonaws.com/ferrum-network:dev`
+Also docker image can be pulled from `public.ecr.aws/f5b0n3a3/gateway-backend:casper-bridge` using command `docker pull public.ecr.aws/f5b0n3a3/gateway-backend:casper-bridge`
 
 <br />
 
