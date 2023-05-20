@@ -7,7 +7,7 @@ import { GovernanceContract, GovernanceTransaction,
 import { CrucibleRouter__factory } from './resources/typechain/factories/CrucibleRouter__factory';
 import { CrucibleRouter } from './resources/typechain/CrucibleRouter';
 import { GovernanceContractDefinitions, GovernanceContractList } from "./contracts/GovernanceContractList";
-import { Eip712Params, multiSigToBytes, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
+import { Eip712Params, encodeMultiSig, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
 import { randomBytes } from 'ferrum-crypto';
 import { TransactionTrackableSchema, TransactionTracker } from 'common-backend/dist/contracts/TransactionTracker';
 
@@ -197,11 +197,8 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		const expectedGroupId = quorumData[1];
 		ValidationUtils.isTrue(Utils.isNonzeroAddress(quorumData[0]),
 			`Quorum ${tx.quorum} doesnt exist on ${tx.contractAddress}`);
-		console.log('Sigs  PRE-sort: ', tx.signatures.map(s => Utils.trim0x(s.creator)).join(','));
-		const sigs = tx.signatures.sort((s1, s2) => BigInt(Utils.add0x(s2.creator)) > BigInt(Utils.add0x(s1.creator)) ? 1 : -1);
-		console.log('Sigs POST-sort: ', sigs.map(s => s.creator).join(','));
-		const multiSig = multiSigToBytes(sigs.map(s => s.signature));
-		
+		const multiSig = encodeMultiSig(tx.signatures);
+
 		// Custom logic for expectedGroupId and multiSignature?
 		const web3 = this.helper.web3(tx.network);
 		const contract = new web3.Contract([m.abi as any], tx.contractAddress);

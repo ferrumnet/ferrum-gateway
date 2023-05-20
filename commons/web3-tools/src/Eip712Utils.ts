@@ -3,6 +3,7 @@ import Web3 from 'web3';
 import { Eth } from 'web3-eth';
 // @ts-ignore
 import {ecsign, toRpcSig, fromRpcSig, ecrecover, privateToAddress, publicToAddress} from 'ethereumjs-util';
+import { MultiSigSignature, Utils } from 'types';
 
 export interface Eip712Params {
     contractName: string;
@@ -132,6 +133,7 @@ export function multiSigToBytes(sigs: string[]): string {
 	return '0x' + sig;
 }
 
-// export function multiSigToBytes(signatures: string[]) {
-// 	return abi.encode(['bytes[]'], [signatures]);
-// }
+export function encodeMultiSig(signatures: MultiSigSignature[]): string {
+    const sortedSigs = signatures.sort((s1, s2) => BigInt(Utils.add0x(s2.creator)) < BigInt(Utils.add0x(s1.creator)) ? 1 : -1);
+    return multiSigToBytes(sortedSigs.map(s => s.signature));
+}
