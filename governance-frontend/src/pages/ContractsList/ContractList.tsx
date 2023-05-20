@@ -21,13 +21,13 @@ export function ContractList() {
 	return (
 		<>
 			<div className='gv-section-title'>
-				<h3>{'Registered Contracts'}</h3>
+				<h3>{'Registered Contracts - Connected to' + network}</h3>
 			</div>
 			<div className="contracts">
 				{
 					registered.length > 0 ? 
 						registered.map((c, i) => (
-							<>
+							<React.Fragment key={i}>
 								<Card
 									title={c.governanceContractId}
 									subTitle={`${c.network}:${c.contractAddress}`}
@@ -36,7 +36,7 @@ export function ContractList() {
 										<FButton title={'Open'} disabled={!(c.network === network)} onClick={() => history.push(`/contract/${c.network}/${c.contractAddress}/${c.governanceContractId}`)}/>
 									</div>
 								</Card>
-							</>
+							</React.Fragment>
 						))
 					: waiting ? <div> Loading Contracts List... </div> : <div className='gv-notice-centered'> <p> You Are Currently Not Registered Under Any Governance Quorums. (Confirm Connected Network or Contact Admin) </p></div>
 				}

@@ -198,7 +198,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		ValidationUtils.isTrue(Utils.isNonzeroAddress(quorumData[0]),
 			`Quorum ${tx.quorum} doesnt exist on ${tx.contractAddress}`);
 		console.log('Sigs  PRE-sort: ', tx.signatures.map(s => Utils.trim0x(s.creator)).join(','));
-		const sigs = tx.signatures.sort((s1, s2) => Buffer.from(Utils.trim0x(s2.creator), 'hex') < Buffer.from(Utils.trim0x(s1.creator), 'hex') ? 1 : -1);
+		const sigs = tx.signatures.sort((s1, s2) => BigInt(Utils.add0x(s2.creator)) > BigInt(Utils.add0x(s1.creator)) ? 1 : -1);
 		console.log('Sigs POST-sort: ', sigs.map(s => s.creator).join(','));
 		const multiSig = multiSigToBytes(sigs.map(s => s.signature));
 		

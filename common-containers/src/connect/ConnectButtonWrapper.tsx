@@ -94,12 +94,15 @@ export const onConnect = createAsyncThunk('connect/onConnect',
         connect.setProvider(provider);
         await client.signInWithToken('');
         const net = await connect.getProvider()!.netId();
-        const network = await connect.network();
+        const network = connect.network();
+        console.log('CONNECTED TO...', {net, network, uid: client.getUserProfile()});
         const bridgeNetworks: string[] = Utils.getBackendConstants()?.bridgeNetworks || [];
         const newNetworkCurrencies = (currencyList.get() || []).filter(c => c.startsWith(network || 'NA'));
+        console.log('BRIDGI ', {bridgeNetworks, newNetworkCurrencies}, currencyList.get());
         if (net && newNetworkCurrencies.length == 0) {
             currencyList.set(bridgeNetworks.map(n => Networks.for(n).baseCurrency));
         }
+        console.log('POSTI ', currencyList.get());
         if ((currencyList.get() || []).filter(c => c.startsWith(network || 'NA')).length === 0) {
             console.error(`No default currencies are defined for network ${network}. This may cause issue with connection`);
         }
@@ -115,7 +118,7 @@ export const onConnect = createAsyncThunk('connect/onConnect',
             ctx.dispatch(reConnect({}));
         });
         const userProfile = await client.getUserProfile();
-        // console.log('USER PROFILE', userProfile);
+        console.log('USER PROFILE', userProfile);
         const res = await api.signInToServer(userProfile);
         if (res) {
             await standaloneApi.signInToServer(userProfile);

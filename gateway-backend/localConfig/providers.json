@@ -1,7 +1,8 @@
 {
     "ETHEREUM": "https://mainnet.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
     "RINKEBY": "https://rinkeby.infura.io/v3/498f412c002d42d8ba75293910cae6f8",
-    "BSC_TESTNET": "https://data-seed-prebsc-1-s1.binance.org:8545/",
+    "BSC_TESTNET": "https://bsc-testnet.public.blastapi.io/",
+    "BSC_TESTNET1": "https://data-seed-prebsc-1-s1.binance.org:8545/",
     "BSC": "https://bsc-dataseed.binance.org/",
     "POLYGON": "https://rpc-mainnet.maticvigil.com",
     "MUMBAI_TESTNET": "https://rpc-mumbai.maticvigil.com",
