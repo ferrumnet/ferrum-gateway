@@ -1,6 +1,21 @@
 {
-    "database": {
-        "connectionString": "<insert connection string>"
+    "database":{
+        "connectionString":"xxx"
     },
-    "jwtRandomBase": "SOME_DUMMY_RANDOM_FOR_TEST"
+    "cmkKeyId":"arn:aws:kms:us-east-2:806611346442:key/6b07a4f4-92cf-4860-b9f2-12628a5e631d",
+    "jwtRandomBase":"EdErCHAyrOWLeTYPneTRaG",
+    "validatorAddressesV1":[
+        "0xd54962f4e473b2a68176b1cd7775bfa1aa0a6664",
+        "0x5ddce58a43048eb82c26ec1922c9bbdfbef5f450",
+        "0x2f8062fde78ade2ba6580af7f4fe7ef4922876bf"
+    ],
+    "blackListAdminSecret":"BLACKLISTADMIN",
+    "stakingAdminSecret":"STAKINGADMIN",
+    "actor":{
+        "address":"tbd",
+        "groupId":"1",
+        "quorum":"tbd"
+    },
+    "CRUCIBLE_CONTRACTS_V_0_1": {},
+    "STAKING_CONTRACTS_V_0_1": {}
 }

@@ -13,12 +13,17 @@ cd ferrum-gateway
 
 ## To Run Backend via npm
 
-Set the follwing environment variables as defined in `./gateway-backend/localConfig`:
+Set the following environment variables as defined in `./gateway-backend/.env`:
 
 ```
-$ export CONNECTION_STRING="mongodb+svs://...."
-$ export RINKEBY_PROVIDER="..."
-$ export RINKEBY_CONTRACT_ADDRESS="0x..."
+export PROCESSOR_PRIVATE_KEY_CLEAN_TEXT=xxxxxx
+export keyId='2fa_5d543cd25cf70c2f650f29b76522d7c69eebf5ea'
+export secret='OUZX23ZPFYSSSTJO'
+export STANDALONE='false'
+export JWT_RANDOM_KEY="EdErCHAyrOWLeTYPneTRaG",
+export CMK_KEY_ID="arn:aws:kms:us-east-2:806611346442:key/6b07a4f4-92cf-4860-b9f2-12628a5e631d"
+export CONFIG_FILE_CHAIN_CONFIG=./localConfig/providers.json
+export CONFIG_FILE_BRIDGE=./localConfig/bridgeConfig.json
 ```
 
 Then, go to the `gateway-backend` folder. Then run:
