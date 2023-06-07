@@ -13,7 +13,7 @@ cd ferrum-gateway
 
 ## To Run Backend via npm
 
-Set the follwing environment variables as defined in `./gateway-backend/localConfig`:
+Copy the config found in `./gateway-backend/config-env.txt` to a new file config file `./gateway-backend/.env`:
 
 ```
 $ export CONNECTION_STRING="mongodb+svs://...."
@@ -21,10 +21,15 @@ $ export RINKEBY_PROVIDER="..."
 $ export RINKEBY_CONTRACT_ADDRESS="0x..."
 ```
 
-Then, go to the `gateway-backend` folder. Then run:
+From root directory run `yarn` to install dependencies.
 
 ```
 $ yarn
+```
+
+Then, change directory into the`gateway-backend` folder and run:
+
+```
 $ node ./sim_lambda.js
 ```
 

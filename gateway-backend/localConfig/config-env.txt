@@ -1,2 +1,6 @@
+export AWS_DEFAULT_REGION=us-east-2
+export keyId=2fa_5d543cd25cf70c2f650f29b76522d7c69eebf5ea
+export secret=OUZX23ZPFYSSSTJO
+export PROCESSOR_PRIVATE_KEY_CLEAN_TEXT=fe593818b000b1fdd80c802bfd5655e2a8c3dee052eb279f8b665677982750a6
 export CONFIG_FILE_CHAIN_CONFIG=./localConfig/providers.json
 export CONFIG_FILE_BRIDGE=./localConfig/bridgeConfig.json
