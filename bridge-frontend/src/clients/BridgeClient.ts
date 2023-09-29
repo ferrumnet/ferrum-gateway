@@ -217,10 +217,11 @@ export class BridgeClient implements Injectable {
         try {
             ValidationUtils.isTrue(network === w.sendNetwork, 
                 `Connected to ${network} but the balance item can be claimed on ${w.sendNetwork}`);
-            const res = await this.api.api({
+            let res = await this.api.api({
                 command: 'withdrawSignedGetTransaction', data: {id: w.receiveTransactionId}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
-            const requestId = await this.client.sendTransactionAsync(network!, [res],
+            res = this.networkOverrides([res], network);
+            const requestId = await this.client.sendTransactionAsync(network!, res,
                 {});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
             const response = await this.client.getSendTransactionResponse(requestId);
@@ -388,9 +389,10 @@ export class BridgeClient implements Injectable {
             const res = await this.api.api({
                 command: 'addLiquidityGetTransaction',
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
-            const { isApprove, requests } = res;
+            let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling add liquidity. No requests');
             console.log('About to submit request', {requests});
+            requests = this.networkOverrides(requests, this.network)
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -414,11 +416,12 @@ export class BridgeClient implements Injectable {
         ) {
         dispatch(addAction(CommonActions.WAITING, { source: 'signInToServer' }));
         try {
-            const res = await this.api.api({
+            let res = await this.api.api({
                 command: 'removeLiquidityIfPossibleGetTransaction',
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling remove liquidity. No requests');
-            const requestId = await this.client.sendTransactionAsync(this.network!, [res],
+            res = this.networkOverrides([res], this.network)
+            const requestId = await this.client.sendTransactionAsync(this.network!, res,
                 {currency, amount, action: 'removeLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
             await this.processRequest(dispatch, requestId);
@@ -458,8 +461,9 @@ export class BridgeClient implements Injectable {
             const res = await this.api.api({
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
-            const { isApprove, requests } = res;
+            let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
+            requests = this.networkOverrides(requests, this.network)
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -477,6 +481,38 @@ export class BridgeClient implements Injectable {
         } finally {
            // dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
+    }
+
+    private networkOverrides = (transactions: any[], network?: string) => {
+        const networks = {
+            "ETHEREUM_ARBITRUM": {
+                maxFeePerGas: 200000000,
+                maxPriorityFeePerGas: 100000000,
+                gas: 3500000000,
+                gasLimit: 4000000
+            },
+            "BSC": {
+                maxFeePerGas: 3500000000,
+                maxPriorityFeePerGas: 3500000000,
+                gas: 3500000000,
+                gasLimit: 2000000
+            }
+        }
+
+        return transactions.map(
+            (e: any) => {
+                const network = (e.currency.split(':') || [])[0]
+                //@ts-ignore
+                const gasOverride = networks[network as any]
+                if(network && gasOverride) {
+                    //@ts-ignore
+                    e.gas = gasOverride
+                    return e
+                }else {
+                    return e
+                }
+            }
+        )
     }
 
     async processRequest(dispatch: Dispatch<AnyAction>, 

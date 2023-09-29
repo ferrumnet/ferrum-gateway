@@ -284,6 +284,10 @@ export const ConnectBridge = () => {
         state => state.data.state.balanceItems);
     let unUsedItems = withdrawals.filter(e => ((e.used === '') && (e.sendNetwork === pageProps.network))).length;
     const history = useHistory();
+    //@ts-ignore
+	const restrictedSwapNetworks =  useSelector<BridgeAppState, any>( appState => appState.data.state.groupInfo?.restrictedSwapNetworks || '' as any).split(',')
+    const { destNetwork, network, currency, isNetworkAllowed } = pageProps;
+
 
     useEffect(() => {
         if ((unUsedItems > 0 && !pageProps.withdrawSuccess)) {
@@ -295,7 +299,6 @@ export const ConnectBridge = () => {
         initialise(dispatch)
     }, [])
 
-    const { destNetwork, network, currency, isNetworkAllowed } = pageProps;
 
     //TODO: Initialize this without useEffect
     useEffect(() => {

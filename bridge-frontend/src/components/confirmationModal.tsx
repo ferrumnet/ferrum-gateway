@@ -181,7 +181,7 @@ return (
                   style={{"maxWidth":"32px"}}
                   src={
                   //@ts-ignore
-                  images[props.sourceNetwork]} alt="loading"></img>
+                  Utils.networkLogo(props.sourceNetwork)} alt="loading"></img>
                 <p>{props.sourceNetwork}</p>
               </div>
             </div>
