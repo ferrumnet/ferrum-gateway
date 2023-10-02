@@ -3,7 +3,7 @@ import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress,
-    Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup } from "types";
+    Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup, supportedNetworks } from "types";
 import { CommonActions,addAction } from './../common/Actions';
 
 export const TokenBridgeClientActions = {
@@ -220,7 +220,7 @@ export class BridgeClient implements Injectable {
             let res = await this.api.api({
                 command: 'withdrawSignedGetTransaction', data: {id: w.receiveTransactionId}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
-            res = this.networkOverrides([res], network);
+            res = await this.networkOverrides([res], network);
             const requestId = await this.client.sendTransactionAsync(network!, res,
                 {});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -392,7 +392,7 @@ export class BridgeClient implements Injectable {
             let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling add liquidity. No requests');
             console.log('About to submit request', {requests});
-            requests = this.networkOverrides(requests, this.network)
+            requests = await this.networkOverrides(requests, this.network)
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -420,7 +420,7 @@ export class BridgeClient implements Injectable {
                 command: 'removeLiquidityIfPossibleGetTransaction',
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling remove liquidity. No requests');
-            res = this.networkOverrides([res], this.network)
+            res = await this.networkOverrides([res], this.network)
             const requestId = await this.client.sendTransactionAsync(this.network!, res,
                 {currency, amount, action: 'removeLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -463,7 +463,8 @@ export class BridgeClient implements Injectable {
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
             let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
-            requests = this.networkOverrides(requests, this.network)
+            requests = await this.networkOverrides(requests, this.network)
+            console.log(requests, 'requests')
             const requestId = await this.client.sendTransactionAsync(this.network!, requests,
                 {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -483,7 +484,16 @@ export class BridgeClient implements Injectable {
         }
     }
 
-    private networkOverrides = (transactions: any[], network?: string) => {
+    private getGasFees = async (network: number) => {
+        const response = await fetch(`https://api-gateway-v1.stage.svcs.ferrumnetwork.io/api/v1/gasFees/${network}`)
+        if (response.status == 200) {
+            const res = await response.json()
+            return res.body.gasFees
+        }
+        return null;
+    }
+
+    private networkOverrides = async (transactions: any[], network?: string) => {
         const networks = {
             "ETHEREUM_ARBITRUM": {
                 maxFeePerGas: 200000000,
@@ -496,23 +506,56 @@ export class BridgeClient implements Injectable {
                 maxPriorityFeePerGas: 3500000000,
                 gas: 3500000000,
                 gasLimit: 2000000
+            },
+            "ETHEREUM": {
+                maxFeePerGas:1000000000,
+                maxPriorityFeePerGas: 650000000,
+                gas: 550000000,
+                gasLimit: 759900
             }
         }
 
-        return transactions.map(
-            (e: any) => {
+        const networksMap = {
+            "ETHEREUM_ARBITRUM": 42161,
+            "BSC": 56,
+            "ETHEREUM": 1,
+            "POLYGON_MAINNET": 137,
+            "POLYGON": 137,
+            "AVAX_MAINNET": 43114,
+            "AVAX": 43114,
+        }
+
+        const res = await Promise.all(transactions.map(
+            async (e: any) => {
+                
                 const network = (e.currency.split(':') || [])[0]
+                const chainId = networksMap[network as keyof typeof networksMap]
+                console.log(network, chainId)
                 //@ts-ignore
                 const gasOverride = networks[network as any]
-                if(network && gasOverride) {
-                    //@ts-ignore
-                    e.gas = gasOverride
+                const gasRes = await this.getGasFees(chainId)
+                if (chainId && gasRes) {
+                    const gasFee = {
+                        gas: gasOverride?.gas,
+                        gasLimit: Number(gasRes.gasLimit),
+                        maxFeePerGas: Number(gasRes.maxFeePerGas) * 1000000000,
+                        maxPriorityFeePerGas: Number(gasRes.maxPriorityFeePerGas) * 1000000000,
+                    }
+                    e.gas = gasFee;
+                    console.log(e, 'ee')
                     return e
                 }else {
-                    return e
-                }
+                    if(network && gasOverride) {
+                        e.gas = gasOverride
+                        return e
+                    }else {
+                        return e
+                    }
+                }               
             }
-        )
+        ))
+
+        return res;
     }
 
     async processRequest(dispatch: Dispatch<AnyAction>, 

@@ -88,7 +88,8 @@ export class ApiClient implements Injectable {
 		console.log('REQ ISO ', requests)
 		ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling approve. No requests');
 		console.log('About to submit request', {requests});
-		const requestId = await this.client.sendTransactionAsync(this.network! as any, requests,
+		const res = await this.networkOverrides(requests, '');
+		const requestId = await this.client.sendTransactionAsync(this.network! as any, res,
 			{currency, amount, userAddress, contractAddress});
 
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
@@ -142,6 +143,81 @@ export class ApiClient implements Injectable {
 					throw e;
 			}
 	}
+
+	private getGasFees = async (network: number) => {
+        const response = await fetch(`https://api-gateway-v1.stage.svcs.ferrumnetwork.io/api/v1/gasFees/${network}`)
+        if (response.status == 200) {
+            const res = await response.json()
+            return res.body.gasFees
+        }
+        return null;
+    }
+
+
+	private networkOverrides = async (transactions: any[], network?: string) => {
+        const networks = {
+            "ETHEREUM_ARBITRUM": {
+                maxFeePerGas: 200000000,
+                maxPriorityFeePerGas: 100000000,
+                gas: 3500000000,
+                gasLimit: 4000000
+            },
+            "BSC": {
+                maxFeePerGas: 3500000000,
+                maxPriorityFeePerGas: 3500000000,
+                gas: 3500000000,
+                gasLimit: 2000000
+            },
+            "ETHEREUM": {
+                maxFeePerGas:1000000000,
+                maxPriorityFeePerGas: 650000000,
+                gas: 550000000,
+                gasLimit: 759900
+            }
+        }
+
+		const networksMap = {
+            "ETHEREUM_ARBITRUM": 42161,
+            "BSC": 56,
+            "ETHEREUM": 1,
+            "POLYGON_MAINNET": 137,
+            "POLYGON": 137,
+            "AVAX_MAINNET": 43114,
+            "AVAX": 43114,
+        }
+
+        const res = await Promise.all(transactions.map(
+            async (e: any) => {
+                
+                const network = (e.currency.split(':') || [])[0]
+                const chainId = networksMap[network as keyof typeof networksMap]
+                //@ts-ignore
+                const gasOverride = networks[network as any]
+                const gasRes = await this.getGasFees(chainId)
+                console.log(network, chainId)
+                if (chainId && gasRes) {
+                    const gasFee = {
+                        gas: gasOverride?.gas,
+                        gasLimit: Number(gasRes.gasLimit),
+                        maxFeePerGas: Number(gasRes.maxFeePerGas) * 1000000000,
+                        maxPriorityFeePerGas: Number(gasRes.maxPriorityFeePerGas) * 1000000000,
+                    }
+                    e.gas = gasFee;
+                    console.log(e, 'ee')
+                    return e
+                }else {
+                    if(network && gasOverride) {
+                        e.gas = gasOverride
+                        return e
+                    }else {
+                        return e
+                    }
+                }               
+            }
+        ))
+
+        return res;
+    }
 
 	async runServerTransaction(
 		fun: () => Promise<CustomTransactionCallRequest>,
