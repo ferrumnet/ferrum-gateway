@@ -481,7 +481,7 @@ export const ConnectBridge = () => {
                     )
                 }
                 {
-                    ((!swapSuccess)) &&
+                    ((!swapSuccess) && !restrictedSwapNetworks.includes(network)) &&
                     (<SwapButton
                         onSwapClick={() => showConfirmModal()}
                         // ()=>
@@ -499,6 +499,19 @@ export const ConnectBridge = () => {
                         userAddress={pageProps.userAddress}
                         pendingSwap={swapping}
                     />
+                    )
+                }
+                {
+                    restrictedSwapNetworks.includes(network) && (
+                        <div style={styles.swapBtnContainer}>
+                            <Button
+                                disabled={true}
+                                className="btn btn-pri action btn-icon btn-connect mt-4"
+                            >
+                                {'SWAP NOT ALLOWED'}
+                            </Button>
+                
+                        </div>
                     )
                 }
             </Card>
