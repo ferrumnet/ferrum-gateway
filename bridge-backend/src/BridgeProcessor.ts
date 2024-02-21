@@ -258,6 +258,73 @@ export class BridgeProcessor implements Injectable {
     }
   }
 
+  async createCasperSignedWithdraw(
+    item: UserBridgeWithdrawableBalanceItem
+  ): Promise<[Boolean, UserBridgeWithdrawableBalanceItem?]> {
+    try {
+      let processed;
+      const sourceAddress = item.receiveAddress;
+      const targetAddress = item.receiveAddress;
+      const targetNetwork = item.sendNetwork;
+     
+      const targetCurrency = item.receiveCurrency
+      
+      const targetAmount = await this.helper.amountToMachine(
+        targetCurrency,
+        item.sendAmount
+      );
+      const salt = Web3.utils.keccak256(
+        `0x${item.id.toLocaleLowerCase()}`
+      );
+      console.log(salt, 'targetAmounttargetAmount')
+      const payBySig = await this.createSignedPayment(
+        item.receiveNetwork,
+        targetAddress,
+        targetCurrency,
+        targetAmount,
+        salt
+      );
+
+      processed = {
+        id: payBySig.hash, // same as signedWithdrawHash
+        timestamp: new Date().valueOf(),
+        receiveNetwork: item.receiveNetwork,
+        receiveCurrency: item.receiveCurrency,
+        receiveTransactionId: item.receiveTransactionId,
+        receiveAddress: sourceAddress,
+        receiveAmount: item.sendAmount,
+        payBySig,
+
+        sendNetwork: targetNetwork,
+        sendAddress: targetAddress,
+        sendTimestamp: new Date().valueOf(),
+        sendCurrency: item.receiveCurrency,
+        sendAmount: item.sendAmount,
+
+        used: "",
+        useTransactions: [],
+      } as UserBridgeWithdrawableBalanceItem;
+
+      await this.svc.withdrawSignedVerify(
+        item.receiveCurrency,
+        targetAddress,
+        targetAmount,
+        payBySig.hash,
+        "",
+        payBySig.signatures[0].signature,
+        this.processorAddress
+      );
+      await this.svc.newWithdrawItem(processed);
+      return [true, processed];
+    } catch (e) {
+      this.log.error(
+        `Error when processing transactions " ${e}`
+      );
+      return [false, undefined];
+    }
+  }
+
+
   async createSignedPayment(
     network: string,
     address: string,

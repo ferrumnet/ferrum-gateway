@@ -122,12 +122,16 @@ export class BridgeRequestProcessor
 		this.registerProcessor('withdrawAndSwapGetTransaction',
 			(req, userId) => this.withdrawAndSwapGetTransaction(req, userId));
 
+    this.registerProcessor("logCsprTransaction", (req) => {
+      return this.bridgeProcessor.createCasperSignedWithdraw(req.data);
+    });
+
     this.registerProcessor("logEvmAndNonEvmTransaction", (req) => {
       return this.svc.logEvmAndNonEvmTransaction(req.data);
     });
 
     this.registerProcessor("getUserNonEvmWithdrawItems", (req) =>
-      this.getUserWithdrawItems(req, req.data.userAddress)
+      this.getUserWithdrawItems(req, req.data.userAddress, req.data.receiveAddress)
     );
 
     this.registerProcessor("processFromEvmSwapTransaction", (req) => {
@@ -136,11 +140,9 @@ export class BridgeRequestProcessor
     
     this.registerProcessor("updateEvmAndNonEvmTransaction", async (req) => {
       let item :any;
-      if (req.data && req.data.used !== "completed" && req.data.txType === "swap") {
-        console.log(req.data);
-        const signData = await this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.sendNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
-        console.log(signData, 'itemitem');
-        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, sendNetwork:  req.data.receiveNetwork, signData });
+      if (req.data &&  req.data.used !== "completed" && req.data.txType === "swap") {
+        const signData = await this.bridgeProcessor.processEvmAndNonEvmTransaction(req.data.sendAddress, req.data.receiveNetwork, req.data.sendCurrency, req.data.id, req.data.sendAmount);
+        item = this.svc.updateEvmAndNonEvmTransaction({ ...req.data, signData });
         const res = await this.withdrawNonEvmSignedGetTransaction(req, req.data.user, {...req.data, ...signData})
         return res;
       }
@@ -220,13 +222,14 @@ export class BridgeRequestProcessor
     return this.svc.getAvailableLiquidity(currency);
   }
 
-  async getUserWithdrawItems(req: HttpRequestData, userId: string) {
+  async getUserWithdrawItems(req: HttpRequestData, userId: string, receiveAddress?: string) {
     const { network } = req.data;
     ValidationUtils.isTrue(!!userId, "user must be signed in");
     ValidationUtils.isTrue(!!network, "'network' must be provided");
     const items = await this.svc.getUserWithdrawItems(
       network,
-      userId.toLowerCase()
+      userId.toLowerCase(),
+      receiveAddress
     );
     return { withdrawableBalanceItems: items };
   }
