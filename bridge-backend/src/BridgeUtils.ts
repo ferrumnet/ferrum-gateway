@@ -6,7 +6,7 @@ import {ValidationUtils} from "ferrum-plumbing";
 import axios from "axios";
 
 const NAME = "FERRUM_TOKEN_BRIDGE_POOL";
-const VERSION = "000.003";
+const VERSION = "000.004";
 
 export function domainSeparator(eth: Eth, netId: number, contractAddress: HexString) {
     const hashedName = Web3.utils.keccak256(Web3.utils.utf8ToHex(NAME));

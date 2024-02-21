@@ -160,7 +160,7 @@ export class TokenBridgeService
     //   ),
     //   "Provided address is not the receiver of withdraw"
     // );
-    return this.contract.withdrawEvmSigned(data, userAddress);
+    return this.contract.withdrawCasperEvmSigned(data, userAddress);
   }
 
   async addLiquidityGetTransaction(
@@ -403,13 +403,17 @@ export class TokenBridgeService
 
   async getUserWithdrawItems(
     network: string,
-    address: string
+    address: string,
+    receiveAddress: string
   ): Promise<UserBridgeWithdrawableBalanceItem[]> {
     this.verifyInit();
     const items = await this.balanceItem!.find({
       $or: [
         {
           sendAddress: ChainUtils.canonicalAddress(network as any, address),
+        },
+        {
+          receiveAddress: receiveAddress,
         },
         {
           receiveAddress: ChainUtils.canonicalAddress(network as any, address),

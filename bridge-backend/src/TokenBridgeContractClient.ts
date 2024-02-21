@@ -212,6 +212,26 @@ export class TokenBridgeContractClinet implements Injectable {
                 `Withdraw `);
     }
 
+    async withdrawCasperEvmSigned(w: UserBridgeWithdrawableBalanceItem,
+        from: string): Promise<CustomTransactionCallRequest>{
+        console.log(`About to withdrawSigned`, w);
+
+        const address = this.contractAddress[w.receiveNetwork];
+        const p = this.instance(w.receiveNetwork).methods.withdrawSigned(
+            //@ts-ignore
+            w.token, w.payee, w.amount, w.salt, w?.signature
+        )
+        const gas = await this.estimateGasOrDefault(p, from, undefined as any);
+        const nonce = await this.helper.web3(w.receiveNetwork).getTransactionCount(from, 'pending');
+        return Helper.callRequest(address,
+                w.sendCurrency,
+                from,
+                p.encodeABI(),
+                gas ? gas.toFixed() : undefined,
+                nonce,
+                `Withdraw `);
+    }
+
     async approveIfRequired(userAddress: string, currency: string, amount: string):
         Promise<CustomTransactionCallRequest[]> {
         const [network, __] = Helper.parseCurrency(currency);
