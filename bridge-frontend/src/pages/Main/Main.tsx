@@ -348,6 +348,9 @@ export const ConnectBridge = () => {
         addToast(v, { appearance: 'success', autoDismiss: true })
     };
 
+    const isCurrentPairEnabled = pageProps.currentPair?.active != 'false';
+    const swapNotAllowed =  restrictedSwapNetworks.includes(network) || !isCurrentPairEnabled;
+
     return (
         <>
             <WithdrawNoti
@@ -481,7 +484,7 @@ export const ConnectBridge = () => {
                     )
                 }
                 {
-                    ((!swapSuccess) && !restrictedSwapNetworks.includes(network)) &&
+                    ((!swapSuccess) && !swapNotAllowed) &&
                     (<SwapButton
                         onSwapClick={() => showConfirmModal()}
                         // ()=>
@@ -502,7 +505,7 @@ export const ConnectBridge = () => {
                     )
                 }
                 {
-                    restrictedSwapNetworks.includes(network) && (
+                    swapNotAllowed && (
                         <div style={styles.swapBtnContainer}>
                             <Button
                                 disabled={true}

@@ -5,6 +5,7 @@ import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress,
     Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup, supportedNetworks } from "types";
 import { CommonActions,addAction } from './../common/Actions';
+import Web3 from 'web3'
 
 export const TokenBridgeClientActions = {
     AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
@@ -221,9 +222,13 @@ export class BridgeClient implements Injectable {
                 command: 'withdrawSignedGetTransaction', data: {id: w.receiveTransactionId}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
             res = await this.networkOverrides([res], network);
-            const requestId = await this.client.sendTransactionAsync(network!, res,
-                {});
+            const requestId = await this.sendTransactionAsync(dispatch, res, {})
+            // res = await this.networkOverrides([res], network);
+            // const requestId = await this.client.sendTransactionAsync(network!, res,
+            //     {});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return ['failed', ''];
+    
             const response = await this.client.getSendTransactionResponse(requestId);
             if (response.rejected) {
                 throw new Error((response as any).reason || 'Request was rejected');
@@ -393,9 +398,12 @@ export class BridgeClient implements Injectable {
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling add liquidity. No requests');
             console.log('About to submit request', {requests});
             requests = await this.networkOverrides(requests, this.network)
-            const requestId = await this.client.sendTransactionAsync(this.network!, requests,
-                {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
+            const requestId = await this.sendTransactionAsync(dispatch, requests, {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, requests,
+            //     {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
+
             await this.processRequest(dispatch, requestId);
             return {
                 "status":'success',
@@ -421,9 +429,11 @@ export class BridgeClient implements Injectable {
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling remove liquidity. No requests');
             res = await this.networkOverrides([res], this.network)
-            const requestId = await this.client.sendTransactionAsync(this.network!, res,
-                {currency, amount, action: 'removeLiquidity'});
+            const requestId = await this.sendTransactionAsync(dispatch, res, {currency, amount, action: 'removeLiquidity'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, res,
+            //     {currency, amount, action: 'removeLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
             await this.processRequest(dispatch, requestId);
             return {
                 "status":'success',
@@ -465,11 +475,15 @@ export class BridgeClient implements Injectable {
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
             requests = await this.networkOverrides(requests, this.network)
             console.log(requests, 'requests')
-            const requestId = await this.client.sendTransactionAsync(this.network!, requests,
-                {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
+            const requestId = await this.sendTransactionAsync(dispatch, requests, {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, requests,
+            //     {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
+            // console.log(requestId, 'requestId')
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
             const response = await this.processRequest(dispatch, requestId);
-            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
+            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);
+            console.log(response, 'resulting', requestId)       
             return {
                 "status":'success',
                 "txId": requestId.split('|')[0],
@@ -584,6 +598,34 @@ export class BridgeClient implements Injectable {
             //dispatch(addAction(CommonActions.CONTINUATION_DATA_FAILED, {message: 'Could send a request. ' + e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'processRequest' }));
+        }
+    }
+
+    async sendTransactionAsync(
+        dispatch: Dispatch<AnyAction>,
+        payload: any[],
+        info: any
+    ) {
+        try {
+            const tx_payload = payload.map(e => {
+                return {
+                    from: e.from,
+                    to: e.contract,
+                    data: e.data,
+                    value: e.amount ? Web3?.utils.toHex(e.amount) : e.amount
+                }
+            })
+            const txHash = await (window as any).ethereum.request({
+                method: "eth_sendTransaction",
+                params: tx_payload
+            })
+            
+            if (txHash) {
+                return txHash + '|' + JSON.stringify(info || '')
+            }
+            return ''
+        } catch (error) {
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (error as Error).message || '' }));
         }
     }
 }

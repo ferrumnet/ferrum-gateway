@@ -4,6 +4,7 @@ import { AppUserProfile } from "unifyre-extension-sdk/dist/client/model/AppUserP
 import fetch from 'cross-fetch';
 import { logError, ChainEventBase, UserContractAllocation, TokenDetails, ChainLogos, Utils, BackendConstants } from "types";
 import { CustomTransactionCallRequest, UnifyreExtensionKitClient } from "unifyre-extension-sdk";
+import Web3 from 'web3'
 
 export class ApiClient implements Injectable {
     private jwtToken: string = '';
@@ -89,10 +90,12 @@ export class ApiClient implements Injectable {
 		ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling approve. No requests');
 		console.log('About to submit request', {requests});
 		const res = await this.networkOverrides(requests, '');
-		const requestId = await this.client.sendTransactionAsync(this.network! as any, res,
-			{currency, amount, userAddress, contractAddress});
+        const requestId = await this.sendTransactionAsync( res, {currency, amount, userAddress, contractAddress})
+		// const requestId = await this.client.sendTransactionAsync(this.network! as any, res,
+		// 	{currency, amount, userAddress, contractAddress});
 
 		ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+        if (!requestId) return ''
 		return requestId.split('|')[0]; // Convert the requestId to transction Id. TODO: Do this a better way
 	}
 
@@ -231,4 +234,30 @@ export class ApiClient implements Injectable {
 		console.log('Deposit generated tx id ', txId);
 		return txId;
 	}
+
+    async sendTransactionAsync(
+        payload: any[],
+        info: any
+    ) {
+        try {
+            const tx_payload = payload.map(e => {
+                return {
+                    from: e.from,
+                    to: e.contract,
+                    data: e.data,
+                    value: e.amount ? Web3?.utils.toHex(e.amount) : e.amount
+                }
+            })
+            const txHash = await (window as any).ethereum.request({
+                method: "eth_sendTransaction",
+                params: tx_payload
+            })
+            
+            if (txHash) {
+                return txHash + '|' + JSON.stringify(info || '')
+            }
+            return ''
+        } catch (error) {
+        }
+    }
 }
