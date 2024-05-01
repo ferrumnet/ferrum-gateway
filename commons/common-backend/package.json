@@ -32,7 +32,7 @@
     "@types/jest": "^27.0.2",
     "jest": "^26.6.0",
     "minimist": "^1.2.5",
-    "ts-jest": "^26.6.0",
+    "ts-jest": "^26.5.6",
     "ts-lint": "^4.5.1",
     "ts-loader": "^6.0.4",
     "tslint": "^5.0.0",
