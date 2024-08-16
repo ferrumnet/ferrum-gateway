@@ -38,6 +38,7 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
     "fakeRewardOf(address,address,address)": FunctionFragment;
     "fakeRewardsTotal(address,address)": FunctionFragment;
     "freezeSweep()": FunctionFragment;
+    "getReverseDelegation(address)": FunctionFragment;
     "init(address,string,address[])": FunctionFragment;
     "initDefault(address)": FunctionFragment;
     "inventory(address)": FunctionFragment;
@@ -53,7 +54,7 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
     "setAdmin(address,address,uint8)": FunctionFragment;
     "setCreationSigner(address)": FunctionFragment;
     "setLockSeconds(address,uint256)": FunctionFragment;
-    "slashUser(address,uint256,uint64,bytes32,bytes)": FunctionFragment;
+    "slashUser(address,uint256,bytes32,uint64,bytes)": FunctionFragment;
     "stake(address,address)": FunctionFragment;
     "stakeFor(address,address)": FunctionFragment;
     "stakeOf(address,address)": FunctionFragment;
@@ -121,6 +122,10 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getReverseDelegation",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "init",
     values: [string, string, string[]]
   ): string;
@@ -167,7 +172,7 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "slashUser",
-    values: [string, BigNumberish, BigNumberish, BytesLike, BytesLike]
+    values: [string, BigNumberish, BytesLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "stake",
@@ -274,6 +279,10 @@ interface QuantumPortalStakeInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "freezeSweep",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getReverseDelegation",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
@@ -539,9 +548,14 @@ export class QuantumPortalStake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    getReverseDelegation(
+      key: string,
+      overrides?: CallOverrides
+    ): Promise<[[string, number] & { delegatee: string; deleted: number }]>;
+
     init(
       token: string,
-      name: string,
+      _name: string,
       rewardTokens: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -576,7 +590,7 @@ export class QuantumPortalStake extends BaseContract {
     reverseDelegation(
       arg0: string,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[string, number] & { delegatee: string; deleted: number }>;
 
     rewardOf(
       id: string,
@@ -612,8 +626,8 @@ export class QuantumPortalStake extends BaseContract {
     slashUser(
       user: string,
       amount: BigNumberish,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -795,9 +809,14 @@ export class QuantumPortalStake extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  getReverseDelegation(
+    key: string,
+    overrides?: CallOverrides
+  ): Promise<[string, number] & { delegatee: string; deleted: number }>;
+
   init(
     token: string,
-    name: string,
+    _name: string,
     rewardTokens: string[],
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -826,7 +845,10 @@ export class QuantumPortalStake extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  reverseDelegation(arg0: string, overrides?: CallOverrides): Promise<string>;
+  reverseDelegation(
+    arg0: string,
+    overrides?: CallOverrides
+  ): Promise<[string, number] & { delegatee: string; deleted: number }>;
 
   rewardOf(
     id: string,
@@ -862,8 +884,8 @@ export class QuantumPortalStake extends BaseContract {
   slashUser(
     user: string,
     amount: BigNumberish,
-    expiry: BigNumberish,
     salt: BytesLike,
+    expiry: BigNumberish,
     multiSignature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1040,9 +1062,14 @@ export class QuantumPortalStake extends BaseContract {
 
     freezeSweep(overrides?: CallOverrides): Promise<void>;
 
+    getReverseDelegation(
+      key: string,
+      overrides?: CallOverrides
+    ): Promise<[string, number] & { delegatee: string; deleted: number }>;
+
     init(
       token: string,
-      name: string,
+      _name: string,
       rewardTokens: string[],
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1068,7 +1095,10 @@ export class QuantumPortalStake extends BaseContract {
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
-    reverseDelegation(arg0: string, overrides?: CallOverrides): Promise<string>;
+    reverseDelegation(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[string, number] & { delegatee: string; deleted: number }>;
 
     rewardOf(
       id: string,
@@ -1104,8 +1134,8 @@ export class QuantumPortalStake extends BaseContract {
     slashUser(
       user: string,
       amount: BigNumberish,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1425,9 +1455,14 @@ export class QuantumPortalStake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    getReverseDelegation(
+      key: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     init(
       token: string,
-      name: string,
+      _name: string,
       rewardTokens: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1495,8 +1530,8 @@ export class QuantumPortalStake extends BaseContract {
     slashUser(
       user: string,
       amount: BigNumberish,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1666,9 +1701,14 @@ export class QuantumPortalStake extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    getReverseDelegation(
+      key: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     init(
       token: string,
-      name: string,
+      _name: string,
       rewardTokens: string[],
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1745,8 +1785,8 @@ export class QuantumPortalStake extends BaseContract {
     slashUser(
       user: string,
       amount: BigNumberish,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSignature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;

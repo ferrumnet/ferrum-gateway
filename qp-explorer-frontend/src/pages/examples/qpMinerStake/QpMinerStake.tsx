@@ -1,15 +1,13 @@
 import React, { Dispatch, useEffect, useReducer } from "react";
-import { Networks, ValidationUtils } from 'ferrum-plumbing';
 import { AnyAction } from "@reduxjs/toolkit";
 import { FButton, FCard, FContainer, FInputText, FLabel } from "ferrum-design-system";
-import { useParams } from "react-router";
 import { inject, Utils } from "types";
-import { addAction, QpExplorerClient } from "../../../QpExplorerClient";
+import { addAction } from "../../../QpExplorerClient";
 import { useSelector } from 'react-redux';
 import { QpAppState } from '../../../common/QpAppState';
 import { Pair } from '../../Pair';
 import { ApprovableButtonWrapper, IApprovableButtonWrapperViewProps } from 'common-containers';
-import { QpMinerClient, QpMinerStakeInfo, QpMinerUserStakeInfo } from './QpMinerClient';
+import { QpMinerClient, QpMinerMinerInfo, QpMinerStakeInfo, QpMinerUserStakeInfo } from './QpMinerClient';
 
 interface QpMinerStakeState {
     init: boolean;
@@ -17,10 +15,12 @@ interface QpMinerStakeState {
     masterContract: string;
     stakeInfo: QpMinerStakeInfo;
     stake: QpMinerUserStakeInfo;
+    miner: QpMinerMinerInfo;
 
     stakeAmount: string;
     withdrawAmount: string;
     delegateAddress: string;
+    operatorAddress: string;
 
     error?: string;
 }
@@ -56,11 +56,16 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
                 ...state,
                 delegateAddress: action.payload.value,
             }
+        case 'UPDATE_OPERATOR':
+            return {
+                ...state,
+                operatorAddress: action.payload.value,
+            }
         case 'UPDATE_WITHDRAW':
             return {
                 ...state,
                 stake: {
-                    ...stake,
+                    ...(state?.stake || {}),
                     withdrawQueue: [
                         { amount: '10', opensAt: Math.round(Date.now() / 1000) + 10000  },
                         { amount: '20', opensAt: Math.round(Date.now() / 1000) + 10000  },
@@ -84,17 +89,28 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
 }
 
 async function load(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>, userAddress: string) {
-    // Get the backend config (explorer client, etc.)
-    const client = inject<QpMinerClient>(QpMinerClient);
-    const stakeInfo = await client.getMinerStake();
-    dispatch(addAction('UPDATE_ALL', { stakeInfo }))
-    const stake = await client.getUserStake();
-    dispatch(addAction('UPDATE_ALL', { stake }))
+    try {
+        // Get the backend config (explorer client, etc.)
+        const client = inject<QpMinerClient>(QpMinerClient);
+        const stakeInfo = await client.getMinerStake();
+        console.log('Got miner stake: ', stakeInfo)
+        dispatch(addAction('UPDATE_ALL', { stakeInfo }))
+        const stake = await client.getUserStake();
+        console.log('Got user stake: ', stake)
+        dispatch(addAction('UPDATE_ALL', { stake }))
+        const miner = await client.getMinerInfo();
+        console.log('Got user miner: ', miner)
+        dispatch(addAction('UPDATE_ALL', { miner }))
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
 }
 
-async function stake(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
+async function stakeToDelegate(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
     const client = inject<QpMinerClient>(QpMinerClient);
-    const txId = await client.stake(state.stakeAmount);
+    const txId = await client.stakeToDelegate(state.stakeAmount, state.delegateAddress);
+    console.log('txid: ', txId);
     // TODO: Handle tx ID
 }
 
@@ -104,9 +120,15 @@ async function withdraw(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>)
     // TODO: Handle tx ID
 }
 
-async function delegate(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
+async function assignOperator(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
     const client = inject<QpMinerClient>(QpMinerClient);
-    const txId = await client.delegate(state.delegateAddress);
+    const txId = await client.assignOperator(state.operatorAddress);
+    // TODO: Handle tx ID
+}
+
+async function registerMiner(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpMinerClient>(QpMinerClient);
+    const txId = await client.registerMiner();
     // TODO: Handle tx ID
 }
 
@@ -168,12 +190,11 @@ export function QpMinerStake(props: {}) {
             </FCard>
             <div> &nbsp; </div>
             <FCard>
-                <FLabel text={`Connected Account`}/>
+                <FLabel text={`Connected Account - if Staker`}/>
                 <Pair itemKey={'Your Address'} value={state?.stake?.address || 'N/A'} />
                 <Pair itemKey={'Delegated Address'} value={state?.stake?.delegated || 'N/A'} />
                 <Pair itemKey={'Your staked amount'} value={`${state?.stake?.stakeDisplay || 'N/A'} FRM`} />
                 <Pair itemKey={'Your rewards'} value={`${state?.stake?.stakeDisplay || 'N/A'} FRM`} />
-                <Pair itemKey={'Enough stake to be a miner?'} value={enoughToBeMiner || 'N/A'} />
                 {
                     (state?.stake?.withdrawQueue || []).length ? (
                         <>
@@ -188,13 +209,38 @@ export function QpMinerStake(props: {}) {
             </FCard>
             <div> &nbsp; </div>
             <FCard>
+                <FLabel text={'Connected Account - if Miner (Delegate)'}/>
+                <Pair itemKey={'Your Address'} value={state?.miner?.address || 'N/A'} />
+                <Pair itemKey={'Assigned Operator Address'} value={state?.miner?.operator || 'N/A'} />
+                <Pair itemKey={'Stakes delegated to you'} value={`${state?.miner?.totalStakedHuman || 'N/A'} FRM`} />
+                <Pair itemKey={'Miner index'} value={`${state?.miner?.minerIndex || 'N/A'} FRM`} />
+                <Pair itemKey={'Registered'} value={`${state?.miner?.active?.toString() || 'N/A'} FRM`} />
+                <Pair itemKey={'Enough stake to be a miner?'} value={enoughToBeMiner || 'N/A'} />
+            </FCard>
+            <div>&nbsp;</div>
+            <FCard>
+                <FLabel text={'Connected Account - if Operator (Miner Node)'}/>
+                &nbsp;<br/>
+                <FButton title={'Register miner'} onClick={() => registerMiner(state, dispatch)} />
+                &nbsp;
+            </FCard>
+            <div>&nbsp;</div>
+            <FCard>
                 <FLabel text={'Stake Actions'} />
                 {(!!connectedNet) && 
                         <>
+                            <FInputText label={'Miner Operator'}
+                                value={state.operatorAddress}
+                                onChange={(e: any) => dispatch({type: 'UPDATE_OPERATOR', payload: { value: e.target.value }})}
+                                postfix={<FButton
+                                    title={'ASSIGN - ONLY MINER'} onClick={() => assignOperator(state, dispatch)}
+                                    disabled={Number(state.miner?.totalStakedHuman || '0') === 0}
+                                />}
+                            />
                             <FInputText label={'Delegate'}
                                 value={state.delegateAddress}
                                 onChange={(e: any) => dispatch({type: 'UPDATE_DELEGATE', payload: { value: e.target.value }})}
-                                postfix={<FButton title={'DELEGATE'} onClick={() => delegate(state, dispatch)} />}
+                                // postfix={<FButton title={'DELEGATE'} onClick={() => delegate(state, dispatch)} />}
                             />
                             <FInputText label={'Stake FRM'}
                                 value={state.stakeAmount}
@@ -204,7 +250,7 @@ export function QpMinerStake(props: {}) {
                                         userAddress={user.userId}
                                         view={(p: IApprovableButtonWrapperViewProps) =>
                                             <FButton title={p.isApprovalMode ? 'APPROVE' : 'STAKE'}
-                                                onClick={() => p.isApprovalMode ? p.onApproveClick() : stake(state, dispatch)} />} />}
+                                                onClick={() => p.isApprovalMode ? p.onApproveClick() : stakeToDelegate(state, dispatch)} />} />}
                             />
                             <FInputText label={'Withdaw'}
                                 value={state.withdrawAmount}

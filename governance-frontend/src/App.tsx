@@ -13,6 +13,7 @@ const store = StoreBuilder.build(
             // 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev');
             // Environment.defaultEndPoint());
             'https://quwun7xfr5.us-east-2.awsapprunner.com');
+            
             // "https://22phwrgczz.us-east-2.awsapprunner.com");
 
 function App() {

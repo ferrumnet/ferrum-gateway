@@ -25,13 +25,20 @@ interface QuantumPortalGatewayInterface extends ethers.utils.Interface {
     "VERSION()": FunctionFragment;
     "WFRM()": FunctionFragment;
     "admin()": FunctionFragment;
+    "feeTarget()": FunctionFragment;
+    "feeToken()": FunctionFragment;
     "owner()": FunctionFragment;
+    "quantumPortalAuthorityMgr()": FunctionFragment;
     "quantumPortalLedgerMgr()": FunctionFragment;
+    "quantumPortalMinerMgr()": FunctionFragment;
     "quantumPortalPoc()": FunctionFragment;
     "quantumPortalStake()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "stake(address,uint256)": FunctionFragment;
+    "stakeToDelegate(uint256,address)": FunctionFragment;
+    "stakeToDelegateWithAllocation(address,address,uint256,bytes32,uint64,bytes)": FunctionFragment;
+    "state()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "upgrade(address,address,address)": FunctionFragment;
   };
@@ -39,9 +46,19 @@ interface QuantumPortalGatewayInterface extends ethers.utils.Interface {
   encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(functionFragment: "WFRM", values?: undefined): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: "feeTarget", values?: undefined): string;
+  encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "quantumPortalAuthorityMgr",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "quantumPortalLedgerMgr",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "quantumPortalMinerMgr",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -62,6 +79,15 @@ interface QuantumPortalGatewayInterface extends ethers.utils.Interface {
     values: [string, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "stakeToDelegate",
+    values: [BigNumberish, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "stakeToDelegateWithAllocation",
+    values: [string, string, BigNumberish, BytesLike, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(functionFragment: "state", values?: undefined): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -73,9 +99,19 @@ interface QuantumPortalGatewayInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "WFRM", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "feeTarget", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "quantumPortalAuthorityMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "quantumPortalLedgerMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "quantumPortalMinerMgr",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -92,6 +128,15 @@ interface QuantumPortalGatewayInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "stake", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "stakeToDelegate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "stakeToDelegateWithAllocation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -163,9 +208,17 @@ export class QuantumPortalGateway extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<[string]>;
 
+    feeTarget(overrides?: CallOverrides): Promise<[string]>;
+
+    feeToken(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    quantumPortalAuthorityMgr(overrides?: CallOverrides): Promise<[string]>;
+
     quantumPortalLedgerMgr(overrides?: CallOverrides): Promise<[string]>;
+
+    quantumPortalMinerMgr(overrides?: CallOverrides): Promise<[string]>;
 
     quantumPortalPoc(overrides?: CallOverrides): Promise<[string]>;
 
@@ -184,6 +237,26 @@ export class QuantumPortalGateway extends BaseContract {
       to: string,
       amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    stakeToDelegate(
+      amount: BigNumberish,
+      delegate: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    stakeToDelegateWithAllocation(
+      to: string,
+      delegate: string,
+      allocation: BigNumberish,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      signature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    state(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     transferOwnership(
@@ -205,9 +278,17 @@ export class QuantumPortalGateway extends BaseContract {
 
   admin(overrides?: CallOverrides): Promise<string>;
 
+  feeTarget(overrides?: CallOverrides): Promise<string>;
+
+  feeToken(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
+  quantumPortalAuthorityMgr(overrides?: CallOverrides): Promise<string>;
+
   quantumPortalLedgerMgr(overrides?: CallOverrides): Promise<string>;
+
+  quantumPortalMinerMgr(overrides?: CallOverrides): Promise<string>;
 
   quantumPortalPoc(overrides?: CallOverrides): Promise<string>;
 
@@ -226,6 +307,26 @@ export class QuantumPortalGateway extends BaseContract {
     to: string,
     amount: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  stakeToDelegate(
+    amount: BigNumberish,
+    delegate: string,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  stakeToDelegateWithAllocation(
+    to: string,
+    delegate: string,
+    allocation: BigNumberish,
+    salt: BytesLike,
+    expiry: BigNumberish,
+    signature: BytesLike,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  state(
+    overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   transferOwnership(
@@ -247,9 +348,17 @@ export class QuantumPortalGateway extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<string>;
 
+    feeTarget(overrides?: CallOverrides): Promise<string>;
+
+    feeToken(overrides?: CallOverrides): Promise<string>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
+    quantumPortalAuthorityMgr(overrides?: CallOverrides): Promise<string>;
+
     quantumPortalLedgerMgr(overrides?: CallOverrides): Promise<string>;
+
+    quantumPortalMinerMgr(overrides?: CallOverrides): Promise<string>;
 
     quantumPortalPoc(overrides?: CallOverrides): Promise<string>;
 
@@ -264,6 +373,24 @@ export class QuantumPortalGateway extends BaseContract {
       amount: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    stakeToDelegate(
+      amount: BigNumberish,
+      delegate: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    stakeToDelegateWithAllocation(
+      to: string,
+      delegate: string,
+      allocation: BigNumberish,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      signature: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    state(overrides?: CallOverrides): Promise<string>;
 
     transferOwnership(
       newOwner: string,
@@ -309,9 +436,17 @@ export class QuantumPortalGateway extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
 
+    feeTarget(overrides?: CallOverrides): Promise<BigNumber>;
+
+    feeToken(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    quantumPortalAuthorityMgr(overrides?: CallOverrides): Promise<BigNumber>;
+
     quantumPortalLedgerMgr(overrides?: CallOverrides): Promise<BigNumber>;
+
+    quantumPortalMinerMgr(overrides?: CallOverrides): Promise<BigNumber>;
 
     quantumPortalPoc(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -330,6 +465,26 @@ export class QuantumPortalGateway extends BaseContract {
       to: string,
       amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    stakeToDelegate(
+      amount: BigNumberish,
+      delegate: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    stakeToDelegateWithAllocation(
+      to: string,
+      delegate: string,
+      allocation: BigNumberish,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      signature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    state(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     transferOwnership(
@@ -352,9 +507,21 @@ export class QuantumPortalGateway extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    feeTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    feeToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    quantumPortalAuthorityMgr(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     quantumPortalLedgerMgr(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    quantumPortalMinerMgr(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -377,6 +544,26 @@ export class QuantumPortalGateway extends BaseContract {
       to: string,
       amount: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    stakeToDelegate(
+      amount: BigNumberish,
+      delegate: string,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    stakeToDelegateWithAllocation(
+      to: string,
+      delegate: string,
+      allocation: BigNumberish,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      signature: BytesLike,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    state(
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(

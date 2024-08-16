@@ -11,6 +11,7 @@ import {
   PopulatedTransaction,
   BaseContract,
   ContractTransaction,
+  Overrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -20,43 +21,399 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface QuantumPortalMinerMgrInterface extends ethers.utils.Interface {
   functions: {
+    "MINER_SIGNATURE()": FunctionFragment;
     "NAME()": FunctionFragment;
     "VERSION()": FunctionFragment;
+    "admin()": FunctionFragment;
+    "baseToken()": FunctionFragment;
+    "collectFee(uint256,uint256,uint256)": FunctionFragment;
+    "collectedFixedFee(uint256)": FunctionFragment;
+    "collectedVarFee(uint256)": FunctionFragment;
+    "eip712Domain()": FunctionFragment;
+    "extractMinerAddress(bytes32,bytes32,uint64,bytes)": FunctionFragment;
+    "findMiner(bytes32,uint256)": FunctionFragment;
+    "findMinerAtTime(bytes32,uint256,uint256)": FunctionFragment;
+    "initializeWithLedgerMgr(address)": FunctionFragment;
+    "initializeWithQp(address)": FunctionFragment;
+    "inventory(address)": FunctionFragment;
+    "lastEpoch(uint256)": FunctionFragment;
+    "minerIdxsPlusOne(address)": FunctionFragment;
+    "miners(uint256)": FunctionFragment;
     "miningStake()": FunctionFragment;
-    "verifyMinerSignature(bytes32,uint64,bytes32,bytes,uint256,uint256)": FunctionFragment;
+    "owner()": FunctionFragment;
+    "portal()": FunctionFragment;
+    "qpLedgerMgr()": FunctionFragment;
+    "registerMiner(address)": FunctionFragment;
+    "registerWork(uint256,address,uint256,uint256)": FunctionFragment;
+    "remoteEpoch(uint256)": FunctionFragment;
+    "remotePeers(uint256)": FunctionFragment;
+    "removeRemotePeers(uint256[])": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
+    "selectMiner(address,bytes32,uint256)": FunctionFragment;
+    "setAdmin(address)": FunctionFragment;
+    "slashMinerForFraud(address,bytes32,address)": FunctionFragment;
+    "timeBlockSize()": FunctionFragment;
+    "totalWork(uint256)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
+    "unregister()": FunctionFragment;
+    "unregisterMiner(address)": FunctionFragment;
+    "updateBaseToken(address)": FunctionFragment;
+    "updateLedgerMgr(address)": FunctionFragment;
+    "updatePortal(address)": FunctionFragment;
+    "updateRemotePeers(uint256[],address[])": FunctionFragment;
+    "verifyMinerSignature(bytes32,bytes32,uint64,bytes,uint256,uint256)": FunctionFragment;
+    "withdraw(uint256,address,address,uint256)": FunctionFragment;
+    "withdrawFixedRemote(address,uint256,uint256)": FunctionFragment;
+    "withdrawVariableRemote(address,uint256,uint256)": FunctionFragment;
+    "works(uint256,address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "MINER_SIGNATURE",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "NAME", values?: undefined): string;
   encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
+  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: "baseToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "collectFee",
+    values: [BigNumberish, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "collectedFixedFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "collectedVarFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "eip712Domain",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "extractMinerAddress",
+    values: [BytesLike, BytesLike, BigNumberish, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "findMiner",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "findMinerAtTime",
+    values: [BytesLike, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithLedgerMgr",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithQp",
+    values: [string]
+  ): string;
+  encodeFunctionData(functionFragment: "inventory", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "lastEpoch",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "minerIdxsPlusOne",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "miners",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "miningStake",
     values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: "portal", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "qpLedgerMgr",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerMiner",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerWork",
+    values: [BigNumberish, string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "remoteEpoch",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "remotePeers",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeRemotePeers",
+    values: [BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "selectMiner",
+    values: [string, BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "slashMinerForFraud",
+    values: [string, BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "timeBlockSize",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalWork",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unregister",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "unregisterMiner",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateBaseToken",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateLedgerMgr",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updatePortal",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateRemotePeers",
+    values: [BigNumberish[], string[]]
   ): string;
   encodeFunctionData(
     functionFragment: "verifyMinerSignature",
     values: [
       BytesLike,
-      BigNumberish,
       BytesLike,
+      BigNumberish,
       BytesLike,
       BigNumberish,
       BigNumberish
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdraw",
+    values: [BigNumberish, string, string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFixedRemote",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawVariableRemote",
+    values: [string, BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "works",
+    values: [BigNumberish, string]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MINER_SIGNATURE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "baseToken", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "collectFee", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "collectedFixedFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "collectedVarFee",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "eip712Domain",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "extractMinerAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "findMiner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "findMinerAtTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithLedgerMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithQp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "inventory", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "lastEpoch", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "minerIdxsPlusOne",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "miners", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "miningStake",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "portal", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "qpLedgerMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerMiner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerWork",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "remoteEpoch",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "remotePeers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeRemotePeers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "selectMiner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "slashMinerForFraud",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "timeBlockSize",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "totalWork", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "unregister", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "unregisterMiner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateBaseToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateLedgerMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updatePortal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateRemotePeers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "verifyMinerSignature",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFixedRemote",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawVariableRemote",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "works", data: BytesLike): Result;
 
-  events: {};
+  events: {
+    "AdminSet(address)": EventFragment;
+    "EIP712DomainChanged()": EventFragment;
+    "MinerSlashed(address,address,bytes32,address)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
+    "SlashRequested(tuple)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MinerSlashed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SlashRequested"): EventFragment;
 }
+
+export type AdminSetEvent = TypedEvent<[string] & { admin: string }>;
+
+export type EIP712DomainChangedEvent = TypedEvent<[] & {}>;
+
+export type MinerSlashedEvent = TypedEvent<
+  [string, string, string, string] & {
+    delegatedMiner: string;
+    miner: string;
+    blockHash: string;
+    beneficiary: string;
+  }
+>;
+
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type SlashRequestedEvent = TypedEvent<
+  [
+    [string, string, string, string] & {
+      delegatedMiner: string;
+      miner: string;
+      blockHash: string;
+      beneficiary: string;
+    }
+  ] & {
+    data: [string, string, string, string] & {
+      delegatedMiner: string;
+      miner: string;
+      blockHash: string;
+      beneficiary: string;
+    };
+  }
+>;
 
 export class QuantumPortalMinerMgr extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -102,91 +459,1179 @@ export class QuantumPortalMinerMgr extends BaseContract {
   interface: QuantumPortalMinerMgrInterface;
 
   functions: {
+    MINER_SIGNATURE(overrides?: CallOverrides): Promise<[string]>;
+
     NAME(overrides?: CallOverrides): Promise<[string]>;
 
     VERSION(overrides?: CallOverrides): Promise<[string]>;
 
+    admin(overrides?: CallOverrides): Promise<[string]>;
+
+    baseToken(overrides?: CallOverrides): Promise<[string]>;
+
+    collectFee(
+      targetChainId: BigNumberish,
+      localEpoch: BigNumberish,
+      fixedFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    collectedFixedFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    collectedVarFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
+
+    extractMinerAddress(
+      msgHash: BytesLike,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      multiSig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    findMiner(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    findMinerAtTime(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      chainTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    initializeWithLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    initializeWithQp(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    lastEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    minerIdxsPlusOne(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    miners(arg0: BigNumberish, overrides?: CallOverrides): Promise<[string]>;
+
     miningStake(overrides?: CallOverrides): Promise<[string]>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
+    portal(overrides?: CallOverrides): Promise<[string]>;
+
+    qpLedgerMgr(overrides?: CallOverrides): Promise<[string]>;
+
+    registerMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    registerWork(
+      remoteChain: BigNumberish,
+      worker: string,
+      work: BigNumberish,
+      _remoteEpoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    remoteEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    remotePeers(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    removeRemotePeers(
+      chainIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    selectMiner(
+      requestedMiner: string,
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    slashMinerForFraud(
+      delegatedMiner: string,
+      blockHash: BytesLike,
+      beneficiary: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    timeBlockSize(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    totalWork(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    unregister(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    unregisterMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateBaseToken(
+      _baseToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updatePortal(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateRemotePeers(
+      chainIds: BigNumberish[],
+      remotes: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     verifyMinerSignature(
       msgHash: BytesLike,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSig: BytesLike,
-      msgValue: BigNumberish,
+      arg4: BigNumberish,
       minStakeAllowed: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[number] & { res: number }>;
+    ): Promise<[number, string] & { res: number; signer: string }>;
+
+    withdraw(
+      remoteChain: BigNumberish,
+      to: string,
+      worker: string,
+      fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawFixedRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawVariableRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    works(
+      arg0: BigNumberish,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
+
+  MINER_SIGNATURE(overrides?: CallOverrides): Promise<string>;
 
   NAME(overrides?: CallOverrides): Promise<string>;
 
   VERSION(overrides?: CallOverrides): Promise<string>;
 
+  admin(overrides?: CallOverrides): Promise<string>;
+
+  baseToken(overrides?: CallOverrides): Promise<string>;
+
+  collectFee(
+    targetChainId: BigNumberish,
+    localEpoch: BigNumberish,
+    fixedFee: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  collectedFixedFee(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  collectedVarFee(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  eip712Domain(
+    overrides?: CallOverrides
+  ): Promise<
+    [string, string, string, BigNumber, string, string, BigNumber[]] & {
+      fields: string;
+      name: string;
+      version: string;
+      chainId: BigNumber;
+      verifyingContract: string;
+      salt: string;
+      extensions: BigNumber[];
+    }
+  >;
+
+  extractMinerAddress(
+    msgHash: BytesLike,
+    salt: BytesLike,
+    expiry: BigNumberish,
+    multiSig: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  findMiner(
+    blockHash: BytesLike,
+    blockTimestamp: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  findMinerAtTime(
+    blockHash: BytesLike,
+    blockTimestamp: BigNumberish,
+    chainTimestamp: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  initializeWithLedgerMgr(
+    mgr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  initializeWithQp(
+    _portal: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  lastEpoch(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+  minerIdxsPlusOne(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  miners(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
   miningStake(overrides?: CallOverrides): Promise<string>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
+  portal(overrides?: CallOverrides): Promise<string>;
+
+  qpLedgerMgr(overrides?: CallOverrides): Promise<string>;
+
+  registerMiner(
+    miner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  registerWork(
+    remoteChain: BigNumberish,
+    worker: string,
+    work: BigNumberish,
+    _remoteEpoch: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  remoteEpoch(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  remotePeers(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+  removeRemotePeers(
+    chainIds: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  selectMiner(
+    requestedMiner: string,
+    blockHash: BytesLike,
+    blockTimestamp: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  setAdmin(
+    _admin: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  slashMinerForFraud(
+    delegatedMiner: string,
+    blockHash: BytesLike,
+    beneficiary: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  timeBlockSize(overrides?: CallOverrides): Promise<BigNumber>;
+
+  totalWork(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
+  transferOwnership(
+    newOwner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  unregister(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  unregisterMiner(
+    miner: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateBaseToken(
+    _baseToken: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateLedgerMgr(
+    mgr: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updatePortal(
+    _portal: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateRemotePeers(
+    chainIds: BigNumberish[],
+    remotes: string[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   verifyMinerSignature(
     msgHash: BytesLike,
-    expiry: BigNumberish,
     salt: BytesLike,
+    expiry: BigNumberish,
     multiSig: BytesLike,
-    msgValue: BigNumberish,
+    arg4: BigNumberish,
     minStakeAllowed: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<number>;
+  ): Promise<[number, string] & { res: number; signer: string }>;
+
+  withdraw(
+    remoteChain: BigNumberish,
+    to: string,
+    worker: string,
+    fee: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawFixedRemote(
+    to: string,
+    workRatioX128: BigNumberish,
+    epoch: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawVariableRemote(
+    to: string,
+    workRatioX128: BigNumberish,
+    epoch: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  works(
+    arg0: BigNumberish,
+    arg1: string,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   callStatic: {
+    MINER_SIGNATURE(overrides?: CallOverrides): Promise<string>;
+
     NAME(overrides?: CallOverrides): Promise<string>;
 
     VERSION(overrides?: CallOverrides): Promise<string>;
 
+    admin(overrides?: CallOverrides): Promise<string>;
+
+    baseToken(overrides?: CallOverrides): Promise<string>;
+
+    collectFee(
+      targetChainId: BigNumberish,
+      localEpoch: BigNumberish,
+      fixedFee: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    collectedFixedFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    collectedVarFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    eip712Domain(
+      overrides?: CallOverrides
+    ): Promise<
+      [string, string, string, BigNumber, string, string, BigNumber[]] & {
+        fields: string;
+        name: string;
+        version: string;
+        chainId: BigNumber;
+        verifyingContract: string;
+        salt: string;
+        extensions: BigNumber[];
+      }
+    >;
+
+    extractMinerAddress(
+      msgHash: BytesLike,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      multiSig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    findMiner(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    findMinerAtTime(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      chainTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    initializeWithLedgerMgr(
+      mgr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    initializeWithQp(_portal: string, overrides?: CallOverrides): Promise<void>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    lastEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    minerIdxsPlusOne(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    miners(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
     miningStake(overrides?: CallOverrides): Promise<string>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    portal(overrides?: CallOverrides): Promise<string>;
+
+    qpLedgerMgr(overrides?: CallOverrides): Promise<string>;
+
+    registerMiner(miner: string, overrides?: CallOverrides): Promise<void>;
+
+    registerWork(
+      remoteChain: BigNumberish,
+      worker: string,
+      work: BigNumberish,
+      _remoteEpoch: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    remoteEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    remotePeers(arg0: BigNumberish, overrides?: CallOverrides): Promise<string>;
+
+    removeRemotePeers(
+      chainIds: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    selectMiner(
+      requestedMiner: string,
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
+
+    slashMinerForFraud(
+      delegatedMiner: string,
+      blockHash: BytesLike,
+      beneficiary: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    timeBlockSize(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalWork(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    unregister(overrides?: CallOverrides): Promise<void>;
+
+    unregisterMiner(miner: string, overrides?: CallOverrides): Promise<void>;
+
+    updateBaseToken(
+      _baseToken: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLedgerMgr(mgr: string, overrides?: CallOverrides): Promise<void>;
+
+    updatePortal(_portal: string, overrides?: CallOverrides): Promise<void>;
+
+    updateRemotePeers(
+      chainIds: BigNumberish[],
+      remotes: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     verifyMinerSignature(
       msgHash: BytesLike,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSig: BytesLike,
-      msgValue: BigNumberish,
+      arg4: BigNumberish,
       minStakeAllowed: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<number>;
+    ): Promise<[number, string] & { res: number; signer: string }>;
+
+    withdraw(
+      remoteChain: BigNumberish,
+      to: string,
+      worker: string,
+      fee: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawFixedRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    withdrawVariableRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    works(
+      arg0: BigNumberish,
+      arg1: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "AdminSet(address)"(
+      admin?: null
+    ): TypedEventFilter<[string], { admin: string }>;
+
+    AdminSet(admin?: null): TypedEventFilter<[string], { admin: string }>;
+
+    "EIP712DomainChanged()"(): TypedEventFilter<[], {}>;
+
+    EIP712DomainChanged(): TypedEventFilter<[], {}>;
+
+    "MinerSlashed(address,address,bytes32,address)"(
+      delegatedMiner?: null,
+      miner?: string | null,
+      blockHash?: null,
+      beneficiary?: null
+    ): TypedEventFilter<
+      [string, string, string, string],
+      {
+        delegatedMiner: string;
+        miner: string;
+        blockHash: string;
+        beneficiary: string;
+      }
+    >;
+
+    MinerSlashed(
+      delegatedMiner?: null,
+      miner?: string | null,
+      blockHash?: null,
+      beneficiary?: null
+    ): TypedEventFilter<
+      [string, string, string, string],
+      {
+        delegatedMiner: string;
+        miner: string;
+        blockHash: string;
+        beneficiary: string;
+      }
+    >;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    OwnershipTransferred(
+      previousOwner?: string | null,
+      newOwner?: string | null
+    ): TypedEventFilter<
+      [string, string],
+      { previousOwner: string; newOwner: string }
+    >;
+
+    "SlashRequested(tuple)"(
+      data?: null
+    ): TypedEventFilter<
+      [
+        [string, string, string, string] & {
+          delegatedMiner: string;
+          miner: string;
+          blockHash: string;
+          beneficiary: string;
+        }
+      ],
+      {
+        data: [string, string, string, string] & {
+          delegatedMiner: string;
+          miner: string;
+          blockHash: string;
+          beneficiary: string;
+        };
+      }
+    >;
+
+    SlashRequested(
+      data?: null
+    ): TypedEventFilter<
+      [
+        [string, string, string, string] & {
+          delegatedMiner: string;
+          miner: string;
+          blockHash: string;
+          beneficiary: string;
+        }
+      ],
+      {
+        data: [string, string, string, string] & {
+          delegatedMiner: string;
+          miner: string;
+          blockHash: string;
+          beneficiary: string;
+        };
+      }
+    >;
+  };
 
   estimateGas: {
+    MINER_SIGNATURE(overrides?: CallOverrides): Promise<BigNumber>;
+
     NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
     VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
+    admin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    baseToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    collectFee(
+      targetChainId: BigNumberish,
+      localEpoch: BigNumberish,
+      fixedFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    collectedFixedFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    collectedVarFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<BigNumber>;
+
+    extractMinerAddress(
+      msgHash: BytesLike,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      multiSig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    findMiner(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    findMinerAtTime(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      chainTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    initializeWithLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    initializeWithQp(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    inventory(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+    lastEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    minerIdxsPlusOne(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    miners(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
+
     miningStake(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    portal(overrides?: CallOverrides): Promise<BigNumber>;
+
+    qpLedgerMgr(overrides?: CallOverrides): Promise<BigNumber>;
+
+    registerMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    registerWork(
+      remoteChain: BigNumberish,
+      worker: string,
+      work: BigNumberish,
+      _remoteEpoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    remoteEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    remotePeers(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    removeRemotePeers(
+      chainIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    selectMiner(
+      requestedMiner: string,
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    slashMinerForFraud(
+      delegatedMiner: string,
+      blockHash: BytesLike,
+      beneficiary: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    timeBlockSize(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalWork(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    unregister(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    unregisterMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateBaseToken(
+      _baseToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updatePortal(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateRemotePeers(
+      chainIds: BigNumberish[],
+      remotes: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     verifyMinerSignature(
       msgHash: BytesLike,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSig: BytesLike,
-      msgValue: BigNumberish,
+      arg4: BigNumberish,
       minStakeAllowed: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    withdraw(
+      remoteChain: BigNumberish,
+      to: string,
+      worker: string,
+      fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdrawFixedRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    withdrawVariableRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    works(
+      arg0: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    MINER_SIGNATURE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    baseToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    collectFee(
+      targetChainId: BigNumberish,
+      localEpoch: BigNumberish,
+      fixedFee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    collectedFixedFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    collectedVarFee(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    eip712Domain(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    extractMinerAddress(
+      msgHash: BytesLike,
+      salt: BytesLike,
+      expiry: BigNumberish,
+      multiSig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    findMiner(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    findMinerAtTime(
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      chainTimestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initializeWithLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initializeWithQp(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    inventory(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    lastEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    minerIdxsPlusOne(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    miners(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     miningStake(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    portal(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    qpLedgerMgr(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    registerMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    registerWork(
+      remoteChain: BigNumberish,
+      worker: string,
+      work: BigNumberish,
+      _remoteEpoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    remoteEpoch(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    remotePeers(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    removeRemotePeers(
+      chainIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    selectMiner(
+      requestedMiner: string,
+      blockHash: BytesLike,
+      blockTimestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    slashMinerForFraud(
+      delegatedMiner: string,
+      blockHash: BytesLike,
+      beneficiary: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    timeBlockSize(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalWork(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    unregister(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    unregisterMiner(
+      miner: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateBaseToken(
+      _baseToken: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateLedgerMgr(
+      mgr: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updatePortal(
+      _portal: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateRemotePeers(
+      chainIds: BigNumberish[],
+      remotes: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     verifyMinerSignature(
       msgHash: BytesLike,
-      expiry: BigNumberish,
       salt: BytesLike,
+      expiry: BigNumberish,
       multiSig: BytesLike,
-      msgValue: BigNumberish,
+      arg4: BigNumberish,
       minStakeAllowed: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdraw(
+      remoteChain: BigNumberish,
+      to: string,
+      worker: string,
+      fee: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawFixedRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawVariableRemote(
+      to: string,
+      workRatioX128: BigNumberish,
+      epoch: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    works(
+      arg0: BigNumberish,
+      arg1: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

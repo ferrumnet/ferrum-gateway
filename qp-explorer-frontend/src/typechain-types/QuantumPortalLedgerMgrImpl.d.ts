@@ -23,46 +23,42 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
   functions: {
     "VERSION()": FunctionFragment;
     "admin()": FunctionFragment;
-    "authorityFinalizers(bytes32,uint256)": FunctionFragment;
     "authorityMgr()": FunctionFragment;
     "calculateBlockHash(uint64,uint64,tuple[])": FunctionFragment;
-    "finalizationStakes(uint256,uint256)": FunctionFragment;
-    "finalizations(uint256)": FunctionFragment;
-    "finalize(uint256,uint256,bytes32,address[],bytes32,uint64,bytes)": FunctionFragment;
-    "finalizeSingleSigner(uint256,uint256,bytes32,address[],bytes32,uint64,bytes)": FunctionFragment;
+    "calculateFixedFee(uint256,uint256)": FunctionFragment;
+    "feeConvertor()": FunctionFragment;
+    "finalize(uint256,uint256,uint256[],bytes32,address[],bytes32,uint64,bytes)": FunctionFragment;
+    "fixedFeeTarget()": FunctionFragment;
     "getBlockIdx(uint64,uint64)": FunctionFragment;
     "isLocalBlockReady(uint64)": FunctionFragment;
-    "lastFinalizedBlock(uint256)": FunctionFragment;
-    "lastLocalBlock(uint256)": FunctionFragment;
-    "lastMinedBlock(uint256)": FunctionFragment;
     "lastRemoteMinedBlock(uint64)": FunctionFragment;
     "ledger()": FunctionFragment;
     "localBlockByNonce(uint64,uint64)": FunctionFragment;
-    "localBlockTransactions(uint256,uint256)": FunctionFragment;
-    "localBlocks(uint256)": FunctionFragment;
     "mineRemoteBlock(uint64,uint64,tuple[],bytes32,uint64,bytes)": FunctionFragment;
     "minedBlockByNonce(uint64,uint64)": FunctionFragment;
-    "minedBlockTransactions(uint256,uint256)": FunctionFragment;
-    "minedBlocks(uint256)": FunctionFragment;
     "minerMgr()": FunctionFragment;
     "minerMinimumStake()": FunctionFragment;
     "owner()": FunctionFragment;
-    "registerTransaction(uint64,address,address,address,address,uint256,uint256,bytes)": FunctionFragment;
+    "registerMiner()": FunctionFragment;
+    "registerTransaction(uint64,address,address,address,address,uint256,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "reportInvalidBlock(uint64,uint64,tuple[],bytes32,uint64,bytes)": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
+    "stakes()": FunctionFragment;
+    "state()": FunctionFragment;
+    "submitFraudProof(uint64,uint64,uint64,tuple[],bytes32,uint64,bytes,address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "updateAuthorityMgr(address)": FunctionFragment;
+    "updateFeeConvertor(address)": FunctionFragment;
+    "updateFeeTargets(address,address)": FunctionFragment;
     "updateLedger(address)": FunctionFragment;
     "updateMinerMgr(address)": FunctionFragment;
+    "updateMinerMinimumStake(uint256)": FunctionFragment;
+    "updateState(address)": FunctionFragment;
+    "varFeeTarget()": FunctionFragment;
   };
 
   encodeFunctionData(functionFragment: "VERSION", values?: undefined): string;
   encodeFunctionData(functionFragment: "admin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "authorityFinalizers",
-    values: [BytesLike, BigNumberish]
-  ): string;
   encodeFunctionData(
     functionFragment: "authorityMgr",
     values?: undefined
@@ -79,24 +75,26 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "finalizationStakes",
+    functionFragment: "calculateFixedFee",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "finalizations",
-    values: [BigNumberish]
+    functionFragment: "feeConvertor",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "finalize",
     values: [
       BigNumberish,
       BigNumberish,
+      BigNumberish[],
       BytesLike,
       string[],
       BytesLike,
@@ -105,16 +103,8 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "finalizeSingleSigner",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      string[],
-      BytesLike,
-      BigNumberish,
-      BytesLike
-    ]
+    functionFragment: "fixedFeeTarget",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getBlockIdx",
@@ -122,18 +112,6 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isLocalBlockReady",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lastFinalizedBlock",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lastLocalBlock",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "lastMinedBlock",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -146,14 +124,6 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "localBlockTransactions",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "localBlocks",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
     functionFragment: "mineRemoteBlock",
     values: [
       BigNumberish,
@@ -165,8 +135,9 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       BytesLike,
       BigNumberish,
@@ -177,20 +148,16 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     functionFragment: "minedBlockByNonce",
     values: [BigNumberish, BigNumberish]
   ): string;
-  encodeFunctionData(
-    functionFragment: "minedBlockTransactions",
-    values: [BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "minedBlocks",
-    values: [BigNumberish]
-  ): string;
   encodeFunctionData(functionFragment: "minerMgr", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "minerMinimumStake",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "registerMiner",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "registerTransaction",
     values: [
@@ -200,7 +167,6 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
       string,
       string,
       BigNumberish,
-      BigNumberish,
       BytesLike
     ]
   ): string;
@@ -208,9 +174,13 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
+  encodeFunctionData(functionFragment: "stakes", values?: undefined): string;
+  encodeFunctionData(functionFragment: "state", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "reportInvalidBlock",
+    functionFragment: "submitFraudProof",
     values: [
+      BigNumberish,
       BigNumberish,
       BigNumberish,
       {
@@ -220,15 +190,16 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       BytesLike,
       BigNumberish,
-      BytesLike
+      BytesLike,
+      string
     ]
   ): string;
-  encodeFunctionData(functionFragment: "setAdmin", values: [string]): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
@@ -238,6 +209,14 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "updateFeeConvertor",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "updateFeeTargets",
+    values: [string, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "updateLedger",
     values: [string]
   ): string;
@@ -245,13 +224,18 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     functionFragment: "updateMinerMgr",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "updateMinerMinimumStake",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(functionFragment: "updateState", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "varFeeTarget",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "VERSION", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "authorityFinalizers",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "authorityMgr",
     data: BytesLike
@@ -261,16 +245,16 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "finalizationStakes",
+    functionFragment: "calculateFixedFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "finalizations",
+    functionFragment: "feeConvertor",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "finalize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "finalizeSingleSigner",
+    functionFragment: "fixedFeeTarget",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -279,18 +263,6 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isLocalBlockReady",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lastFinalizedBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lastLocalBlock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "lastMinedBlock",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -303,27 +275,11 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "localBlockTransactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "localBlocks",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "mineRemoteBlock",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "minedBlockByNonce",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "minedBlockTransactions",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "minedBlocks",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "minerMgr", data: BytesLike): Result;
@@ -333,6 +289,10 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "registerMiner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "registerTransaction",
     data: BytesLike
   ): Result;
@@ -340,17 +300,27 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "stakes", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "reportInvalidBlock",
+    functionFragment: "submitFraudProof",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "updateAuthorityMgr",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateFeeConvertor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateFeeTargets",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -361,20 +331,127 @@ interface QuantumPortalLedgerMgrImplInterface extends ethers.utils.Interface {
     functionFragment: "updateMinerMgr",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateMinerMinimumStake",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updateState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "varFeeTarget",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AdminSet(address)": EventFragment;
+    "FinalizedBlock(uint256,uint256,uint256)": EventFragment;
+    "FinalizedInvalidBlock(uint256,uint256,uint256)": EventFragment;
+    "FinalizedSnapshot(uint256,uint256,uint256,address[])": EventFragment;
+    "LocalBlockCreated(uint64,uint64,uint64)": EventFragment;
+    "MinedBlockCreated(bytes32,address,uint256,uint256,tuple)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "RemoteTransactionRegistered(uint64,address,address,address,address,uint256,bytes,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FinalizedBlock"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FinalizedInvalidBlock"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FinalizedSnapshot"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LocalBlockCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MinedBlockCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "RemoteTransactionRegistered"
+  ): EventFragment;
 }
 
 export type AdminSetEvent = TypedEvent<[string] & { admin: string }>;
 
+export type FinalizedBlockEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber] & {
+    remoteChainId: BigNumber;
+    blockNonce: BigNumber;
+    timestamp: BigNumber;
+  }
+>;
+
+export type FinalizedInvalidBlockEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber] & {
+    remoteChainId: BigNumber;
+    blockNonce: BigNumber;
+    timestamp: BigNumber;
+  }
+>;
+
+export type FinalizedSnapshotEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber, string[]] & {
+    remoteChainId: BigNumber;
+    startBlockNonce: BigNumber;
+    endBlockNonce: BigNumber;
+    finalizers: string[];
+  }
+>;
+
+export type LocalBlockCreatedEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber] & {
+    remoteChainId: BigNumber;
+    nonce: BigNumber;
+    timestamp: BigNumber;
+  }
+>;
+
+export type MinedBlockCreatedEvent = TypedEvent<
+  [
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    [BigNumber, BigNumber, BigNumber] & {
+      chainId: BigNumber;
+      nonce: BigNumber;
+      timestamp: BigNumber;
+    }
+  ] & {
+    blockHash: string;
+    miner: string;
+    stake: BigNumber;
+    totalValue: BigNumber;
+    blockMetadata: [BigNumber, BigNumber, BigNumber] & {
+      chainId: BigNumber;
+      nonce: BigNumber;
+      timestamp: BigNumber;
+    };
+  }
+>;
+
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string] & { previousOwner: string; newOwner: string }
+>;
+
+export type RemoteTransactionRegisteredEvent = TypedEvent<
+  [
+    BigNumber,
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    string,
+    BigNumber,
+    BigNumber
+  ] & {
+    timestamp: BigNumber;
+    remoteContract: string;
+    sourceMsgSender: string;
+    sourceBeneficiary: string;
+    token: string;
+    amount: BigNumber;
+    method: string;
+    gas: BigNumber;
+    fixedFee: BigNumber;
+  }
 >;
 
 export class QuantumPortalLedgerMgrImpl extends BaseContract {
@@ -425,12 +502,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
 
     admin(overrides?: CallOverrides): Promise<[string]>;
 
-    authorityFinalizers(
-      arg0: BytesLike,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     authorityMgr(overrides?: CallOverrides): Promise<[string]>;
 
     calculateBlockHash(
@@ -443,33 +514,25 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    finalizationStakes(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+    calculateFixedFee(
+      targetChainId: BigNumberish,
+      varSize: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { finalizer: string; staked: BigNumber }>;
+    ): Promise<[BigNumber]>;
 
-    finalizations(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, BigNumber] & {
-        executor: string;
-        finalizedBlocksHash: string;
-        finalizersHash: string;
-        totalBlockStake: BigNumber;
-      }
-    >;
+    feeConvertor(overrides?: CallOverrides): Promise<[string]>;
 
     finalize(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
+      invalidBlockNonces: BigNumberish[],
       finalizersHash: BytesLike,
       finalizers: string[],
       salt: BytesLike,
@@ -478,16 +541,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    finalizeSingleSigner(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
-      finalizersHash: BytesLike,
-      finalizers: string[],
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
+    fixedFeeTarget(overrides?: CallOverrides): Promise<[string]>;
 
     getBlockIdx(
       chainId: BigNumberish,
@@ -499,39 +553,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       chainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    lastFinalizedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
-
-    lastLocalBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
-
-    lastMinedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
 
     lastRemoteMinedBlock(
       chainId: BigNumberish,
@@ -580,7 +601,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -589,55 +611,11 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[]
       ]
-    >;
-
-    localBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        string,
-        string,
-        string,
-        string,
-        BigNumber,
-        string,
-        BigNumber
-      ] & {
-        timestamp: BigNumber;
-        remoteContract: string;
-        sourceMsgSender: string;
-        sourceBeneficiary: string;
-        token: string;
-        amount: BigNumber;
-        method: string;
-        gas: BigNumber;
-      }
-    >;
-
-    localBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        [BigNumber, BigNumber, BigNumber] & {
-          chainId: BigNumber;
-          nonce: BigNumber;
-          timestamp: BigNumber;
-        }
-      ] & {
-        metadata: [BigNumber, BigNumber, BigNumber] & {
-          chainId: BigNumber;
-          nonce: BigNumber;
-          timestamp: BigNumber;
-        };
-      }
     >;
 
     mineRemoteBlock(
@@ -650,8 +628,9 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
@@ -668,6 +647,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         [
           string,
           string,
+          number,
           BigNumber,
           BigNumber,
           [BigNumber, BigNumber, BigNumber] & {
@@ -678,6 +658,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         ] & {
           blockHash: string;
           miner: string;
+          invalidBlock: number;
           stake: BigNumber;
           totalValue: BigNumber;
           blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -693,7 +674,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -702,13 +684,15 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[]
       ] & {
         b: [
           string,
           string,
+          number,
           BigNumber,
           BigNumber,
           [BigNumber, BigNumber, BigNumber] & {
@@ -719,6 +703,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         ] & {
           blockHash: string;
           miner: string;
+          invalidBlock: number;
           stake: BigNumber;
           totalValue: BigNumber;
           blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -734,7 +719,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -743,62 +729,10 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[];
-      }
-    >;
-
-    minedBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        string,
-        string,
-        string,
-        string,
-        BigNumber,
-        string,
-        BigNumber
-      ] & {
-        timestamp: BigNumber;
-        remoteContract: string;
-        sourceMsgSender: string;
-        sourceBeneficiary: string;
-        token: string;
-        amount: BigNumber;
-        method: string;
-        gas: BigNumber;
-      }
-    >;
-
-    minedBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        string,
-        string,
-        BigNumber,
-        BigNumber,
-        [BigNumber, BigNumber, BigNumber] & {
-          chainId: BigNumber;
-          nonce: BigNumber;
-          timestamp: BigNumber;
-        }
-      ] & {
-        blockHash: string;
-        miner: string;
-        stake: BigNumber;
-        totalValue: BigNumber;
-        blockMetadata: [BigNumber, BigNumber, BigNumber] & {
-          chainId: BigNumber;
-          nonce: BigNumber;
-          timestamp: BigNumber;
-        };
       }
     >;
 
@@ -808,6 +742,10 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    registerMiner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     registerTransaction(
       remoteChainId: BigNumberish,
       remoteContract: string,
@@ -815,7 +753,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       beneficiary: string,
       token: string,
       amount: BigNumberish,
-      gas: BigNumberish,
       method: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -824,9 +761,19 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    reportInvalidBlock(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    stakes(overrides?: CallOverrides): Promise<[string]>;
+
+    state(overrides?: CallOverrides): Promise<[string]>;
+
+    submitFraudProof(
+      minedOnChainId: BigNumberish,
+      localBlockNonce: BigNumberish,
+      localBlockTimestamp: BigNumberish,
       transactions: {
         timestamp: BigNumberish;
         remoteContract: string;
@@ -834,17 +781,14 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    setAdmin(
-      _admin: string,
+      rewardReceiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -858,6 +802,17 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    updateFeeConvertor(
+      _feeConvertor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateFeeTargets(
+      _varFeeTarget: string,
+      _fixedFeeTarget: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     updateLedger(
       _ledger: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -867,17 +822,23 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       _minerMgr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    updateMinerMinimumStake(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    updateState(
+      _state: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    varFeeTarget(overrides?: CallOverrides): Promise<[string]>;
   };
 
   VERSION(overrides?: CallOverrides): Promise<string>;
 
   admin(overrides?: CallOverrides): Promise<string>;
-
-  authorityFinalizers(
-    arg0: BytesLike,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   authorityMgr(overrides?: CallOverrides): Promise<string>;
 
@@ -891,33 +852,25 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       sourceBeneficiary: string;
       token: string;
       amount: BigNumberish;
-      method: BytesLike;
+      methods: BytesLike[];
       gas: BigNumberish;
+      fixedFee: BigNumberish;
     }[],
     overrides?: CallOverrides
   ): Promise<string>;
 
-  finalizationStakes(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
+  calculateFixedFee(
+    targetChainId: BigNumberish,
+    varSize: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<[string, BigNumber] & { finalizer: string; staked: BigNumber }>;
+  ): Promise<BigNumber>;
 
-  finalizations(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [string, string, string, BigNumber] & {
-      executor: string;
-      finalizedBlocksHash: string;
-      finalizersHash: string;
-      totalBlockStake: BigNumber;
-    }
-  >;
+  feeConvertor(overrides?: CallOverrides): Promise<string>;
 
   finalize(
     remoteChainId: BigNumberish,
     blockNonce: BigNumberish,
+    invalidBlockNonces: BigNumberish[],
     finalizersHash: BytesLike,
     finalizers: string[],
     salt: BytesLike,
@@ -926,16 +879,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  finalizeSingleSigner(
-    remoteChainId: BigNumberish,
-    blockNonce: BigNumberish,
-    finalizersHash: BytesLike,
-    finalizers: string[],
-    salt: BytesLike,
-    expiry: BigNumberish,
-    multiSignature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
+  fixedFeeTarget(overrides?: CallOverrides): Promise<string>;
 
   getBlockIdx(
     chainId: BigNumberish,
@@ -947,39 +891,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     chainId: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  lastFinalizedBlock(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      chainId: BigNumber;
-      nonce: BigNumber;
-      timestamp: BigNumber;
-    }
-  >;
-
-  lastLocalBlock(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      chainId: BigNumber;
-      nonce: BigNumber;
-      timestamp: BigNumber;
-    }
-  >;
-
-  lastMinedBlock(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      chainId: BigNumber;
-      nonce: BigNumber;
-      timestamp: BigNumber;
-    }
-  >;
 
   lastRemoteMinedBlock(
     chainId: BigNumberish,
@@ -1020,7 +931,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         string,
         string,
         BigNumber,
-        string,
+        string[],
+        BigNumber,
         BigNumber
       ] & {
         timestamp: BigNumber;
@@ -1029,47 +941,11 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumber;
-        method: string;
+        methods: string[];
         gas: BigNumber;
+        fixedFee: BigNumber;
       })[]
     ]
-  >;
-
-  localBlockTransactions(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      string,
-      string,
-      string,
-      string,
-      BigNumber,
-      string,
-      BigNumber
-    ] & {
-      timestamp: BigNumber;
-      remoteContract: string;
-      sourceMsgSender: string;
-      sourceBeneficiary: string;
-      token: string;
-      amount: BigNumber;
-      method: string;
-      gas: BigNumber;
-    }
-  >;
-
-  localBlocks(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
-      chainId: BigNumber;
-      nonce: BigNumber;
-      timestamp: BigNumber;
-    }
   >;
 
   mineRemoteBlock(
@@ -1082,8 +958,9 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       sourceBeneficiary: string;
       token: string;
       amount: BigNumberish;
-      method: BytesLike;
+      methods: BytesLike[];
       gas: BigNumberish;
+      fixedFee: BigNumberish;
     }[],
     salt: BytesLike,
     expiry: BigNumberish,
@@ -1100,6 +977,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       [
         string,
         string,
+        number,
         BigNumber,
         BigNumber,
         [BigNumber, BigNumber, BigNumber] & {
@@ -1110,6 +988,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       ] & {
         blockHash: string;
         miner: string;
+        invalidBlock: number;
         stake: BigNumber;
         totalValue: BigNumber;
         blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -1125,7 +1004,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         string,
         string,
         BigNumber,
-        string,
+        string[],
+        BigNumber,
         BigNumber
       ] & {
         timestamp: BigNumber;
@@ -1134,13 +1014,15 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumber;
-        method: string;
+        methods: string[];
         gas: BigNumber;
+        fixedFee: BigNumber;
       })[]
     ] & {
       b: [
         string,
         string,
+        number,
         BigNumber,
         BigNumber,
         [BigNumber, BigNumber, BigNumber] & {
@@ -1151,6 +1033,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       ] & {
         blockHash: string;
         miner: string;
+        invalidBlock: number;
         stake: BigNumber;
         totalValue: BigNumber;
         blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -1166,7 +1049,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         string,
         string,
         BigNumber,
-        string,
+        string[],
+        BigNumber,
         BigNumber
       ] & {
         timestamp: BigNumber;
@@ -1175,62 +1059,10 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumber;
-        method: string;
+        methods: string[];
         gas: BigNumber;
+        fixedFee: BigNumber;
       })[];
-    }
-  >;
-
-  minedBlockTransactions(
-    arg0: BigNumberish,
-    arg1: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      BigNumber,
-      string,
-      string,
-      string,
-      string,
-      BigNumber,
-      string,
-      BigNumber
-    ] & {
-      timestamp: BigNumber;
-      remoteContract: string;
-      sourceMsgSender: string;
-      sourceBeneficiary: string;
-      token: string;
-      amount: BigNumber;
-      method: string;
-      gas: BigNumber;
-    }
-  >;
-
-  minedBlocks(
-    arg0: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<
-    [
-      string,
-      string,
-      BigNumber,
-      BigNumber,
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    ] & {
-      blockHash: string;
-      miner: string;
-      stake: BigNumber;
-      totalValue: BigNumber;
-      blockMetadata: [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      };
     }
   >;
 
@@ -1240,6 +1072,10 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  registerMiner(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   registerTransaction(
     remoteChainId: BigNumberish,
     remoteContract: string,
@@ -1247,7 +1083,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     beneficiary: string,
     token: string,
     amount: BigNumberish,
-    gas: BigNumberish,
     method: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1256,9 +1091,19 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  reportInvalidBlock(
-    remoteChainId: BigNumberish,
-    blockNonce: BigNumberish,
+  setAdmin(
+    _admin: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  stakes(overrides?: CallOverrides): Promise<string>;
+
+  state(overrides?: CallOverrides): Promise<string>;
+
+  submitFraudProof(
+    minedOnChainId: BigNumberish,
+    localBlockNonce: BigNumberish,
+    localBlockTimestamp: BigNumberish,
     transactions: {
       timestamp: BigNumberish;
       remoteContract: string;
@@ -1266,17 +1111,14 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       sourceBeneficiary: string;
       token: string;
       amount: BigNumberish;
-      method: BytesLike;
+      methods: BytesLike[];
       gas: BigNumberish;
+      fixedFee: BigNumberish;
     }[],
     salt: BytesLike,
     expiry: BigNumberish,
     multiSignature: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  setAdmin(
-    _admin: string,
+    rewardReceiver: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -1290,6 +1132,17 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  updateFeeConvertor(
+    _feeConvertor: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateFeeTargets(
+    _varFeeTarget: string,
+    _fixedFeeTarget: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   updateLedger(
     _ledger: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -1300,16 +1153,22 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  updateMinerMinimumStake(
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  updateState(
+    _state: string,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  varFeeTarget(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     VERSION(overrides?: CallOverrides): Promise<string>;
 
     admin(overrides?: CallOverrides): Promise<string>;
-
-    authorityFinalizers(
-      arg0: BytesLike,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     authorityMgr(overrides?: CallOverrides): Promise<string>;
 
@@ -1323,33 +1182,25 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    finalizationStakes(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+    calculateFixedFee(
+      targetChainId: BigNumberish,
+      varSize: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[string, BigNumber] & { finalizer: string; staked: BigNumber }>;
+    ): Promise<BigNumber>;
 
-    finalizations(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [string, string, string, BigNumber] & {
-        executor: string;
-        finalizedBlocksHash: string;
-        finalizersHash: string;
-        totalBlockStake: BigNumber;
-      }
-    >;
+    feeConvertor(overrides?: CallOverrides): Promise<string>;
 
     finalize(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
+      invalidBlockNonces: BigNumberish[],
       finalizersHash: BytesLike,
       finalizers: string[],
       salt: BytesLike,
@@ -1358,16 +1209,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    finalizeSingleSigner(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
-      finalizersHash: BytesLike,
-      finalizers: string[],
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    fixedFeeTarget(overrides?: CallOverrides): Promise<string>;
 
     getBlockIdx(
       chainId: BigNumberish,
@@ -1379,39 +1221,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       chainId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    lastFinalizedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
-
-    lastLocalBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
-
-    lastMinedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
-    >;
 
     lastRemoteMinedBlock(
       chainId: BigNumberish,
@@ -1452,7 +1261,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -1461,47 +1271,11 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[]
       ]
-    >;
-
-    localBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        string,
-        string,
-        string,
-        string,
-        BigNumber,
-        string,
-        BigNumber
-      ] & {
-        timestamp: BigNumber;
-        remoteContract: string;
-        sourceMsgSender: string;
-        sourceBeneficiary: string;
-        token: string;
-        amount: BigNumber;
-        method: string;
-        gas: BigNumber;
-      }
-    >;
-
-    localBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
-        chainId: BigNumber;
-        nonce: BigNumber;
-        timestamp: BigNumber;
-      }
     >;
 
     mineRemoteBlock(
@@ -1514,8 +1288,9 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
@@ -1532,6 +1307,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         [
           string,
           string,
+          number,
           BigNumber,
           BigNumber,
           [BigNumber, BigNumber, BigNumber] & {
@@ -1542,6 +1318,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         ] & {
           blockHash: string;
           miner: string;
+          invalidBlock: number;
           stake: BigNumber;
           totalValue: BigNumber;
           blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -1557,7 +1334,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -1566,13 +1344,15 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[]
       ] & {
         b: [
           string,
           string,
+          number,
           BigNumber,
           BigNumber,
           [BigNumber, BigNumber, BigNumber] & {
@@ -1583,6 +1363,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         ] & {
           blockHash: string;
           miner: string;
+          invalidBlock: number;
           stake: BigNumber;
           totalValue: BigNumber;
           blockMetadata: [BigNumber, BigNumber, BigNumber] & {
@@ -1598,7 +1379,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           string,
           string,
           BigNumber,
-          string,
+          string[],
+          BigNumber,
           BigNumber
         ] & {
           timestamp: BigNumber;
@@ -1607,42 +1389,195 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           sourceBeneficiary: string;
           token: string;
           amount: BigNumber;
-          method: string;
+          methods: string[];
           gas: BigNumber;
+          fixedFee: BigNumber;
         })[];
       }
     >;
 
-    minedBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+    minerMgr(overrides?: CallOverrides): Promise<string>;
+
+    minerMinimumStake(overrides?: CallOverrides): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
+    registerMiner(overrides?: CallOverrides): Promise<void>;
+
+    registerTransaction(
+      remoteChainId: BigNumberish,
+      remoteContract: string,
+      msgSender: string,
+      beneficiary: string,
+      token: string,
+      amount: BigNumberish,
+      method: BytesLike,
       overrides?: CallOverrides
-    ): Promise<
-      [
-        BigNumber,
-        string,
-        string,
-        string,
-        string,
-        BigNumber,
-        string,
-        BigNumber
-      ] & {
-        timestamp: BigNumber;
+    ): Promise<void>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
+
+    stakes(overrides?: CallOverrides): Promise<string>;
+
+    state(overrides?: CallOverrides): Promise<string>;
+
+    submitFraudProof(
+      minedOnChainId: BigNumberish,
+      localBlockNonce: BigNumberish,
+      localBlockTimestamp: BigNumberish,
+      transactions: {
+        timestamp: BigNumberish;
         remoteContract: string;
         sourceMsgSender: string;
         sourceBeneficiary: string;
         token: string;
-        amount: BigNumber;
-        method: string;
-        gas: BigNumber;
+        amount: BigNumberish;
+        methods: BytesLike[];
+        gas: BigNumberish;
+        fixedFee: BigNumberish;
+      }[],
+      salt: BytesLike,
+      expiry: BigNumberish,
+      multiSignature: BytesLike,
+      rewardReceiver: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateAuthorityMgr(
+      _authorityMgr: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateFeeConvertor(
+      _feeConvertor: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateFeeTargets(
+      _varFeeTarget: string,
+      _fixedFeeTarget: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateLedger(_ledger: string, overrides?: CallOverrides): Promise<void>;
+
+    updateMinerMgr(_minerMgr: string, overrides?: CallOverrides): Promise<void>;
+
+    updateMinerMinimumStake(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    updateState(_state: string, overrides?: CallOverrides): Promise<void>;
+
+    varFeeTarget(overrides?: CallOverrides): Promise<string>;
+  };
+
+  filters: {
+    "AdminSet(address)"(
+      admin?: null
+    ): TypedEventFilter<[string], { admin: string }>;
+
+    AdminSet(admin?: null): TypedEventFilter<[string], { admin: string }>;
+
+    "FinalizedBlock(uint256,uint256,uint256)"(
+      remoteChainId?: null,
+      blockNonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; blockNonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    FinalizedBlock(
+      remoteChainId?: null,
+      blockNonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; blockNonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    "FinalizedInvalidBlock(uint256,uint256,uint256)"(
+      remoteChainId?: null,
+      blockNonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; blockNonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    FinalizedInvalidBlock(
+      remoteChainId?: null,
+      blockNonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; blockNonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    "FinalizedSnapshot(uint256,uint256,uint256,address[])"(
+      remoteChainId?: null,
+      startBlockNonce?: null,
+      endBlockNonce?: null,
+      finalizers?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber, string[]],
+      {
+        remoteChainId: BigNumber;
+        startBlockNonce: BigNumber;
+        endBlockNonce: BigNumber;
+        finalizers: string[];
       }
     >;
 
-    minedBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<
+    FinalizedSnapshot(
+      remoteChainId?: null,
+      startBlockNonce?: null,
+      endBlockNonce?: null,
+      finalizers?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber, string[]],
+      {
+        remoteChainId: BigNumber;
+        startBlockNonce: BigNumber;
+        endBlockNonce: BigNumber;
+        finalizers: string[];
+      }
+    >;
+
+    "LocalBlockCreated(uint64,uint64,uint64)"(
+      remoteChainId?: null,
+      nonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; nonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    LocalBlockCreated(
+      remoteChainId?: null,
+      nonce?: null,
+      timestamp?: null
+    ): TypedEventFilter<
+      [BigNumber, BigNumber, BigNumber],
+      { remoteChainId: BigNumber; nonce: BigNumber; timestamp: BigNumber }
+    >;
+
+    "MinedBlockCreated(bytes32,address,uint256,uint256,tuple)"(
+      blockHash?: null,
+      miner?: null,
+      stake?: null,
+      totalValue?: null,
+      blockMetadata?: null
+    ): TypedEventFilter<
       [
         string,
         string,
@@ -1653,7 +1588,8 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
           nonce: BigNumber;
           timestamp: BigNumber;
         }
-      ] & {
+      ],
+      {
         blockHash: string;
         miner: string;
         stake: BigNumber;
@@ -1666,68 +1602,36 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       }
     >;
 
-    minerMgr(overrides?: CallOverrides): Promise<string>;
-
-    minerMinimumStake(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    registerTransaction(
-      remoteChainId: BigNumberish,
-      remoteContract: string,
-      msgSender: string,
-      beneficiary: string,
-      token: string,
-      amount: BigNumberish,
-      gas: BigNumberish,
-      method: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    reportInvalidBlock(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
-      transactions: {
-        timestamp: BigNumberish;
-        remoteContract: string;
-        sourceMsgSender: string;
-        sourceBeneficiary: string;
-        token: string;
-        amount: BigNumberish;
-        method: BytesLike;
-        gas: BigNumberish;
-      }[],
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setAdmin(_admin: string, overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updateAuthorityMgr(
-      _authorityMgr: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    updateLedger(_ledger: string, overrides?: CallOverrides): Promise<void>;
-
-    updateMinerMgr(_minerMgr: string, overrides?: CallOverrides): Promise<void>;
-  };
-
-  filters: {
-    "AdminSet(address)"(
-      admin?: null
-    ): TypedEventFilter<[string], { admin: string }>;
-
-    AdminSet(admin?: null): TypedEventFilter<[string], { admin: string }>;
+    MinedBlockCreated(
+      blockHash?: null,
+      miner?: null,
+      stake?: null,
+      totalValue?: null,
+      blockMetadata?: null
+    ): TypedEventFilter<
+      [
+        string,
+        string,
+        BigNumber,
+        BigNumber,
+        [BigNumber, BigNumber, BigNumber] & {
+          chainId: BigNumber;
+          nonce: BigNumber;
+          timestamp: BigNumber;
+        }
+      ],
+      {
+        blockHash: string;
+        miner: string;
+        stake: BigNumber;
+        totalValue: BigNumber;
+        blockMetadata: [BigNumber, BigNumber, BigNumber] & {
+          chainId: BigNumber;
+          nonce: BigNumber;
+          timestamp: BigNumber;
+        };
+      }
+    >;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: string | null,
@@ -1744,18 +1648,82 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       [string, string],
       { previousOwner: string; newOwner: string }
     >;
+
+    "RemoteTransactionRegistered(uint64,address,address,address,address,uint256,bytes,uint256,uint256)"(
+      timestamp?: null,
+      remoteContract?: null,
+      sourceMsgSender?: null,
+      sourceBeneficiary?: null,
+      token?: null,
+      amount?: null,
+      method?: null,
+      gas?: null,
+      fixedFee?: null
+    ): TypedEventFilter<
+      [
+        BigNumber,
+        string,
+        string,
+        string,
+        string,
+        BigNumber,
+        string,
+        BigNumber,
+        BigNumber
+      ],
+      {
+        timestamp: BigNumber;
+        remoteContract: string;
+        sourceMsgSender: string;
+        sourceBeneficiary: string;
+        token: string;
+        amount: BigNumber;
+        method: string;
+        gas: BigNumber;
+        fixedFee: BigNumber;
+      }
+    >;
+
+    RemoteTransactionRegistered(
+      timestamp?: null,
+      remoteContract?: null,
+      sourceMsgSender?: null,
+      sourceBeneficiary?: null,
+      token?: null,
+      amount?: null,
+      method?: null,
+      gas?: null,
+      fixedFee?: null
+    ): TypedEventFilter<
+      [
+        BigNumber,
+        string,
+        string,
+        string,
+        string,
+        BigNumber,
+        string,
+        BigNumber,
+        BigNumber
+      ],
+      {
+        timestamp: BigNumber;
+        remoteContract: string;
+        sourceMsgSender: string;
+        sourceBeneficiary: string;
+        token: string;
+        amount: BigNumber;
+        method: string;
+        gas: BigNumber;
+        fixedFee: BigNumber;
+      }
+    >;
   };
 
   estimateGas: {
     VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
     admin(overrides?: CallOverrides): Promise<BigNumber>;
-
-    authorityFinalizers(
-      arg0: BytesLike,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     authorityMgr(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1769,26 +1737,25 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    finalizationStakes(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+    calculateFixedFee(
+      targetChainId: BigNumberish,
+      varSize: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    finalizations(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    feeConvertor(overrides?: CallOverrides): Promise<BigNumber>;
 
     finalize(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
+      invalidBlockNonces: BigNumberish[],
       finalizersHash: BytesLike,
       finalizers: string[],
       salt: BytesLike,
@@ -1797,16 +1764,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    finalizeSingleSigner(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
-      finalizersHash: BytesLike,
-      finalizers: string[],
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    fixedFeeTarget(overrides?: CallOverrides): Promise<BigNumber>;
 
     getBlockIdx(
       chainId: BigNumberish,
@@ -1816,21 +1774,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
 
     isLocalBlockReady(
       chainId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    lastFinalizedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    lastLocalBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    lastMinedBlock(
-      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1847,17 +1790,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    localBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    localBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     mineRemoteBlock(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
@@ -1868,8 +1800,9 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
@@ -1883,22 +1816,15 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    minedBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    minedBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     minerMgr(overrides?: CallOverrides): Promise<BigNumber>;
 
     minerMinimumStake(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    registerMiner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     registerTransaction(
       remoteChainId: BigNumberish,
@@ -1907,7 +1833,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       beneficiary: string,
       token: string,
       amount: BigNumberish,
-      gas: BigNumberish,
       method: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1916,9 +1841,19 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    reportInvalidBlock(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    stakes(overrides?: CallOverrides): Promise<BigNumber>;
+
+    state(overrides?: CallOverrides): Promise<BigNumber>;
+
+    submitFraudProof(
+      minedOnChainId: BigNumberish,
+      localBlockNonce: BigNumberish,
+      localBlockTimestamp: BigNumberish,
       transactions: {
         timestamp: BigNumberish;
         remoteContract: string;
@@ -1926,17 +1861,14 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    setAdmin(
-      _admin: string,
+      rewardReceiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -1950,6 +1882,17 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    updateFeeConvertor(
+      _feeConvertor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateFeeTargets(
+      _varFeeTarget: string,
+      _fixedFeeTarget: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     updateLedger(
       _ledger: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1959,18 +1902,24 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       _minerMgr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    updateMinerMinimumStake(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    updateState(
+      _state: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    varFeeTarget(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    authorityFinalizers(
-      arg0: BytesLike,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     authorityMgr(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1984,26 +1933,25 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    finalizationStakes(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
+    calculateFixedFee(
+      targetChainId: BigNumberish,
+      varSize: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    finalizations(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    feeConvertor(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     finalize(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
+      invalidBlockNonces: BigNumberish[],
       finalizersHash: BytesLike,
       finalizers: string[],
       salt: BytesLike,
@@ -2012,16 +1960,7 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    finalizeSingleSigner(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
-      finalizersHash: BytesLike,
-      finalizers: string[],
-      salt: BytesLike,
-      expiry: BigNumberish,
-      multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
+    fixedFeeTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getBlockIdx(
       chainId: BigNumberish,
@@ -2031,21 +1970,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
 
     isLocalBlockReady(
       chainId: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    lastFinalizedBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    lastLocalBlock(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    lastMinedBlock(
-      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2062,17 +1986,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    localBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    localBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     mineRemoteBlock(
       remoteChainId: BigNumberish,
       blockNonce: BigNumberish,
@@ -2083,8 +1996,9 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
@@ -2098,22 +2012,15 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    minedBlockTransactions(
-      arg0: BigNumberish,
-      arg1: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    minedBlocks(
-      arg0: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     minerMgr(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     minerMinimumStake(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    registerMiner(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     registerTransaction(
       remoteChainId: BigNumberish,
@@ -2122,7 +2029,6 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       beneficiary: string,
       token: string,
       amount: BigNumberish,
-      gas: BigNumberish,
       method: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -2131,9 +2037,19 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    reportInvalidBlock(
-      remoteChainId: BigNumberish,
-      blockNonce: BigNumberish,
+    setAdmin(
+      _admin: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    stakes(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    state(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    submitFraudProof(
+      minedOnChainId: BigNumberish,
+      localBlockNonce: BigNumberish,
+      localBlockTimestamp: BigNumberish,
       transactions: {
         timestamp: BigNumberish;
         remoteContract: string;
@@ -2141,17 +2057,14 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
         sourceBeneficiary: string;
         token: string;
         amount: BigNumberish;
-        method: BytesLike;
+        methods: BytesLike[];
         gas: BigNumberish;
+        fixedFee: BigNumberish;
       }[],
       salt: BytesLike,
       expiry: BigNumberish,
       multiSignature: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setAdmin(
-      _admin: string,
+      rewardReceiver: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2165,6 +2078,17 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    updateFeeConvertor(
+      _feeConvertor: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateFeeTargets(
+      _varFeeTarget: string,
+      _fixedFeeTarget: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     updateLedger(
       _ledger: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -2174,5 +2098,17 @@ export class QuantumPortalLedgerMgrImpl extends BaseContract {
       _minerMgr: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    updateMinerMinimumStake(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateState(
+      _state: string,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    varFeeTarget(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

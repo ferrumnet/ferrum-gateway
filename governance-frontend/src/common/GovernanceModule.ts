@@ -4,6 +4,7 @@ import { GovernanceClient } from '../GovernanceClient';
 import { Connect } from 'unifyre-extension-web3-retrofit';
 import { IronSafeClient } from '../pages/examples/IronSafe/IronSafeClient';
 import { StandaloneClient } from 'common-containers/dist/clients/StandaloneClient';
+import { GitHubConstants } from 'common-containers/dist/clients/GitHubConstants';
 
 export class GovernanceModule implements Module {
     private configured: boolean = false;

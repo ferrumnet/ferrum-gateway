@@ -113,7 +113,6 @@ export class ApiClient implements Injectable {
 		}
 	}
 
-
 	async api(req: JsonRpcRequest): Promise<any> {
 			try {
 					const res = await fetch(this.baseUrl, {

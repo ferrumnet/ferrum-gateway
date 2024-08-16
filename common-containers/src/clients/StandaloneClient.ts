@@ -57,6 +57,7 @@ export class StandaloneClient implements Injectable {
         if (!!p) {
             return p;
         }
+        console.log('CONFIGURED PROVIDERS', this.providers);
         const provider = new JsonRpcProvider(this.providers[network] || panick(`No rpc provider is configured for network "${network}"`) as any);
         ValidationUtils.isTrue(!!provider, `Error creating JsonRpcProvider for network "${network}"`);
         this.cache.set(network, provider);
@@ -64,11 +65,14 @@ export class StandaloneClient implements Injectable {
     }
 
     async loadBackendConstants(): Promise<{providers: NetworkedConfig<string>, constants: BackendConstants}> {
+        console.log("LOADING BACKEND CONSTANTS...");
         const {providers, constants} = await this.globalConstants.get();
 		if (!!constants) {
 			Utils.initConstants(constants);
 		}
+        console.log("LOADING BACKEND CONSTANTS...", {constants, providers});
         this.providers = providers;
+        console.log('DATA LOADED', providers);
         return {providers, constants};
     }
 

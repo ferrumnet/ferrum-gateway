@@ -35,23 +35,24 @@ export class QuantumPortalExplorerRequestProcessor
             this.svc.accountBalances(req.data.address));
 
         this.registerProcessor('CallMethodOnContract', req => {
-            ValidationUtils.allRequired(
-                ['network', 'contract', 'abi', 'method', 'args'], req.data);
+            ValidationUtils.allRequired(req.data);
+                // { network, contract, abi, method, args});
+                // ['network', 'contract', 'abi', 'method', 'args'], req.data);
             return this.svc.callMethod(
             req.data.network, req.data.contract, req.data.abi, req.data.method, req.data.args)
         });
         this.registerProcessor('GetMethodTransactionOnContract', req => {
-            ValidationUtils.allRequired(
-                ['network', 'contract', 'abi', 'method', 'args', 'userAddress'], req.data);
+            ValidationUtils.allRequired(req.data);
+                // ['network', 'contract', 'abi', 'method', 'args', 'userAddress'], req.data);
             return this.svc.methodGetTransaction(
             req.data.network, req.data.contract, req.data.abi, req.data.method, req.data.args, req.data.userAddress)
         });
 
         this.registerProcessor('registerQpContract', req => {
-            ValidationUtils.allRequired(
-                ['networks', 'contractAddress'], req.data);
-            ValidationUtils.allRequired(
-                ['contractName', 'sourceName', 'abi', 'bytecode', 'deployedBytecode'], req.data.contract);
+            ValidationUtils.allRequired(req.data);
+                // ['networks', 'contractAddress'], req.data);
+            ValidationUtils.allRequired(req.data.contract);
+                // ['contractName', 'sourceName', 'abi', 'bytecode', 'deployedBytecode'], req.data.contract);
             return this.svc.registerQpContract(
                 req.data.networks,
                 req.data.contractAddress,
@@ -60,7 +61,8 @@ export class QuantumPortalExplorerRequestProcessor
         });
 
         this.registerProcessor('nodeSync', req => {
-            ValidationUtils.allRequired(['network', 'remoteNetwork'], req.data);
+            ValidationUtils.allRequired(req.data);
+                // ['network', 'remoteNetwork'], req.data);
             return this.nodeSvc.process(req.data.network, req.data.remoteNetwork);
         });
     }

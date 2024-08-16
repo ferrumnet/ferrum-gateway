@@ -45,6 +45,7 @@ export class IronSafeClient {
 	__name__() { return 'IronSafeClient'; }
 
     async getIronSafeVetoerInfo(network: string, contractAddress: string, userAddress: string): Promise<{vetoerCount: string, isVetoer: boolean}> {
+      console.log('PROVIDER FOR ', network);
         const provider = this.api.ethersProvider(network);
         const contract = new Contract(contractAddress, IRON_SAFE_SUB_ABI, provider);
         const vetoerCount = await contract.vetoRightsLength();

@@ -6,9 +6,9 @@ export interface QpContractConfig {
 
 export const QP_CONTRACT_CONFIG: QpContractConfig = {
     gateway: {
-        'BSC_TESTNET': '0x92660cbfa6f120dd4343afd4a74a030506dc9acb',
-        'MUMBAI_TESTNET': '0x92660cbfa6f120dd4343afd4a74a030506dc9acb',
-        'FERRUM_TESTNET': '0x92660cbfa6f120dd4343afd4a74a030506dc9acb',
-        'AVAX_TESTNET': '0x92660cbfa6f120dd4343afd4a74a030506dc9acb',
+        'BSC': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
+        'ETHEREUM_ARBITRUM': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
+        'BASE_MAINNET': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
+        'FERRUM_TESTNET': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
     },
 }
