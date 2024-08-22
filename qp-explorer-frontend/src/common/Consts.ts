@@ -6,9 +6,9 @@ export interface QpContractConfig {
 
 export const QP_CONTRACT_CONFIG: QpContractConfig = {
     gateway: {
-        'BSC': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
-        'ETHEREUM_ARBITRUM': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
-        'BASE_MAINNET': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
-        'FERRUM_TESTNET': '0x69b029230cdb36366419ef3d1e72ccb896d9c75c',
+        'BSC': '0xba084017c14c81b9bb07c7730176307cbb264763',
+        'ETHEREUM_ARBITRUM': '0xba084017c14c81b9bb07c7730176307cbb264763',
+        'BASE_MAINNET': '0xba084017c14c81b9bb07c7730176307cbb264763',
+        'FERRUM_TESTNET': '0x01072085b62f3572e034798f3fca46cbe6d581d3',
     },
 }
