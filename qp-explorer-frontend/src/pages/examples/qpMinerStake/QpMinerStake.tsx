@@ -21,6 +21,7 @@ interface QpMinerStakeState {
     withdrawAmount: string;
     delegateAddress: string;
     operatorAddress: string;
+    validatorOperatorAddress: string;
 
     error?: string;
 }
@@ -60,6 +61,11 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
             return {
                 ...state,
                 operatorAddress: action.payload.value,
+            }
+        case 'UPDATE_VALIDATOR_OPERATOR':
+            return {
+                ...state,
+                validatorOperatorAddress: action.payload.value,
             }
         case 'UPDATE_WITHDRAW':
             return {
@@ -123,6 +129,12 @@ async function withdraw(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>)
 async function assignOperator(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
     const client = inject<QpMinerClient>(QpMinerClient);
     const txId = await client.assignOperator(state.operatorAddress);
+    // TODO: Handle tx ID
+}
+
+async function assignValidatorOperator(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpMinerClient>(QpMinerClient);
+    const txId = await client.assignValidatorOperator(state.validatorOperatorAddress);
     // TODO: Handle tx ID
 }
 
@@ -235,6 +247,13 @@ export function QpMinerStake(props: {}) {
                                 postfix={<FButton
                                     title={'ASSIGN - ONLY MINER'} onClick={() => assignOperator(state, dispatch)}
                                     disabled={Number(state.miner?.totalStakedHuman || '0') === 0}
+                                />}
+                            />
+                            <FInputText label={'Validator Operator'}
+                                value={state.validatorOperatorAddress}
+                                onChange={(e: any) => dispatch({type: 'UPDATE_VALIDATOR_OPERATOR', payload: { value: e.target.value }})}
+                                postfix={<FButton
+                                    title={'ASSIGN - ONLY VALIDATOR'} onClick={() => assignValidatorOperator(state, dispatch)}
                                 />}
                             />
                             <FInputText label={'Delegate'}

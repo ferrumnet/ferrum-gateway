@@ -5,8 +5,6 @@ import { QuantumPortalGateway } from '../../../typechain-types/QuantumPortalGate
 import { QuantumPortalGateway__factory } from '../../../typechain-types/factories/QuantumPortalGateway__factory';
 import { QuantumPortalLedgerMgrImpl } from '../../../typechain-types/QuantumPortalLedgerMgrImpl';
 import { QuantumPortalLedgerMgrImpl__factory } from '../../../typechain-types/factories/QuantumPortalLedgerMgrImpl__factory';
-import { QuantumPortalStake } from '../../../typechain-types/QuantumPortalStake';
-import { QuantumPortalStake__factory } from '../../../typechain-types/factories/QuantumPortalStake__factory';
 import { Utils } from 'types';
 import { QpContractConfig } from '../../../common/Consts';
 import { QuantumPortalMinerMgr } from '../../../typechain-types/QuantumPortalMinerMgr';
@@ -14,7 +12,9 @@ import { QuantumPortalMinerMgr__factory } from '../../../typechain-types/factori
 import { OperatorRelation } from '../../../typechain-types/OperatorRelation';
 import { QuantumPortalStakeWithDelegate } from '../../../typechain-types/QuantumPortalStakeWithDelegate';
 import { QuantumPortalStakeWithDelegate__factory } from '../../../typechain-types/factories/QuantumPortalStakeWithDelegate__factory';
-import { QuantumPortalLedgerMgr } from '../../../typechain-types';
+import { QuantumPortalAuthorityMgr } from '../../../typechain-types/QuantumPortalAuthorityMgr';
+import { QuantumPortalAuthorityMgr__factory } from '../../../typechain-types/factories/QuantumPortalAuthorityMgr__factory';
+import { ethers } from 'ethers';
 
 export interface QpMinerStakeInfo {
     qpGatewayContract: string;
@@ -142,6 +142,28 @@ export class QpMinerClient implements Injectable {
         return await this.api.runPopulatedTransaction(tx);
     }
 
+    async assignValidatorOperator(operator: string): Promise<string> {
+        const val = await this.validatorContract()
+        const con = ethers.ContractFactory.getContract(val.address, [
+            {
+            "inputs": [
+                {
+                "internalType": "address",
+                "name": "toOp",
+                "type": "address"
+                }
+            ],
+            "name": "assignOperator",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+            },
+        ]);
+        const tx = await con.populateTransaction.assignOperator(operator, { from: this.address() });
+        // const tx = await val.populateTransaction. assignOperator(operator, { from: this.address() });
+        return await this.api.runPopulatedTransaction(tx);
+    }
+
     async registerMiner(): Promise<string> {
         const gw = this.qpGateway();
         const mgrAddr = await gw.quantumPortalLedgerMgr();
@@ -202,6 +224,22 @@ export class QpMinerClient implements Injectable {
         });
     }
 
+    async validatorContract(): Promise<QuantumPortalAuthorityMgr> {
+        return this.qpStakeCache.getAsync(this.network() + '_AuthMgr', async () => {
+            try {
+                const gw = this.qpGateway();
+                console.log('Gateway is', gw.address);
+                const amAddr = await gw.quantumPortalAuthorityMgr();
+                const mm = QuantumPortalAuthorityMgr__factory.connect(amAddr, this.api.ethersProvider(this.network()));
+                ValidationUtils.isTrue(!!mm, 'Could not connect to authMgr contract');
+                return mm;
+            } catch(e) {
+                console.error('Error initialinzg the authMgr contract', e as Error);
+                throw e;
+            }
+        });
+    }
+
     async minerMgrContract(): Promise<QuantumPortalMinerMgr> {
         return this.qpStakeCache.getAsync(this.network() + '_MinerMgr', async () => {
             try {
@@ -212,7 +250,7 @@ export class QpMinerClient implements Injectable {
                 ValidationUtils.isTrue(!!mm, 'Could not connect to minerMgr contract');
                 return mm;
             } catch(e) {
-                console.error('Error initialinzg the stake contract', e as Error);
+                console.error('Error initialinzg the minerMgr contract', e as Error);
                 throw e;
             }
         });
