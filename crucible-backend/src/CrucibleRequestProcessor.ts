@@ -158,10 +158,10 @@ export class CrucibleRequestProcessor
   }
 
   async deployGetTransaction(req: HttpRequestData, userId: string) {
-    ValidationUtils.allRequired(
-      ["baseCurrency", "feeOnTransfer", "feeOnWithdraw"],
-      req
-    );
+    // ValidationUtils.allRequired(
+    //   ["baseCurrency", "feeOnTransfer", "feeOnWithdraw"],
+    //   req
+    // );
     const { baseCurrency, feeOnTransfer, feeOnWithdraw } = req.data;
     return this.svc.deployGetTransaction(
       userId,
@@ -172,10 +172,10 @@ export class CrucibleRequestProcessor
   }
 
   async deployNamedGetTransaction(req: HttpRequestData, userId: string) {
-    ValidationUtils.allRequired(
-      ["baseCurrency", "feeOnTransfer", "feeOnWithdraw","symbol","name"],
-      req
-    );
+    // ValidationUtils.allRequired(
+    //   ["baseCurrency", "feeOnTransfer", "feeOnWithdraw","symbol","name"],
+    //   req
+    // );
     const { baseCurrency, feeOnTransfer, feeOnWithdraw, name, symbol } = req.data;
     return this.svc.deployNamedGetTransaction(
       userId,
@@ -188,17 +188,17 @@ export class CrucibleRequestProcessor
   }
 
   async depositAddLiquidityAndStake(req: HttpRequestData, userId: string) {
-    ValidationUtils.allRequired(
-      [
-        "baseCurrency",
-        "targetCurrency",
-        "baseAmount",
-        "targetAmount",
-        "crucible",
-        "dealine",
-      ],
-      req
-    );
+    // ValidationUtils.allRequired(
+    //   [
+    //     "baseCurrency",
+    //     "targetCurrency",
+    //     "baseAmount",
+    //     "targetAmount",
+    //     "crucible",
+    //     "dealine",
+    //   ],
+    //   req
+    // );
     const {
       baseCurrency,
       targetCurrency,
@@ -219,7 +219,7 @@ export class CrucibleRequestProcessor
   }
 
   async stakeForGetTransaction(req: HttpRequestData, userId: string) {
-    ValidationUtils.allRequired(["currency", "stake", "amount"], req);
+    // ValidationUtils.allRequired(["currency", "stake", "amount"], req);
     const { currency, stake, amount } = req.data;
     return this.svc.stakeForGetTransaction(userId, currency, stake, amount);
   }

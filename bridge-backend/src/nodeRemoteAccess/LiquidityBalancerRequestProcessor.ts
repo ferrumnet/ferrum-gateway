@@ -15,7 +15,7 @@ export class LiquidityBalancerRequestProcessor
 
         this.registerProcessorAuth("getAvailableLiquidityForBalancer", async (req, auth) => {
             ValidationUtils.isTrue(!!auth.hmacPublicKey, "Unauthorized");
-            ValidationUtils.allRequired(['currency', 'address'], req.data);
+            // ValidationUtils.allRequired(['currency', 'address'], req.data);
             const { currency, address } = req.data;
             const totalLiquidity = await this.bridge.getAvailableLiquidity(currency);
             const userLiquidity = await this.bridge.getLiquidity(address, currency);
@@ -30,7 +30,7 @@ export class LiquidityBalancerRequestProcessor
 
         this.registerProcessorAuth("removeLiquidityTransactionForBalancer", async (req, auth) => {
             ValidationUtils.isTrue(!!auth.hmacPublicKey, "Unauthorized");
-            ValidationUtils.allRequired(['currency', 'address', 'amount'], req.data);
+            // ValidationUtils.allRequired(['currency', 'address', 'amount'], req.data);
             const { currency, address, amount } = req.data;
             const call = await this.bridge.removeLiquidityIfPossibleGetTransaction(
                 address, currency, amount);
@@ -41,7 +41,7 @@ export class LiquidityBalancerRequestProcessor
 
         this.registerProcessorAuth("addLiquidityTransactionForBalancer", async (req, auth) => {
             ValidationUtils.isTrue(!!auth.hmacPublicKey, "Unauthorized");
-            ValidationUtils.allRequired(['currency', 'address', 'amount'], req.data);
+            // ValidationUtils.allRequired(['currency', 'address', 'amount'], req.data);
             const { currency, address, amount } = req.data;
             const call = (await this.bridge.addLiquidityGetTransaction(
                 address, currency, amount)).requests[0];
@@ -52,7 +52,7 @@ export class LiquidityBalancerRequestProcessor
 
         this.registerProcessorAuth("sendRawTransaction", async (req, auth) => {
             ValidationUtils.isTrue(!!auth.hmacPublicKey, "Unauthorized");
-            ValidationUtils.allRequired(['network', 'transaction',], req.data);
+            // ValidationUtils.allRequired(['network', 'transaction',], req.data);
             const { network, transaction } = req.data;
             const web3 = this.helper.web3(network);
             return await web3.sendSignedTransaction(transaction);

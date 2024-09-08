@@ -10,6 +10,7 @@ import { GovernanceContractDefinitions, GovernanceContractList } from "./contrac
 import { Eip712Params, encodeMultiSig, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
 import { randomBytes } from 'ferrum-crypto';
 import { TransactionTrackableSchema, TransactionTracker } from 'common-backend/dist/contracts/TransactionTracker';
+import { AbiFetcher } from "./AbiFetcher";
 
 export const CACHE_TIMEOUT = 600 * 1000; // 10 min
 
@@ -57,6 +58,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	constructor(
 		private helper: EthereumSmartContractHelper,
 		private tracker: TransactionTracker,
+		private abi: AbiFetcher,
 	) {
 		super();
 	}
@@ -79,8 +81,27 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		]
 	}
 
-	async contractById(id: string) {
-		return GovernanceContractDefinitions[id];
+	async contractById(network: string, contractAddress: string, id: string) {
+		const registered = GovernanceContractDefinitions[id];
+		if (!registered) {
+			const abi = await this.abi.fetchAbi(network, contractAddress);
+			if (abi) {
+				if (abi.find(m => m.name === 'VERSION') && abi.find(m => m.name === 'NAME')) {
+					const con = await this.contract(network, contractAddress);
+					const name = await con.NAME();
+					const version = await con.VERSION();
+					const contractId = `${name}:${version}`;
+					console.log(`Read the id for contract ${contractAddress}: ${contractId}`);
+					const definition = createGovernanceDefinitionFromAbi(id, abi);
+					console.log('Got definition: ', {definition})
+					if (!!definition) {
+						GovernanceContractDefinitions[id] = definition;
+					}
+					return definition;
+				}
+			}
+		}
+		return registered;
 	}
 
 	async getSubscription(network: string, contractAddress: string, userAddress: string) {
@@ -102,7 +123,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 		requestId: string,
 		signature: string,
 	) {
-		ValidationUtils.allRequired(['userAddress', 'requestId', 'signature'], {userAddress, requestId, signature});
+		ValidationUtils.allRequired({userAddress, requestId, signature});
 		const tx = await this.getGovTransaction(requestId);
 		ValidationUtils.isTrue(!!tx, 'requestId not found: ' + requestId);
 		await this.methodCall(tx.network, tx.contractAddress, tx.governanceContractId, tx.method, [], true, userAddress, signature);
@@ -341,6 +362,23 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	}
 }
 
-function shat256(requestId: string) {
-	throw new Error("Function not implemented.");
+function abiItemToMethod(item: any) {
+	if (item.inputs?.length < 3) return null;
+	const [salt, expiry, multisig] = item.inputs.slice(-3);
+	if (multisig.type === 'bytes' && expiry.type === 'uint64' && salt.type === 'bytes32') {
+		item.args = [...item.inputs.slice(0, item.inputs.length - 1)]; // Filter out the signature, keep the rest
+		return item;
+	}
 }
+
+function createGovernanceDefinitionFromAbi(id: string, abi: any[]): GovernanceContract{
+	const [name, version] = id.split(':');
+	return {
+		id,
+		identifier: {
+			name, version,
+		},
+		methods: abi.map(m => abiItemToMethod(m)).filter(Boolean),
+	}
+}
+

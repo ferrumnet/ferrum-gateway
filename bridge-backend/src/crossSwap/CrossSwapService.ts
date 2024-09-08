@@ -72,8 +72,7 @@ export class CrossSwapService extends MongooseConnection implements Injectable {
 		fromProtocols: SwapProtocol[],
 		toProtocols: SwapProtocol[],
 		): Promise<SwapQuote> {
-		ValidationUtils.allRequired(['fromCurrency', 'toCurrency', 'throuchCurrencies', 'amountIn'], {
-			fromCurrency, toCurrency, throuhCurrencies, amountIn });
+		ValidationUtils.allRequired({ fromCurrency, toCurrency, throuhCurrencies, amountIn });
 		const [fromNetwork,] = EthereumSmartContractHelper.parseCurrency(fromCurrency);
 		const [toNetwork,] = EthereumSmartContractHelper.parseCurrency(toCurrency);
 		ValidationUtils.isTrue(

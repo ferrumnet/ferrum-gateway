@@ -149,7 +149,7 @@ export class BridgeRequestProcessor
 
   async getWithdrawItem(req: HttpRequestData) {
     const { network, receiveTransactionId } = req.data;
-    ValidationUtils.allRequired(["network", "receiveTransactionId"], req.data);
+    ValidationUtils.allRequired({network, receiveTransactionId});
     return await this.svc.getWithdrawItem(receiveTransactionId);
   }
 

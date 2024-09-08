@@ -214,36 +214,53 @@ export class NodeUtils {
             EXPECTED_WI_SCHEMA_VERSIONS.indexOf(wi.version) >= 0,
             "Invalid schema version"
         );
-        ValidationUtils.allRequired(
-        [
-            "receiveNetwork",
-            "receiveCurrency",
-            "receiveTransactionId",
-            "receiveAddress",
-            "receiveAmount",
+        const {
+            receiveNetwork,
+            receiveCurrency,
+            receiveTransactionId,
+            receiveAddress,
+            receiveAmount,
 
-            "sendNetwork",
-            "sendAddress",
-            "sendCurrency",
-            "payBySig",
-        ],
-        wi
-        );
-        ValidationUtils.allRequired(
-        [
-            "token",
-            "payee",
-            "amount",
-            "sourceChainId",
-            "swapTxId",
-            "contractName",
-            "contractVersion",
-            "contractAddress",
-            "hash",
-            "signatures",
-        ],
-        wi.payBySig
-        );
+            sendNetwork,
+            sendAddress,
+            sendCurrency,
+            payBySig,
+        } = wi;
+        ValidationUtils.allRequired({
+            receiveNetwork,
+            receiveCurrency,
+            receiveTransactionId,
+            receiveAddress,
+            receiveAmount,
+
+            sendNetwork,
+            sendAddress,
+            sendCurrency,
+            payBySig,});
+        const {
+            token,
+            payee,
+            amount,
+            sourceChainId,
+            swapTxId,
+            contractName,
+            contractVersion,
+            contractAddress,
+            hash,
+            signatures,
+        } = wi.payBySig;
+        ValidationUtils.allRequired({
+            token,
+            payee,
+            amount,
+            sourceChainId,
+            swapTxId,
+            contractName,
+            contractVersion,
+            contractAddress,
+            hash,
+            signatures,
+        });
         const contractVer = (wi.version === '0.1' || wi.version == '1.0') ?
             BridgeContractVersions.V1_0 : BridgeContractVersions.V1_2;
         const isV12 = contractVer === BridgeContractVersions.V1_2;

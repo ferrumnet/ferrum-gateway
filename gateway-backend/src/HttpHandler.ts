@@ -224,7 +224,7 @@ export class HttpHandler implements LambdaHttpHandler {
     req: JsonRpcRequest
   ): Promise<ChainEventBase[]> {
     const { eventType, events } = req.data;
-    ValidationUtils.allRequired(["eventType", "events"], req.data);
+    ValidationUtils.allRequired({ eventType, events });
     switch (eventType) {
       case "transaction":
 				return await this.chainEventService.updateChainEvents(userId, req.data.events);

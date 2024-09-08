@@ -29,7 +29,7 @@ export const loadSubscription = createAsyncThunk('governanceContract/loadSubscri
 export const loadContract = createAsyncThunk('governanceContract/load',
 	async (payload: { network: string, contractAddress: string, contractId: string }, ctx) => {
 		const client = inject<GovernanceClient>(GovernanceClient);
-		await client.contractById(ctx.dispatch, payload.contractId);
+		await client.contractById(ctx.dispatch, payload.network, payload.contractAddress, payload.contractId);
 });
 
 export const loadTrans = createAsyncThunk('governanceContract/load',

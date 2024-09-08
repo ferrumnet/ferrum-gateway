@@ -42,14 +42,14 @@ export class GovernanceRequestProcessor
   }
 
   async contractById(req: HttpRequestData) {
-    const { id } = req.data;
-    ValidationUtils.isTrue(!!id, "id must be provided");
-    return this.svc.contractById(id);
+    const { network, contractAddress, id } = req.data;
+    ValidationUtils.allRequired({ network, contractAddress, id });
+    return this.svc.contractById(network, contractAddress, id);
   }
 
   async archiveTransaction(req: HttpRequestData, userId: string) {
     const { requestId, signature, } = req.data;
-    ValidationUtils.allRequired(['requestId', 'signature'], req.data);
+    ValidationUtils.allRequired({ requestId, signature, });
     return this.svc.archiveTransaction(userId, requestId, signature);
   }
 
@@ -63,44 +63,45 @@ export class GovernanceRequestProcessor
       metadata,
 			signature,
 	} = req.data;
-    ValidationUtils.allRequired([
-			'network',
-			'contractAddress',
-			'governanceContractId',
-			'method',
-			'args',
-      'metadata',
-			'signature',], req.data);
+    ValidationUtils.allRequired({ 
+			network,
+			contractAddress,
+			governanceContractId,
+			method,
+			args,
+      metadata,
+			signature,
+	});
     return this.svc.proposeTransaction(network, contractAddress, governanceContractId, method, args, metadata, userId, signature);
   }
 
   async addSignature(req: HttpRequestData, userId: string) {
     const { requestId, signature, metadata} = req.data;
-    ValidationUtils.allRequired(['requestId', 'signature', 'metadata'], req.data);
+    ValidationUtils.allRequired({ requestId, signature, metadata});
     return this.svc.addSignature(userId, requestId, signature, metadata);
   }
 
   async listTransactions(req: HttpRequestData, userId: string) {
     const { network, contractAddress } = req.data;
-    ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
+    ValidationUtils.allRequired({ network, contractAddress });
     return this.svc.listTransactions(network, contractAddress);
   }
 
   async getSubscription(req: HttpRequestData, userId: string) {
     const { network, contractAddress } = req.data;
-    ValidationUtils.allRequired(['network', 'contractAddress'], req.data);
+    ValidationUtils.allRequired({ network, contractAddress });
     return this.svc.getSubscription(network, contractAddress, userId);
   }
 
   async submitRequestGetTransaction(req: HttpRequestData, userId: string) {
     const { requestId } = req.data;
-    ValidationUtils.allRequired(['requestId'], req.data);
+    ValidationUtils.allRequired({ requestId });
     return this.svc.submitRequestGetTransaction(userId, requestId);
   }
 
   async updateTransacionsForRequest(req: HttpRequestData, userId: string) {
     const { requestId, transactionId } = req.data;
-    ValidationUtils.allRequired(['requestId'], req.data);
+    ValidationUtils.allRequired({ requestId, transactionId });
     return this.svc.updateTransacionsForRequest(requestId, transactionId);
   }
 }

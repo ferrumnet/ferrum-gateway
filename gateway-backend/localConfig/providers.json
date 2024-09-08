@@ -13,6 +13,8 @@
     "HARMONY_TESTNET_0": "https://api.s0.b.hmny.io/",
     "HARMONY_MAINNET_0": "https://api.s0.b.hmny.io/",
     "FTM_TESTNET": "https://rpc.testnet.fantom.network/",
+    "ETHEREUM_ARBITRUM": "https://api.zan.top/node/v1/arb/one/public",
+    "BASE_MAINNET": "https://base.meowrpc.com",
     "FTM_MAINNET": "",
     "SHIDEN_TESTNET": "",
     "SHIDEN_MAINNET": ""

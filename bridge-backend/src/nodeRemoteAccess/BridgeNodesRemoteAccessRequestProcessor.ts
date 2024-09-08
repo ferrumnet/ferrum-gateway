@@ -34,15 +34,20 @@ export class BridgeNodesRemoteAccessRequestProcessor
       "registerWithdrawItemHashVerification",
       async (req, auth) => {
         ValidationUtils.isTrue(!!auth.ecdsaAddress, "Unauthorized");
-        ValidationUtils.allRequired(
-          [
-            "receiveNetwork",
-            "receiveTransactionId",
-            "hash",
-            "signature",
-            "signatrueCreationTime",
-          ],
-          req.data
+        const {
+            receiveNetwork,
+            receiveTransactionId,
+            hash,
+            signature,
+            signatrueCreationTime,
+        } = req.data;
+        ValidationUtils.allRequired({
+            receiveNetwork,
+            receiveTransactionId,
+            hash,
+            signature,
+            signatrueCreationTime,
+        }
         );
         return await this.svc.registerWithdrawItemHashVerification(
           auth.ecdsaAddress,
@@ -57,7 +62,8 @@ export class BridgeNodesRemoteAccessRequestProcessor
 
     this.registerProcessorAuth("getPendingWithdrawItems", async (req, auth) => {
       ValidationUtils.isTrue(!!auth.ecdsaAddress, "Unauthorized");
-      ValidationUtils.allRequired(["schemaVersion", "network"], req.data);
+      const { schemaVersion, network} = req.data;
+      ValidationUtils.allRequired({ schemaVersion, network});
       return await this.svc.getPendingWithdrawItems(
         req.data.schemaVersion,
         req.data.network
@@ -68,10 +74,10 @@ export class BridgeNodesRemoteAccessRequestProcessor
       "getPendingWithdrawItemById",
       async (req, auth) => {
         ValidationUtils.isTrue(!!auth.ecdsaAddress, "Unauthorized");
-        ValidationUtils.allRequired(
-          ["schemaVersion", "network", "receiveTransactionId"],
-          req.data
-        );
+        // ValidationUtils.allRequired(
+        //   ["schemaVersion", "network", "receiveTransactionId"],
+        //   req.data
+        // );
         return await this.svc.getPendingWithdrawItemById(
           req.data.schemaVersion,
           req.data.network,
@@ -84,7 +90,7 @@ export class BridgeNodesRemoteAccessRequestProcessor
       "getWithdrawItemTransactionIds",
       async (req, auth) => {
         ValidationUtils.isTrue(!!auth.hmacPublicKey, "Unauthorized");
-        ValidationUtils.allRequired(["schemaVersion", "network"], req.data);
+        // ValidationUtils.allRequired(["schemaVersion", "network"], req.data);
         return await this.svc.getWithdrawItemTransactionIds(
           req.data.schemaVersion,
           req.data.network,
