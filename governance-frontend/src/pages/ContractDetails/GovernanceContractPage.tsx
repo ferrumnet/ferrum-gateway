@@ -41,7 +41,8 @@ export const loadTrans = createAsyncThunk('governanceContract/load',
 
 export function ContractLoader(params:
 		{ network: string, contractAddress: string, contractId: string }) {
-	const { network, contractAddress, contractId } = params;
+	let { network, contractAddress, contractId } = params;
+	contractAddress = (contractAddress || '').toLowerCase();
 	const initialized = useSelector<GovernanceAppState, boolean>(
 		state => state.data.init.initialized);
 	const contract = useSelector<GovernanceAppState, GovernanceContract>(

@@ -49,7 +49,7 @@ export class GovernanceClient {
 	async contractById(dispatch: Dispatch<AnyAction>, network: string, contractAddress: string, id: string) {
 		const res = await this.api.api({
 			command: 'contractById',
-			data: { network, contractAddress, id },
+			data: { network, contractAddress: contractAddress.toLowerCase(), id },
 			params: [],
 		} as JsonRpcRequest);
 		if (!!res) {
