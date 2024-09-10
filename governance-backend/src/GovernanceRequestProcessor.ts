@@ -72,7 +72,7 @@ export class GovernanceRequestProcessor
       metadata,
 			signature,
 	});
-    return this.svc.proposeTransaction(network, contractAddress, governanceContractId, method, args, metadata, userId, signature);
+    return this.svc.proposeTransaction(network, contractAddress.toLowerCase(), governanceContractId, method, args, metadata, userId, signature);
   }
 
   async addSignature(req: HttpRequestData, userId: string) {
@@ -84,13 +84,13 @@ export class GovernanceRequestProcessor
   async listTransactions(req: HttpRequestData, userId: string) {
     const { network, contractAddress } = req.data;
     ValidationUtils.allRequired({ network, contractAddress });
-    return this.svc.listTransactions(network, contractAddress);
+    return this.svc.listTransactions(network, contractAddress.toLowerCase());
   }
 
   async getSubscription(req: HttpRequestData, userId: string) {
     const { network, contractAddress } = req.data;
     ValidationUtils.allRequired({ network, contractAddress });
-    return this.svc.getSubscription(network, contractAddress, userId);
+    return this.svc.getSubscription(network, contractAddress.toLowerCase(), userId);
   }
 
   async submitRequestGetTransaction(req: HttpRequestData, userId: string) {

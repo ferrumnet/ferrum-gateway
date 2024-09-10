@@ -69,8 +69,9 @@ export function produceSignature(
     //     Web3.utils.utf8ToHex('WithdrawSigned(address token, address payee,uint256 amount,bytes32 salt)'));
 
     // ['bytes32', 'address', 'address', 'uint256', 'bytes32'];
-    const params = ['bytes32'].concat(eipParams.args.map(p => p.type));
-    const structure = eth.abi.encodeParameters(params, [methodHash, ...eipParams.args.map(p => p.value)]);
+    const params = ['bytes32'].concat(eipParams.args.map(p => (p.type === 'string' || p.type === 'bytes') ? 'bytes32' : p.type));
+    const structure = eth.abi.encodeParameters(params, [methodHash, ...eipParams.args.map(p => 
+        (p.type === 'string' || p.type === 'bytes') ? Web3.utils.soliditySha3({ type: 'bytes', value: p.value }) : p.value)]);
     const structureHash = Web3.utils.keccak256(structure);
     const ds = domainSeparator(eth, eipParams.contractName, eipParams.contractVersion, netId, contractAddress);
     const hash = Web3.utils.soliditySha3("\x19\x01", ds, structureHash) as HexString;
@@ -90,6 +91,7 @@ export function verifySignature(hash: HexString, userAddress: string, signature:
 	const sig = fromRpcSig(Buffer.from(signature.replace('0x', ''), 'hex'));
 	const pub = ecrecover(Buffer.from(hash, 'hex'), sig.v, sig.r, sig.s);
 	const addr  = `0x${publicToAddress(pub).toString('hex').toLowerCase()}`;
+    console.log('VERIFYING SIG', {addr, userAddress})
 	ValidationUtils.isTrue(userAddress.toLowerCase() === addr, 'Invalid signature');
 }
 

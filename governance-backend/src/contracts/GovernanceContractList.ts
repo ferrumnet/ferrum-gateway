@@ -5,7 +5,7 @@ import * as MultiSig from './multiSig/MultiSig.json';
 import * as TokenDao from './tokenDao/TokenDao.json';
 import * as BasicIronSafe from './basicIronSafe/BasicIronSafe.json';
 
-function merge(base: GovernanceContract, child: GovernanceContract): GovernanceContract {
+export function merge(base: GovernanceContract, child: GovernanceContract): GovernanceContract {
 	return {
 		id: child.id,
 		identifier: child.identifier,

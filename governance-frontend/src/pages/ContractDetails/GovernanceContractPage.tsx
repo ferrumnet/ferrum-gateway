@@ -113,9 +113,9 @@ export function GovernanceContractPage() {
 								subTitle={''}
 							>
 								<div className="method-contract">
-									<p>{r.values.join(', ')}</p>
+									<p>{r.values.map(v => v.substring(0, 80)).join(', ')}</p>
 									<p>{r.network} {r.signatures.length} of {quorum.minSignatures} Signatures</p>
-									<p>{
+									{
 										r.signatures.length >= quorum.minSignatures ? (
 											(
 												(r.execution?.status === 'successful') ? 
@@ -135,7 +135,7 @@ export function GovernanceContractPage() {
 												<FButton title={'Sign'} onClick={() => history.push(`/method/${network}/${contractAddress}/${contractId}/${r.requestId}`)}/>
 											</div>
 										)
-									}</p>
+									}
 								</div>
 							</Card>
 						))}

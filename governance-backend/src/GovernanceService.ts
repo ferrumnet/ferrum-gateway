@@ -6,11 +6,13 @@ import { GovernanceContract, GovernanceTransaction,
 	MultiSigSignature, SignableMethod, Utils, QuorumSubscription, RegisteredContract } from "types";
 import { CrucibleRouter__factory } from './resources/typechain/factories/CrucibleRouter__factory';
 import { CrucibleRouter } from './resources/typechain/CrucibleRouter';
-import { GovernanceContractDefinitions, GovernanceContractList } from "./contracts/GovernanceContractList";
+import { GovernanceContractDefinitions, GovernanceContractList, merge } from "./contracts/GovernanceContractList";
 import { Eip712Params, encodeMultiSig, produceSignature, verifySignature } from 'web3-tools/dist/Eip712Utils';
 import { randomBytes } from 'ferrum-crypto';
 import { TransactionTrackableSchema, TransactionTracker } from 'common-backend/dist/contracts/TransactionTracker';
 import { AbiFetcher } from "./AbiFetcher";
+import * as MultiSig from './contracts/multiSig/MultiSig.json';
+const MultiSigMethods = new Set<string>(MultiSig.methods.map(i => i?.abi?.name));
 
 export const CACHE_TIMEOUT = 600 * 1000; // 10 min
 
@@ -96,6 +98,9 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 					console.log('Got definition: ', {definition})
 					if (!!definition) {
 						GovernanceContractDefinitions[id] = definition;
+						GovernanceContractList.push(
+							{network, contractAddress, governanceContractId: id}
+						)
 					}
 					return definition;
 				}
@@ -111,7 +116,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 	async listTransactions(network: string, contractAddress: string) {
 		this.verifyInit();
 		const txs = await this.transactionsModel.find(
-			{ network, contractAddress }).exec();
+			{ network, contractAddress: contractAddress.toLowerCase() }).exec();
 		return !!txs ? txs.map(t => t.toJSON()) : undefined;
 	}
 
@@ -303,6 +308,7 @@ export class GovernanceService extends MongooseConnection implements Injectable 
 				method: m.name,
 				args,
 			} as Eip712Params
+		console.log('Params to be signed', params, {chainId: Networks.for(network).chainId, contractAddress});
 		const sig = produceSignature(
 			this.helper.web3(network),
 			Networks.for(network).chainId,
@@ -366,19 +372,28 @@ function abiItemToMethod(item: any) {
 	if (item.inputs?.length < 3) return null;
 	const [salt, expiry, multisig] = item.inputs.slice(-3);
 	if (multisig.type === 'bytes' && expiry.type === 'uint64' && salt.type === 'bytes32') {
-		item.args = [...item.inputs.slice(0, item.inputs.length - 1)]; // Filter out the signature, keep the rest
-		return item;
+		if (MultiSigMethods.has(item.name)) {
+			return null;
+		}
+		return {
+			name: item.name[0].toUpperCase()+item.name.slice(1),
+			adminOnly: false,
+			governanceOnly: true,
+			abi: {...item},
+			args: [...item.inputs.slice(0, item.inputs.length - 1)], // Filter out the signature, keep the rest
+		}
 	}
 }
 
 function createGovernanceDefinitionFromAbi(id: string, abi: any[]): GovernanceContract{
 	const [name, version] = id.split(':');
-	return {
+	const defin = {
 		id,
 		identifier: {
 			name, version,
 		},
 		methods: abi.map(m => abiItemToMethod(m)).filter(Boolean),
-	}
+	};
+	return defin.methods.length > 0 ? merge(MultiSig, defin) : defin;
 }
 

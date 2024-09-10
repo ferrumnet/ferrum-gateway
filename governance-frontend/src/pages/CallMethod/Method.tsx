@@ -202,7 +202,7 @@ export function Method() {
 		(contract?.methods || []).find(m => m.name === request?.method) || {} as any;
 
 	const relevantUser = quorum.quorum === request?.quorum && quorum.minSignatures > 0;
-	const isExecutable = (quorum?.minSignatures >= (request?.signatures?.length || 0));
+	const isExecutable = (quorum?.minSignatures <= (request?.signatures?.length || 0));
 
 	const btn = relevantUser ? (
 		isExecutable ? (
