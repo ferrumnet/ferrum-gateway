@@ -16,6 +16,7 @@ import { GovernanceClient } from '../../GovernanceClient';
 import { Utils } from 'types';
 import { addressForUser } from 'common-containers';
 import { FButton } from "ferrum-design-system";
+import { randomBytes } from 'crypto';
 
 const addSignature = createAsyncThunk('method/addSignature',
 	async (payload: {method: SignableMethod, contract: GovernanceContract,
@@ -129,6 +130,47 @@ export const newMethodSlice = createSlice({
 	}
 });
 
+function random32() {
+    let u = new Uint8Array(32);
+    window.crypto.getRandomValues(u);
+		return '0x' + u.map(i => (i as any).toString(16).padStart(2,'0')).join('');
+}
+
+function MethodInputField(props: {disabled: boolean, value: string, onChange: (v: string) => {}, fieldName: string, fieldType: string}) {
+	switch (props.fieldType) {
+		case 'uint64': // Probably a time
+		return (
+			<>
+				<InputField
+					disabled={props.disabled}
+					value={props.value}
+					onChange={(_: any, v: any) => props.onChange(v)}
+				/> <br/>
+				<small>{new Date(Number.parseInt(props.value) * 1000).toLocaleString()} &nbsp;
+					<button onClick={() => props.onChange(Math.round((Date.now() / 1000) + 3600 * 24 * 4).toString())}>+4 days</button></small>
+			</>
+		);
+		case 'bytes32': // Allow to generate random
+		return (
+			<>
+				<InputField
+					disabled={props.disabled}
+					value={props.value}
+					onChange={(_: any, v: any) => props.onChange(v)}
+				/> <button onClick={() => props.onChange(random32())}>Generate Random</button>
+			</>
+		);
+		default:
+			return (
+				<InputField
+					disabled={props.disabled}
+					value={props.value}
+					onChange={(e: any, v: any) => props.onChange(e.target.value)}
+				/>
+			)
+	}
+}
+
 export function MethodArgs(props: {
 	method: SignableMethod,
 	request?: GovernanceTransaction,
@@ -142,12 +184,12 @@ export function MethodArgs(props: {
 			{(props.method.args || []).map((a, i) => (
 				<React.Fragment key={i}>
 				<Label>{`${a.type} ${a.name}`}</Label>
-				<InputField
-				  disabled={props.disabled}
+				<MethodInputField
+					disabled={props.disabled}
 					value={(props.request?.values || state.values)[i]}
-					onChange={(e: any, v: any) => {
-						dispatch(newMethodSlice.actions.valueChanged({index: i, value: e.target.value}))}
-					}
+					onChange={(v: string) => dispatch(newMethodSlice.actions.valueChanged({index: i, value: v}))}
+					fieldName={a.name}
+					fieldType={a.type}
 				/>
 				</React.Fragment>
 			))}

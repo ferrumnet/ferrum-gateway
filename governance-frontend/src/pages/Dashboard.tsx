@@ -5,7 +5,7 @@ import { ConnectBar } from '../connect/ConnectBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { initThunk } from 'common-containers';
-import { inject } from 'types';
+import { inject, inject2 } from 'types';
 import { Route, Switch } from 'react-router';
 import { GovernanceClient } from '../GovernanceClient';
 import { GovernanceAppState } from '../common/GovernanceAppState';

@@ -4,7 +4,7 @@ import { GovernanceClient } from '../GovernanceClient';
 import { Connect } from 'unifyre-extension-web3-retrofit';
 import { IronSafeClient } from '../pages/examples/IronSafe/IronSafeClient';
 import { StandaloneClient } from 'common-containers/dist/clients/StandaloneClient';
-import { GitHubConstants } from 'common-containers/dist/clients/GitHubConstants';
+import { CurrencyList } from 'unifyre-extension-web3-retrofit';
 
 export class GovernanceModule implements Module {
     private configured: boolean = false;
@@ -16,6 +16,9 @@ export class GovernanceModule implements Module {
             c.register(IronSafeClient,
                             c => new IronSafeClient(c.get(StandaloneClient)));
             await c.get<StandaloneClient>(StandaloneClient).loadBackendConstants();
+	        const curList = c.get<CurrencyList>(CurrencyList);
+            const curs = curList.get();
+            curList.set([...curs, 'BASE_MAINNET:BASE']);
         } finally {
             this.configured = true;
         }
