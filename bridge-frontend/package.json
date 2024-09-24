@@ -17,12 +17,12 @@
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "material-design-icons": "^3.0.1",
-    "node-sass": "4.14.1",
+    "sass": "1.74.1",
     "office-ui-fabric-react": "^7.170.0",
     "popper.js": "^1.16.1",
-    "react": "^17.0.2",
-    "react-app-rewired": "^2.1.8",
+    "react": "18",
     "react-accessible-accordion": "^3.3.4",
+    "react-app-rewired": "^2.1.8",
     "react-bootstrap": "^1.6.0",
     "react-color-gradient-picker": "^0.1.2",
     "react-dom": "^17.0.2",
@@ -36,7 +36,7 @@
     "types": "1.0.0",
     "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git",
     "web-vitals": "^1.0.1",
-		"web3-tools": "1.0.0"
+    "web3-tools": "1.0.0"
   },
   "scripts": {
     "start": "react-app-rewired  start",
@@ -63,12 +63,6 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router": "^5.1.13",
-    "@types/react-router-dom": "^5.1.7",
-    "@types/styled-components": "^5.1.9",
-    "customize-cra": "^1.0.0",
-    "react-app-rewired": "^2.1.8",
-    "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -76,6 +70,12 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "typescript": "^4.1.2"
+    "@types/react-router": "^5.1.13",
+    "@types/react-router-dom": "^5.1.7",
+    "@types/styled-components": "^5.1.9",
+    "customize-cra": "^1.0.0",
+    "react-app-rewired": "^2.1.8",
+    "typescript": "^4.1.2",
+    "unifyre-react-helper": "git+https://github.com/ferrumnet/unifyre-react-helper.git"
   }
 }

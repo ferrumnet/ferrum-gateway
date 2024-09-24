@@ -25,7 +25,7 @@ export function supportedNetworks(): { [k: string]: NetworkDropdown} {
 			key: n.id,
 			active: true,
 			display: n.displayName,
-			mainnet: !n.testnet,
+			mainnet: !n.testnet || n.displayName === 'Arbitrum One',
 		} as NetworkDropdown;
 	});
 	return rv;

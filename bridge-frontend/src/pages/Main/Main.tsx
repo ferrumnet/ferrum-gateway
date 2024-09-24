@@ -284,6 +284,10 @@ export const ConnectBridge = () => {
         state => state.data.state.balanceItems);
     let unUsedItems = withdrawals.filter(e => ((e.used === '') && (e.sendNetwork === pageProps.network))).length;
     const history = useHistory();
+    //@ts-ignore
+	const restrictedSwapNetworks =  useSelector<BridgeAppState, any>( appState => appState.data.state.groupInfo?.restrictedSwapNetworks || '' as any).split(',')
+    const { destNetwork, network, currency, isNetworkAllowed } = pageProps;
+
 
     useEffect(() => {
         if ((unUsedItems > 0 && !pageProps.withdrawSuccess)) {
@@ -295,7 +299,6 @@ export const ConnectBridge = () => {
         initialise(dispatch)
     }, [])
 
-    const { destNetwork, network, currency, isNetworkAllowed } = pageProps;
 
     //TODO: Initialize this without useEffect
     useEffect(() => {
@@ -344,6 +347,9 @@ export const ConnectBridge = () => {
     const onSuccessMessage = async (v: string) => {
         addToast(v, { appearance: 'success', autoDismiss: true })
     };
+
+    const isCurrentPairEnabled = pageProps.currentPair?.active != 'false';
+    const swapNotAllowed =  restrictedSwapNetworks.includes(network) || !isCurrentPairEnabled;
 
     return (
         <>
@@ -478,7 +484,7 @@ export const ConnectBridge = () => {
                     )
                 }
                 {
-                    ((!swapSuccess)) &&
+                    ((!swapSuccess) && !swapNotAllowed) &&
                     (<SwapButton
                         onSwapClick={() => showConfirmModal()}
                         // ()=>
@@ -496,6 +502,19 @@ export const ConnectBridge = () => {
                         userAddress={pageProps.userAddress}
                         pendingSwap={swapping}
                     />
+                    )
+                }
+                {
+                    swapNotAllowed && (
+                        <div style={styles.swapBtnContainer}>
+                            <Button
+                                disabled={true}
+                                className="btn btn-pri action btn-icon btn-connect mt-4"
+                            >
+                                {'SWAP NOT ALLOWED'}
+                            </Button>
+                
+                        </div>
                     )
                 }
             </Card>

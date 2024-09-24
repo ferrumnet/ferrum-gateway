@@ -293,6 +293,7 @@ export interface BridgeTokenConfig {
   targetCurrency: string;
   feeConstant: string;
   fee: string;
+  active?: string
 }
 
 export interface NetworkedConfig<T> {

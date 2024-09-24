@@ -3,8 +3,9 @@ import { ApiClient } from 'common-containers';
 import { AnyAction, Dispatch } from "redux";
 import { UnifyreExtensionKitClient } from "unifyre-extension-sdk";
 import { UserBridgeWithdrawableBalanceItem ,logError, SignedPairAddress,
-    Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup } from "types";
+    Utils, GroupInfo, RoutingTable, routingTablePopulateLookup, RoutingTableLookup, supportedNetworks } from "types";
 import { CommonActions,addAction } from './../common/Actions';
+import Web3 from 'web3'
 
 export const TokenBridgeClientActions = {
     AUTHENTICATION_FAILED: 'AUTHENTICATION_FAILED',
@@ -217,12 +218,17 @@ export class BridgeClient implements Injectable {
         try {
             ValidationUtils.isTrue(network === w.sendNetwork, 
                 `Connected to ${network} but the balance item can be claimed on ${w.sendNetwork}`);
-            const res = await this.api.api({
+            let res = await this.api.api({
                 command: 'withdrawSignedGetTransaction', data: {id: w.receiveTransactionId}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling withdraw. No requests');
-            const requestId = await this.client.sendTransactionAsync(network!, [res],
-                {});
+            res = await this.networkOverrides([res], network);
+            const requestId = await this.sendTransactionAsync(dispatch, res, {})
+            // res = await this.networkOverrides([res], network);
+            // const requestId = await this.client.sendTransactionAsync(network!, res,
+            //     {});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return ['failed', ''];
+    
             const response = await this.client.getSendTransactionResponse(requestId);
             if (response.rejected) {
                 throw new Error((response as any).reason || 'Request was rejected');
@@ -388,12 +394,16 @@ export class BridgeClient implements Injectable {
             const res = await this.api.api({
                 command: 'addLiquidityGetTransaction',
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
-            const { isApprove, requests } = res;
+            let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling add liquidity. No requests');
             console.log('About to submit request', {requests});
-            const requestId = await this.client.sendTransactionAsync(this.network!, requests,
-                {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
+            requests = await this.networkOverrides(requests, this.network)
+            const requestId = await this.sendTransactionAsync(dispatch, requests, {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, requests,
+            //     {currency, amount, action: isApprove ? 'approve' : 'addLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
+
             await this.processRequest(dispatch, requestId);
             return {
                 "status":'success',
@@ -414,13 +424,16 @@ export class BridgeClient implements Injectable {
         ) {
         dispatch(addAction(CommonActions.WAITING, { source: 'signInToServer' }));
         try {
-            const res = await this.api.api({
+            let res = await this.api.api({
                 command: 'removeLiquidityIfPossibleGetTransaction',
                 data: {currency, amount}, params: [] } as JsonRpcRequest);
             ValidationUtils.isTrue(!!res, 'Error calling remove liquidity. No requests');
-            const requestId = await this.client.sendTransactionAsync(this.network!, [res],
-                {currency, amount, action: 'removeLiquidity'});
+            res = await this.networkOverrides([res], this.network)
+            const requestId = await this.sendTransactionAsync(dispatch, res, {currency, amount, action: 'removeLiquidity'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, res,
+            //     {currency, amount, action: 'removeLiquidity'});
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
             await this.processRequest(dispatch, requestId);
             return {
                 "status":'success',
@@ -458,13 +471,19 @@ export class BridgeClient implements Injectable {
             const res = await this.api.api({
                 command: 'swapGetTransaction',
                 data: {currency, amount, targetCurrency}, params: [] } as JsonRpcRequest);
-            const { isApprove, requests } = res;
+            let { isApprove, requests } = res;
             ValidationUtils.isTrue(!!requests && !!requests.length, 'Error calling swap. No requests');
-            const requestId = await this.client.sendTransactionAsync(this.network!, requests,
-                {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
+            requests = await this.networkOverrides(requests, this.network)
+            console.log(requests, 'requests')
+            const requestId = await this.sendTransactionAsync(dispatch, requests, {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'})
+            // const requestId = await this.client.sendTransactionAsync(this.network!, requests,
+            //     {currency, amount, targetCurrency, action: isApprove ? 'approve' : 'swap'});
+            // console.log(requestId, 'requestId')
             ValidationUtils.isTrue(!!requestId, 'Could not submit transaction.');
+            if (!requestId) return
             const response = await this.processRequest(dispatch, requestId);
-            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);           
+            if(response) await this.logSwapTransaction(requestId.split('|')[0],sourceNetwork[0]);
+            console.log(response, 'resulting', requestId)       
             return {
                 "status":'success',
                 "txId": requestId.split('|')[0],
@@ -477,6 +496,80 @@ export class BridgeClient implements Injectable {
         } finally {
            // dispatch(addAction(CommonActions.WAITING_DONE, { source: 'withdrawableBalanceItemAddTransaction' }));
         }
+    }
+
+    private getGasFees = async (network: number) => {
+        const response = await fetch(`https://api-gateway-v1.stage.svcs.ferrumnetwork.io/api/v1/gasFees/${network}`)
+        if (response.status == 200) {
+            const res = await response.json()
+            return res.body.gasFees
+        }
+        return null;
+    }
+
+    private networkOverrides = async (transactions: any[], network?: string) => {
+        const networks = {
+            "ETHEREUM_ARBITRUM": {
+                maxFeePerGas: 200000000,
+                maxPriorityFeePerGas: 100000000,
+                gas: 3500000000,
+                gasLimit: 4000000
+            },
+            "BSC": {
+                maxFeePerGas: 3500000000,
+                maxPriorityFeePerGas: 3500000000,
+                gas: 3500000000,
+                gasLimit: 2000000
+            },
+            "ETHEREUM": {
+                maxFeePerGas:1000000000,
+                maxPriorityFeePerGas: 650000000,
+                gas: 550000000,
+                gasLimit: 759900
+            }
+        }
+
+        const networksMap = {
+            "ETHEREUM_ARBITRUM": 42161,
+            "BSC": 56,
+            "ETHEREUM": 1,
+            "POLYGON_MAINNET": 137,
+            "POLYGON": 137,
+            "AVAX_MAINNET": 43114,
+            "AVAX": 43114,
+        }
+
+        const res = await Promise.all(transactions.map(
+            async (e: any) => {
+                
+                const network = (e.currency.split(':') || [])[0]
+                const chainId = networksMap[network as keyof typeof networksMap]
+                console.log(network, chainId)
+                //@ts-ignore
+                const gasOverride = networks[network as any]
+                const gasRes = await this.getGasFees(chainId)
+                if (chainId && gasRes) {
+                    const gasFee = {
+                        gas: gasOverride?.gas,
+                        gasLimit: Number(gasRes.gasLimit),
+                        maxFeePerGas: Number(gasRes.maxFeePerGas) * 1000000000,
+                        maxPriorityFeePerGas: Number(gasRes.maxPriorityFeePerGas) * 1000000000,
+                    }
+                    e.gas = gasFee;
+                    console.log(e, 'ee')
+                    return e
+                }else {
+                    if(network && gasOverride) {
+                        e.gas = gasOverride
+                        return e
+                    }else {
+                        return e
+                    }
+                }               
+            }
+        ))
+
+        return res;
     }
 
     async processRequest(dispatch: Dispatch<AnyAction>, 
@@ -505,6 +598,34 @@ export class BridgeClient implements Injectable {
             //dispatch(addAction(CommonActions.CONTINUATION_DATA_FAILED, {message: 'Could send a request. ' + e.message || '' }));
         } finally {
             dispatch(addAction(CommonActions.WAITING_DONE, { source: 'processRequest' }));
+        }
+    }
+
+    async sendTransactionAsync(
+        dispatch: Dispatch<AnyAction>,
+        payload: any[],
+        info: any
+    ) {
+        try {
+            const tx_payload = payload.map(e => {
+                return {
+                    from: e.from,
+                    to: e.contract,
+                    data: e.data,
+                    value: e.amount ? Web3?.utils.toHex(e.amount) : e.amount
+                }
+            })
+            const txHash = await (window as any).ethereum.request({
+                method: "eth_sendTransaction",
+                params: tx_payload
+            })
+            
+            if (txHash) {
+                return txHash + '|' + JSON.stringify(info || '')
+            }
+            return ''
+        } catch (error) {
+            dispatch(addAction(CommonActions.ERROR_OCCURED, {message: (error as Error).message || '' }));
         }
     }
 }

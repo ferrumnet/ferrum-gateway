@@ -22,7 +22,7 @@ const store = StoreBuilder.build(
   dataReducer,
   uiReducer,
   _module,
-  Environment.defaultEndPoint()
+  'https://api-gateway.svcs.ferrumnetwork.io/gateway-backend-prod'
 );
 
 const showThemeBuilder = false
