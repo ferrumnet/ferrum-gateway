@@ -148,7 +148,7 @@ export class ApiClient implements Injectable {
 	}
 
 	private getGasFees = async (network: number) => {
-        const response = await fetch(`https://api-gateway-v1.stage.svcs.ferrumnetwork.io/api/v1/gasFees/${network}`)
+        const response = await fetch(`https://api-gateway-v1.svcs.ferrumnetwork.io/api/v1/gasFees/${network}`)
         if (response.status == 200) {
             const res = await response.json()
             return res.body.gasFees

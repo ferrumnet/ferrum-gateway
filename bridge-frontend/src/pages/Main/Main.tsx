@@ -348,7 +348,7 @@ export const ConnectBridge = () => {
         addToast(v, { appearance: 'success', autoDismiss: true })
     };
 
-    const isCurrentPairEnabled = pageProps.currentPair?.active != 'false';
+    const isCurrentPairEnabled = (pageProps as any).currentPair?.active != 'false';
     const swapNotAllowed =  restrictedSwapNetworks.includes(network) || !isCurrentPairEnabled;
 
     return (
