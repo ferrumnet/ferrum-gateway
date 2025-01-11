@@ -8,6 +8,7 @@ import { QpAppState } from '../../../common/QpAppState';
 import { Pair } from '../../Pair';
 import { ApprovableButtonWrapper, IApprovableButtonWrapperViewProps } from 'common-containers';
 import { QpMinerClient, QpMinerMinerInfo, QpMinerStakeInfo, QpMinerUserStakeInfo } from './QpMinerClient';
+import { config } from "process";
 
 interface QpMinerStakeState {
     init: boolean;
@@ -22,6 +23,7 @@ interface QpMinerStakeState {
     delegateAddress: string;
     operatorAddress: string;
     validatorOperatorAddress: string;
+    configNet: 'mainnet' | 'testnet';
 
     error?: string;
 }
@@ -30,6 +32,7 @@ const initialState = {
     init: false,
     clients: [] as any,
     stake: {} as any,
+    configNet: 'mainnet',
 } as any as QpMinerStakeState;
 
 const reducer = (state: QpMinerStakeState, action: AnyAction) => {
@@ -82,6 +85,11 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
             //     ...state,
             //     withdrawAmount: action.payload.value,
             // }
+        case 'UPDATE_CONFIG_NET':
+            return {
+                ...state,
+                configNet: action.payload.value,
+            }
         case 'ERROR':
             console.error("Error happend", action.payload);
             const error = action.payload?.error ? action.payload.error.toString() : action.payload.toString(); 
@@ -94,10 +102,11 @@ const reducer = (state: QpMinerStakeState, action: AnyAction) => {
     }
 }
 
-async function load(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>, userAddress: string) {
+async function load(dispatch: Dispatch<AnyAction>, configNet: 'mainnet' | 'testnet') {
     try {
         // Get the backend config (explorer client, etc.)
         const client = inject<QpMinerClient>(QpMinerClient);
+        client.mode = configNet;
         const stakeInfo = await client.getMinerStake();
         console.log('Got miner stake: ', stakeInfo)
         dispatch(addAction('UPDATE_ALL', { stakeInfo }))
@@ -138,6 +147,12 @@ async function assignValidatorOperator(state: QpMinerStakeState, dispatch: Dispa
     // TODO: Handle tx ID
 }
 
+async function delegate(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
+    const client = inject<QpMinerClient>(QpMinerClient);
+    const txId = await client.delegate(state.delegateAddress);
+    // TODO: Handle tx ID
+}
+
 async function registerMiner(state: QpMinerStakeState, dispatch: Dispatch<AnyAction>) {
     const client = inject<QpMinerClient>(QpMinerClient);
     const txId = await client.registerMiner();
@@ -175,20 +190,26 @@ export function QpMinerStake(props: {}) {
     const connectedNet = (user.accountGroups[0]?.addresses || [])[0]?.network;
     const connectedAddr = (user.accountGroups[0]?.addresses || [])[0]?.address;
     const [state, dispatch] = useReducer(reducer, initialState) as [QpMinerStakeState, Dispatch<AnyAction>];
+    const configNet = state.configNet;
     console.log('STATOO', state);
     useEffect(() => {
         if (!state.init) {
             dispatch({type: 'INIT', payload: {connectedNet, connectedAddr}});
         } else if (initialized) {
-            load(state, dispatch, user?.userId).catch(error => dispatch({ type: 'ERROR', payload: { error }}));
+            load(dispatch, configNet).catch(error => dispatch({ type: 'ERROR', payload: { error }}));
         }
-    }, [state.init, connectedNet, connectedAddr, initialized]);
+    }, [state.init, connectedNet, connectedAddr, initialized, configNet]);
 
     const enoughToBeMiner = 'yes'; // TODO
     return (
         <>
         <FContainer width={700}>
             {state.error && <FCard>{state.error}</FCard>}
+            <FCard>
+                <FLabel text={`Using <<${configNet.toUpperCase()}>> configuration on ${connectedNet}`}/> <br/>
+                <FButton title={'Use Mainnet'} onClick={() => dispatch({type: 'UPDATE_CONFIG_NET', payload: { value: 'mainnet' }})} /> <FButton
+                    title={'Use Testnet'} onClick={() => dispatch({type: 'UPDATE_CONFIG_NET', payload: { value: 'testnet' }})} />
+            </FCard>
             <div> &nbsp; </div>
             <FCard>
                 <FLabel text={`Quantum Portal Miner Dashboard`}/>
@@ -259,7 +280,7 @@ export function QpMinerStake(props: {}) {
                             <FInputText label={'Delegate'}
                                 value={state.delegateAddress}
                                 onChange={(e: any) => dispatch({type: 'UPDATE_DELEGATE', payload: { value: e.target.value }})}
-                                // postfix={<FButton title={'DELEGATE'} onClick={() => delegate(state, dispatch)} />}
+                                postfix={<FButton title={'DELEGATE'} onClick={() => delegate(state, dispatch)} />}
                             />
                             <FInputText label={'Stake FRM'}
                                 value={state.stakeAmount}

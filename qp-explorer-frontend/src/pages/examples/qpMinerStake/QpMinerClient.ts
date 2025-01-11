@@ -54,10 +54,12 @@ export interface QpMinerMinerInfo {
 export class QpMinerClient implements Injectable {
     private qpStakeCache = new LocalCache();
     private contractAddresses = new LocalCache();
+    public mode : 'mainnet' | 'testnet' = 'mainnet';
     constructor(
         private api: StandaloneClient,
         private erc: StandaloneErc20,
-        private config: QpContractConfig,
+        private configTestnet: QpContractConfig,
+        private configMainnet: QpContractConfig,
     ) {}
 
     __name__(): string { return 'QpMinerClient'; }
@@ -164,6 +166,34 @@ export class QpMinerClient implements Injectable {
         return await this.api.runPopulatedTransaction(tx);
     }
 
+    async delegate(operator: string): Promise<string> {
+        const val = await this.stakeContract()
+        const con = ethers.ContractFactory.getContract(val.address, [
+            {
+            "inputs": [
+                {
+                "internalType": "address",
+                "name": "toOp",
+                "type": "address"
+                },
+                {
+                "internalType": "address",
+                "name": "toOp",
+                "type": "address"
+                }
+            ],
+            "name": "setDelegation",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+            },
+        ]);
+        console.log('DELEGATE', operator, this.address(), val.address);
+        const tx = await con.populateTransaction.setDelegation(operator, this.address(), { from: this.address() });
+        return await this.api.runPopulatedTransaction(tx);
+    }
+
+
     async registerMiner(): Promise<string> {
         const gw = this.qpGateway();
         const mgrAddr = await gw.quantumPortalLedgerMgr();
@@ -185,8 +215,9 @@ export class QpMinerClient implements Injectable {
             console.log('Got', {delegate});
             ValidationUtils.isTrue(Utils.isNonzeroAddress(delegate), 'No delegate!');
         }
-        const tx = await gw.populateTransaction.stakeToDelegate(amountMachine, delegate!, { from: this.address() }); //,
-            //value: this.network() == 'FERRUM_MAINNET' || this.network() == 'FERRUM_TESTNET' ? amountMachine : '0' });
+        console.log('Network is', this.network());
+        const tx = await gw.populateTransaction.stakeToDelegate(amountMachine, delegate!, { from: this.address(),
+            value: this.network() == 'FERRUM_MAINNET' || this.network() == 'FERRUM_TESTNET' ? amountMachine : '0' });
         return await this.api.runPopulatedTransaction(tx);
     }
 
@@ -210,7 +241,7 @@ export class QpMinerClient implements Injectable {
     }
 
     async stakeContract(): Promise<QuantumPortalStakeWithDelegate> {
-        return this.qpStakeCache.getAsync(this.network(), async () => {
+        return this.qpStakeCache.getAsync(this.network() + this.mode, async () => {
             try {
                 const gw = this.qpGateway();
                 const stakeAddr = await gw.quantumPortalStake();
@@ -225,7 +256,7 @@ export class QpMinerClient implements Injectable {
     }
 
     async validatorContract(): Promise<QuantumPortalAuthorityMgr> {
-        return this.qpStakeCache.getAsync(this.network() + '_AuthMgr', async () => {
+        return this.qpStakeCache.getAsync(this.network() + this.mode + '_AuthMgr', async () => {
             try {
                 const gw = this.qpGateway();
                 console.log('Gateway is', gw.address);
@@ -241,7 +272,7 @@ export class QpMinerClient implements Injectable {
     }
 
     async minerMgrContract(): Promise<QuantumPortalMinerMgr> {
-        return this.qpStakeCache.getAsync(this.network() + '_MinerMgr', async () => {
+        return this.qpStakeCache.getAsync(this.network() + this.mode + '_MinerMgr', async () => {
             try {
                 const gw = this.qpGateway();
                 console.log('Gateway is', gw.address);
@@ -258,7 +289,7 @@ export class QpMinerClient implements Injectable {
 
     qpGateway(): QuantumPortalGateway {
         const network = this.api.getNetwork();
-        const gatewayAddr = this.config.gateway[network];
+        const gatewayAddr = this.mode === 'mainnet' ? this.configMainnet.gateway[network] : this.configTestnet.gateway[network];
         console.log('Getting gateway', {network, gatewayAddr})
         ValidationUtils.isTrue(!!gatewayAddr, `Ledger manager is not configured for network "${network}"`);
         const gw = QuantumPortalGateway__factory.connect(gatewayAddr, this.api.ethersProvider(network));

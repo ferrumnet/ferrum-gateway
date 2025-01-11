@@ -138,18 +138,6 @@ function random32() {
 
 function MethodInputField(props: {disabled: boolean, value: string, onChange: (v: string) => {}, fieldName: string, fieldType: string}) {
 	switch (props.fieldType) {
-		case 'uint64': // Probably a time
-		return (
-			<>
-				<InputField
-					disabled={props.disabled}
-					value={props.value}
-					onChange={(_: any, v: any) => props.onChange(v)}
-				/> <br/>
-				<small>{new Date(Number.parseInt(props.value) * 1000).toLocaleString()} &nbsp;
-					<button onClick={() => props.onChange(Math.round((Date.now() / 1000) + 3600 * 24 * 4).toString())}>+4 days</button></small>
-			</>
-		);
 		case 'bytes32': // Allow to generate random
 		return (
 			<>
@@ -160,6 +148,29 @@ function MethodInputField(props: {disabled: boolean, value: string, onChange: (v
 				/> <button onClick={() => props.onChange(random32())}>Generate Random</button>
 			</>
 		);
+		case 'uint64': // Probably a time
+		if ((props.fieldName || '').toLocaleLowerCase().indexOf('time') >= 0 || 
+			(props.fieldName || '').toLocaleLowerCase().indexOf('date') >= 0) {
+				return (
+					<>
+						<InputField
+							disabled={props.disabled}
+							value={props.value}
+							onChange={(_: any, v: any) => props.onChange(v)}
+						/> <br/>
+						<small>{new Date(Number.parseInt(props.value) * 1000).toLocaleString()} &nbsp;
+							<button onClick={() => props.onChange(Math.round((Date.now() / 1000) + 3600 * 24 * 4).toString())}>+4 days</button></small>
+					</>
+				);
+			} else {
+				return (
+					<InputField
+						disabled={props.disabled}
+						value={props.value}
+						onChange={(e: any, v: any) => props.onChange(e.target.value)}
+					/>
+				)
+			}
 		default:
 			return (
 				<InputField

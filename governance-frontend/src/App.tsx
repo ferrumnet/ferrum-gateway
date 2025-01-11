@@ -10,8 +10,9 @@ import { Environment } from 'types';
 const _module = new GovernanceModule();
 const store = StoreBuilder.build(
             userReducer, dataReducer, uiReducer, _module, 
+            'https://xayp4btpqd.us-east-2.awsapprunner.com/');
             // 'https://api-gateway.dev.svcs.ferrumnetwork.io/gateway-backend-dev');
-            Environment.defaultEndPoint());
+            // Environment.defaultEndPoint());
             // 'https://quwun7xfr5.us-east-2.awsapprunner.com');
             
             // "https://22phwrgczz.us-east-2.awsapprunner.com");
