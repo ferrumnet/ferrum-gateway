@@ -2,7 +2,7 @@ const path = require('path');
 
 module.exports = {
 	  mode: 'production',
-	  entry: './src/node/Server.ts',
+	  entry: './src/node/simple/SimpleNodeRunner.ts',
 	  target: 'node',
 	  devtool: 'inline-source-map',
 	  module: {

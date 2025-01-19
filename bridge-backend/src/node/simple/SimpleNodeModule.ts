@@ -68,6 +68,7 @@ export class SimpleNodeModule implements Module {
 		));
 
 	await container.get<TokenBridgeService>(TokenBridgeService).init(AppConfig.instance().get("database"));
+	await container.get<BridgeNodesRemoteAccessService>(BridgeNodesRemoteAccessService).init(AppConfig.instance().get("database"));
 
   }
 
