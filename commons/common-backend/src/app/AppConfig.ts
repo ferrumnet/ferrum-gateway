@@ -3,6 +3,7 @@ import { Fetcher, NetworkedConfig, ValidationUtils } from "ferrum-plumbing";
 import { loadConfigFromFile } from "../dev/DevConfigUtils";
 import { BackendConstants } from 'types';
 
+
 require('dotenv').config()
 
 export interface WithJwtRandomBaseConfig {

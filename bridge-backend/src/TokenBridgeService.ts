@@ -24,7 +24,7 @@ import { Big } from "big.js";
 import { GroupInfoModel } from "./common/TokenBridgeTypes";
 import { BridgeNotificationSvc } from "./BridgeNotificationService";
 
-const QUICK_TIMEOUT_MILLIS = 300 * 60 * 1000;
+const HOURS_24 = 3600 * 24;
 
 export class TokenBridgeService
   extends MongooseConnection
@@ -62,9 +62,11 @@ export class TokenBridgeService
     return "TokenBridgeService";
   }
 
-  async getPendingSwapTxIds(network: string) {
-    const rv = await this.swapTxModel.find({ network, status: "pending" });
-    return rv.map((r) => r.toJSON());
+  async getPendingSwapTxIds(network?: string) { // One wqeek cut off
+    const idLookback = Math.floor(Date.now() / 1000 - HOURS_24 * 7).toString(16) + '0000000000000000';
+    const rv = await this.swapTxModel.find(network ? { network, status: "pending", _id: { $gt: idLookback } } :
+      { status: "pending", _id: { $gt: idLookback } });
+    return rv.map((r) => ({ ...r.toJSON(), timestamp: r._id.getTimestamp() }));
   }
 
   async failSwapTx(network: string, txId: string, reason: string) {

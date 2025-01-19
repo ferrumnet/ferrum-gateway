@@ -111,3 +111,5 @@ config.json
 target
 .DS_Store
 .cfg
+
+localConfig
