@@ -75,14 +75,6 @@ export function produceSignature(
     const structureHash = Web3.utils.keccak256(structure);
     const ds = domainSeparator(eth, eipParams.contractName, eipParams.contractVersion, netId, contractAddress);
     const hash = Web3.utils.soliditySha3("\x19\x01", ds, structureHash) as HexString;
-		// console.log(' ALL PARMS FOR SIGN ', {
-		// 	methodSig,
-		// 	methodHash,
-		// 	structure,
-		// 	structureHash,
-		// 	ds,
-		// 	hash
-		// })
     return {...eipParams, hash, signature: ''};
 }
 
@@ -91,7 +83,6 @@ export function verifySignature(hash: HexString, userAddress: string, signature:
 	const sig = fromRpcSig(Buffer.from(signature.replace('0x', ''), 'hex'));
 	const pub = ecrecover(Buffer.from(hash, 'hex'), sig.v, sig.r, sig.s);
 	const addr  = `0x${publicToAddress(pub).toString('hex').toLowerCase()}`;
-    console.log('VERIFYING SIG', {addr, userAddress})
 	ValidationUtils.isTrue(userAddress.toLowerCase() === addr, 'Invalid signature');
 }
 

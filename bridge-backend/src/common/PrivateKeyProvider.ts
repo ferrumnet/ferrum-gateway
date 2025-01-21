@@ -1,6 +1,7 @@
 import { DoubleEncryptiedSecret } from "aws-lambda-helper/dist/security/DoubleEncryptionService";
 import { CreateNewAddressFactory } from "ferrum-chain-clients";
-import { Network, Injectable, ValidationUtils, HexString } from "ferrum-plumbing";
+import { Injectable, ValidationUtils, HexString } from "ferrum-plumbing";
+import { ethers } from "ethers";
 import { Ecdsa } from "ferrum-crypto";
 
 export class PrivateKeyProvider implements Injectable {
@@ -28,7 +29,10 @@ export class PrivateKeyProvider implements Injectable {
     }
 
     sign(msg: HexString): HexString {
-        return Ecdsa.sign(this.privateKey(), msg);
+        let k = new ethers.utils.SigningKey(Buffer.from(this.privateKey().replace("0x", ""), 'hex'));
+        const sig = k.signDigest(Buffer.from(msg, 'hex'));
+        return sig.r.replace("0x", "") + sig.s.replace("0x", "") + sig.v.toString(16);
+        // return Ecdsa.sign(this.privateKey(), msg);
     }
 
     overridePrivateKey(sk: string) {

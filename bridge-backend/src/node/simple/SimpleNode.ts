@@ -6,7 +6,6 @@ import {
   ValidationUtils,
 } from "ferrum-plumbing";
 import { TokenBridgeContractClinet } from "../../TokenBridgeContractClient";
-import { BridgeNodeConfig } from "../BridgeNodeConfig";
 import { EthereumSmartContractHelper } from "aws-lambda-helper/dist/blockchain";
 import { NodeUtils } from "../common/NodeUtils";
 import { NODE_CACHE_TIMEOUT } from "../../common/TokenBridgeTypes";
@@ -15,7 +14,7 @@ import { PrivateKeyProvider } from "../../common/PrivateKeyProvider";
 import { MultiSigSignature } from "types";
 import { BridgeNodesRemoteAccessService } from "../../nodeRemoteAccess/BridgeNodesRemoteAccessService";
 import { TokenBridgeService } from "../../TokenBridgeService";
-
+import { fixSig, verifySignature } from "web3-tools";
 /**
  * A simple node. Just reads from DB an signs given an env
  */
@@ -57,20 +56,20 @@ export class SimpleNode implements Injectable {
         this.helper
       );
       NodeUtils.validateWithdrawItem(wi);
-
       // Now sign the withdraw item
       const hash = NodeUtils.bridgeV1Hash(wi);
-      const sig = this.key.sign(hash.replace("0x", ""));
+      let sig = this.key.sign(hash.replace("0x", ""));
+      sig = fixSig(sig);
+      
       wi.payBySig.signature = sig;
       wi.payBySig.signatures.push({
         creationTime: Date.now(),
         signature: sig,
         creator: await this.key.address(),
       } as MultiSigSignature);
-
+      verifySignature(wi.payBySig.hash.replace("0x", ""), await this.key.address(), wi.payBySig.signatures[0].signature);
       // Register the withdraw item
       await this.svc.registerWithdrawItem('SIMPLE_NODE', wi);
-      // console.log("Registered PWI: ", wi);
       this.log.info(`Registered PWI: ${network}:${txId}`);
       // Save the withdraw item
       this.cache.set(cacheKey, "done", NODE_CACHE_TIMEOUT);

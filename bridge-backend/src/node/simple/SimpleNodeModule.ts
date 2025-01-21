@@ -39,6 +39,7 @@ export class SimpleNodeModule implements Module {
 		throw new Error('PRIVATE_KEY is not set as env');
 	}
 	container.get<PrivateKeyProvider>(PrivateKeyProvider).overridePrivateKey(process.env.PRIVATE_KEY);
+	console.log('SIGNER: ', await container.get<PrivateKeyProvider>(PrivateKeyProvider).address());
 	
 	container.registerSingleton(
       TokenBridgeService,
